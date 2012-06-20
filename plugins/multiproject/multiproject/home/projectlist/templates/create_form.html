@@ -1,0 +1,141 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+  <html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<?python
+from multiproject.core.configuration import conf
+?>
+
+  <xi:include href="layout.html" />
+
+  <!-- ! Shows form for creating a new project -->
+  <head>
+    <title>Create a New Project</title>
+  </head>
+
+  <!-- ! Body part -->
+  <body>
+    <div id="content">
+
+
+        <h1 id="site_title">Create a New Project</h1>
+
+        <form class="create_project_form" action="${url('create')}" method="post">
+            <div class="create_form_float halfWidth left">
+            <fieldset>
+                <h2 class="title"><span>Basic information</span></h2>
+
+                <input type="hidden" name="action" value="create" />
+
+                <div style="clear: both; margin-top:15px;">
+                    <label class="question" for="prj_long_name">Name</label>
+                    <span style="float: left;" class="requiredField">*</span>
+                    <div class="answer">
+                        <input type="text" name="prj_long_name" id="prj_long_name" value="${prj_long_name}" />
+                    </div>
+                </div>
+
+                <div style="clear: both;">
+                    <label class="question" for="prj_short_name">Identifier</label>
+                    <span style="float: left;" class="requiredField">*</span>
+                    <div class="answer">
+                        <input type="text" name="prj_short_name" id="prj_short_name" value="${prj_short_name}" />
+                    </div>
+                </div>
+
+                <div style="clear: both;">
+                    <label class="question" for="prj_description">Description</label>
+                    <span style="float: left;" class="requiredField">*</span>
+                    <div class="answer">
+                        <textarea cols="53" rows="8" style="width: 97%; height:100%" name="prj_description" id="prj_description">${prj_description}</textarea>
+                    </div>
+                </div>
+
+                <div py:if="conf.allow_public_projects" style="clear: both;">
+                    <label class="question" for="prj_is_public">Public project</label>
+                    <span style="float: left;" class="requiredField">*</span>
+                    <div id="public_project_answer" class="answer" py:choose="(prj_is_public and prj_is_public == 'on') or (not prj_is_public and conf.create_public_as_default)">
+						<input type="checkbox" role="checkbox" checked="checked" id="prj_is_public" name="prj_is_public" py:when="True" />
+						<input type="checkbox" role="checkbox" id="prj_is_public" name="prj_is_public" py:otherwise="" />
+                    </div>
+                </div>
+
+            </fieldset>
+            </div>
+
+            <div class="create_form_float shaded-box-wrapper halfWidth left slightlyBigger">
+			   <div class="shaded-box">
+	  		   		<div class="shaded-box-title">Guide</div>
+                      <div class="shaded-box-description">All the fields are required.</div>
+                      <div class="shaded-box-description"><strong>Name</strong> defines the name of your project, it should be something for your users and project members. Choose something descriptive and not too long.</div>
+                      <div class="shaded-box-description"><strong>Identifier</strong> is a computer-friendly identifier for your project, this will determine the URL of your project and of your repository. Choose something simple and easy to remember. Only alphanumeric characters and underscore are allowed. Identifier is case sensitive.</div>
+                      <div class="shaded-box-description"><strong>Description</strong> is meant to be a text that describes your project. The text will be seen by visitors of your project and should describe clearly what your project is and what you want to achieve, make sure it's clear, complete and yet not too long, you will be able to use your Wiki to go into all the details.</div>
+                      <div class="shaded-box-description" py:if="conf.allow_public_projects"><strong>Public projects</strong> are visible to all, but only members can operate, private projects are visible only to members and admins should invite participants. At any stage you will be allowed to revert your decision.</div>
+                      <div class="shaded-box-description"><strong>Version control</strong> is the type of repository that you want to use, if unsure, use Subversion. You can also clone repository from existing project.</div>
+        	   </div>
+            </div>
+
+            <!-- ! Fieldset for advanced options -->
+            <div class="create_form_float halfWidth left" id="advanced_options_box" style="clear:left;">
+            <fieldset>
+                <h2 class="title"><span>Version control</span></h2>
+                <div>
+                    <div class="vcs">
+                        <!--! Version control selections -->
+
+                        <div style="clear: both;">
+                            <label for="vcs-create" class="question">Create new</label>
+                            <div class="answer">
+                                <input id="vcs-create" type="radio" name="scm_source" value="create" title="Create" checked="checked" />
+
+                                <div id="vcstype-selection">
+                                    <select id="vcstype" name="vcstype" class="selectMenu">
+                                        <option selected="selected" value="svn">Subversion</option>
+                                        <py:for each="vcs in vcslist">
+                                             <option py:if="vcs.id != vcstype" value="${vcs.id}">${vcs.name}</option>
+                                             <option py:if="vcs.id == vcstype" value="${vcs.id}" selected="selected">${vcs.name}</option>
+                                        </py:for>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="clear: both;">
+                            <label for="vcs-clone" class="question">Clone existing</label>
+                            <div class="answer">
+                                <input id="vcs-clone" type="radio" name="scm_source" value="clone" title="Clone"/>
+                                <div style="display:none;" id="vcsparent"></div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </fieldset>
+            </div>
+
+            <div py:if="conf.project_requires_agreed_terms and user.status == user.STATUS_INACTIVE" class="create_form_float greyBgContainer halfWidth left" id="fnregTermsConditions" style="clear: left">
+                 <div class="greyBgContent">
+                    <fieldset>
+                        <span class="requiredField">*</span>
+							<input type="checkbox" role="checkbox" id="agreeTerms" name="agreeTerms" />
+                        <label for="agreeTerms">I have read and agree to <a target="_blank" href="/home/terms/">Project Hosting Services Terms of use</a></label>
+                    </fieldset>
+                 </div>
+            </div>
+
+            <fieldset class="create_form_block halfWidth left">
+            	<div class="buttons">
+	                <span class="primaryButton">
+	                    <input id="submit_create_form" type="submit" value="Create Project" />
+	                </span>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <script type="text/javascript" src="${conf.theme_htdocs_location}/js/home.js"></script>
+  </body>
+</html>

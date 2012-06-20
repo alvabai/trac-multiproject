@@ -1,0 +1,1 @@
+from multiproject.common.pagination.paginationtemplateprovider import PaginationTemplateProvider

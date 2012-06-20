@@ -1,0 +1,75 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+  <xi:include href="admin.html" />
+  
+  <!-- ! Template for showing discussion forum settings on admin panel -->
+  <head>
+    <title>Discussion Forum</title>
+    <script type="text/javascript">
+    <!--
+        function remove(envurl, id, subforumname)
+        {
+            if(confirm('Are you sure you want to remove ' + subforumname + " and all of it's contents? This operation cannot be undone!"))
+            {
+                document.location = envurl + "/admin/general/discforum?removesubforums=remove&sel="+id;
+            }
+        }
+    -->
+    </script>
+
+  </head>
+	    
+  <body>
+    <h2>Discussion Forum</h2>
+
+  	<div>
+		<form id="discussionforum_form" method="post">
+			<table>
+				<tr><td><h3>Visibility</h3></td></tr>
+				<tr>
+					<td>Discussion Forum is currently 
+						<py:if test='discforumvisible'><b>enabled</b></py:if>
+						<py:if test='not discforumvisible'><b>disabled</b></py:if>
+					</td>
+					<td>
+						<py:if test='discforumvisible'>
+				            <input type="submit" name="changevisibility" value="Disable" />
+			            </py:if>
+		
+						<py:if test='not discforumvisible'>
+							<input type="submit" name="changevisibility" value="Enable" />
+			            </py:if>
+					</td>
+				</tr>
+				<py:if test='discforumvisible'>
+	 				<tr><td><h3>Subforums</h3></td></tr>
+	 				<py:if test = 'len(subforums) > 0'>
+						<py:for each="(id, forum_name) in subforums">
+							<tr>
+								<td>
+			                	  <a href = "/phpBB3/viewforum.php?f=$id&amp;trac_auth2=${trac_auth2}">${forum_name}</a>
+								</td>
+								<td>
+	                              <a href="javascript:remove('$envurl', '$id','${forum_name}')">Remove</a>
+								</td>
+							</tr>
+						</py:for>
+					</py:if>
+					<tr>
+						<td>
+				            <input id="newsubforum" type="text" name="newsubforum" />
+						</td>
+						<td>
+				            <input type="submit" name="addsubforum" value="Add New" />
+						</td>
+					</tr>
+				</py:if>
+			</table>
+	    </form>
+	</div>
+  </body>
+</html>

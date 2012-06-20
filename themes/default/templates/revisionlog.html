@@ -1,0 +1,225 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="layout.html" />
+  <head>
+    <title>${'/'.join(part.name for part in path_links[1:]) or '/'} (log)</title>
+    <script type="text/javascript" src="${conf.theme_htdocs_location}/js/folding.js"></script>
+  </head>
+  <body>
+    <div id="topheader">
+       <h2 class="notop"><xi:include href="path_links.html" /></h2>
+    </div>
+    <div id="content" class="log">
+      <form id="prefs" action="" method="get">
+        <input type="hidden" name="action" value="$mode" />
+        <input type="hidden" name="revs" value="${str(revranges)}" py:if="revranges" />
+        <fieldset id="revlog">
+            <div id="foldingheader" class="settings_title closed">
+               <div id="foldingtitle">Change parameters</div>
+            </div>
+            <div id="folding" class="shaded-box closed"> <!-- ! this div is folded -->
+              <div id="foldingbody">
+                <table>
+                  <tr>
+                    <td class="choice">
+                      <input type="radio" id="stop_on_copy" name="mode" value="stop_on_copy"
+                           checked="${mode in (None, 'stop_on_copy') or None}" />
+                      Stop on copy
+                    </td>
+                    <i18n:msg>
+                      <td class="rtext">View log starting at:</td>
+                      <td>
+                        <input type="text" id="rev" name="rev" value="$rev" size="5" />
+                        and back to
+                        <input type="text" id="stop_rev" name="stop_rev" value="$stop_rev" size="5" />
+                      </td>
+                    </i18n:msg>
+                    <td class="logmessages">
+                      <input type="checkbox" id="verbose" name="verbose" checked="${verbose and 'checked' or None}" />
+                      Show full log messages
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="choice">
+                      <input type="radio" id="follow_copy" name="mode" value="follow_copy"
+                             checked="${mode == 'follow_copy' or None}" />
+                      Follow copies
+                    </td>
+                    <i18n:msg>
+                      <td class="rtext">Show at most:</td>
+                      <td>
+                        <input type="text" id="limit" name="limit" value="$limit" size="5" maxlength="3" />
+                        revisions per page.
+                      </td>
+                    </i18n:msg>
+                  </tr>
+                  <tr>
+                    <td class="choice">
+                      <input type="radio" id="path_history" name="mode"
+                           value="path_history"
+                           checked="${mode == 'path_history' or None}" />
+                      Show only adds and deletes
+                    </td>
+                  </tr>
+                </table>
+              </div>
+              <div class="buttons">
+                <span class="primaryButton">
+                  <input type="submit" value="${_('Update')}" />
+                </span>
+              </div>
+              <div id="foldingbottom"><span></span></div>
+            </div>
+        </fieldset>
+      </form>
+
+      <form id="logitems" method="get" action="">
+          <h2 class="title notop" id="revlogtableheader">
+            Files
+          </h2>
+        <div class="headeritems">
+          <input id="gobutton" type="submit" value="${_('Go')}" class="primaryInputBtn"/>
+          <span>
+            <label for="show">Show rows:</label>
+            <select name="max" id="show" value="">
+              <py:for each="val in range(10,201,10)">
+                <option value="${val}" selected="${val == max or None}">${val}</option>
+              </py:for>
+            </select>
+          </span>
+        </div>
+      </form>
+
+      <form py:for="items in item_ranges" id="revisionlistform" class="printableform" action="${href.changeset()}" method="get">
+
+          <table class="listing chglist table">
+            <thead>
+              <tr>
+                <th class="diff" title="Old / New">Diff</th>
+                <th class="change">Status</th>
+                <th class="rev">Rev</th>
+                <th class="age">Age</th>
+                <th class="author">Author</th>
+                <th class="summary"><py:if test="not verbose">Log Message</py:if></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr py:if="not items" class="even">
+                <td />
+                <td />
+                <td class="copyfrom_path" colspan="6">
+                  No revisions found
+                </td>
+              </tr>
+              <py:for each="idx, item in enumerate(items[:max])">
+                <py:with vars="change = changes[item.rev];
+                           is_separator = item.change is None;
+                           chgset_context = context('changeset', change.rev, parent=repos.resource);
+                           odd_even = idx % 2 and 'odd' or 'even'">
+                  <!--! highlight copy or rename operations -->
+                  <tr py:if="not is_separator and item.get('copyfrom_path')" class="$odd_even">
+                    <td />
+                    <td class="copyfrom_path" colspan="6" style="padding-left: ${item.depth - 1}em">
+                      <i18n:msg params="path">copied from <a href="${href.browser(reponame, item.path, rev=item.rev)}">$item.copyfrom_path</a>:</i18n:msg>
+                    </td>
+                  </tr>
+                  <tr class="${classes(odd_even,verbose=verbose)}" py:choose="">
+                    <td class="diff">
+                      <input type="radio" name="old" value="${item.rev}@${item.path}"
+                         checked="${idx == (len(items) - 1) or None}"
+                         title="${_('From [%(rev)s]', rev=display_rev(item.rev))}" />
+                      <input type="radio" name="new" value="${item.rev}@${item.path}"
+                         checked="${idx == 0 or None}"
+                         title="${_('To [%(rev)s]', rev=display_rev(item.rev))}" />
+                    </td>
+                    <py:when test="not is_separator">
+                      <td class="change" style="padding-left: ${item.depth}em">
+                        <a href="${href.log(reponame, item.path, rev=item.rev)}"
+                           title="View log starting at this revision">
+                          <span class="$item.change"></span>
+                          <span class="comment">($item.change)</span>
+                        </a>
+                      </td>
+                      <td class="rev">
+                        <a href="${href.browser(reponame, item.path, rev=item.existing_rev)}"
+                           title="${_('Browse at revision %(rev)s', rev=display_rev(item.existing_rev))}">
+                          @${display_rev(item.existing_rev)}</a>
+                        <py:choose test="item.change">
+                          <a py:when="'delete'" class="chgset" href="${href.changeset(item.rev)}"
+                             title="${_('View removal changeset [%(rev)s]', rev=display_rev(item.rev))}">&nbsp;</a>
+                          <a py:otherwise="" class="chgset" href="${href.changeset(item.rev, reponame, item.path)}"
+                             title="${_('View changeset [%(rev)s] restricted to %(path)s',
+                                    rev=display_rev(item.rev), path=item.path or '/')}">&nbsp;</a>
+                        </py:choose>
+                      </td>
+                      <td class="age" py:content="dateinfo(change.date)" />
+                      <td class="author" py:content="authorinfo_short(change.author)" />
+                      <td class="summary" py:choose="">
+                        <py:when test="verbose"></py:when>
+                        <py:when test="wiki_format_messages">
+                          ${wiki_to_oneliner(chgset_context, change.message, shorten=True)}
+                        </py:when>
+                        <py:otherwise>${shorten_line(change.message)}</py:otherwise>
+                      </td>
+                    </py:when>
+                    <td colspan="5" py:otherwise="" />
+                  </tr>
+                  <tr py:if="verbose and not is_separator" class="summary verbose $odd_even">
+                    <td class="filler" colspan="2" />
+                    <td class="log" colspan="4" py:choose="" xml:space="preserve">
+                      <py:when test="wiki_format_messages">
+                        ${wiki_to_html(chgset_context, change.message, escape_newlines=True)}
+                      </py:when>
+                      <py:otherwise><pre>${change.message}</pre></py:otherwise>
+                    </td>
+                  </tr>
+                </py:with>
+              </py:for>
+            </tbody>
+          </table>
+
+        <div py:if="len(items) &gt; 1 and len(item_ranges) == 1" class="buttons">
+          <span class="primaryButton">
+            <input type="hidden" name="reponame" value="$reponame" />
+            <input id="viewchanges" type="submit" value="${_('View changes')}"
+              title="Diff from Old Revision to New Revision (as selected in the Diff column)" />
+          </span>
+        </div>
+      </form>
+
+      <div class="shadedBox">
+        <div class="roundTop"><span></span></div>
+        <div id="help" i18n:msg="">
+          <strong>Note:</strong> See <a href="${href.wiki('TracRevisionLog')}">TracRevisionLog</a>
+          for help on using the revision log.
+        </div>
+        <div class="roundBottom"><span></span></div>
+      </div>
+
+      <div class="diff">
+        <div class="rounded_grey_box legend withframe" id="file-legend">
+          <h3>Legend:</h3>
+          <dl>
+            <dt class="add"></dt><dd>Added</dd>
+            <py:if test="mode == 'path_history'">
+              <dt class="rem" ></dt><dd>Removed</dd>
+            </py:if>
+            <dt class="mod"></dt><dd>Modified</dd>
+            <dt class="cp"></dt><dd>Copied / renamed</dd>
+          </dl>
+          <!-- ! Round the corners -->
+          <div class="corner TL"></div>
+          <div class="corner TR"></div>
+          <div class="corner BL"></div>
+          <div class="corner BR"></div>
+        </div>
+      </div>
+
+    </div>
+  </body>
+</html>

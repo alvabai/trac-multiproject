@@ -1,0 +1,60 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+  <html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <xi:include href="layout.html" />
+  <head>
+    <title>${site_name}</title>
+  </head>
+
+  <body>
+
+    <div id="welcomepage">
+      <h1 id="site_title" py:if="site_title_text">${site_title_text}</h1>
+
+      <ul id="frontpage_navigation">
+        <li py:if="site_punch_line" id="punch_line">
+          ${site_punch_line}
+        </li>
+        <li>
+          <h3>My Projects</h3>
+          <span>Log in to access current and past projects.</span>
+          <a href="${req.base_path}/myprojects">
+            Go to My Projects &gt;
+          </a>
+        </li>
+        <li py:if="is_insider">
+          <h3>Explore Projects</h3>
+          <span>See what wider developer community has been up to.</span>
+          <a href="${req.base_path}/project/explore">
+            All public projects &gt;
+          </a>
+        </li>
+        <li py:if="can_create_project">
+          <h3>Create a New Project</h3>
+          <span>For a great start to any project.</span>
+          <a href="${req.base_path}/project/new">
+            Create new project &gt;
+          </a>
+        </li>
+      </ul>
+
+      <!--! Include the site specific navigation content -->
+      <xi:include href="${site_theme_path}welcome_right.html"><xi:fallback /></xi:include>
+
+      <!--! Include the welcome page actual content here -->
+      <div id="welcomewiki" py:if="wiki_welcome">${wiki_welcome}</div>
+
+      <div class="module" py:if="'TRAC_ADMIN' in req.perm">
+        Go to
+        <a href="${req.base_path}/admin">Admin panel</a>
+      </div>
+
+    </div>
+
+  </body>
+
+</html>

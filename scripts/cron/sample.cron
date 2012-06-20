@@ -1,0 +1,42 @@
+##
+## Notes for cron scripts
+##
+
+# Generate project activities into database
+0 * * * * source /etc/trac/env.sh; nice python /storage/trac/dist/current/scripts/project_activity_update.py
+
+# Goes through projects to see how much resources they consumes
+0 3 * * * /storage/trac/dist/current/scripts/storageusage.sh
+
+##
+## These are for analytics
+##
+
+# Read event log from log to database (Frequently)
+0,6,12,18,24,30,36,42,48,54 * * * * python /storage/trac/dist/current/scripts/analytics/run_event_etl.py
+
+# Refresh summary data (Every hour)
+10 * * * * python /storage/trac/dist/current/scripts/analytics/summarize.py
+
+# Clone dimension data from operational database (Every day)
+0 4 * * * python /storage/trac/dist/current/scripts/analytics/dimension_sync.py
+
+##
+## Gitosis
+##
+
+# Copy SSH public keys set via user settings to gitosis
+* * * * * source /etc/trac/env.sh; /storage/trac/dist/current/scripts/gitosis_ssh_key_sync.py >> /project/trac/logs/git_cronlog 2>&1
+
+##
+## Watchlist mail notifications
+##
+
+*/5 * * * * source /etc/trac/env.sh; python /storage/trac/dist/current/scripts/cron/watchlist_notify.py immediate
+
+0 0 * * * source /etc/trac/env.sh; python /storage/trac/dist/current/scripts/cron/watchlist_notify.py daily
+
+30 0 * * 1 source /etc/trac/env.sh; python /storage/trac/dist/current/scripts/cron/watchlist_notify.py weekly
+
+# Do indexing for projects. Needed for explore projects feature.
+0 6,18 * * * source /etc/trac/env.sh; nice python /project/trac/dist/current/scripts/generate_project_user_visibility.py 2>&1 > /tmp/generate_project_user_visibility.log

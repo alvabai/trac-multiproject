@@ -1,0 +1,32 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+  <xi:include href="admin.html" />
+
+<?python
+from multiproject.core.configuration import conf
+?>
+
+  <head>
+    <title>Project environment configuration</title>
+  </head>
+
+  <body>
+  <div>
+        <h2>Project environment configuration</h2>
+        <p>Want to remove project from service?</p>
+
+        <form action="" name="project-remove" method="post">
+            <fieldset id="action">
+                <input type="hidden" name="project" value="${multiproject.project.env_name}" />
+                <input type="hidden" name="goto" value="${multiproject.home_url}" />
+                <input type="hidden" name="action" value="remove" />
+                <input type="submit" name="remove" value="Remove project" alt="Are you sure you want to remove project?" class="confirm blueButton" />
+            </fieldset>
+        </form>
+    </div>
+  </body>
+</html>

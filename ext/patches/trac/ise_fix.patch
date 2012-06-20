@@ -1,0 +1,12 @@
+diff -uNr trac/web/modpython_frontend.py trac/web/modpython_frontend.py
+--- trac/web/modpython_frontend.py	2010-10-10 00:37:49.000000000 +0300
++++ trac/web/modpython_frontend.py	2011-04-04 10:41:24.322607994 +0300
+@@ -138,7 +138,7 @@
+                 egg_cache = os.path.join(options.get('TracEnvParentDir'), '.egg-cache')
+             if not egg_cache and req.subprocess_env.get('PYTHON_EGG_CACHE'):
+                 egg_cache = req.subprocess_env.get('PYTHON_EGG_CACHE')
+-            if egg_cache:
++            if egg_cache and len(pkg_resources.cached_files) == 0:
+                 pkg_resources.set_extraction_path(egg_cache)
+             reload(sys.modules['trac.web'])
+     finally:

@@ -1,0 +1,49 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      py:strip="True">
+
+<!--!
+This file contains all the commonly used genshi macros/definitions, used by the theme(s)
+In addition, the file is also dependant to CQDE api because of the configuration
+-->
+
+<?python
+from genshi.core import escape
+from multiproject.core.configuration import conf
+?>
+
+<!--! Encode possible HTML characters from the text object -->
+<py:def function="escape_text(text)">
+    ${escape(text=text, quotes=True)}
+</py:def>
+
+<!--! Userprofile link -->
+<py:def function="user_profile_href(username)">
+    <span>${conf.user_profile_url}${username}</span>
+</py:def>
+
+<!--! Format user as a link to profile or as a displayname -->
+<py:def function="format_user(user)">
+    <py:choose>
+        <py:when test="conf.user_profile_url and user">
+            <a title="Show ${user.getDisplayName()}'s profile" href="${conf.user_profile_url}${user.username}">${user.getDisplayName()}</a>
+        </py:when>
+        <py:otherwise>
+            ${user and user.getDisplayName() or ''}
+        </py:otherwise>
+    </py:choose>
+</py:def>
+
+<!--! Format user as a link to profile or as a displayname -->
+<py:def function="format_username(user)">
+    <py:with vars="userObj = conf.getUserStore().getUser(user)">
+    ${userObj and format_user(userObj) or user}
+    </py:with>
+</py:def>
+
+
+</html>

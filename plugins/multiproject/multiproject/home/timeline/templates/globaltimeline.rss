@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<rss version="2.0" xmlns:py="http://genshi.edgewall.org/"
+                   xmlns:dc="http://purl.org/dc/elements/1.1/"
+                   xmlns:xi="http://www.w3.org/2001/XInclude">
+<?python
+from multiproject.core.configuration import conf
+?>
+  <channel>
+    <title>Global timeline</title>
+    <link>${abs_href.timeline()}</link>
+    <description>${conf.domain_name} global timeline</description>
+    <language>${req.locale and \
+                '%s-%s' % (req.locale.language, req.locale.territory) or \
+                'en-US'}</language>
+    <generator>Trac ${trac.version}</generator>
+    <image py:if="chrome.logo.src_abs">
+      <title>Global timeline</title>
+      <url>${chrome.logo.src_abs}</url>
+      <link>${abs_href.timeline()}</link>
+    </image>
+
+    <item py:for="event in events"
+          py:with="abs_url = '%s%s' %(conf.url_service, event.render('url', context))">
+      <title>${'%s - %s' % (event.project_name,
+        plaintext(str(event.render('summary', context)) or
+                  str(event.render('title', context)), keeplinebreaks=False))
+      }</title>
+      <xi:include href="author_or_creator.rss" py:with="author = event.author"/>
+      <pubDate>${http_date(event.date)}</pubDate>
+      <link>${abs_url}</link>
+      <guid isPermaLink="false">${abs_url}/${event.dateuid}</guid>
+      <description>${
+        unicode(event.render('description', context))
+      }</description>
+      <category>$event.kind</category>
+    </item>
+
+   </channel>
+</rss>

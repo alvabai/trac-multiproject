@@ -1,0 +1,81 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      xml:lang="en" lang="en">
+  <xi:include href="admin.html" />
+  
+
+<head>
+  <title>Allowed storage access protocols</title>
+</head>
+
+<body>
+  <h2>Select the allowed connection methods to storage access</h2>
+  
+  <form action="" method="POST">
+    <div class="protocol_pref_form">
+      <h2 class="title" style="border-top:none;">
+        <span>Version control schemes</span>
+      </h2>
+      <fieldset>
+        <py:if test="'http' in protos">
+          <label for="HTTP" py:if="'http' in protos">HTTP</label>
+          <input type="checkbox" name="scm_proto" value="http" py:if="'http' in allowed_scm_protocols" checked="checked" />
+          <input type="checkbox" name="scm_proto" value="http" py:if="'http' not in allowed_scm_protocols" />
+        </py:if>
+        
+        <py:if test="'https' in protos">
+          <label for="HTTPS" py:if="'https' in protos">HTTPS</label>
+          <input type="checkbox" name="scm_proto" value="https" py:if="'https' in allowed_scm_protocols" checked="checked" />
+          <input type="checkbox" name="scm_proto" value="https" py:if="'https' not in allowed_scm_protocols" />
+        </py:if>
+        
+        <py:if test="'ssh' in available_scm_protocols and 'ssh' in protos">
+          <label for="SSH">Git over SSH</label>
+          <input type="checkbox" name="scm_proto" value="ssh" py:if="'ssh' in allowed_scm_protocols" checked="checked" />
+          <input type="checkbox" name="scm_proto" value="ssh" py:if="'ssh' not in allowed_scm_protocols" />
+        </py:if>
+      </fieldset>
+    </div>
+    
+    <div class="protocol_pref_form">
+      <h2 class="title" style="border-top:none;">
+        <span>WebDAV schemes</span>
+      </h2>
+      <fieldset>
+        <py:if test="'http' in protos">
+          <label for="HTTP" py:if="'http' in protos">HTTP</label>
+          <input type="checkbox" name="dav_proto" value="http" py:if="'http' in allowed_dav_protocols" checked="checked" />
+          <input type="checkbox" name="dav_proto" value="http" py:if="'http' not in allowed_dav_protocols" />
+        </py:if>
+        
+        <py:if test="'https' in protos">
+          <label for="HTTPS">HTTPS</label>
+          <input type="checkbox" name="dav_proto" value="https" py:if="'https' in allowed_dav_protocols" checked="checked" />
+          <input type="checkbox" name="dav_proto" value="https" py:if="'https' not in allowed_dav_protocols" />
+        </py:if>
+      </fieldset>
+    
+      <fieldset style="margin-left:10px">
+        <div class="buttons">
+          <span class="primaryButton">
+            <input type="submit" name="protocol_update" value="Update" />
+          </span>
+        </div>
+      </fieldset>
+    </div>
+  </form>
+  <br/>
+  <div id="guide" class="shaded-box">
+    <h4>Guide</h4><br />
+    <p class="help">Select how users, both members and casual visitors, will be allowed to access your project.
+Enable HTTP-only if security or protecting your communications is not a requirement for you, require HTTPS or git over SSH if security is a concern to you.
+
+Do not forget that if you do not require HTTPS or git over SSH, your password will be sent in clear.
+</p>
+  </div>
+</body>
+</html>

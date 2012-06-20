@@ -1,0 +1,54 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="prefs.html" />
+
+<?python
+from multiproject.core.configuration import conf
+?>
+
+  <!-- ! Show preferences page to user for editing project watchlist -->
+  <head>
+    <title>Following</title>
+  </head>
+  <body>
+    <p py:if="msg" class="error_msg_color">${msg}</p>
+    <fieldset class="borderless">
+        <py:if test="not watchlist">
+            No followed projects. Click "Follow" on any project's Summary page to add new notifications.
+        </py:if>
+        <py:if test="watchlist">
+            <table id="watchlist_preferences">
+                <tr>
+                    <th>Project name</th>
+                    <th>Email notifications</th>
+                    <th>Stop following</th>
+                </tr>
+                <py:for each="watch in watchlist">
+                    <tr>
+                        <td>
+                            <a href="${conf.url_projects_path + '/' + projects[watch.project_id].env_name}">
+                            ${projects[watch.project_id].project_name}</a>
+                        </td>
+                        <td>
+                            <select name="notification">
+                            <py:for each="nvalue in notification_values">
+                                <option value="${watch.project_id}_${nvalue}" selected="${nvalue == watch.notification and 'selected' or None}">${nvalue == "none" and "no email" or nvalue}</option>
+                            </py:for>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="checkbox" name="remove" value="${watch.project_id}"/>
+                        </td>
+                    </tr>
+                </py:for>
+            </table>
+            <p class="hint">Click "Follow" on any project's Summary page to add new notifications.</p>
+        </py:if>
+    </fieldset>
+
+  </body>
+</html>

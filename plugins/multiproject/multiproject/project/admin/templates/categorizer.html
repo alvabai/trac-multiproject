@@ -1,0 +1,112 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      py:strip="True">
+
+<!-- ! This template defines functions that creates lists of categories -->
+<!-- ! TODO: move into common and merge things from admin_categoryeditor.html -->
+
+<!-- !Define function for showing list items based on context.admin_type -->
+<!-- ! TODO: Should we require a list which is already sorted? -->
+<py:def function="list_context_categories_in_project(context, category_dict)">
+    <ul>
+        <py:for each="category in sorted(category_dict.values(), key=lambda x:x.name, cmp=lambda x,y: cmp(x.lower(), y.lower() ))">
+        <li id="cat_${category.category_id}"
+                onclick="unBindCategory('${env}', ${context.context_id}, ${category.category_id})">
+                <span class="selected_category">${category.name}</span>
+            </li>
+        </py:for>
+    </ul>
+</py:def>
+
+<!-- !Define function for showing list items based on context.admin_type -->
+<!-- ! TODO: Should we require a list which is already sorted and selected_categories to be set? -->
+<py:def function="list_context_categories(context, category_dict, selected_categories)">
+    <py:choose test="context.admin_type">
+        <py:when test="'select_box'">
+            <select size="${min(len(category_dict), 15)}">
+                <!-- ! categories contain ALL categories in this context, root categories are needed. -->
+                <py:for each="category in sorted(category_dict.values(), key=lambda x:x.name, cmp=lambda x,y: cmp(x.lower(), y.lower() ))">
+                ${_select_box_for_categories(context, category, selected_categories)}
+                </py:for>
+            </select>
+        </py:when>
+        <py:when test="'list'">
+            <ul>
+                <py:for each="category in sorted(category_dict.values(), key=lambda x:x.name, cmp=lambda x,y: cmp(x.lower(), y.lower() ))">
+                <py:if test="not category.parent">
+                        ${_list_for_categories(context, category, selected_categories)}
+                    </py:if>
+                </py:for>
+            </ul>
+        </py:when>
+        <py:otherwise>
+            <!-- ! Defaults to tree -->
+            <py:for each="category in sorted(category_dict.values(), key=lambda x:x.name, cmp=lambda x,y: cmp(x.lower(), y.lower() ))">
+            <py:if test="not category.parent">
+                ${_tree_for_categories(context, category, selected_categories)}
+                </py:if>
+            </py:for>
+        </py:otherwise>
+    </py:choose>
+</py:def>
+
+<!-- ! Internal -->
+<py:def function="_select_box_for_categories(context, category, selected_categories)">
+    <option id="cat_${category.category_id}" py:if="category.category_id not in selected_categories"
+            onclick="bindCategory('${env}', ${context.context_id}, ${category.category_id})">${category.name}</option>
+    <!-- ! Recurse -->
+    <py:for each="child_category in sorted(category.children, key=lambda x:x.name)">
+        ${select_box_for_categories(context, child_category, project_categories)}
+    </py:for>
+</py:def>
+
+<!-- ! Internal -->
+<py:def function="_list_for_categories(context, category, selected_categories)">
+    <li id="cat_${category.category_id}" >
+    <py:choose test="category.category_id in selected_categories">
+        <py:when test="False">
+            <a onclick="bindCategory('${env}', ${context.context_id}, ${category.category_id})">${category.name}</a>
+        </py:when>
+        <py:otherwise>
+            <span class="selected_category">${category.name}</span>
+        </py:otherwise>
+    </py:choose>
+    </li>
+    <!-- ! Recurse -->
+    <py:for each="child_category in sorted(category.children, key=lambda x:x.name)">
+        ${_list_for_categories(context, child_category, project_categories)}
+    </py:for>
+</py:def>
+
+<!-- ! Internal -->
+<py:def function="_tree_for_categories(context, category, selected_categories)">
+    <ul>
+        <li id="cat_${category.category_id}">
+            <py:if test="category.has_children()">
+                <a onclick="toggle('childof_${category.category_id}'); toggleInline('closed_arrow_${category.category_id}'); toggleInline('open_arrow_${category.category_id}');">
+                    <img src="${conf.theme_htdocs_location}/images/icon_arrow_closed.gif" id="closed_arrow_${category.category_id}"/>
+                    <img src="${conf.theme_htdocs_location}/images/icon_arrow_open.gif" id="open_arrow_${category.category_id}" style="display:none"/></a>
+            </py:if>
+            <py:choose test="category.category_id in selected_categories">
+                <py:when test="False">
+                    <a onclick="bindCategory('${env}', ${context.context_id}, ${category.category_id})">${category.name}</a>
+                </py:when>
+                <py:otherwise>
+                    <span class="selected_category">${category.name}</span>
+                </py:otherwise>
+            </py:choose>
+        </li>
+        <!-- ! Recurse -->
+        <ul class="sub_categories" py:if="category.has_children()" id="childof_${category.category_id}" style="display: none;">
+            <py:for each="child_category in sorted(category.children, key=lambda x:x.name)">
+                ${_tree_for_categories(context, child_category, project_categories)}
+            </py:for>
+        </ul>
+    </ul>
+</py:def>
+
+</html>

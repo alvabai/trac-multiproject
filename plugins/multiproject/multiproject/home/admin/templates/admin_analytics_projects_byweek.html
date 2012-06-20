@@ -1,0 +1,59 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+
+    <div class="results byproject">
+        <script type="text/javascript">
+            // Callback for drawing a graph
+            var drawGraph = function(){
+                // Try to use global theme object for style
+                theme = theme || {fillColor:"#f00", fontFamily:"sans-serif", fontSize:12, contentWidth:700};
+
+                var placeholder = $('#chart').addClass('loading');
+
+                // Construct values from JSON results
+                var results = ${results_json};
+
+                // Construct the bar graph values
+                var rvalues = [], labels = [], colors = [];
+                $.each(results, function(key, entry){
+                    rvalues.push(entry.count);
+                    labels.push(entry.week.toString());
+                });
+
+                var graph = new Ico.BarGraph(placeholder[0], rvalues, {
+                    grid:true, font_size:theme.fontSize, colour:theme.fillColor, labels:labels,
+                    width:theme.contentWidth, height:400, bar_labels:true, start_value:0
+                });
+                placeholder.removeClass('loading');
+            };
+
+            $(document).ready(function(){
+                // Spawn a background task
+                window.setTimeout(drawGraph, 1000);
+            });
+        </script>
+
+        <div id="chart" class="loading"></div>
+
+        <!-- Group by week number -->
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Week</th>
+                    <th>Downloads (total: ${total})</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr py:for="result in results">
+                    <td>${result['week']} / ${result['year']}</td>
+                    <td>${result['count']}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</html>

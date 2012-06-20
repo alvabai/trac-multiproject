@@ -1,0 +1,5 @@
+user_status_id,status_label
+2,'active'
+3,'banned'
+4,'disabled'
+1,'inactive'

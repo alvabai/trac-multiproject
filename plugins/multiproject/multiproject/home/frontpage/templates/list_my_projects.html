@@ -1,0 +1,33 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      py:strip="True">
+
+<?python
+from multiproject.core.configuration import conf
+?>
+
+<py:def function="list_my_projects(projects)">
+     <li class="project_list_item" py:for="project in projects">
+        <div class="logo">
+            <py:choose>
+                <py:when test="project.icon_id">
+                    <img  src="${req.base_path}/projecticon?environment_name=${project.env_name}" style="border:none; display:inline;" id="my_projects_icon" />
+                </py:when>
+                <py:otherwise test="">
+                    <img src="${conf.theme_htdocs_location}/${conf.getThemePath()}images/d/Projects-icon.png" style="border:none; display:inline;" />
+                </py:otherwise>
+            </py:choose>
+        </div>
+        <div>
+            <div class="my_projects_item_title">
+                <a href="${baseurl}/${project.env_name}" title="Go to project ${project.project_name}">${project.project_name}</a>
+            </div>
+            <div py:if="project.admintag" class="admintag">admin</div>
+        </div>
+    </li>
+</py:def>
+</html>

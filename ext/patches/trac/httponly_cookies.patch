@@ -1,0 +1,35 @@
+*** trac/env.py	2010-10-10 00:37:49.000000000 +0300
+--- trac/env.py	2011-11-07 14:50:51.863473832 +0200
+***************
+*** 127,132 ****
+--- 128,140 ----
+          only sent to the server on HTTPS connections. Use this if your Trac
+          instance is only accessible through HTTPS. (''since 0.11.2'')""")
+
++     httponly_cookies = BoolOption('trac', 'httponly_cookies', False,
++         """Restrict cookies to HTTP requests.
++
++         When true, allow accessing the cookies only when transmitting
++         HTTP (or HTTPS) requests, thus restricting access from other,
++         non-HTTP APIs (such as JavaScript).""")
++
+      project_name = Option('project', 'name', 'My Project',
+          """Name of the project.""")
+
+
+*** trac/web/session.py	2010-10-10 00:37:49.000000000 +0300
+--- trac/web/session.py	2011-11-07 14:51:13.127473038 +0200
+***************
+*** 171,176 ****
+--- 171,180 ----
+          self.req.outcookie[COOKIE_KEY] = self.sid
+          self.req.outcookie[COOKIE_KEY]['path'] = self.req.base_path or '/'
+          self.req.outcookie[COOKIE_KEY]['expires'] = expires
++
++         if self.env.httponly_cookies:
++             self.req.outcookie[COOKIE_KEY]['httponly'] = True
++
+          if self.env.secure_cookies:
+              self.req.outcookie[COOKIE_KEY]['secure'] = True
+
+

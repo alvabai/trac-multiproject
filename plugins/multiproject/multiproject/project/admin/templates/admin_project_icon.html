@@ -1,0 +1,27 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+  <xi:include href="admin.html" />
+  
+  <head>
+    <title>Project Icon</title>
+  </head>
+        
+  <body>
+    <h2>Project Icon</h2>
+
+    <form action="" enctype="multipart/form-data" method="post">
+        <img src="${req.base_path}/projecticon?project_id=${project_id}" class="face_image_admin" />
+        <br />
+        <input type="file" id="icon" name="icon" accept="image/gif, image/jpeg, image/jpg, image/png"/>
+        <br />
+        <input type="checkbox" name="removeicon" value="${removeicon}" />Remove Icon<br />
+        <em>Current image is shown on the right.</em>
+        <br />
+        <input type="submit" name="saveicon" value="Save" />
+    </form>
+  </body>
+</html>

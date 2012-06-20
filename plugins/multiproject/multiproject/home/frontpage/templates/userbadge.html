@@ -1,0 +1,40 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      py:strip="True">
+<div class="shaded-box-wrapper">
+	<div class="shaded-box userBadge">
+		
+        <div id="userIcon">
+            <img py:if="user" src="${user.getAvatarUrl(36)}" alt="${user.username}'s avatar" />
+            <img py:if="not user" src="${conf.theme_htdocs_location}/images/no_icon.gif" alt="no avatar" />
+        </div>
+        
+        <div id="userInfo">
+            <span id="userName">${username}</span>
+            
+            <ul id="userDetails">
+                <li><strong>Total tickets:</strong> ${user.details['Total tickets']}</li>
+                <li><strong>Total tickets closed:</strong> ${user.details['Total tickets closed']}</li>
+                <li><strong>Discussions started:</strong> ${user.details['Discussions started']}</li>
+            </ul>
+
+            <span></span>
+        </div>
+        
+        <div id="userNavi">
+            <a py:if="conf.user_profile_url" class="badge_link" href="${user_profile_href(user.username)}" title="">${badgelinktitle} &gt;</a>
+            <py:if test="not userpage">
+                <a class="badge_link" href="${req.base_path}/prefs" title="">My Projects settings &gt;</a>
+                <a py:if="can_create_project" href="${req.base_path}/project/new" class="primaryButton"><span>Create new project</span></a>
+            </py:if>
+        </div>
+        
+	</div>
+</div>
+
+
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+  <html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="admin.html" />
+
+  <head>
+    <title>Create user</title>
+  </head>
+
+  <body>
+     <h2>Create user:</h2>
+
+     <div id="content">
+        <form action="" enctype="multipart/form-data" method="post">
+            <fieldset>
+                <table class="content">
+                    <tr>
+
+                        <td class="label"><label for="first">First name</label></td>
+                        <td>
+                            <input type="text" id="first" name="first" size="40" value="${first}" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label required"><label for="last">Last name</label></td>
+                        <td>
+                            <input type="text" id="last" name="last" size="40" value="${last}" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label required"><label for="username">User name</label></td>
+                        <td>
+                            <input type="text" id="username" name="username"  size="60" value="${username}" />
+                            <a id="check" href="#" class="primaryButton">Check availability</a>
+                        </td>
+                        </tr>
+                    <tr>
+                        <td class="label required"><label for="email">Email</label></td>
+                        <td>
+                            <input type="text" id="email" name="email" size="80" value="${mail}" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label required"><label>Expires</label></td>
+                        <td>
+                            <span>
+                                User account will expire ${expires.strftime(dateformats['py'])}
+                                (${(expires - now).days} days) after it needs to be extended
+                            </span>
+                            <p class="desc">You're responsible extending the expiration date</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label optional"><label for="mobile">Mobile</label></td>
+                        <td>
+                            <input type="text" id="mobile" name="mobile" size="50" value="${mobile}" />
+                            <p class="desc">Mobile phone number</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label">Avatar</td>
+                        <td>
+                            <div class="default avatar face_image_admin"></div>
+                            <input type="file" name="icon" value="$" accept="image/gif, image/jpeg, image/jpg, image/png"/>
+                            <p class="desc">Select image smaller than 100KB. Image will be resized to 140x140 pixels.</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label"></td>
+                        <td class="buttons">
+                            <input type="submit" name="create" value="Create account" class="primaryButton" />
+                        </td>
+                    </tr>
+                </table>
+            </fieldset>
+        </form>
+    </div>
+  </body>
+</html>

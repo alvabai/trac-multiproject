@@ -1,0 +1,174 @@
+<!--!
+       groups    - a dict, where:
+                     key       - is the value shared by all results in this group
+                     value     - is the list of corresponding tickets
+
+       headers   - a sequence of header structure:
+                     .name     - field name for this header
+                     .label    - what to display for this header
+
+       fields    - dict of field name to field structure:
+                     .label    - field label
+
+       query     - the actual Query instance used to perform the query
+
+-->
+<div xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:py="http://genshi.edgewall.org/"
+     xmlns:i18n="http://genshi.edgewall.org/i18n"
+     xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="macros.html" />
+  <xi:include href="site_macros.html" />
+  <?python from itertools import cycle ?>
+<!--!  <h2 class="report-result title" py:if="paginator.has_more_pages" style="height:36px;">
+    Results <span class="numresults">(${paginator.displayed_items()})</span>
+  </h2>
+  <xi:include py:if="paginator.show_index" href="page_index.html" />-->
+  <p>
+  <table class="table listing tickets" py:with="cls=cycle(('even', 'odd'))">
+    <py:for each="group_index, (groupname, results) in enumerate(groups)">
+
+      <tr class="subtitle"><td class="nopadding" colspan="${len(headers)+2}">
+        <h2 class="report-result title" py:if="groupname">
+          ${fields[query.group].label}:
+          ${query.group in ['owner', 'reporter'] and authorinfo(groupname) or groupname}
+          <span class="numrows">(${ngettext('%(num)s match', '%(num)s matches', len(results))})</span>
+        </h2>
+        <h2 class="report-result title" py:if="not groupname">
+          <py:if test="not query.group">
+            All tickets
+          </py:if>
+          <py:if test="query.group">
+            No ${query.group}
+          </py:if>
+        </h2>
+      </td></tr>
+      <tr>
+
+        <py:if test="group_index == 0"> <!--! prevent duplicate columns in the form -->
+          <th py:for="header in headers"
+            class="$header.name${query.order == header.name and (query.desc and ' desc' or ' asc') or ''}">
+            <?python asc = _('(ascending)'); desc = _('(descending)') ?>
+            <a title="${_('Sort by %(col)s %(direction)s', col=header.label,
+                          direction=(query.order == header.name and not query.desc and desc or asc))}"
+               href="$header.href">${header.label}</a>
+          </th>
+          <th class="addcolumn">
+            <div id="columnsmenu">
+              <div id="plusbutton"></div>
+              <div id="columnsShadedBox">
+                  <div class="roundTop"><span></span></div>
+                  <div id="columnstitle">Add / Remove</div>
+              </div>
+              <div id="columnslist">
+                <div class="shadedBox">
+                <div class="roundTop"><span></span></div>
+                <ul>
+                <py:for each="index, column in enumerate(all_columns)">
+                  <li>
+                  <input type="checkbox" name="col" value="$column" id="$column"
+                      checked="${any([(value == column) for value in col])
+                                  and 'checked' or None}"
+                      onclick="this.form.submit()" />
+                  <label for="$column"
+                      class="${any([(value == column) for value in col]) and 'checked' or None}"
+                      >${fields.get(column, {'label': column or 'none'}).label}</label>
+                  </li>
+                </py:for>
+                </ul>
+                <div class="roundBottom"><span></span></div>
+                </div>
+              </div>
+            </div>
+          </th>
+        </py:if>
+      </tr>
+
+      <tr py:if="not results" class="even">
+        <td colspan="${len(headers)+1}">
+          No tickets found
+        </td>
+      </tr>
+      <py:for each="idx, result in enumerate(results)">
+        <py:with vars="ticket_context = context('ticket', result.id)">
+          <py:if test="'TICKET_VIEW' in perm(ticket_context.resource)">
+
+            <tr class="${cls.next()} ${
+              'added' in result and ' added' or ''}${
+              'changed' in result and ' changed' or ''}${
+              'removed' in result and ' removed' or ''}">
+              <py:for each="idx, header in enumerate(headers)" py:choose="">
+                <py:with vars="name = header.name; value = result[name]">
+                  <td py:when="name == 'id'" class="id"><a href="$result.href" title="View ticket"
+                      class="${classes(closed=result.status == 'closed')}">#$result.id</a></td>
+                  <td py:otherwise="" class="$name" py:choose="">
+                    <a py:when="name == 'summary'" href="$result.href" title="View ticket">$value</a>
+                    <py:when test="isinstance(value, datetime)">${value.strftime('%d.%m.%Y')} (${dateinfo(value)})</py:when>
+                    <py:when test="name == 'reporter'">${format_username(value)}</py:when>
+                    <py:when test="name == 'cc'">${format_emails(ticket_context, value)}</py:when>
+                    <py:when test="name == 'owner' and value">${format_username(value)}</py:when>
+                    <py:when test="name == 'milestone'"><a title="View milestone" href="${href.milestone(value)}">${value}</a></py:when>
+                    <py:when test="name == 'status'">${str(value).upper()}</py:when>
+                    <py:when test="name == 'priority'"><div class="prioritytag ${value}">${value}</div></py:when>
+                    <py:when test="header.wikify">${wiki_to_oneliner(ticket_context, value)}</py:when>
+                    <py:otherwise>$value</py:otherwise>
+                  </td>
+                </py:with>
+              </py:for>
+              <td></td>
+            </tr>
+
+            <py:with vars="result_rows = [t for t in row if result[t]]; has_children=any([(int(child['parent']) == int(result.id)) for child in children]) or False">
+              <tr py:if="result_rows or query.childlist and has_children" class="descriptionrow">
+                  <td colspan="${len(headers)+2}" py:if="result_rows"><!-- ! +1 is for "+" column -->
+                  <p class="meta" i18n:msg="author, date" py:if="result_rows">Reported by
+                    <strong>${format_username(result.reporter)}</strong>,
+                    ${dateinfo(result.time)} ago.
+                  </p>
+                  <p py:for="r in result_rows">
+                    ${wiki_to_html(ticket_context, result[r])}
+                  </p>
+                  </td>
+                  <py:if test="has_children">
+
+                      <py:for each="child in children">
+                        <tr class="childticketrow  ${cls.next()}" py:if="int(child['parent']) == int(result.id)">
+                        <py:for each="idx, header in enumerate(headers)" py:choose="">
+                          <py:with vars="name = header.name; value = child[name]">
+                            <td py:when="name == 'id'" class="id childticketid"><a href="$child.href" title="View ticket"
+                                class="${classes(closed=child.status == 'closed')}">#$child.id</a></td>
+                            <td py:otherwise="" class="$name childticketcell" py:choose="">
+                              <a py:when="name == 'summary'" href="$child.href" title="View ticket">$value</a>
+                              <py:when test="isinstance(value, datetime)">${value.strftime('%d.%m.%Y')} (${dateinfo(value)})</py:when>
+                              <py:when test="name == 'reporter'">${format_username(value)}</py:when>
+                              <py:when test="name == 'cc'">${format_emails(ticket_context, value)}</py:when>
+                              <py:when test="name == 'owner' and value">${format_username(value)}</py:when>
+                              <py:when test="name == 'milestone'"><a title="View milestone" href="${href.milestone(value)}">${value}</a></py:when>
+                              <py:when test="name == 'status'">${str(value).upper()}</py:when>
+                              <py:when test="name == 'priority'"><div class="prioritytag ${value}">${value}</div></py:when>
+                              <py:when test="header.wikify">${wiki_to_oneliner(ticket_context, value)}</py:when>
+                              <py:otherwise>$value</py:otherwise>
+                            </td>
+                          </py:with>
+                        </py:for>
+                        <td></td>
+                        </tr>
+                      </py:for>
+                  </py:if>
+              </tr>
+            </py:with>
+          </py:if>
+        </py:with>
+      </py:for>
+      <tr py:if="group_index == len(groups)-1 and last_group_is_partial">
+        <td colspan="${len(headers)}">
+          <i>(more results for this group on next page)</i>
+        </td>
+      </tr>
+    </py:for>
+  </table>
+  </p>
+  <xi:include py:if="paginator.show_index" href="page_index.html" />
+</div>
+
+

@@ -1,0 +1,34 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+  <html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <xi:include href="layout.html" />
+  <xi:include href="list_watchlist_events.html" />
+  <head>
+    <title>Watchlist timeline</title>
+  </head>
+
+  <body>
+
+    <h1 id="pageHeader">Watchlist timeline</h1>
+    <p>The activity of watched projects within 7 days:</p>
+
+    <div class="resource-box">
+        ${list_watchlist_events(watchlist)}
+    </div>
+
+    <div id="altlinks">
+      <h2 class="tableheader greentitle">Download in other formats:</h2>
+
+      <ul>
+        <li class="last first">
+          <a rel="nofollow" href="${baseurl}/home/watchlist_timeline?format=rss" class="rss">RSS Feed</a>
+        </li>
+      </ul>
+    </div>
+
+  </body>
+</html>

@@ -1,0 +1,49 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      py:strip="True">
+<div class="information_box shaded-box-wrapper" id="change_select_form">
+        <div class="heading">
+            <h2>Select the base and the target for the diff:</h2>
+        </div>
+        
+        <form class="content shaded-box" id="anydiff" action="${req.href.changeset()}">
+            <!-- Prefs inputs -->
+            <div class="rounded_fieldset changeset_prefs">
+                <xi:include py:if="req.path_info.startswith('/changeset')" href="diff_options.html" />
+                <xi:include py:if="req.path_info.startswith('/diff')" href="diff_options_defaults.html" />
+            </div>
+            <!-- First rev -->
+            <div class="revision_select_inputs first">
+              <div style="float:right;">
+                <div class="text">From:</div>
+                <div class="changeset_input">
+                    <input type="text" name="old_path" size="44" value="${'/' + pathjoin(reponame, old_path)}" />
+                </div>
+                <div class="text">at revision:</div>
+                <div class="changeset_input">
+                    <input type="text" name="old" size="4" value="$old_rev" />
+                </div>
+              </div>
+            </div>
+            <!-- Last rev -->
+            <div class="revision_select_inputs last">
+              <div style="float:right;">
+                <div class="text">To:</div>
+                <div class="changeset_input">
+                    <input type="text" name="new_path" size="44" value="${'/' + pathjoin(reponame, new_path)}" />
+                </div>
+                <div class="text">at revision:</div>
+                <div class="changeset_input">
+                    <input type="text" name="new" size="4" value="$new_rev" />
+                </div>
+              </div>
+            </div>
+            <!-- submit button -->
+            <div id="view_changes_btn">
+                <input type="submit" value="Show differences" />
+            </div>
+        </form>
+        <div class="footer"></div>
+    </div>
+</html>

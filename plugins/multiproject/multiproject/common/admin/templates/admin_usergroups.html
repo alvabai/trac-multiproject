@@ -1,0 +1,160 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+  <xi:include href="admin.html" />
+  <head>
+    <title>Users</title>
+  </head>
+
+  <body>
+    <h2>Manage Users <span id="progress_indicator" style="font-size:0.75em;"></span></h2>
+    
+    <div id="flash_error" class=""></div>
+    
+    <!-- Add users to groups form (right side) -->
+    <div id="useradd_wrap">
+    	<xi:include href="users_add_form.html" py:if="'PERMISSION_GRANT' in perm" />
+    </div>
+    
+    <!-- Show users in groups and remove / move (left side) -->
+    <div id="revoke_wrap">
+      <xi:include href="users_revoke_form.html" />
+    </div>
+    
+
+  <script type="text/javascript" src="${conf.theme_htdocs_location}/js/prj_admin.js"></script>
+  <script type="text/javascript">
+  <!--
+      // Flag indicating unsaved changes
+      var dirty = false;
+      
+      function get_cookie(c_name) {
+        // Made by example borrowed from http://www.w3schools.com/JS/js_cookies.asp
+        var i,x,y,ARRcookies=document.cookie.split(";");
+        for (i=0;ARRcookies.length>i;i++) {
+          x=ARRcookies[i].substr(0,ARRcookies[i].indexOf("="));
+          y=ARRcookies[i].substr(ARRcookies[i].indexOf("=")+1);
+          x=x.replace(/^\s+|\s+$/g,"");
+          if (x==c_name) {
+            return unescape(y);
+          }
+        }
+      }
+      
+      function form_data() {
+        // Create object that will contain form data
+        // Save lets controller know that we are saving
+        var data = new Object();
+        var groups = new Object
+        
+        data['save'] = 'save'
+        data['__FORM_TOKEN'] = get_cookie('trac_form_token');
+        
+        // Add all groups into data
+        $('.users div').each(function(index) {
+          var group = $(this).parent().attr('id').substring(2);
+          var type = $(this).attr('id').substring(0, 1);
+          var value = type + '_' + $(this).attr('username');
+          if (group != '') {
+             if(groups[group] == undefined) {groups[group] = new Array();}
+             groups[group].push(value);
+          }
+        });
+        
+        data['groups'] = groups;
+        return data;
+      }
+      
+      function progress_hide() {
+        $('#progress_indicator').fadeOut(1000);
+      }
+      
+      function save_changes() {
+        $('#progress_indicator').html('(Saving changes...)');
+        $('#progress_indicator').show();
+        $('body').css('cursor','progress');
+        $.ajax({
+          type:'POST',
+          cache:false,
+          data:form_data(),
+          success: function(data) {
+            // Back into normal state
+            $('body').css('cursor','default');
+            dirty = false;
+            
+            // Render form again
+            $('#revoke_wrap').html(data);
+            init_events();
+            
+            // Hide error message if it's been invoked earlier
+            $('#flash_error').html('');
+            $('#flash_error').removeClass('system-message');
+            
+            // Inform user that saving is done
+            $('#progress_indicator').html('(Changes saved)');
+            setTimeout("progress_hide()", 4000);
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+            // Back into normal state
+            $('body').css('cursor','default');
+            $('#progress_indicator').html('');
+            
+            if(jqXHR.status != 400)
+                return;
+            
+            // Read error message from the response
+            body = jqXHR.responseText;
+            
+            // Write error message to page and set styles
+            $('body').css('cursor','default');
+            $('#flash_error').html(body);
+            $('#flash_error').addClass('system-message');
+          }
+        });
+      }
+
+      function init_events() {
+        $('.user').draggable({
+          //distance:5, // Distance wasn't IE compatible
+          delay:50,
+          cursor: 'move',
+          revert: 'invalid',
+          start: function(event, ui) { 
+            $(this).addClass('selected');
+          }
+        });
+          
+        $('.users').droppable({
+          greedy: true,
+          drop: function(event, ui) {
+            $('.user.selected').attr('style', 'position:relative');
+            $(this).append($('.user.selected'));
+            $('.user.selected').removeClass('selected');
+            dirty = true;
+          },
+          hoverClass: 'over'
+        });
+          
+        $('.user').click(function () {
+          $(this).toggleClass('selected')
+        });
+        
+        $('#save_button').click(save_changes);
+      }
+      
+      $(document).ready(function () {
+          init_events();
+          
+          window.onbeforeunload = function() {
+            if(dirty == true)
+              return "You have unsaved changes.";
+          }
+      });
+    //-->
+    </script>
+  </body>
+
+</html>

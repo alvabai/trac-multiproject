@@ -1,0 +1,480 @@
+.table {
+    background-image:none;
+}
+.table td {
+    background-image:none;
+}
+
+.subtitle {
+    background: none;
+}
+
+.nopadding {
+    padding: 0px 0px !important;
+}
+
+h2.report-result {
+    margin:  0px 0px;
+    padding:  5px 0;
+}
+
+#newticketbutton {
+    float: right;
+    display: inline;
+    margin-top: 10px;
+}
+
+#query table.tickets td {
+    border: 0 none;
+    border-bottom: 1px solid #cccccc;
+}
+
+#propertyform {
+    clear: left;
+    float: left;
+    width: 74%;
+}
+
+#propertyform textarea {
+    height: 100px;
+    width: 98%;
+}
+
+#propertyform table th,
+#propertyform table td {
+    padding-bottom: 5px;
+}
+
+#propertyform table th {
+    padding-right: 5px;
+    text-align: right;
+    line-height: 20px;
+}
+
+#changelog, #ticket .description, #ticket .summary {
+    float: left;
+    clear: left;
+    width: 74%;
+}
+
+#changelog div.change {
+    border-top: 1px solid #cccccc;
+    clear: left;
+}
+
+#changelog .threading {
+    font-size: 12px;
+    margin: 0 0 20px 0;
+}
+
+#changelog .changeauthor {
+    font-size: 12px;
+    display: inline;
+}
+
+#changelog .changelabels {
+    display: none;
+}
+
+#changelog ul.changes {
+    margin: 0;
+    list-style: inside;
+    list-style-image: url("/htdocs/theme/images/bullet.png");
+}
+
+#changelog .buttons,
+.description .buttons {
+    float: none;
+    margin: 10px 0 20px;
+}
+
+#changelog .buttons form {
+    float: none;
+    display: inline;
+}
+
+#propertyform .buttons {
+    margin-bottom: 10px;
+    text-align: right;
+}
+
+
+
+table.listing tbody tr:hover {
+    background-color: #efefef;
+}
+
+table.listing tbody tr.subtitle:hover {
+  background: none;
+}
+
+.tickets tbody td, .reports tbody td {
+    padding: .1em .5em !important;
+    white-space: normal;
+}
+
+.childticketid a {
+    display: block;
+    padding-left: 20px;
+    background-image: url('/htdocs/theme/images/childticket_leaf.png');
+    background-repeat: no-repeat;
+    background-position: 0 3px;
+}
+
+.childticketid {
+    text-align: left;
+}
+
+.childticketrow {
+    margin-left: 20px;
+    padding-left: 20px;
+    width: 100%;
+    left: 10px;
+}
+
+#ticket .ticketinfo,
+.ticket #attachments {
+    float: right;
+    clear: right;
+    width: 25%;
+}
+
+#ticket table.properties tr {
+    border-top: 1px solid #cccccc;
+}
+
+#ticket table.properties tr th {
+    min-width: 80px;
+    padding: 10px 0;
+}
+
+#ticket table.properties tr td {
+    padding: 10px 0;
+}
+
+.ticket #help {
+    float: left;
+    clear: left;
+    width: 74%;
+}
+
+.ticketdraft {
+    background: url("/htdocs/trac/draft.png") repeat scroll 0 0 #F8F8F8;
+    border: 1px outset #999966;
+    margin: 1em 0;
+    padding: 0 1em;
+}
+
+.trac-nav, .trac-topnav {
+    float: right;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 0;
+}
+
+form#query .buttons {
+    display: none;
+}
+
+#query fieldset,
+#query fieldset input,
+#query fieldset select {
+    font-size: 12px;
+}
+
+#query p.option {
+    border-top: 1px solid #cccccc;
+    padding-top: 10px;
+    margin-bottom: 10px;
+}
+
+#query .maxrows {
+    float: right;
+    margin: 0 5px 10px 0;
+}
+
+#customquerytitle {
+    margin-bottom: 10px;
+}
+
+#filters {
+    border-top: 1px solid #cccccc;
+    padding-top: 10px;
+    clear: both;
+}
+
+#filters td label {
+    font-size: 12px;
+}
+
+#filters #foldingtitle {
+    line-height: 20px;
+}
+
+#filters #foldingbody {
+    padding: 5px;
+    font-size: 12px;
+    color: #222222;
+}
+
+#filters #foldingbody table td {
+    padding-top: 0;
+    padding-bottom: 5px;
+    vertical-align: baseline;
+}
+#filters #foldingbody table td .inlinebuttons input,
+ul#users_list .remove_user_btn {
+    width: auto;
+    height: 20px;
+    background: none repeat scroll 0 0 #2c4a83;
+    color: white;
+    padding: 0 5px;
+}
+
+/* Advanced query */
+form#query {}
+
+form#query input {
+    padding:  0;
+}
+
+form#query .buttons {
+    margin:  0 5px 0 0;
+}
+
+form#query .buttons input {
+    margin: 0; font-size: 11px;
+}
+
+form#query, #query label, #query fieldset, #query fieldset input, #query fieldset select {
+    font-size: 12px;
+}
+
+form#query #filters tr {
+    height: auto;
+}
+
+form#query #filters th {
+    text-align: left;
+}
+
+form#query #filters th, form#query #filters td {
+    vertical-align: text-top;
+}
+
+form#query #filters th label, form#query #filters td label {
+    font-size: 12px;
+    padding-left: 4px;
+}
+
+form#query #filters td .trac-clause-msep {
+    text-transform: lowercase;
+    font-size: 12px;
+}
+
+form#query #filters #customquerytable {
+    width: 100%;
+}
+
+form#query #filters #foldingbody td.trac-clause {
+    padding-bottom: 0;
+}
+
+form#query #filters #foldingbody table tbody.actions tr  {
+    background-color: #d1d1d1;
+}
+
+form#query #filters #foldingbody table tbody.actions td  {
+    padding-top: 5px; text-align: left;
+}
+
+form#query table tbody.actions label {
+    display: block; width: 20px; float: left; line-height: 21px;
+}
+
+form#query #foldingbody table td input {
+    width: auto;
+}
+
+form#query #sortingbox #gobutton {
+    float: right;
+}
+
+form#query #folding input#updatebutton {
+    margin: 0.5px 10px;
+}
+
+/* Column list popout */
+#plusbutton {
+    background: url("/htdocs/theme/images/columns_buttons.png") no-repeat scroll left top transparent;
+    cursor: pointer;
+    height: 13px;
+    padding: 0;
+    width: 13px;
+}
+#columnsmenu {
+    position:relative;
+}
+
+#columnsmenu #columnslist {
+    display: none;
+    position: absolute;
+    top: 21px;
+    right: -5px;
+    width: 150px;
+    z-index:100;
+}
+
+#columnsmenu #columnslist ul {
+    margin: 0 0 0 5px;
+    list-style: none;
+}
+
+#columnsmenu #columnstitle {
+    width: 90px;
+    font-weight: normal;
+    padding: 0px 15px 0 5px;
+    height:13px;
+    background: #d7d7d7 url("../images/columns_buttons.png") no-repeat scroll 90px -13px;
+}
+
+#columnsmenu.open #columnslist,
+#columnsmenu.open #columnsShadedBox {
+    display: block;
+}
+
+#columnsmenu #columnsShadedBox {
+    display:none;
+    position:absolute;
+    top: -5px;
+    right: -5px;
+    height: 34px;
+    background-color:#d7d7d7;
+    z-index:101;
+}
+
+#columnslist .shadedBox {
+    background: #d7d7d7;
+    margin-top: 0;
+}
+
+#columnsmenu .roundTop {
+    height:8px;
+}
+
+#columnsmenu .roundBottom {
+    height:8px;
+}
+
+#columnslist label {
+    cursor:pointer;
+}
+
+/* Styles in ticket block for actions (work flow support) */
+fieldset#action div.round_grey_input {
+    width: 160px;
+    display: inline-block;
+}
+
+fieldset#action > div {
+    padding-bottom: 5px;
+}
+
+/* User lists */
+#cc_decoration {
+    width: auto;
+    display: inline-block;
+}
+
+#add_cc_button {
+    display: inline-block;
+    background-color: #2C4A83;
+    width: 19px;
+    height: 19px;
+    line-height: 20px;
+    font-size: 13px;
+    font-weight: bold;
+    padding: 0;
+    -webkit-border-top-right-radius: 8px;
+    -khtml-border-radius-topright: 8px;
+    -moz-border-radius-topright: 8px;
+    border-top-right-radius: 8px;
+}
+
+ul#users_list {
+    overflow: hidden;
+    margin: 0;
+    width: 505px;
+}
+
+ul#users_list div {
+    display: inline-block;
+}
+
+ul#users_list li {
+    line-height: 20px;
+    width: 240px;
+    display: inline-block;
+    margin-right: 10px;
+}
+
+ul#users_list li:hover {
+    background-color: whiteSmoke;
+}
+
+ul#users_list .username {
+    margin-left: 5px;
+    width: 210px;
+    word-wrap: break-word;
+}
+
+ul#users_list input.remove_user_btn {
+    line-height: 20px;
+}
+
+h1 .numrows, h2 .numrows {
+    color: #999999;
+    font-size: 70%;
+    font-weight: normal;
+    margin-left: 10px;
+}
+
+#batchmod_form th {
+    vertical-align: middle;
+}
+#batchmod_form textarea {
+    height: 100px;
+}
+#batchmod_form legend a {
+    font-size: 12px;
+}
+
+#batchmod_form th,
+#batchmod_form fieldset,
+#batchmod_form fieldset input,
+#batchmod_form fieldset select,
+.batchmod_label {
+    font-size: 12px;
+}
+
+.collapsed > div, .collapsed > table, .collapsed > ul, .collapsed > dl {
+    display: none;
+}
+
+/* Override blockquotes for tickets */
+.ticketdisp blockquote {
+    background: none;
+    border-left: 2px solid #0066cc;
+    color: #444444;
+    font-family: Tahoma,Geneva,sans-serif;
+    font-size: 22px;
+    padding: 4px 0px 4px 10px;
+    margin: 5px 0px 5px 0px;
+    text-indent: 0px;
+    width: 400px;
+}
+
+.ticketdisp blockquote p {
+    line-height: 1;
+    margin: 0;
+}

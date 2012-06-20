@@ -1,0 +1,36 @@
+<!--! Add diff option fields (to be used inside a form)
+ 
+     `diff` the datastructure which contains diff options
+-->
+<div xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:py="http://genshi.edgewall.org/"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:i18n="http://genshi.edgewall.org/i18n"
+    py:strip="">
+  <div class="field withspace">
+    <input type="radio" id="style" name="style" value="inline" checked="checked"/>
+    <label>View differences inline</label><br/>
+    <input type="radio" id="style" name="style" value="sidebyside"/>
+    <label>View differences size by side</label>
+  </div>
+  <div class="field withspace">
+    <i18n:msg>
+      <label><input type="radio" name="contextall" value="0" checked="checked" />Show</label>
+      <label><input type="text" name="contextlines" id="contextlines" size="2" maxlength="3" value="2"/>
+             lines around each change</label>
+    </i18n:msg><br/>
+    <label><input type="radio" name="contextall" value="1" />Show the changes in full context</label>
+  </div>
+  <div class="field">
+      <input type="checkbox" id="ignoreblanklines" name="ignoreblanklines" />
+      <label for="ignoreblanklines">Ignore blank lines</label>
+  </div>
+  <div class="field">
+      <input type="checkbox" id="ignorecase" name="ignorecase" />
+      <label for="ignorecase">Ignore case changes</label>
+  </div>
+  <div class="field">
+      <input type="checkbox" id="ignorewhitespace" name="ignorewhitespace" />
+      <label for="ignorewhitespace">Ignore white space changes</label>
+  </div>
+</div>

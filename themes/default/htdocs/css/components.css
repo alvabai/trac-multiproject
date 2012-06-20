@@ -1,0 +1,34 @@
+#home-nav-wrap {
+    height:30px;
+    width:500px;
+    margin-left: -10px;
+    position:relative;
+}
+#home-nav {
+    position:absolute;
+    top:7px;
+    left:0;
+    font-family:Tahoma,Geneva,sans-serif;
+}
+#home-nav a {
+    padding: 5px 10px;
+}
+
+/* Context navigation styles */
+.nav h2, .nav hr {
+    display: none;
+}
+.nav li {
+    display: inline;
+    padding: 0 0.75em;
+    white-space: nowrap;
+}
+
+/* Hint text */
+p.hint, span.hint {
+    color: #666666;
+    font-size: 85%;
+    font-style: italic;
+    margin: 0.5em 0;
+    padding-left: 1em;
+}

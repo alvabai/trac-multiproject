@@ -1,0 +1,56 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="layout.html" />
+  <head>
+    <title>Prepare Diff</title>
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("#anydiff input[name$='_path']").suggest();
+      });
+    </script>
+    
+    <!-- Fix suggestions width only on this page 
+         so that we do not mess with other pages-->
+    <style type="text/css">
+      .suggestions {
+        width:140px;
+        margin-left:-4px;
+      }
+      .suggestions ul {
+        width:100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="content" class="changeset">
+      <div id="title">
+        <h1>Prepare Diff</h1>
+      </div>
+      
+      <!-- ! Form for selecting base and target for diff -->
+      <xi:include href="changeset_compare.html" />
+  
+      
+       <div class="shadedBox" id="changeset_note">
+        <div class="roundTop"><span></span></div>
+          <div id="help">
+              <strong>Note:</strong> For either path, you can start typing the path and will be
+              presented a list of existing directories and files to select
+              from. Select an entry by clicking on it, or by using the
+              up/down cursor keys and hitting tab. For general notes see <a href="${href.wiki('TracChangeset')}#ExaminingDifferencesBetweenBranches">TracChangeset</a>
+              for help on using changeset.
+          </div>
+        <div class="roundBottom"><span></span></div>
+      </div>
+     
+        
+    </div>
+  </body>
+</html>
+

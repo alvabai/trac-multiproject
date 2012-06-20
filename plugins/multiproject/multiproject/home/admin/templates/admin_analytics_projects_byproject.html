@@ -1,0 +1,96 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+
+    <div class="results byproject">
+        <script type="text/javascript">
+            // Function for drawing the graph
+            var drawGraph = function(){
+                // Try to use global theme object for style
+                var getColor = function(){ return '#f00'; };
+                theme = theme || {fillColor:"#f00", fontFamily:"sans-serif", fontSize:12, contentWidth:700, getColor:getColor};
+
+                // Get placeholder and set loading info
+                var placeholder = $('#chart').addClass('loading');
+
+                // Construct values from JSON results
+                var results = ${results_json};
+
+                var rvalues = {}, rlabels = [], rcolours = {}, uweeks = {};
+
+                // Iterate projects
+                $.each(results, function(pkey, project) {
+                    var pvalues = [];
+                    // Iterate each week in project
+                    $.each(project['weeks'], function(wkey, week) {
+                        pvalues.push(week.count);
+                        // Set week number only once
+                        if (!(week.week in uweeks)) {
+                            uweeks[week.week] = week.week;
+                            rlabels.push(week.week);
+                        }
+                    });
+                    rvalues[project.id] = pvalues;
+                    rcolours[project.id] = theme.getColor(project.id);
+
+                    // Create color indications next to project names because of missing graph legends
+                    $('tr.project-' + project.id).find('th:first a').before('<div class="legend" style="background-color: '+ rcolours[project.id] +'"></div>');
+
+                });
+
+                // Draw line graph with the values constructed above
+                new Ico.LineGraph(placeholder[0], rvalues, {
+                    grid:true, font_size:theme.fontSize, colours:rcolours, labels:rlabels,
+                    width:theme.contentWidth, height:400
+                });
+                placeholder.removeClass('loading');
+
+                // Make weeks collapsible
+                var projectline = $('table#results tr.project div.accbutton');
+                projectline.click(function(event){
+                    $(this).toggleClass("collapsed", 200);
+                    $(this).parent().parent().nextUntil('tr.project', 'tr.week').toggleClass("collapsed", 200);
+                    return false;
+                });
+                // Hide week details by default
+                projectline.click();
+            };
+
+            $(document).ready(function() {
+                // Spawn a background task
+                window.setTimeout(drawGraph, 1000);
+            });
+
+        </script>
+
+        <div id="chart" class="loading"></div>
+
+        <!-- Group by projects -->
+        <table id="results" class="table" py:if="resultsby == 'project'">
+            <thead>
+                <tr>
+                    <th>Project</th>
+                    <th>Week</th>
+                    <th>Downloads (total: ${total})</th>
+                </tr>
+            </thead>
+            <tbody>
+                <py:for each="project in results">
+                    <tr py:if="project['weeks']" class="project project-${project['id']}">
+                        <th colspan="2"><div class="accbutton"></div><a href="/${project['identifier']}">${project['name']}</a></th>
+                        <th>${project['count']}</th>
+                    </tr>
+                    <tr py:for="week in project['weeks']" class="week project-${project['id']}-week">
+                        <td></td>
+                        <td>${week['week']} / ${week['year']}</td>
+                        <td>${week['count']}</td>
+                    </tr>
+                </py:for>
+            </tbody>
+        </table>
+    </div>
+
+</html>

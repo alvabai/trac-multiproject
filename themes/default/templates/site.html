@@ -1,0 +1,74 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      py:strip="">
+
+<?python
+from multiproject.core.configuration import conf
+?>
+
+    <py:match path="resources" once="true">
+        <xi:include href="bundle.html">
+            <xi:fallback>
+                <xi:include href="resources.html" />
+            </xi:fallback>
+        </xi:include>
+    </py:match>
+
+    <head py:match="head" py:attrs="select('@*')">
+        ${select('*|comment()|text()')}
+
+        <!-- Cache images so that IE 6 wont flicker them  -->
+        <!--[if IE 6]>
+        <script type="text/javascript">
+            try {
+                document.execCommand("BackgroundImageCache", false, true);
+            } catch(err) {}
+        </script>
+        <![endif]-->
+    </head>
+
+    <body py:match="body" py:attrs="select('@*')">
+        <xi:include href="analytics_init.html" />
+
+        <div id="theme_container">
+            <div id="site-container" class="">
+                <xi:include href="header.html" />
+
+                <div id="site-content" class="clearfix">
+                    <xi:include href="breadcrumbs.html" />
+                    <div py:if="not welcome_page and not login_page" id="home-nav-wrap">
+                        <div id="home-nav">
+                            <a href="${conf.url_home_path}/" title="Projects home page">Projects Home</a> |
+                            <a href="${conf.url_home_path}/myprojects" title="Go to your projects">My Projects</a> |
+                            <a href="${conf.url_home_path}/project/explore" title="Explore projects">Explore Projects</a>
+                        </div>
+                    </div>
+                    <div id="siteheader">
+                        <!--! Place your header content here... -->
+                    </div>
+
+                    ${select('*|text()')}
+
+
+                 </div>
+             </div>
+        </div>
+
+        <xi:include href="footer.html" />
+        <xi:include href="analytics_run.html" />
+
+        <!-- ! Workaround for wysiwyg plugin. .wikitoolbar-wrapper
+            can be used for placing wiki toolbar properly -->
+        <script type="text/javascript">
+            function wrap_wikitoolbars() {
+                $('.wikitoolbar').wrap('<div class="wikitoolbar-wrapper" />');
+                $('.wysiwyg-toolbar').wrap('<div class="wikitoolbar-wrapper" />');
+            }
+            $(document).ready(function () {
+                setTimeout(wrap_wikitoolbars, 11);
+            });
+        </script>
+
+    </body>
+</html>

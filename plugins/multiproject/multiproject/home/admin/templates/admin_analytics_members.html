@@ -1,0 +1,100 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+    <xi:include href="admin.html" />
+
+    <head>
+        <title>Member statistics</title>
+    </head>
+
+    <body>
+        <script type="text/javascript">
+            $(document).ready(function(){
+                // Create date range selection for downloads
+                var dates = $('input#starttime, input#endtime').datepicker({
+                    defaultDate: "+1w",
+                    showWeek: true,
+                    maxDate:"0D",
+                    numberOfMonths: 2,
+                    dateFormat: "${dateformats['js']}",
+                    onSelect: function( selectedDate ) {
+                        var option = this.id == "starttime" ? "minDate" : "maxDate",
+                            instance = $(this).data( "datepicker" ),
+                            date = $.datepicker.parseDate(
+                                instance.settings.dateFormat ||
+                                $.datepicker._defaults.dateFormat,
+                                selectedDate, instance.settings );
+                        dates.not(this).datepicker("option", option, date);
+                    }
+                });
+            });
+        </script>
+        <h2>Member statistics</h2>
+        <h4>Summary</h4>
+        <ul>
+            <li>Total: ${summary['total_count']} members</li>
+            <li>Active: ${summary['active_count']} members <span class="desc">(logged in within 2 months)</span></li>
+            <li>Passive: ${summary['passive_count']} members</li>
+        </ul>
+        <h4>Statistics</h4>
+        <p>Retrieve statistics from the service members.</p>
+        <form action="#" method="post">
+            <table class="content">
+                <!-- Statistics type -->
+                <tr>
+                    <td class="label"><label for="stat_type">Statistics</label></td>
+                    <td>
+                        <select name="stat_type" id="stat_type">
+                            <option py:for="stype in stat_types" value="${stype[0]}" selected="${stype[0] == stat_type or None}">${stype[1]}</option>
+                        </select>
+                        <p class="desc">Select statistics type to fetch</p>
+                    </td>
+                </tr>
+                <!-- Select time range -->
+                <tr>
+                    <td class="label"><label for="starttime">Time range</label></td>
+                    <td>
+                        <input name="starttime" id="starttime" class="date" type="text" value="${starttime.strftime(dateformats['py'])}" />
+                        <input name="endtime" id="endtime" class="date" type="text" value="${endtime.strftime(dateformats['py'])}" />
+                        <p class="desc">Select date range where to retrieve statistics</p>
+                    </td>
+                </tr>
+                <!-- Limit results number -->
+                <tr>
+
+                    <td class="label"><label for="maxresults">Show top</label></td>
+                    <td>
+                        <select name="maxresults" id="maxresults">
+                            <option py:for="maxopt in maxresult_opts" value="${maxopt}" selected="${maxopt == maxresults or None}">${maxopt or 'No limit'}</option>
+                        </select>
+                        <p class="desc">Max number of results</p>
+                    </td>
+                </tr>
+                <!-- Action -->
+                <tr>
+                    <td colspan="2" class="buttons">
+                        <input type="submit" value="Update" name="update"/>
+                        <input type="submit" class="secondaryInputBtn" value="Reset" name="reset"/>
+                    </td>
+                </tr>
+            </table>
+        </form>
+        <hr />
+        <!-- Show results -->
+        <div class="results" py:if="results">
+            <h3>${stat_name} between ${starttime.strftime(dateformats['py'])} -- ${endtime.strftime(dateformats['py'])} (${(endtime - starttime).days} days) (${"Top {0}".format(maxresults) if maxresults else "All"}): ${len(results)}</h3>
+
+            <xi:include href="admin_analytics_members_activity.html" py:if="stat_type == 'activity'"></xi:include>
+            <xi:include href="admin_analytics_members_registration.html" py:if="stat_type == 'registration'"></xi:include>
+
+        </div>
+        <!-- No results -->
+        <div class="results" py:if="not results">
+            <h3>No results between: ${starttime.strftime(dateformats['py'])} -- ${endtime.strftime(dateformats['py'])} from category: ${categories_desc}</h3>
+            <p>Please refine your query</p>
+        </div>
+    </body>
+</html>

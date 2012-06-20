@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<rss version="2.0" xmlns:py="http://genshi.edgewall.org/"
+                   xmlns:dc="http://purl.org/dc/elements/1.1/"
+                   xmlns:xi="http://www.w3.org/2001/XInclude">
+  <channel>
+    <title>Error!</title>
+    <link></link>
+    <description>Error occurred while generating RSS feed: ${msg}</description>
+    <generator>Trac ${trac.version}</generator>
+    <item></item>
+   </channel>
+</rss>

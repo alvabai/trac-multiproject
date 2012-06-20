@@ -1,0 +1,187 @@
+--- trac/ticket/query.py	2012-04-13 15:59:56.681952901 +0300
++++ trac/ticket/query.py	2012-04-16 11:13:41.646544755 +0300
+@@ -62,7 +62,7 @@
+
+     def __init__(self, env, report=None, constraints=None, cols=None,
+                  order=None, desc=0, group=None, groupdesc=0, verbose=0,
+-                 rows=None, page=None, max=None, format=None):
++                 rows=None, page=None, max=None, childlist=0, format=None):
+         self.env = env
+         self.id = report # if not None, it's the corresponding saved query
+         constraints = constraints or []
+@@ -77,6 +77,7 @@
+         self.format = format
+         self.default_page = 1
+         self.items_per_page = QueryModule(self.env).items_per_page
++        self.childlist = childlist
+
+         # getting page number (default_page if unspecified)
+         if not page:
+@@ -143,7 +144,7 @@
+     def from_string(cls, env, string, **kw):
+         kw_strs = ['order', 'group', 'page', 'max', 'format']
+         kw_arys = ['rows']
+-        kw_bools = ['desc', 'groupdesc', 'verbose']
++        kw_bools = ['desc', 'groupdesc', 'verbose', 'childlist']
+         kw_synonyms = {'row': 'rows'}
+         # i18n TODO - keys will be unicode
+         synonyms = TicketSystem(env).get_field_synonyms()
+@@ -196,6 +197,101 @@
+         report = kw.pop('report', report)
+         return cls(env, report, constraints=constraints, cols=cols, **kw)
+
++    def get_children(self, req, tickets, db = None):
++        """
++        Function child tickets from the given `parent` tickets in a list, each child ticket
++        presented as dictionary:
++
++        - id: ID of the child ticket
++        - parent: Parent ID of the child ticket, without the leading hash -character
++        - summary: Title of the child ticket
++        - owner: Owner of the child ticket
++        - type: Type(?) of the child ticket
++        - time: Time of the child ticket
++        - changetime: Change time of the child ticket
++        - component: Component of the child ticket
++        - severity: Severity of the child ticket
++        - priority: Priority of the child ticket
++        - reporter: Reporter of the child ticket
++        - cc: Cc of the child ticket
++        - version: Version of the child ticket
++        - milestone: Milestone of the child ticket
++        - status: Status of the child ticket
++        - resolution: Resolution of the child ticket
++        - description: Description of the child ticket
++        - keywords: Keywords of the child ticket
++        - href: URL to the child ticket
++
++        """
++        children = []
++
++        if not db:
++            db = self.env.get_db_cnx()
++        cursor = db.cursor()
++
++        # If no tickets where match in query, children are also empty
++        if not tickets:
++            return []
++
++        # Generate the list of parent tickets for the query
++        parents = ["'#%d'" % ticket['id'] for ticket in tickets]
++
++        sql = """SELECT t1.ticket,
++        REPLACE(t1.value, '#', ''),
++        t2.summary,
++        t2.owner,
++        t2.type,
++        t2.time,
++        t2.changetime,
++        t2.component,
++        t2.severity,
++        t2.priority,
++        t2.reporter,
++        t2.cc,
++        t2.version,
++        t2.milestone,
++        t2.status,
++        t2.resolution,
++        t2.description,
++        t2.keywords
++        FROM ticket_custom t1, ticket t2
++        WHERE
++            t1.ticket=t2.id and
++            t1.name='parent' and
++            t1.value in (%s)
++        LIMIT 0,1000""" % (','.join(parents))
++
++        try:
++            cursor.execute(sql)
++            for row in cursor:
++                child = {}
++                child['id'] = row[0]
++                child['parent'] = row[1]
++                child['summary'] = row[2]
++                child['owner'] = row[3]
++                child['type'] = row[4]
++                child['time'] = from_utimestamp(row[5])
++                child['changetime'] = from_utimestamp(row[6])
++                child['component'] = row[7]
++                child['severity'] = row[8]
++                child['priority'] = row[9]
++                child['reporter'] = row[10]
++                child['cc'] = row[11]
++                child['version'] = row[12]
++                child['milestone'] = row[13]
++                child['status'] = row[14]
++                child['resolution'] = row[15]
++                child['description'] = row[16]
++                child['keywords'] = row[17]
++                child['href'] = req.href.ticket(row[0])
++                children.append(child)
++        except:
++            db.rollback()
++            raise
++
++        cursor.close()
++        return children
++
+     def get_columns(self):
+         if not self.cols:
+             self.cols = self.get_default_columns()
+@@ -412,6 +508,7 @@
+                           row=self.rows,
+                           max=max,
+                           page=page,
++                          childlist = self.childlist and 1 or None,
+                           format=format)
+
+     def to_string(self):
+@@ -928,7 +1025,8 @@
+                       'groupdesc' in args, 'verbose' in args,
+                       rows,
+                       args.get('page'),
+-                      max)
++                      max,
++                      'childlist' in args)
+
+         if 'update' in req.args:
+             # Reset session vars
+@@ -1046,6 +1144,9 @@
+         query_time = int(req.session.get('query_time', 0))
+         query_time = datetime.fromtimestamp(query_time, utc)
+         query_constraints = unicode(query.constraints)
++        children_enabled = self.env.is_component_enabled('childtickets.childtickets.TracchildticketsModule')
++        children = []
++        tickets = []
+         try:
+             if query_constraints != req.session.get('query_constraints') \
+                     or query_time < orig_time - timedelta(hours=1):
+@@ -1059,8 +1160,9 @@
+                              in req.session.get('query_tickets', '').split()]
+                 tickets = query.execute(req, db, orig_list)
+                 orig_time = query_time
++            if children_enabled and query.childlist:
++                children = query.get_children(req, tickets, db)
+         except QueryValueError, e:
+-            tickets = []
+             for error in e.errors:
+                 add_warning(req, error)
+
+@@ -1069,6 +1171,8 @@
+         if owner_field:
+             TicketSystem(self.env).eventually_restrict_owner(owner_field[0])
+         data = query.template_data(context, tickets, orig_list, orig_time, req)
++        data['children_enabled'] = children_enabled
++        data['children'] = children
+
+         req.session['query_href'] = query.get_href(context.href)
+         req.session['query_time'] = to_timestamp(orig_time)
+@@ -1249,7 +1353,7 @@
+             if m:
+                 kw = arg[:m.end() - 1].strip()
+                 value = arg[m.end():]
+-                if kw in ('order', 'max', 'format', 'col'):
++                if kw in ('order', 'max', 'format', 'col', 'childlist'):
+                     kwargs[kw] = value
+                 else:
+                     clauses[-1][kw] = value

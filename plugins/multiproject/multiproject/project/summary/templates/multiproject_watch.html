@@ -1,0 +1,18 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/">
+    <div class="watch">
+        <h2 class="title">Follow project<span py:if="env_name != project_name">: ${project_name}</span></h2>
+        <p>By following the project you'll get notifications from the project activity.</p>
+        <p class="status"></p>
+        <form class="watch" href="${req.href('api/project', project_id, 'watch')}" method="post">
+            <input type="hidden" name="project_id" value="${project_id}" />
+            <input type="hidden" name="resturl" value="${req.href('api/project', project_id, 'watch')}" />
+            <input type="submit" name="watch" value="Follow" />
+            <input type="submit" name="unwatch" value="Stop following" />
+        </form>
+        <script type="text/javascript" src="${req.href('chrome/multiproject/js/watch.js')}" charset="utf-8"></script>
+    </div>
+</html>

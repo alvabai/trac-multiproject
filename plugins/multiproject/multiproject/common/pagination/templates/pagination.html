@@ -1,0 +1,74 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      py:strip="True">
+
+<py:def function="only_subpages(pages, selected_page, with_first_last = True)">
+    <!--! Previous page link. If first, then no link -->
+    <py:if test="with_first_last">
+        <a py:if="selected_page != 1" href="?page=${selected_page - 1}">&laquo;</a>
+        <span py:if="selected_page == 1">&laquo;</span>
+    </py:if>
+
+    <!--! Actual page numbers -->
+    <py:for each="page in pages">
+        <a py:if="selected_page != page" href="?page=${page}">${page}</a>
+        <span py:if="selected_page == page">${page}</span>
+    </py:for>
+
+    <!--! Next page link. If last, then no link -->
+    <py:if test="with_first_last">
+        <span py:if="selected_page == len(pages)">&raquo;</span>
+        <a py:if="selected_page != len(pages)" href="?page=${selected_page + 1}">&raquo;</a>
+    </py:if>
+</py:def>
+
+<!-- ! This pagination is just made to work with project find page -->
+<py:def function="numbered_pagination(min, max, selected, total_pages)">
+
+    <!-- ! First -->
+    <a py:if="selected > 1" href="#" class="subpage_link" id="first_1">First</a>
+    <span py:if="selected == 1" class="subpage_link disabled">First</span>
+    |
+
+    <!-- ! Previous -->
+    <a py:if="selected > 1" href="#" class="subpage_link" id="prev_${selected-1}">Previous</a>
+    <span py:if="selected == 1" class="subpage_link disabled">Previous</span>
+    |
+
+    <!-- ! Next page -->
+    <py:if test="min > 1">
+        <span class="subpage_link disabled">...</span>
+        |
+    </py:if>
+
+    <!-- ! Page numbers -->
+    <py:for each="page in range(min,max)">
+        <a py:if="page != selected" href="#" class="subpage_link" id="sub_${page}">${page}</a>
+        <a py:if="page == selected" href="#" class="subpage_link selected" id="sub_${page}">${page}</a>
+        |
+    </py:for>
+
+    <!-- ! Last page -->
+    <py:if test="total_pages > max - 1">
+        <py:if test="total_pages > max">
+            <span class="subpage_link disabled">... </span>
+            |
+        </py:if>
+        <a href="#" class="subpage_link" id="next_${total_pages}" >${total_pages}</a>
+        |
+    </py:if>
+    <!-- ! Next page -->
+    <a py:if="total_pages > selected" href="#" class="subpage_link" id="next_${selected+1}" >Next</a>
+    <span py:if="total_pages == selected" class="subpage_link disabled">Next</span>
+    |
+    <!-- ! Last page -->
+    <a py:if="total_pages > selected" href="#" class="subpage_link" id="last_${int(total_pages)}">Last</a>
+    <span py:if="total_pages == selected" class="subpage_link disabled">Last</span>
+
+</py:def>
+
+</html>

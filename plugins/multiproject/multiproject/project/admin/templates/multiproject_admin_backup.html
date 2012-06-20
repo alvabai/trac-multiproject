@@ -1,0 +1,71 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+  <xi:include href="admin.html" />
+
+  <head>
+    <title>Backup / Restore</title>
+  </head>
+
+  <body>
+    <div class="module-backup">
+        <h2>Backups of the project states</h2>
+        <p>With this functionality, you can manually save the state of the project tickets and wiki pages.
+        With restore, you can return to earlier state. Note, however, this functionality is not to replace
+        the original backups, which are taken automatically.
+        </p>
+        <div class="system-message-wrapper warning">
+            <div class="system-message">
+            <strong>Warning:</strong> When the backup is restored, all the data, including tickets, wikipages, commets since
+            since the backup date will be erased!
+            </div>
+        </div>
+
+        <form class="backup" method="post" action="${backup_href('backup')}">
+            <p class="inline">You can give an optional description of the current state in the textarea below. Thus making the restoring to current state will be easier.</p>
+            <textarea id="module-backup-desc" class="backup-desc pagewidth description" name="description" placeholder="Short description about the backup"></textarea>
+            <input type="submit" name="create" value="Create a new snapshot" />
+        </form>
+
+        <p class="inline">List of existing backups to restore:</p>
+
+        <table id="backup-list" class="table listing">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Created</th>
+                    <th>Restored</th>
+                    <th>Delete</th>
+                    <th>Restore</th>
+                </tr>
+            </thead>
+            <tr py:for="backup in backups" class="backup-${backup.id}">
+                <td>${backup.description}</td>
+                <td>
+                    <span class="date">${format_datetime(backup.created)}</span> by <span class="author">${backup.created_by_username}</span></td>
+                <td>
+                    <py:if test="backup.restored">
+                        <span class="date">${format_datetime(backup.restored)}</span> by <span class="author">${backup.created_by_username}</span>
+                    </py:if>
+                    <py:if test="not backup.restored">
+                        Never
+                    </py:if>
+                </td>
+                <td>
+                    <form class="backup" method="post" action="${backup_href(backup.id, 'delete')}">
+                        <input type="submit" name="delete" alt="Are you sure you want to delete backup?" class="confirm secondaryInputBtn" value="Delete" />
+                    </form>
+                </td>
+                <td>
+                    <form class="backup" method="post" action="${backup_href(backup.id, 'restore')}">
+                        <input type="submit" name="restore" alt="Are you sure you want to restore the backup?"  class="confirm blueButton" value="Restore" />
+                    </form>
+                </td>
+            </tr>
+        </table>
+    </div>
+  </body>
+</html>

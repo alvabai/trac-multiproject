@@ -1,0 +1,8 @@
+#!/bin/bash
+# Script for logging svn commit to analytics
+source /etc/trac/env.sh
+
+REPOS="$1"
+REV="$2"
+AUTHOR=$(svnlook author ${REPOS} --revision ${REV})
+python ${ROOT}/trac/dist/current/scripts/scm-incoming.py ${REPOS} ${AUTHOR}

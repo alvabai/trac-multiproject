@@ -1,0 +1,68 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="layout.html" />
+  <head>
+    <title>Search<py:if test="query"> Results</py:if></title>
+    <py:if test="results">
+        <meta name="startIndex" content="${results.span[0] + 1}"/>
+        <meta name="totalResults" content="$results.num_items"/>
+        <meta name="itemsPerPage" content="$results.max_per_page"/>
+    </py:if>
+    <link rel="stylesheet" type="text/css" href="/htdocs/theme/${conf.getThemePath()}css/project_search.css" />
+  </head>
+  <body>
+    <div id="content" class="search">
+
+      <h1><label for="q">Project search</label></h1>
+
+      <form id="fullsearch">
+        <div class="catSelectNav search-criteria-col">
+          <div class="shadedBox">
+            <div class="searchcriteria-box">
+
+            <!-- ! Top 10 categories -->
+            <h2 class="resource-title" style="border-top:none">Select area</h2>
+            <div class="module" style="padding-top: 0px;">
+                <ul class="catlist search-criteria">
+                <li id="select_all" class="selected">
+                    <a href="#">All pages</a>
+                </li>
+                <py:for each="filter in filters">
+                    <li id="cat_${filter.name}">
+                        <a href="#">${filter.label}</a>
+                    </li>
+                </py:for>
+                </ul>
+            </div>
+            </div>
+          </div>
+        </div>
+        <div class="search-area">
+            <input type="text" id="searchForProjects" name="q" size="40" value="${query or 'Search in selected project pages'}" class="fnsearchInput" />
+            <input type="hidden" name="noquickjump" value="1" />
+            <button id="searchProjectsBtn" type="submit" class="fnsubmitSearch" title="Search"></button>
+            <hr class="devider_grey" style="clear: both; margin-top: 40px; "/>
+        </div>
+        <div id="searchResults"></div> <!-- ! Ajax query results go here -->
+
+      </form>
+
+      <div class="shadedBox" style="clear:both;">
+        <div class="roundTop"><span></span></div>
+        <div id="help" i18n:msg="">
+            <strong>Note:</strong> See <a href="${href.wiki('TracSearch')}">TracSearch</a>
+            for help on searching.
+        </div>
+        <div class="roundBottom"><span></span></div>
+      </div>
+
+    </div>
+    <script type="text/javascript" src="${conf.theme_htdocs_location}/js/jquery.ba-bbq.js"></script>
+    <script type="text/javascript" src="${conf.theme_htdocs_location}/js/search.js"></script>
+  </body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html
+        PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+<xi:include href="layout.html" />
+<xi:include href="category_tree.html" />
+<head>
+    <title>${_project_.project_name}</title>
+    <meta name="description" content="${_project_.get_description()}" />
+    <meta name="author" content="${_project_.author.username}" />
+    <meta py:if="len(languages) > 0" http-equiv="content-language" content="${','.join(languages)}" />
+</head>
+
+<body>
+<?python
+    from multiproject.core.util import to_web_time
+?>
+<div>
+    <div class="twoThirdsWidth left">
+        <div py:choose="">
+            <py:when test="'SUMMARY_VIEW' in req.perm or 'PRIVATE_SUMMARY_VIEW' in req.perm">
+                <p>
+                    ${_project_.get_description()}
+                </p>
+            </py:when>
+        </div>
+        <py:if test="req.authname != 'anonymous' and 'ALLOW_REQUEST_MEMBERSHIP' in req.perm and 'PRIVATE_SUMMARY_VIEW' in req.perm">
+            <!--! If user has SUMMARY_VIEW permission, the request access button is shown elsewhere -->
+            <py:if test="'SUMMARY_VIEW' not in req.perm">
+                <p class="ingress" id="access_error">Access to this content is restricted. You may
+                    request access from the project administrators.</p>
+                <p>
+                    <a href="${req.href('membership')}" class="secondaryButton"><span>request access</span></a>
+                </p>
+            </py:if>
+        </py:if>
+    </div>
+    <div class="twoThirdsWidth left">
+        <div py:choose="" id="welcome_project_summary">
+            <py:when test="wiki_summary and 'WIKI_VIEW' in req.perm">
+                <hr></hr>
+                ${wiki_summary}
+                <a py:if="'WIKI_MODIFY' in req.perm" href="${req.href('wiki/SummaryPage', action='edit')}" title="Edit" class="primaryButton"><span>Edit</span></a>
+            </py:when>
+            <py:when test="not wiki_summary and 'WIKI_CREATE' in req.perm">
+                <p>
+                    Here you can add more detailed explanation about your project. It will require users to have
+                    WIKI_VIEW permission to see this part.
+                </p>
+                <a href="${req.href('wiki/SummaryPage')}" title="Edit" class="primaryButton"><span>Edit</span></a>
+            </py:when>
+        </div>
+
+        <div py:if="'TIMELINE_VIEW' in req.perm" class="resource-box">
+            <h2 class="resources-title">5 latest activities</h2>
+
+            <ul id="welcome_global_timeline_items">
+                <li py:for="activity in activities" class="timeline_event ${classes(activity.kind, False)}">
+                    <div class="icon"></div>
+                    <div class="content">
+                        <a href="${req.href(activity.project_identifier)}" title="${activity.project_name}">
+                            ${activity.project_name}</a>
+                        <a href="${activity.render('url', context)}" py:strip="len(str(activity.render('url', context))) == 0">
+                            ${activity.render('title', context)}</a><span> by </span>
+                        <span py:if="activity.author" class="author">${plaintext(format_author(activity.author))}</span>
+                    </div>
+                </li>
+                <li py:if="'TIMELINE_VIEW' in req.perm" id="viewfulltimeline">
+                    <a class="more" href="${req.href('timeline')}" shape="rect">See the complete timeline &gt;</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="resource-box" id="project-annoucements">
+            ${wiki_to_html(context, '[[Announcements(count=5,title="5 latest announcements")]]')}
+        </div>
+
+    </div>
+
+    <div class="oneThirdWidth right last">
+
+        <div class="resource-box" id="project-summary" py:if="'SUMMARY_VIEW' in req.perm">
+            <h2 class="resources-title">Project summary</h2>
+            <table class="properties">
+                <tbody>
+                    <tr>
+                        <th>Categories:</th>
+                        <td>
+                            <!-- Main categories -->
+                            <py:if test="len(combined_categories) &gt; 1">
+                                <py:for each="category in combined_categories[:-1]">
+                                    <a href="${req.href('../home/project/explore') + '#c[]=%s'%category.category_id}">${category.name}</a>,
+                                </py:for>
+                            </py:if>
+                            <py:if test="len(combined_categories) &gt; 0">
+                                <py:with vars="last_category=combined_categories[-1]">
+                                    <a href="${req.href('../home/project/explore') + '#c[]=%s'%last_category.category_id}">${last_category.name}</a>
+                                </py:with>
+                            </py:if>
+                            <!-- Category contexts -->
+                        </td>
+                    </tr>
+                    <py:for each="context_id in context_order">
+                        <tr>
+                        <py:choose>
+                            <py:when test="len(separated_categories_per_context[context_id]) &gt; 0">
+                                <th>${context_by_id[context_id].summary_name}:</th>
+                                <td>
+                                <py:if test="len(separated_categories_per_context[context_id]) &gt; 1">
+                                    <py:for each="category in separated_categories_per_context[context_id][:-1]">
+                                        <a href="${req.href('../home/project/explore') + '#c[]=%s'%category.category_id}">${category.name}</a>,
+                                    </py:for>
+                                </py:if>
+                                <py:if test="len(separated_categories_per_context[context_id]) &gt; 0">
+                                    <py:with vars="last_category=separated_categories_per_context[context_id][-1]">
+                                        <a href="${req.href('../home/project/explore') + '#c[]=%s'%last_category.category_id}">${last_category.name}</a>
+                                    </py:with>
+                                </py:if>
+                                </td>
+                            </py:when>
+                        </py:choose>
+                        </tr>
+                    </py:for>
+                    <tr>
+                        <th>Created:</th>
+                        <td>${to_web_time(_project_.created)}</td>
+                    </tr>
+                    <tr>
+                        <th>Visibility:</th>
+                        <td>${visibility_label}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="resource-box" id="project-follow">${wiki_to_html(context, '[[WatchProject]]')}</div>
+
+        <div class="resource-box" id="featured_downloads" py:if="'DOWNLOADS_VIEW' in req.perm and downloads">
+            <h2 class="title">Featured downloads</h2>
+            <ul id="featured_downloads_list">
+                <li py:for="download in downloads">
+                    <a id="filecolumn" href="${download['url']}" title="${download['origtitle']}">${download['title']}</a>
+                    <span id="typecolumn">${download['platform']}</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="resource-box" id="project-team">
+            ${wiki_to_html(context, '[[ProjectTeam]]')}
+        </div>
+    </div>
+</div>
+</body>
+</html>

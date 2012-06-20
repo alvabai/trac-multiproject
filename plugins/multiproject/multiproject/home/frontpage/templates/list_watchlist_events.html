@@ -1,0 +1,45 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      py:strip="True">
+
+<py:def function="list_watchlist_events(watchlist)">
+    <py:choose>
+    <py:when test="watchlist and len(watchlist) > 0" class="watchlist_timeline">
+        <ul>
+        <py:for each="project, event, context in watchlist">
+            <li class="timeline_event ${event['kind']}">
+                <div class="icon">&nbsp;</div>
+                <div class="project_name">
+                    <a href="${baseurl}/${project.env_name}" title="Go to project ${project.project_name}">${project.project_name}</a>
+                </div>
+                <div class="event">
+                    <strong>${event.render('title',context)}</strong>
+                    <py:if test="event['kind'] != 'wiki'">
+                        <py:with vars="descr = plaintext(event.render('description',context)); ellipsis = len(descr) > 70 and '...' or ''">
+                            - ${descr[:70]} ${ellipsis}
+                        </py:with>
+                    </py:if>
+                    - ${to_web_time(event['date'])}, ${format_time(event.date, str('%H:%M'))}, by ${format_author(event['author'])}
+                </div>
+            </li>
+        </py:for>
+        </ul>
+    </py:when>
+    <py:otherwise>
+        <ul>
+        <li>
+        <div class="greyBgContainer" style="margin-left:10%;width:80%;">
+            <div class="greyBgContent">
+                No events in timeline
+            </div>
+        </div>
+        </li>
+        </ul>
+    </py:otherwise>
+    </py:choose>
+</py:def>
+</html>

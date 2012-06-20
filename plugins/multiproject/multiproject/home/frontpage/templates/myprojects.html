@@ -1,0 +1,161 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+  <html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <xi:include href="layout.html" />
+  <xi:include href="list_my_projects.html" />
+  <xi:include href="list_my_tasks.html" />
+  <xi:include href="list_posts2.html" />
+  <xi:include href="list_watchlist_events.html" />
+  <head>
+    <py:if test="not userpage">
+      <title>My projects</title>
+    </py:if>
+    <py:if test="userpage">
+      <title>${title}</title>
+    </py:if>
+  </head>
+
+  <body>
+	<div id="myprojects_page">
+    <h1 id="pageHeader">${title}</h1>
+
+    <div class="halfWidth left">
+    	<div class="resource-box">
+	        <h2 class="resources-title" id="my_projects_tasks_title">
+	        	${usernames} open tickets
+	            <span id="ticket_sort_control">
+	                <a py:if="sort_tasks_order == 'DESC'" href="#" title="Toggle sort order" id="toggle_sort" class="sort_asc"></a>
+	                <a py:if="sort_tasks_order == 'ASC'" href="#" title="Toggle sort order" id="toggle_sort" class="sort_desc"></a>
+
+	                <select id="ticket_sort_select" class="selectMenu" style="float:right;">
+	                    <option py:if="sort_tasks_by == 'DATE'" selected="selected" title="Sort by date" value="DATE">Date</option>
+	                    <option py:if="sort_tasks_by != 'DATE'" title="Sort by date" value="DATE">Date</option>
+
+	                    <option py:if="sort_tasks_by == 'PRIORITY'" selected="selected" title="Sort by priority" value="PRIORITY">Priority</option>
+	                    <option py:if="sort_tasks_by != 'PRIORITY'" title="Sort by priority" value="PRIORITY">Priority</option>
+
+	                    <option py:if="sort_tasks_by == 'PROJECT'" selected="selected" title="Sort by project" value="PROJECT">Project</option>
+	                    <option py:if="sort_tasks_by != 'PROJECT'" title="Sort by project" value="PROJECT">Project</option>
+	                </select>
+	            </span>
+	        </h2>
+	        <ul>
+	        <py:choose>
+	            <py:when test="len(tasks) > 0">
+	                ${list_my_tasks(tasks)}
+	            </py:when>
+	            <py:otherwise test="">
+	                <li>
+	                <xi:include href="${conf.getThemePath()}no_tasks_nag.html"> <xi:fallback /> </xi:include>
+	                </li>
+	            </py:otherwise>
+	        </py:choose>
+			</ul>
+		</div>
+
+    </div>
+
+    <div class="halfWidth left last">
+        <xi:include href="userbadge.html" />
+    </div>
+
+    <div class="resource-box my_projects_list" py:if="not userpage and len(projects_where_admin) > 0">
+        <h2 class="resources-title">The projects where I am admin</h2>
+        <p>The projects where I have TRAC_ADMIN permission, which grants me all permissions.</p>
+        <ul>
+            ${list_my_projects(projects_where_admin)}
+        </ul>
+    </div>
+
+    <div class="resource-box my_projects_list" py:if="len(projects) > 0">
+        <py:choose>
+            <py:when test="not userpage and len(projects_where_admin) > 0">
+                <h2 class="resources-title">My other projects</h2>
+                <p>I belong in some group in these projects, but I don't have TRAC_ADMIN permission.</p>
+            </py:when>
+            <py:otherwise>
+                <h2 class="resources-title"><span >${usernames} projects</span></h2>
+            </py:otherwise>
+        </py:choose>
+        <ul>
+            ${list_my_projects(projects)}
+        </ul>
+    </div>
+
+    <div class="resource-box my_projects_list" py:if="len(projects) == 0 and len(projects_where_admin) == 0">
+        <h2 class="resources-title"><span>${usernames} projects</span></h2>
+        <ul>
+            <li>
+                <xi:include href="${conf.getThemePath()}no_projects_nag.html"><xi:fallback /></xi:include>
+            </li>
+        </ul>
+    </div>
+
+    <div class="halfWidth left">
+        <div class="resource-box">
+            <h2 class="resources-title">${usernames} posts</h2>
+            <ul>
+                <py:choose>
+                    <py:when test="len(posts) > 0">
+                        ${list_posts(posts)}
+                    </py:when>
+                    <py:otherwise test="">
+                        <li>
+                            <xi:include href="${conf.getThemePath()}no_posts_nag.html"><xi:fallback /></xi:include>
+                        </li>
+                    </py:otherwise>
+                </py:choose>
+            </ul>
+        </div>
+    </div>
+
+    <div class="halfWidth left last">
+        <div class="resource-box">
+			<py:if test="not userpage">
+			<h2 class="resources-title">Following <span class="editButton"><a href="${req.base_path}/watchlist_timeline" id="watchlist_timeline_button">Timeline</a></span></h2>
+			<ul>
+	        ${list_watchlist_events(watchlist)}
+	        </ul>
+	        </py:if>
+        </div>
+    </div>
+
+        <form id="sorting_form" style="display:none;" action="" method="post">
+        <fieldset>
+            <input id="sort_tasks_by" name="sort_tasks_by" type="hidden" value="${sort_tasks_by}" />
+            <input id="sort_tasks_order" name="sort_tasks_order" type="hidden" value="${sort_tasks_order}" />
+        </fieldset>
+    </form>
+  </div> <!-- !End of #myprojects_page -->
+    <script type="text/javascript">
+        // Hook submit on change event
+        $('#ticket_sort_select').bind('change',
+                function() {
+                    value = $('#ticket_sort_select').val();
+                    $('#sort_tasks_by').val(value);
+                    $('#sorting_form').submit();
+                }
+        );
+
+        // Hook submit actions on ASC/DESC (up/down arrows)
+        $('.sort_asc').bind('click',
+                function() {
+                    $('#sort_tasks_order').val('ASC');
+                    $('#sorting_form').submit();
+                }
+        );
+
+        $('.sort_desc').bind('click',
+                function() {
+                    $('#sort_tasks_order').val('DESC');
+                    $('#sorting_form').submit();
+                }
+        );
+
+    </script>
+  </body>
+</html>

@@ -1,0 +1,33 @@
+diff -uNr trac/wiki/default-pages/WikiFormatting trac/wiki/default-pages/WikiFormatting
+--- trac/wiki/default-pages/WikiFormatting	2010-10-10 00:37:48.000000000 +0300
++++ trac/wiki/default-pages/WikiFormatting	2011-01-19 15:00:53.849641433 +0200
+@@ -257,7 +257,7 @@
+    * {{{monospace}}} or `monospace`
+      (hence `{{{` or {{{`}}} quoting)
+    * ~~strike-through~~
+-   * ^superscript^
++   * ^^superscript^^
+    * ,,subscript,,
+    * **also bold**, //italic as well//,
+      and **'' bold italic **'' //(since 0.12)//
+@@ -274,7 +274,7 @@
+  * {{{monospace}}} or `monospace`
+    (hence `{{{` or {{{`}}} quoting)
+  * ~~strike-through~~
+- * ^superscript^
++ * ^^superscript^^
+  * ,,subscript,,
+  * **also bold**, //italic as well//,
+    and **'' bold italic **'' //(since 0.12)//
+diff -uNr trac/wiki/parser.py trac/wiki/parser.py
+--- trac/wiki/parser.py	2010-10-10 00:37:49.000000000 +0300
++++ trac/wiki/parser.py	2011-01-19 15:01:24.655046964 +0200
+@@ -36,7 +36,7 @@
+     UNDERLINE_TOKEN = "__"
+     STRIKE_TOKEN = "~~"
+     SUBSCRIPT_TOKEN = ",,"
+-    SUPERSCRIPT_TOKEN = r"\^"
++    SUPERSCRIPT_TOKEN = r"\^\^"
+     INLINE_TOKEN = "`" # must be a single char (see P<definition> below)
+     STARTBLOCK_TOKEN = r"\{\{\{"
+     STARTBLOCK = "{{{"

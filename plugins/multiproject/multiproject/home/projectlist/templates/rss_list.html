@@ -1,0 +1,55 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+  <html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<?python
+from multiproject.core.configuration import conf
+?>
+
+  <xi:include href="layout.html" />
+  <xi:include href="pagination.html" />
+<!-- ! Lists projects. If user is insider, also Recent and All projects shown -->
+<head>
+    <title>Project list</title>
+</head>
+
+<body>
+    <div class="sections">
+        <div class="section_top" />
+            <py:choose>
+                <py:when test="projects">
+                    <table class="rss_projectlist_table">
+                        <tr>
+                            <th>Project</th>
+                            <th>Created</th>
+                            <th py:if="show_author">Author</th>
+                        </tr>
+                        <py:for each="project in projects">
+                            <tr>
+                                <td class="projectlist_table_namelink">
+                                    <a href="${baseurl}/${project.name}" title="${project.project_name}">$project.project_name</a>
+                                </td>
+                                <td class="projectlist_table_date">${project.date.strftime("%Y/%m/%d")}</td>
+                                <td py:if="show_author">${format_author(project.author)}</td>
+                            </tr>
+                        </py:for>
+                    </table>
+                </py:when>
+                <py:otherwise>
+                    No projects
+                </py:otherwise>
+            </py:choose>
+        <div class="subpage_links" py:if="len(pages) > 0">
+          <p>Sub pages</p>
+          ${only_subpages(pages, selected_page)}
+        </div>
+        <div class="section_bottom" />
+    </div>
+
+    <script type="text/javascript" src="${conf.theme_htdocs_location}/js/home.js"></script>
+    <script type="text/javascript" src="${conf.theme_htdocs_location}/js/categorization.js"></script>
+</body>
+</html>

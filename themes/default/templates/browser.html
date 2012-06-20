@@ -1,0 +1,277 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:py="http://genshi.edgewall.org/"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:i18n="http://genshi.edgewall.org/i18n">
+  <xi:include href="layout.html" />
+  <head>
+    <title py:choose="len(path_links)">
+      <py:when test="1">/</py:when>
+      <py:when test="2">${path_links[-1].name}</py:when>
+      <py:otherwise><i18n:msg params="basename, dirname">${path_links[-1].name} in ${'/'.join(part.name for part in path_links[1:-1])}</i18n:msg></py:otherwise>
+    </title>
+    <meta py:if="file and file.annotate" name="ROBOTS" content="NOINDEX, NOFOLLOW" />
+    <meta py:if="dir" name="ROBOTS" content="NOINDEX" />
+    <script type="text/javascript" src="${chrome.htdocs_location}js/folding.js"></script>
+    <script type="text/javascript" src="/htdocs/theme/js/ZeroClipboard.js"></script>
+    <link rel="stylesheet" href="${conf.theme_htdocs_location}/${conf.getThemePath()}css/browser.css" type="text/css" />
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $(".trac-toggledeleted").show().click(function() {
+                  $(this).siblings().find(".trac-deleted").toggle();
+                  return false;
+        }).click();
+        $("#jumploc input").hide();
+        $("#jumploc select").change(function () {
+          this.parentNode.parentNode.submit();
+        });
+
+        <py:if test="dir or repo">
+          /* browsers using old WebKits have issues with expandDir... */
+          var webkit_rev = /AppleWebKit\/(\d+)/.exec(navigator.userAgent);
+          if ( !webkit_rev || (521 - webkit_rev[1]).toString()[0] == "-" )
+            enableExpandDir(null, $("table.dirlist tr"), {
+                action: 'inplace',
+                range_min_secs: '$dir.range_min_secs',
+                range_max_secs: '$dir.range_max_secs'
+            });
+        </py:if>
+        <py:if test="file">
+          <py:if test="file.annotate">
+            enableBlame("${href.changeset()}/", "${reponame}", "${path}");
+          </py:if>
+          $('#preview table.code').enableCollapsibleColumns($('#preview table.code thead th.content'));
+        </py:if>
+
+          // If clipboard button is not visible, don't bother initializing clipboard
+          if($('#clipbutton').length == 0) {
+              return;
+          }
+
+          var version = swfobject.getFlashPlayerVersion();
+          if (version.major != 0)
+          {
+            function update_text(client) {
+                client.setText($("#repoaddress").text());
+            }
+            ZeroClipboard.setMoviePath('/htdocs/theme/flash/ZeroClipboard.swf');
+            var clip = new ZeroClipboard.Client();
+            clip.setText($("#repoaddress").text());
+            clip.glue('clipbutton');
+            clip.addEventListener('onMouseOver', update_text);
+          } else
+          {
+            document.getElementById("clipbutton").setAttribute("class", "disabledbutton");
+          }
+
+          $('.proto_btn').click(function () {
+            var id = $(this).attr('id');
+            var co = $('#'+id+' .co').text();
+            $('#repoaddress').text(co);
+
+            $('.proto_btn').removeClass('selected');
+            $(this).addClass('selected');
+          });
+      });
+
+      function applydiff()
+      {
+        document.forms["diffcs"].submit();
+      }
+    </script>
+  </head>
+
+  <body>
+    <div id="topheader">
+         <py:choose>
+          <h2 class="notop" py:when="repo and repo.repositories">Default Repository</h2>
+          <h2 class="notop" py:otherwise=""><xi:include href="path_links.html" /></h2>
+        </py:choose>
+    </div>
+    <div id="content" class="browser">
+
+      <py:if test="dir or file">
+
+      <div id="protocol_selection">
+      <py:choose>
+        <!-- When only one protocol show this area differently -->
+        <py:when test="len(schemes) == 1 or not conf.use_protocol_check">
+          <!-- Buttons for selecting protocol -->
+
+          <span id="protoselector" class="protocolSelectButtons clickable">
+          	<span>GIT clone</span>
+		   </span>
+        </py:when>
+        <py:otherwise>
+          <!-- Buttons for selecting protocol -->
+          <span id="protoselector" class="protocolSelectButtons clickable">
+            <span class="proto_btn selected" id="proto1">
+              <!-- ! <div class="greyleft"></div> -->
+              <a class="" href="#">
+				<span>${schemes[0].upper()}</span>
+			  </a>
+              <!-- ! <div class="greybutton">${schemes[0].upper()}</div> -->
+              <div class="co" style="display:none;">${co_commands[schemes[0]]}</div>
+            </span>
+            <span class="protodivider">|</span>
+            <span id="proto2" class="proto_btn">
+              <!-- !<div class="greybutton"></div>
+              <div class="greyright"></div> -->
+              <a class="" href="#">
+				<span>${schemes[1].upper()}</span>
+			  </a>
+              <div class="co" style="display:none;">${co_commands[schemes[1]]}</div>
+            </span>
+          </span>
+        </py:otherwise>
+      </py:choose>
+      <!-- Url to show -->
+      <span class="urlToClipboard">
+        <span class="secondaryButton flippedButton" id="clipbutton">Copy to clipboard</span>
+        <!--! Always at first show first protocol -->
+        <span class="ltgreyfield blueitalic" id="repoaddress">${co_commands[schemes[0]]}</span>
+      </span>
+	</div>
+
+         <div class="headeritems">
+            <div id="jumprev" py:if="'up' not in chrome.links and not file">
+              <form action="" method="get">
+                <input type="submit" value="${_('Go')}" id="go" />
+                <span>
+                  <label for="rev" title="${stickyrev and _('Hint: clear the field to view latest revision') or None}">View revision:</label>
+                  <input type="text" id="rev" name="rev" value="$stickyrev" size="6" />
+                </span>
+              </form>
+            </div>
+            <div py:if="quickjump_entries" id="jumploc">
+              <form action="" method="get">
+              <div class="buttons">
+                <label for="preselected">Visit:</label>
+                <select id="preselected" name="preselected" class="">
+                  <option selected="selected" />
+                  <optgroup py:for="category, locations in groupby(quickjump_entries, key=lambda q: q[0])"
+                    label="${category}">
+                    <option py:for="_, name, path, rev in locations" value="${href.browser(reponame, path, rev=rev)}">$name</option>
+                  </optgroup>
+                </select>
+                <!-- ! <input type="submit" value="${_('Go!')}" title="Jump to the chosen preselected path" /> -->
+              </div>
+              </form>
+            </div>
+
+          </div>
+
+        <h2 class="headercaption">All sources</h2>
+
+
+
+      </py:if>
+
+      <py:if test="dir">
+        <table class="listing dirlist table" id="dirlist">
+          <xi:include href="dirlist_thead.html" />
+          <tbody>
+            <py:if test="'up' in chrome.links">
+              <tr class="even">
+                <td class="name" colspan="6">
+                  <a class="parent" title="Parent Directory" href="${chrome.links.up[0].href}">../</a>
+                </td>
+              </tr>
+            </py:if>
+            <xi:include href="dir_entries.html" />
+            <py:match path="//td[@class='age']">
+            	<td class="age"> ${select('*|text()|comment()')}</td>
+            </py:match>
+            <tr py:if="'up' not in chrome.links and not dir.entries" class="even">
+              <td class="name" colspan="6">
+                No files found
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </py:if>
+
+      <table py:if="properties or file" id="info" summary="Revision info">
+        <tr py:if="file">
+          <th scope="col" i18n:msg="rev, size, author, date">
+            Revision <a href="${href.changeset(rev, reponame)}">${display_rev(rev)}</a>,
+            <span title="${_('%(size)s bytes', size=file.size)}">${pretty_size(file.size)}</span>
+            checked in by ${format_username(file.changeset.author)}, ${dateinfo(file.changeset.date)} ago
+            (<a href="${href.changeset(rev, reponame, created_path)}">diff</a>)
+          </th>
+        </tr>
+        <tr py:if="file">
+          <td class="message searchable" py:choose="">
+            <py:when test="wiki_format_messages" xml:space="preserve">
+              ${wiki_to_html(context('changeset', file.changeset.rev, parent=repos.resource),
+                             file.changeset.message, escape_newlines=True)}
+            </py:when>
+            <py:otherwise>${file.changeset.message}</py:otherwise>
+          </td>
+        </tr>
+        <tr py:if="properties">
+          <td colspan="2">
+            <ul class="props">
+              <py:def function="prop_value(prop)">
+                <py:choose>
+                  <py:when test="istext(prop.value)"><em><code>$prop.value</code></em></py:when>
+                  <py:otherwise>$prop.value</py:otherwise>
+                </py:choose>
+              </py:def>
+              <li py:for="prop in properties" py:choose="">
+                <py:when test="prop.rendered">
+                   <span py:if="prop.rendered.name"
+                         py:attrs="prop.rendered.name_attributes" py:content="prop.rendered.name" />
+                   <div py:attrs="prop.rendered.content_attributes" py:content="prop.rendered.content" />
+                </py:when>
+                <py:otherwise>
+                  <i18n:msg params="name, value">Property <strong>$prop.name</strong> set to ${prop_value(prop)}</i18n:msg>
+                </py:otherwise>
+              </li>
+            </ul>
+          </td>
+        </tr>
+      </table>
+
+      <div py:if="dir and path == '/'" class="description">
+        ${wiki_to_html(context('source', '/', parent=repos.resource), repoinfo.description)}
+      </div>
+
+      <py:if test="repo and repo.repositories">
+        <hr py:if="dir"/>
+        <h1>Repository Index</h1>
+        <py:with vars="repoindex = 'repoindex'">
+          <xi:include href="repository_index.html" />
+        </py:with>
+      </py:if>
+
+      <div py:if="file and file.preview" id="preview" class="searchable">
+        <xi:include href="preview_file.html" py:with="preview = file.preview"/>
+      </div>
+
+
+      <div class="shadedBox" i18n:msg="">
+        <div class="roundTop"><span></span></div>
+        <div id="help">
+            <strong>Note:</strong> See <a href="${href.wiki('TracBrowser')}">TracBrowser</a>
+            for help on using queries.
+        </div>
+        <div class="roundBottom"><span></span></div>
+      </div>
+
+      <div id="anydiff">
+        <form id="diffcs" action="${href.diff()}" method="get">
+          <div class="buttons">
+            <input type="hidden" name="new_path" value="${'/' + pathjoin(reponame, path)}" />
+            <input type="hidden" name="old_path" value="${'/' + pathjoin(reponame, path)}" />
+            <input type="hidden" name="new_rev" value="$stickyrev" />
+            <input type="hidden" name="old_rev" value="$stickyrev" />
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </body>
+</html>

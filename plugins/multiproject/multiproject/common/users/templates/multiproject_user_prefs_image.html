@@ -1,0 +1,35 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="prefs.html" />
+  
+<?python
+from multiproject.core.configuration import conf
+?>
+
+  <!-- ! Show preferences page to user for changing image -->
+  <head>
+    <title>Image</title>
+  </head>
+  <body>
+	<div>
+    	<img py:if="user.icon and user.icon != 'null'" src="${base_path}/usericon?user_id=${user.id}"
+        class="face_image" alt="${user.getDisplayName()}" />
+      	<img py:if="not user.icon or user.icon == 'null'" src="${conf.theme_htdocs_location}/images/no_icon.gif"
+        class="face_image" alt="${user.getDisplayName()}" />
+	</div>
+	
+	<fieldset>
+		<legend>Face image</legend>	
+		Use small image. Server will not accept larger than 100K images.<br />
+		Images with size of 140x140 pixels and white background will appear most appropriately.<br />
+		<input type="file" id="icon" name="icon" accept="image/gif, image/jpeg, image/jpg, image/png"/><br />
+        <br />
+		
+        <input type="checkbox" name="removeicon" value="removeicon" />Remove image<br />
+	</fieldset>
+  </body>
+</html>

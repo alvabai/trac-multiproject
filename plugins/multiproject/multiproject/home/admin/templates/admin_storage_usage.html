@@ -1,0 +1,58 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+  <xi:include href="admin.html" />
+  
+  <head>
+    <title>Projects storage usage</title>
+  </head>
+  
+  <body>
+  <div>
+    <h2>Projects storage usage</h2>
+    <p>
+    This panel contains information of projects storage usage.
+    </p>
+    <br />
+      <table class="listing" id="storageslist">
+        <thead>
+          <tr>
+            <th>Storage</th>
+            <th>Total size</th>
+            <th>Used</th>
+            <th>Available</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td py:for="item in sysinfo">${item}</td>
+          </tr>
+          <tr><td><br/></td></tr>
+        </tbody>
+        <thead>
+            <tr>
+              <th>Project name</th>
+              <th>Project size</th>
+              <th>Repository size</th>
+              <th>DAV size</th>
+              <th>Total size</th>
+            </tr>
+        </thead>
+        <tbody>
+          <tr py:for="idx,storage in enumerate(storages)"
+              class="${idx % 2 and 'odd' + storage.state or 'even' + storage.state}">
+              <td><div><a href="${project_url}${storage.project_name}">${storage.project_name}</a></div></td>
+              <td><div>${'%0.2f' % (long(storage.project_space)/(1024*1024.0))} MB</div></td>
+              <td><div>${'%0.2f' % (long(storage.repo_space)/(1024*1024.0))} MB</div></td>
+              <td><div>${'%0.2f' % (long(storage.dav_space)/(1024*1024.0))} MB</div></td>
+              <td><div>${'%0.2f' % (long(storage.total_space)/(1024*1024.0))} MB</div></td>
+          </tr>
+        </tbody>
+      </table>
+      <p/>Information updated at ${modified}<p/>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,5 @@
+Your membership for ${_project_.project_name} has been ${status}.
+
+{% if status == 'accepted' %}
+Go to project ${_project_.get_url()}
+{% end %}

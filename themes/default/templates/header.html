@@ -1,0 +1,28 @@
+<html xmlns:py="http://genshi.edgewall.org/" py:strip="True">
+
+<?NOINDEX-START?>
+<div id="headerContainer">
+  <div id="headerComponent">
+    <div id="headerLogo"><a href="${conf.url_home_path}"><img style="padding-top:10px;" src="/htdocs/theme/images/logo.png" alt="Logo"/></a></div>
+    <div id="header">
+      <div id="nDevHeaderLoginLogout">
+      <py:choose>
+        <div id="sitelogin" py:when="req.authname == 'anonymous'">
+          <p>
+	    <a id="signIn" href="${conf.url_home_path}/user">Log in</a>
+	  </p>
+        </div>
+        <div id="sitelogin" py:otherwise="">
+          <p>                  
+            <a href="user/${req.authname}">${req.authname}</a>
+            <a id="signOut" href="${conf.url_home_path}/user?action=logout">Log out</a>
+          </p>
+        </div>
+      </py:choose>
+      </div>
+    </div>
+  </div>
+</div>
+<?NOINDEX-END?>
+    
+</html>

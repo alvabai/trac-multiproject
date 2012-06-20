@@ -1,0 +1,4 @@
+context_id,context_name,context_description
+4,'Platform','Target platform of the product'
+5,'Business area','Purpose of product'
+6,'Implementation technology','Technologies used on product implementation'

@@ -1,0 +1,180 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+    <html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<?python
+from multiproject.core.configuration import conf
+?>
+
+    <xi:include href="layout.html" />
+    <xi:include href="list_projects.html" />
+    <xi:include href="pagination.html" />
+
+    <head>
+        <title>Explore projects</title>
+        <!-- ! Change height of just this page to one bit higher to always get v-scroll -->
+        <style type="text/css">
+            html {
+                height:101%;
+            }
+        </style>
+    </head>
+
+    <!-- ! Define a few template functions for listing categories -->
+    <py:def function="explore_projects_list_categories(categories, is_top_category)">
+        <py:for each="cat in categories">
+            <!-- ! Id will be cat_123top for top_categories, and cat_123 for all categories -->
+            <py:with vars="el_id = 'cat_'+str(cat.category_id)+(is_top_category and '_top' or ''); element_style=(is_top_category and 'category_item item_top' or 'category_item');">
+            <li id="${el_id}" class="${element_style}">
+                <span class="category_checkbox"><input name="${el_id}_cb" id="${el_id}_cb" type="checkbox" value="unchecked" /></span>
+                <div class="toggle_button" py:if="cat.has_children()"> </div>
+                <label for="${el_id}_cb"><span class="list_name">${cat.name}</span></label>
+            </li>
+            <py:if test="cat.has_children and cat.has_children()">
+                <ul id="children_${el_id}" class="catlist subcatlist">
+                ${explore_projects_list_categories(sorted(cat.children, key=lambda x: x.name), is_top_category)}
+                </ul>
+            </py:if>
+            </py:with>
+        </py:for>
+    </py:def>
+
+    <py:def function="list_nonbrowsable_contexts(nonbrowsable_cntxt)">
+        <py:for each="cntxt in nonbrowsable_cntxt">
+            <!-- ! Id will be cat_context123-->
+            <py:with vars="el2_id = 'catcontext_'+str(cntxt.context_id)">
+            <li id="${el2_id}" class="context_item_top category_item">
+                <span class="context_checkbox"><input name="${el_id}_cb" id="${el2_id}_cb" type="checkbox" value="unchecked" disabled="disabled" /></span>
+                <div class="toggle_button" py:if="cntxt.has_children()"> </div>
+                <label for="${el_id}_cb"><span class="list_name">${cntxt.name}</span></label>
+            </li>
+            <py:if test="cntxt.has_children()">
+                <ul id="children_${el2_id}" class="catlist subcatlist contextchild">
+                ${explore_projects_list_categories(cntxt.children, True)}
+                </ul>
+            </py:if>
+            </py:with>
+        </py:for>
+    </py:def>
+
+    <body>
+        <div id="content">
+
+            <!-- ! Heading -->
+            <h1 id="site_title">Explore projects</h1>
+
+            <!-- ! TODO: display this for other themes when necessary
+            <div class="clearfix" id="articleHeader">
+                     <img style="border: medium none; display: inline;" src="${conf.theme_htdocs_location}/images/large_project_ico.png" />
+            </div>
+            -->
+
+
+            <!-- ! Left category select navigation bar -->
+            <div class="left explore_projects_left" >
+
+            <!--! Search box  -->
+            <form id="project_search_form">
+                <div class="fnsearchArea">
+                    <input type="text" name="f" class="fnsearchInput" id="searchForProjects" value="Search Projects" />
+                    <button id="searchProjectsBtn" type="submit" title="Search"></button>
+                </div>
+            </form>
+
+
+            <div class="resource-box catSelectNav">
+                    <!-- ! All categories -->
+                    <div class="categorylist_div">
+                        <h2>Refine search</h2>
+                        <h3>Categories</h3>
+                        <ul class="catlist rootcatlist">
+                            ${explore_projects_list_categories(top_categories, True)}
+                        </ul>
+                    </div>
+                    <div class="categorylist_div" id="contexts">
+                        <ul class="catlist rootcatlist">
+                            ${list_nonbrowsable_contexts(nonbrowsable_cntxt)}
+                        </ul>
+                    </div>
+                    <div class="categorylist_div" id="all_categories">
+                        <ul class="catlist rootcatlist">
+                            ${explore_projects_list_categories(categories, False)}
+                        </ul>
+                    </div>
+
+                    <!-- ! Bottom module with toggle button -->
+                    <div class="catBottomModule">
+                            <div class="catBottomLink" id="all_categories_toggle">
+                                <div class="toggle_arrow"> </div>
+                                <div id="all_categories_show">More categories</div>
+                                <div id="all_categories_hide" style="display:none;">Less categories</div>
+                            </div>
+                    </div>
+            </div>
+            </div>
+
+            <!-- ! Center part (search box and search results) -->
+            <div class="project_search left">
+
+                <!-- ! Navigation tabs -->
+                <ul id="tabbedNavigation">
+                    <py:for each="tab,text in tabs">
+                        <py:choose>
+                            <li py:when="selected_tab == tab" class="selected" id="tab_${tab}"><a href="#">${text}</a></li>
+                            <li py:otherwise="" id="tab_${tab}"><a href="#">${text}</a></li>
+                        </py:choose>
+                    </py:for>
+                </ul>
+                <div id="resultsPerPageDiv">
+                    <p>
+                        <span>Results per page: </span>
+                        <select id="resperpage">
+                            <option selected="selected">10</option>
+                            <option>25</option>
+                            <option>50</option>
+                            <option>100</option>
+                        </select>
+                    </p>
+                </div>
+
+                <div id="project_search_attribs">
+                    <!--! Will have class 'with_keywords', if keywords, and 'searching', if searching. -->
+                    <p id="keyword_attribs">
+                        <span class="keyword_attribs_searching">Searching</span>
+                        <span id="result_range" class="result_range"> <!--! AJAX--> </span>
+                        <span class="keywords_container">with keywords
+                            <span class="keywords">
+                                <span id="keywords_span"> </span>
+                                <input type="button" value=" " class="delete_button delete_keywords" />
+                            </span>
+                        </span>
+                    </p>
+                    <!--! Will have class 'with_categories', if categories. -->
+                    <div id="category_attribs">
+                        <ul class="word_box_list">
+                            <li class="topic">
+                                <span class="selected_cat">Selected categories:</span>
+                                <span class="no_selected_cat">No categories selected.</span>
+                            </li>
+                            <!--! sbcat == search box category -->
+                        </ul>
+                    </div>
+                    <div class="buttons search_clear_all">
+                        <span class="primaryButton">
+                            <input type="button" value="Clear all criteria" />
+                        </span>
+                    </div>
+                    <div class="float_stopper"> </div>
+                </div>
+                <div class="project_list">
+                    <!-- ! This content will be refreshed with AJAX. Will hold a list of projects. -->
+                </div>
+            </div>
+
+        </div>
+    <script type="text/javascript" src="${conf.theme_htdocs_location}/js/jquery.ba-bbq.js"></script>
+    </body>
+</html>

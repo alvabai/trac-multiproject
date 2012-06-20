@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:py="http://genshi.edgewall.org/"
+    xmlns="http://purl.org/rss/1.0/"
+>
+    <channel rdf:about="${projroot}/home/${url}">
+        <title>${title}</title>
+        <link>${projroot}/home/${url}</link>
+        <description>${title} on ${host}</description>
+        <image py:if="chrome.logo.src_abs" rdf:resource="${projroot}/${chrome.logo.src_abs}" />
+        <items>
+            <rdf:Seq>
+                <rdf:li py:for="project in projects" resource="${projroot}/${project.name}" />
+            </rdf:Seq>
+        </items>
+    </channel>
+
+    <image py:if="chrome.logo.src_abs" rdf:about="${projroot}/${chrome.logo.src_abs}" rdf:resource="${projroot}/${chrome.logo.src_abs}" >
+        <title>${title}</title>
+        <url>${projroot}/${chrome.logo.src_abs}</url>
+        <link>${projroot}/home/${url}</link>
+    </image>
+
+    <item py:for="project in projects" rdf:about="${projroot}/${project.name}">
+        <title>$project.project_name</title>
+        <link>${projroot}/${project.name}</link>
+        <description>${project.description}</description>
+        <dc:date>${project.date.strftime('%Y-%m-%dT%H:%M:%S')}</dc:date>
+    </item>
+
+</rdf:RDF>

@@ -1,0 +1,100 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      py:strip="True">
+  <!-- ! Add user to group form -->
+  <form id="addsubj" class="addnew" method="post" action="">
+    <!--! Membership form -->
+    <div class="shaded-box" py:if="len(membership_requests) > 0">
+        <fieldset id="rightpanel">
+          <legend>Membership requests</legend>
+          <input type="hidden" name="decline_membership" value="on" />
+          <input id="decline_user" type="hidden" name="declineuser" value="" />
+          <table class="membership">
+            <tr py:for="username in membership_requests">
+              <td class="max name"><span class="author">${username}</span></td>
+              <td><a href="javascript:username('${username}')" title="Add user to group" class="primaryButton">Accept</a></td>
+              <td class="decline_btn"><a href="javascript:decline_membership('${username}')" class="secondaryButton">Decline</a></td>
+            </tr>
+          </table>
+        </fieldset>
+    </div>
+    <div class="shaded-box">
+      <fieldset id="rightpanel">
+        <input type="hidden" name="sorting" value="$sorting"/>
+        <legend>Add user to group</legend>
+        <div class="inputrow">
+          <div class="headtextfield">Username:</div>
+          <div class="inputfield"><input id="sg_subject" type="text" name="user" /></div>
+        </div>
+        <div class="inputrow">
+          <div class="headtextfield">Group:</div>
+          <div class="inputfield">
+            <select id="sg_group" name="group">
+              <option py:for="group in groups">${group}</option>
+            </select>
+          </div>
+        </div>
+        <div class="buttons">
+          <span><input type="submit" name="add" value="Add user"/></span>
+        </div>
+      </fieldset>
+    </div>
+    <div py:if="organizations_enabled" class="shaded-box">
+      <fieldset id="rightpanel">
+        <legend>Add user type to group</legend>
+        <div class="inputrow">
+          <div class="headtextfield">User type:</div>
+          <div class="inputfield">
+            <select id="organization" name="organization">
+              <option value="">Select users type</option>
+              <option py:for="organization in organizations">$organization</option>
+            </select>
+          </div>
+        </div>
+        <div class="inputrow">
+          <div class="headtextfield">Group:</div>
+          <div class="inputfield">
+            <select id="sg_group" name="organizationgroup">
+              <option value="">Select group</option>
+              <option py:for="group in groups">${group}</option>
+            </select>
+          </div>
+        </div>
+        <div class="buttons">
+          <span><input type="submit" name="add_organization" value="Add user type"/></span>
+        </div>
+      </fieldset>
+    </div>
+    <div py:if="ldap_groups_enabled" class="shaded-box">
+      <fieldset id="rightpanel">
+        <legend>Add LDAP group to user group</legend>
+        <div class="inputrow">
+          <div class="headtextfield">LDAP group:</div>
+          <div class="inputfield"><input id="sg_subject" type="text" name="ldapgroup" /></div>
+        </div>
+        <div class="inputrow">
+          <div class="headtextfield">User group:</div>
+          <div class="inputfield">
+            <select id="sg_group" name="usergroup">
+              <option py:for="group in groups">${group}</option>
+            </select>
+          </div>
+        </div>
+        <div class="buttons">
+          <span><input type="submit" name="add_ldapgroup" value="Add LDAP group"/></span>
+        </div>
+      </fieldset>
+    </div>
+
+    <div class="shaded-box">
+      <fieldset id="rightpanel">
+        <legend>Add many users</legend>
+        <p>Opens a textarea where multiple users accounts can be added, one per each line.</p>
+        <div class="buttons">
+          <span><input type="submit" name="add_users" value="Add users..."/></span>
+        </div>
+      </fieldset>
+    </div>
+  </form>
+</html>

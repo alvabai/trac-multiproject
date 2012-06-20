@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<rss version="2.0" xmlns:py="http://genshi.edgewall.org/"
+                   xmlns:dc="http://purl.org/dc/elements/1.1/"
+                   xmlns:xi="http://www.w3.org/2001/XInclude">
+  <channel>
+    <?python from multiproject.core.configuration import conf ?>
+    <title>Watchlist timeline</title>
+    <link>${conf.url_home}/watchlist_timeline</link>
+    <description>Watchlist timeline</description>
+    <language>${req.locale and \
+                '%s-%s' % (req.locale.language, req.locale.territory) or \
+                'en-US'}</language>
+    <generator>Trac ${trac.version}</generator>
+    <image py:if="chrome.logo.src_abs">
+      <title>Watchlist timeline</title>
+      <url>${chrome.logo.src_abs}</url>
+      <link>${conf.url_home}/watchlist_timeline</link>
+    </image>
+    <item py:for="project, event, context in watchlist">
+        <title>${project.project_name}: ${plaintext(event.render('title', context))}</title>
+        <xi:include href="author_or_creator.rss" py:with="author = event.author"/>
+        <pubDate>${http_date(event.date)}</pubDate>
+        <link>${conf.url_service}${event.render('url', context)}</link>
+        <description>${plaintext(event.render('description', context))}</description>
+        <category>${event.kind}</category>
+    </item>
+
+   </channel>
+</rss>

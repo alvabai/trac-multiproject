@@ -1,0 +1,21 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      py:strip="True">
+    <xi:include href="list_projects.html" />
+    <xi:include href="pagination.html" />
+    <span id="result_range_ajax">${showing_clause}</span>
+    <div class="pagination" id="upper_pagination" py:if="total_pages > 1">
+        ${numbered_pagination(start_page, end_page+1, sub_page, total_pages)}
+    </div>
+    ${list_projects_in_find(projects)}
+
+    <!-- ! Pagination only for subpages (page numbers) -->
+    <div class="pagination" py:if="total_pages > 1">
+        ${numbered_pagination(start_page, end_page+1, sub_page, total_pages)}
+    </div>
+
+</html>

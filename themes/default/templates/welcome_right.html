@@ -1,0 +1,92 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      py:strip="True">
+
+  <div id="welcomeright">
+
+    <!-- Recent public projects -->
+    <div py:if="newestprojects" class="resource-box">
+      <h2 class="resources-title">
+        <div class="headerRssLink">
+          <a href="${baseurl}/home/rss/newest.xml"></a>
+        </div>
+        Recent projects
+      </h2>
+
+      <ul class="projectlist">
+        <li py:for="project in newestprojects" class="project_list_item">
+          <img class="icon" src="${req.base_path}/projecticon?environment_name=${project.name}" />
+          <a href = "${baseurl}/${project.name}">$project.project_name</a>
+          Created on ${project.date.strftime("%Y %B %d")}
+        </li>
+        <li>
+          <a class="more" href="${req.base_path}/project/explore#tab=recent" shape="rect">More Recent Projects &gt;</a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Most active projects -->
+    <div py:if="mostactiveprojects" class="resource-box">
+      <h2 class="resources-title">
+        <div class="headerRssLink">
+          <a href="${baseurl}/home/rss/mostactive.xml"></a>
+        </div>
+        Most active projects
+      </h2>
+      <ul class="projectlist">
+	<li class="single_line" py:for="project in mostactiveprojects">
+	  <img class="icon" src="${req.base_path}/projecticon?environment_name=${project.name}" />
+	  <a href="${baseurl}/${project.name}">$project.project_name</a>
+	</li>
+	<li><a class="more" href="${req.base_path}/project/explore#tab=active" shape="rect">More Active Projects &gt;</a></li>
+      </ul>
+    </div>
+
+    <!-- Projects' activities -->
+    <div py:if="latest_events" class="resource-box">
+      <h2 class="resources-title">
+        <div class="headerRssLink">
+          <a href="${baseurl}/home/globaltimeline.xml"></a>
+        </div>
+        Activities
+      </h2>
+      <ul id="welcome_global_timeline_items">
+	<li py:for="event in latest_events" class="timeline_event ${classes(event.kind, False)}">
+	  <div class="icon"></div>
+	  <a href="${conf.url_projects_path}/${event.project_identifier}" title="${event.project_name}">
+	    ${event.project_name}</a>
+	  <a href="${event.url}" py:strip="len(str(event.url)) == 0">
+	    ${event.render('title', context)}
+	  </a>
+	  <py:if test="event.author">
+	    by <span class="author">${plaintext(format_author(event.author))}</span>
+	  </py:if>
+        </li>
+        <li>
+          <a class="more" href="${req.base_path}/globaltimeline" shape="rect">More Activities &gt;</a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Featured projects -->
+    <div py:if="featuredprojects" class="resource-box">
+      <h2 class="resources-title">
+        <div class="headerRssLink">
+          <a href="${baseurl}/home/rss/featured.xml"></a>
+        </div>
+        Featured projects
+      </h2>
+      <ul class="projectlist">
+	<li py:for="project in featuredprojects" class="single_line">
+	  <img class="icon" src="${req.base_path}/projecticon?environment_name=${project.name}" />
+	  <a href="${baseurl}/${project.name}">$project.project_name</a>
+	</li>
+	<li class="last"></li>
+      </ul>
+    </div>
+
+  </div>
+
+</html>

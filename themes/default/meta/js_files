@@ -1,0 +1,8 @@
+# These will be looked up from theme htdocs
+js/jquery.js
+dnc/js/jquery-ui-1.7.2.min.js
+dnc/js/ui.selectmenu.js
+dnc/js/jquery.cookie.js
+dnc/js/swfobject-2.2.js
+dnc/js/jquery.tooltip.min.js
+dnc/js/common.js

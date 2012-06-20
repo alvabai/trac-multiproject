@@ -1,0 +1,81 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:i18n="http://genshi.edgewall.org/i18n">
+  <xi:include href="layout.html" />
+  <head>
+    <title>Timeline</title>
+    <link rel="stylesheet" type="text/css" href="${conf.theme_htdocs_location}/css/timeline2.css" />
+
+  </head>
+
+  <body>
+    <div id="content" class="timeline">
+
+      <h1>Timeline</h1>
+
+		<div id="timeline-prefs" class="shaded-box-wrapper right last">
+		<div class="shaded-box">
+		<form id="prefs" method="get" action="">
+			<div class="shaded-box-title">Search events</div>
+			<div class="shaded-box-description">
+  	        <label>View changes from <input type="text" size="10" name="from" value="${format_date(fromdate)}" /></label> <br />
+			 and <label><input type="text" size="3" name="daysback" value="$daysback" /> days back</label><br />
+			<label>done by <input type="text" size="16" name="authors" value="$authors" /></label>
+			
+	       	<fieldset>
+                <ul>
+                <py:for each="filter in filters">
+                <li><input type="checkbox" name="${filter.name}"
+                       checked="${filter.enabled or None}" id="filter_${filter.label}"/>
+        		<label for="filter_${filter.label}" >${filter.label}
+	        	</label></li>
+	        	</py:for>
+	        	</ul>
+            </fieldset>
+		  </div>
+	       
+        	<div class="shaded-box-button">
+           		<input type="submit" name="update" value="${_('Update')}" class="primaryButton" />
+        	</div>	
+        </form>
+		</div>
+		</div>
+
+      <div class="resource-box" style="float:left; width:700px;">
+      <py:for each="day, events in groupby(events, key=lambda e: format_date(e.date))">
+        <h2 class="resources-title">${day}: ${day == today and _("Today") or day == yesterday and _("Yesterday") or None}</h2>
+        <ul>
+          <py:for each="event in events"
+           py:with="highlight = precision and precisedate and timedelta(0) &lt;= (event.date - precisedate) &lt; precision"
+           class="${classes(activity.kind, False)}">
+
+            <li class="timeline_event ${classes(event.kind, highlight=highlight)}">
+            <div class="icon"></div>
+              <a href="${event.render('url', context)}" py:choose="" py:strip="len(str(event.render('url',context))) == 0">
+                <py:when test="event.author">
+                  <i18n:msg params="time, title, author">
+                    <span class="time">${format_time(event.date, str('%H:%M'))}</span>
+                    ${event.render('title', context)}
+                  </i18n:msg>
+                </py:when>
+                <py:otherwise>
+                  <span class="time">${format_time(event.date, str('%H:%M'))}</span> ${event.render('title', context)}
+                </py:otherwise>
+              </a>
+              <py:if test="event.author">
+                <span>&nbsp;by</span>
+                <span class="author">${format_author(event.author)}</span>
+                ${event.render('description', context)}
+              </py:if>
+            </li>
+          </py:for>
+        </ul>
+      </py:for>
+    </div>
+    </div>
+  </body>
+</html>

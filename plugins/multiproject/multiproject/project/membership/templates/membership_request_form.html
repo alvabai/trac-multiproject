@@ -1,0 +1,78 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+  <html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="layout.html" />
+
+<head>
+    <title py:if="type == 'privilege'">Request more rights</title>
+    <title py:if="type == 'membership'">Request to join</title>
+</head>
+
+<body>
+    <h1 py:if="type == 'privilege'">Request more rights</h1>
+    <h1 py:if="type == 'membership'">Request to join</h1>
+    
+    <p py:if="not msg_ok" class="error_msg_color">The message must be at least 40 characters long.</p>
+
+    <form action="" method="post">
+        <fieldset>
+            <input type="hidden" name="user" value="${req.authname}" />
+            <input type="hidden" name="type" value="${type}" />
+            
+           	<div style="width:500px;">
+           		<div class="shadedBox">
+		          <div class="roundTop">
+		            <span>
+		            </span>
+		          </div>
+		          <div class="module">
+		            <label for="message">Write a message to the project owners. Remember that all they will see 
+		            	is your username and your message. Write a descriptive text that explains who you 
+		            	are and why you want to join the project. If you have been invited, mention who invited 
+		            	you and why. Your message must be 40 characters or more.
+		           	</label>
+		          </div>
+		          <div class="roundBottom">
+		            <span>
+		            </span>
+		          </div>
+		        </div>
+	           	<br />
+	            <textarea style="width:100%;" name="message" id="message" cols="50" rows="5"><py:if test="not msg_ok">${message}</py:if></textarea>
+	            <br />
+	            <br />
+	            <span style="float:right;" id="text_countdown">Write at least <strong class="count">40</strong> more characters</span>
+	            <span class="primaryButton">
+	            	<input type="submit" name="request" value="Request" />
+	            </span>
+	            
+            </div>
+        </fieldset>
+    </form>
+    <script type="text/javascript">
+        <!--
+        function refresh_count() {
+        	var min_chars = 40;
+        	var text = "";
+        	
+        	var object = $('#message');
+			var count = object.val().length;
+			if(min_chars > count) {
+				$('#text_countdown').css('visibility', 'visible');
+				text = min_chars - count;
+				$('#text_countdown .count').text(text);
+			} else {
+				$('#text_countdown').css('visibility', 'hidden');
+			}
+        }
+        
+    	$(document).ready(function () {
+    		$('#message').bind('paste cut input change keyup', refresh_count, false);
+    	})
+    	//-->
+    </script>
+</body>
+</html>

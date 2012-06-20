@@ -1,0 +1,523 @@
+
+/* TODO: move the general sections to be first, then the less general */
+
+/*** Explore projects section BEGIN ***/
+
+.explore_projects_left {
+    margin-top: 20px;
+    width: 200px;
+}
+
+/** Search text input **/
+.explore_projects_left .fnsearchArea {
+    padding-bottom: 26px;
+    margin-bottom: 17px;
+}
+
+.explore_projects_left .fnsearchArea #searchForProjects {
+    width:155px;
+}
+
+/* TODO: combine these two with the project_search.css */
+#content .fnsearchArea #searchForProjects {
+    float: left;
+    height: 18px;
+    padding: 3px 4px;
+}
+
+.fnsearchArea #searchProjectsBtn {
+    width: 32px;
+    height: 26px;
+    float: left;
+    background: url("../images/search.png") no-repeat;
+    border: none;
+    padding: 0;
+    margin: 0 0 0 1px;
+    cursor: pointer;
+}
+
+.explore_projects_left #searchProjectsBtn:hover {
+    background: url("../images/search.png") 32px;
+}
+
+/** Category list container **/
+.categorylist_div h3 {
+    margin-bottom: 0;
+}
+
+.explore_projects_left #all_categories_toggle.catBottomLink {
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: normal;
+    margin-top: 16px;
+    padding-top: 4px;
+}
+
+#all_categories_toggle.catBottomLink div.toggle_arrow {
+    float: right;
+    background: white url('../images/category_list_arrows.png') no-repeat 0 0;
+    width: 16px;
+    height: 16px;
+}
+
+.explore_projects_left #all_categories_toggle.catBottomLink.open div.toggle_arrow {
+    background: white url('../images/category_list_arrows.png') no-repeat -48px 0;
+}
+
+.explore_projects_left #all_categories {
+    display: none;
+}
+
+
+/** Category list (or tree) **/
+.categorylist_div ul.catlist li {
+    font-family: Tahoma, Geneva, sans-serif;
+    font-size: 11px;
+    font-weight: normal;
+    padding: 10px 0;
+}
+
+.categorylist_div ul.subcatlist {
+    /* As default do not show sub categories */
+    display:none;
+    border-top: none;
+}
+
+.categorylist_div ul.subcatlist {
+    margin-left: 10px;
+}
+
+.categorylist_div #all_categories {
+    display:none;
+}
+
+#all_categories.categorylist_div,
+#contexts.categorylist_div  {
+    border-top:1px solid #c7c5c1;
+}
+
+.categorylist_div ul.catlist > li.category_item span.list_name,
+.categorylist_div ul.catlist > li.category_item .category_checkbox input[type=checkbox],
+.categorylist_div ul.catlist > li.category_item div.toggle_button
+{
+    cursor: pointer;
+}
+
+/* Multi-line support for category names begins BEGIN */
+/* Another solution would be to use position: absolute; */
+
+.categorylist_div ul.catlist > li.category_item .category_checkbox input[type=checkbox] {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.categorylist_div ul.catlist > li.category_item .category_checkbox {
+    position: relative;
+    left: -22px;
+    width: 13px;
+}
+
+.categorylist_div ul.catlist > li.category_item label {
+    line-height: 18px;
+    margin: 3px 0 3px -22px;
+}
+
+.categorylist_div ul.catlist > li.category_item {
+    padding-left: 22px;
+}
+
+/* Multi-line support for category names END */
+
+.categorylist_div ul.catlist > li.category_item span.list_name:hover {
+    text-decoration: underline;
+}
+
+.categorylist_div ul.catlist > li.context_item_top > span.context_checkbox,
+.categorylist_div ul.catlist > li.context_item_top > span:hover {
+    text-decoration: none;
+    cursor: default;
+}
+
+/* Selected hint */
+.categorylist_div ul.catlist > li.selected {
+    font-weight: bold;
+}
+
+/* Sub category selected hint */
+.categorylist_div ul.catlist > li.sub_cat_selected {
+    color: black;
+}
+
+.categorylist_div ul.catlist > li > div.toggle_button {
+    display: inline;
+    float: right;
+    height: 16px;
+    width: 16px;
+    background: white url('../images/category_list_arrows.png') no-repeat 0 0;
+    margin-bottom: 10px;
+    margin-left: 7px;
+    margin-top: 1px;
+}
+
+.categorylist_div ul.catlist > li.opened > div.toggle_button {
+    background: white url('../images/category_list_arrows.png') no-repeat -16px 0;
+}
+
+/** Context checkbox **/
+/* Context checkboxes are not shown. */
+.categorylist_div span.context_checkbox {
+    display: none;
+}
+
+/** the right area in explore projects view **/
+.project_search {
+    width: 720px;
+    margin-left: 15px;
+    margin-top: 20px;
+}
+
+/** Project list items **/
+.project_list .project_item {
+    border-bottom: 1px solid;
+    padding-bottom: 15px;
+    margin-bottom: 7px;
+}
+
+.project_list .project_description {
+    margin-right: 20px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.project_list .project_meta .project_created, .project_meta .project_categories {
+    display: inline;
+    margin-right: 20px;
+}
+
+.project_list .project_meta strong {
+    font-weight: bold;
+}
+
+.project_list .project_activity_line .project_activity {
+    font-weight: bold;
+}
+
+.project_list .project_activity_line .project_watchers {
+    margin-left: 15px;
+    min-width: 210px;
+    min-height: 9px;
+}
+
+.project_list .project_logo {
+    float: left;
+}
+
+.project_list .project_icon {
+    max-width: 40px;
+    max-height:40px;
+    border:none;
+    display:inline;
+    float: left;
+}
+
+.project_list .project_info {
+    clear: both;
+    margin-top: 34px;
+}
+
+.project_list .project_main_details {
+    padding-left: 50px;
+}
+
+.project_list .project_main_details h3 {
+    margin-bottom: 2px;
+    padding-bottom: 2px;
+}
+
+.project_list .project_activity_line .activity_meter {
+    width: 22px;
+    height: 9px;
+    display: inline-block;
+}
+
+.project_list .project_activity_line .activity_meter.l {
+    background: transparent url(../images/activity_meter.png) 0 0 no-repeat;
+}
+.project_list .project_activity_line .activity_meter.ql {
+    background: transparent url(../images/activity_meter.png) 0 -9px no-repeat;
+}
+.project_list .project_activity_line .activity_meter.qh {
+    background: transparent url(../images/activity_meter.png) 0 -18px no-repeat;
+}
+.project_list .project_activity_line .activity_meter.h {
+    background: transparent url(../images/activity_meter.png) 0 -27px no-repeat;
+}
+
+.project_list .project_activity_line div {
+    float: left;
+}
+
+.project_list .project_activity_line div.project_created {
+    margin-left: 20px;
+    min-width: 136px;
+}
+
+.project_list .no_matching_projects {
+    padding: 0 10px;
+}
+
+/** Results per page and pagination related positioning **/
+.project_search {
+    position: relative;
+}
+
+.project_search #upper_pagination {
+    line-height: 26px;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+/** Results per page **/
+.project_search #resultsPerPageDiv {
+    position: absolute;
+    top: 0px;
+    left: 210px;
+}
+
+.project_search #resperpage {
+    position: relative;
+    top: -2px;
+}
+
+.project_search #resultsPerPageDiv {
+    /* copied from ui.css, ul#tabbedNavigation */
+    line-height: 26px;
+}
+
+.project_search #resultsPerPageDiv p {
+    margin: 0;
+    line-height: 130%;
+    font-size: 13px;
+}
+
+.project_search #resultsPerPageDiv span {
+    /* copied from ui.css, #tabbedNavigation a */
+    font-size: 13px;
+    height: 25px;
+    line-height: 27px;
+    text-decoration: none;
+}
+
+/* search box */
+
+#project_search_attribs {
+    background: #f8f7f2;
+    padding: 12px 15px 12px 10px;
+    margin-bottom: 11px;
+}
+
+#project_search_attribs #keyword_attribs {
+    margin-bottom: 5px;
+    font-weight: bold;
+    line-height: 20px;
+}
+
+#project_search_attribs #keyword_attribs span.keywords {
+    background: #e5e2d9;
+    font-weight: bold;
+    color: #333333;
+    line-height: 18px;
+    font-size: 12px;
+    margin: 5px 10px 5px 0;
+    padding: 5px;
+}
+
+#project_search_attribs .search_clear_all {
+    float: right;
+    margin-top: 5px;
+}
+
+#project_search_attribs #selected_cat {
+    display: none;
+}
+
+#project_search_attribs .delete_button {
+    background: url(../images/remove_button.png) no-repeat scroll center center transparent;
+    padding: 0 5px;
+    cursor:pointer;
+    height: 14px;
+    vertical-position: normal;
+    vertical-align: text-bottom;
+}
+
+#project_search_attribs #category_phrase {
+    display: inline-block;
+    margin: 0;
+    float: left;
+}
+
+.project_list #result_range_ajax {
+    display: none;
+}
+
+/* Logic of the search box */
+/* Initially,  keywords, result range are hidden, and only "No categories selected" is shown. */
+#category_attribs span.selected_cat,
+#keyword_attribs.searching > span.result_range, /* hidden by default */
+#keyword_attribs > span.keywords_container,
+/* hidden by default, shown only when searching */
+#keyword_attribs > .keyword_attribs_searching  {
+    display: none;
+}
+
+/* When searching, the situation changes. */
+#category_attribs span.no_selected_cat, /* displayed by default */
+#keyword_attribs.searching > .keyword_attribs_searching,
+#keyword_attribs.with_keywords > span.keywords_container {
+    display: inline;
+}
+
+#category_attribs.with_categories span.no_selected_cat {
+    display: none;
+}
+
+/* With categories, the situation changes. */
+#category_attribs.with_categories span.selected_cat {
+    display: inline;
+}
+
+/*** Explore projects section END ***/
+
+
+/** Messages **/
+div.messages {
+
+}
+
+div.messages div.message {
+    clear: both;
+    background-color: #efefef;
+    padding: 6px;
+    border: 1px solid #aaa;
+    margin: 6px 0;
+}
+
+div.message div.date {
+    font-size: 11px;
+    color: #888;
+}
+
+div.messages div.message img.avatar {
+    float: left;
+}
+
+div.profilebox {
+    width: 300px;
+    height: auto;
+    display: block;
+    position: absolute;
+    z-index: 500;
+    background-color: white;
+    border: 1px solid #aaa;
+}
+
+div.profilebox div.wrapper {
+
+}
+
+div.profilebox div.loading {
+    height: 20px;
+}
+
+div.profilebox div.info-wrapper {
+    overflow: hidden;
+    width: 100%;
+    background-color: #f5f5f5;
+}
+
+div.profilebox div.avatar {
+    float: left;
+}
+
+div.profilebox .text {
+    float: left;
+    margin: 4px;
+}
+
+div.profilebox .text .givenname {
+    float: left;
+    padding-right: 2px;
+}
+
+div.profilebox .text .lastname {
+    float: left;
+    padding-right: 2px;
+}
+
+div.profilebox .text .username {
+    clear: both;
+    padding-right: 2px;
+}
+
+div.profilebox ul {
+    margin: 0;
+}
+div.profilebox ul li {
+    display: block;
+    padding: 4px;
+    margin: 0;
+    border-top: 1px solid #aaa;
+    float: none;
+}
+
+/*** general elements START ***/
+
+/** boxed word list START **/
+
+ul.word_box_list {
+    margin: 0;
+    list-style-type: none;
+}
+
+ul.word_box_list li {
+    float: left;
+    display: inline-block;
+    line-height: 18px;
+    font-size: 12px;
+    margin: 5px 10px 5px 0;
+    padding: 3px 10px;
+}
+
+ul.word_box_list li {
+    background: #e5e2d9;
+    color: #333333;
+    font-weight: bold;
+}
+
+ul.word_box_list li.topic {
+    background-color: transparent;
+    color: inherit;
+    font-weight: normal;
+    padding-right: 0;
+}
+
+ul.word_box_list li.topic,
+ul.word_box_list li.first {
+    padding-left: 0;
+}
+
+/** boxed word list END **/
+
+/* element which will stop elements floating under itself */
+/* assures that the containing element width is properly
+   set when it contains floating elements. */
+.float_stopper {
+    width: 100%;
+    height: 0;
+    clear: both;
+}
+
+
+/*** general boxed word list END ***/
+

@@ -1,0 +1,160 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+  <html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="layout.html" />
+
+<?python
+from multiproject.core.configuration import conf
+?>
+
+<head>
+    <title>Files</title>
+    <link rel="stylesheet" type="text/css" href="${conf.theme_htdocs_location}/css/files.css" />
+	<link rel="stylesheet" href="${conf.theme_htdocs_location}/${conf.getThemePath()}css/browser.css" type="text/css" />
+</head>
+
+<body>
+	<div id="content">
+
+      <h1>Files</h1>
+      <div id="files">
+
+        <div class="mounturl"><div id="mounttext">Mount</div><div id="filesaddress">${dav_url}</div>
+          <div py:if="helpurl" style="" onClick="toggleHelp()" id="helplink">
+              Still don't know how to use it?
+          </div>
+          <input class="flippedButton" type="submit" id="copybutton" value="Copy to clipboard"/>
+        </div>
+
+
+        <p class="highlight" style="display:none" id="davhelp">
+          <span style="font-weight: bold;">File sharing section</span><br/>
+          Copy the above URL to mount a WebDAV share on your computer. If you don't
+          know how to do this, please refer to our <a href="${helpurl}">online help</a>.
+          <br />
+          You may also manage your files via our Web interface below, adding and
+          removing files directly from your browser. Managing directories is only
+          possible via the WebDAV share.
+        </p>
+
+       <h3 py:if="path != '/'">Files in ${path}</h3>
+
+       <h2>Files</h2>
+
+        <table id="dirlist" class="table davfilelist">
+            <xi:include href="fs_entries_head.html" />
+            <tbody>
+                <py:if test="path != '/'">
+                  <tr class="even">
+                    <td class="name" colspan="5">
+                      <a class="parent" title="Parent Directory" href="${req.base_path}/files${path.rsplit('/', 1)[0]}">../</a>
+                    </td>
+                  </tr>
+                </py:if>
+                <xi:include href="fs_entries.html" />
+            </tbody>
+        </table>
+
+        <div class="shaded-box" style="padding-top:10px;margin-top:-23px;min-height:50px;">
+
+<py:if test="'WEBDAV' in perm">
+  <form enctype="multipart/form-data" method="post" id="file_upload_form">
+    <input type="hidden" name="action" value="add" />
+    <input type="hidden" name="path" value="" />
+
+    <div class="fieldset flash" id="fsUploadProgress">
+      <span class="legend"></span>
+    </div>
+    <div id="buttonbar" style="position:relative;">
+      <span id="spanButtonPlaceHolder" style=""></span>
+      <input name="Filedata" type="file"/>
+      <span class="primaryButton greyBg" style="position:absolute;right:0px;top:0px;">
+        <input name="Upload" style="" type="submit" value="Upload"/>
+      </span>
+    </div>
+  </form>
+</py:if>
+
+        </div>
+
+    </div>
+
+    <div id="help"><strong>Note:</strong>
+    	See <a href="${helpurl}">Help</a> for help how to mount projects.</div>
+
+</div> <!-- end of content-->
+    <script type="text/javascript" src="${chrome.htdocs_location}js/folding.js"></script>
+    <script type="text/javascript" src="${conf.theme_htdocs_location}/js/ZeroClipboard.js"></script>
+
+    <script type="text/javascript" src="${conf.theme_htdocs_location}/js/fileprogress.js"></script>
+    <script type="text/javascript" src="${conf.theme_htdocs_location}/js/handlers.js"></script>
+
+    <script type="text/javascript" src="${conf.trac_htdocs_location}/js/expand_dir.js"></script>
+    <script type="text/javascript">
+      //  <![CDATA[
+
+      jQuery(document).ready(function($) {
+          /* browsers using old WebKits have issues with expandDir... */
+          var webkit_rev = /AppleWebKit\/(\d+)/.exec(navigator.userAgent);
+          if ( !webkit_rev || (521 - webkit_rev[1]).toString()[0] == "-" )
+            enableExpandDir(null, $("table.dirlist tr"), {
+                action: 'inplace'
+            });
+
+          // If clipboard button is not visible, don't bother initializing clipboard
+          if($('#copybutton').length == 0) {
+              return;
+          }
+
+          var version = swfobject.getFlashPlayerVersion();
+          if (version.major != 0)
+          {
+            ZeroClipboard.setMoviePath('/htdocs/theme/flash/ZeroClipboard.swf');
+            var clip = new ZeroClipboard.Client();
+            clip.setText( $("#filesaddress").text() );
+            clip.glue('copybutton');
+          } else
+          {
+            document.getElementById("copybutton").setAttribute("class", "disabledbutton");
+          }
+      });
+
+      function toggleHelp() {
+        if ($("#helplink").hasClass("open")) {
+            $("#helplink").removeClass("open");
+            $("#davhelp").hide("slow");
+        } else {
+            $("#helplink").addClass("open");
+            $("#davhelp").show("slow");
+        }
+      }
+
+      function confirmDelete(e, filename) {
+        if (confirm("Are you sure you want to delete file " + filename)) {
+            return true;
+        } else {
+            e.stopPropagation();
+            e.preventDefault();
+            return false;
+        }
+      }
+
+      function uploadComplete(file) {
+        if (this.getStats().files_queued === 0) {
+          $('#files #startUpload').attr('disabled', 'disabled');
+          if ("/${path}" == "//" ) {
+            window.location.assign("${req.base_path}/files");
+          } else {
+            window.location.assign("${req.base_path}/files" + "${path}");
+          }
+        }
+      }
+      //  ]]>
+
+    </script>
+
+</body>
+</html>

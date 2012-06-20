@@ -1,0 +1,10 @@
+<div xmlns:py="http://genshi.edgewall.org/" id="vcsparent-selection">
+    <select id="parent_repository" name="_project_" class="selectMenu">
+        <py:for each="prj in projects">
+            <option value="${prj.env_name}">${prj.project_name}</option>
+        </py:for>
+        <py:if test="not projects">
+            <option value="none">No projects to clone</option>
+        </py:if>
+    </select>
+</div>

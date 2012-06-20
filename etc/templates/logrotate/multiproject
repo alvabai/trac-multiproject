@@ -1,0 +1,19 @@
+# Rotate Multiproject and custom Apache logs
+/var/www/trac/logs/*.log {
+    # Ignore if log file missing
+    missingok
+    # Do not rotate if empty
+    notifempty
+    # Rotate weekly
+    weekly
+    # Keep logs for 10 weeks
+    rotate 10
+    # Create new log file with same permissions
+    create
+    # Run script only once for all logs
+    sharedscripts
+    # Make apache to reload log handlers
+    postrotate
+      /etc/init.d/apache2 reload
+    endscript
+}

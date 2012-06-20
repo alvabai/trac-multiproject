@@ -1,0 +1,14 @@
+diff -uNr trac/ticket/roadmap.py trac/ticket/roadmap.py
+--- trac/ticket/roadmap.py	2011-02-04 09:19:28.805765001 +0200
++++ trac/ticket/roadmap.py	2011-02-04 09:19:55.205765002 +0200
+@@ -279,10 +279,7 @@
+
+ def milestone_stats_data(env, req, stat, name, grouped_by='component',
+                          group=None):
+-    has_query = env[QueryModule] is not None
+     def query_href(extra_args):
+-        if not has_query:
+-            return None
+         args = {'milestone': name, grouped_by: group, 'group': 'status'}
+         args.update(extra_args)
+         return req.href.query(args)

@@ -1,0 +1,135 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+  <html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="admin.html" />
+
+  <head>
+    <title>Edit user</title>
+  </head>
+
+  <body>
+     <h2>Edit user: ${user.username} <span py:if="user.username == req.authname">(this is your account)</span></h2>
+     <div id="content">
+        <form action="" enctype="multipart/form-data" method="post">
+            <fieldset>
+                <input type="hidden" name="local" value="on" />
+                <input type="hidden" name="username" value="${user.username}" />
+                <table class="content">
+                    <tr>
+
+                        <td class="label"><label for="first">First name</label></td>
+                        <td>
+                            <input type="text" id="first" name="first" value="${user.givenName}" size="40" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label required"><label for="last">Last name</label></td>
+                        <td>
+                            <input type="text" id="last" name="last" value="${user.lastName}" size="40" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label required"><label for="email">Email</label></td>
+                        <td>
+                            <input type="text" id="email" name="email" value="${user.mail}" size="60" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label required"><label for="mobile">Mobile</label></td>
+                        <td>
+                            <input type="text" id="mobile" name="mobile" value="${user.mobile}" size="60" />
+                            <p class="desc">Mobile phone number</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label"></td>
+                        <td>
+                            <input type="checkbox" id="insider" name="insider" value="${user.insider}" py:if="user.insider" checked="checked"/>
+                            <input type="checkbox" id="insider" name="insider" value="${user.insider}" py:if="not user.insider" />
+                            <label for="insider">Insider</label>
+                            <p class="desc">Insiders see listings of all projects while outsiders don't</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label">Status</td>
+                        <td>
+                            <select name="status" id="states">
+                                <option py:for="state in states.items()" value="${state[0]}" selected="${state[0] == user.status or None}">${state[1]}</option>
+                            </select>
+                            <p class="desc">Blocked users cannot login to service</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label">Expiration</td>
+                        <td>
+                            <input type="text" id="expires" name="expires" value="${user.expires.strftime(dateformats['py'])}" placeholder="Never" py:if="user.expires" />
+                            <input type="text" id="expires" name="expires" value="" placeholder="Never" py:if="not user.expires" />
+                            <strong py:if="expired" class="expired">expired!</strong>
+                            <p class="desc">Account expiration date. If empty, account never expires</p>
+                        </td>
+                    </tr>
+                    <tr py:if="user.created">
+                        <td class="label">Created</td>
+                        <td><span>${user.created.strftime(dateformats['py'])}</span></td>
+                    </tr>
+                    <tr>
+                        <td class="label">Author</td>
+                        <td>
+                            <input type="hidden" id="author_id" name="author_id" value="${user.author_id}" />
+                            <input type="text" id="author" size="60" name="author_text" value="${author}" placeholder="None" py:if="author" />
+                            <input type="text" id="author" size="60" name="author_text" value="" placeholder="None" py:if="not author" />
+                            <p class="desc">User who is in charge to extend the account expiration date</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label">Avatar</td>
+                        <td>
+                            <img py:if="user.icon" src="${base_path}/usericon?user_id=${user.id}" class="face_image_admin" />
+                            <div py:if="not user.icon" class="default avatar face_image_admin"></div>
+                            <input type="file" name="icon" value="${user.icon}" accept="image/gif, image/jpeg, image/jpg, image/png"/>
+                            <p class="desc">Select image smaller than 100KB. Image will be resized to 140x140 pixels.</p>
+                            <input id="removeicon" type="checkbox" name="removeicon" value="${removeicon}" />
+                            <label for="removeicon">Remove image</label>
+                            <p class="desc">Reset avatar image back to default</p>
+                        </td>
+                    </tr>
+                    <tr py:if="is_local">
+                        <td class="label">Password</td>
+                        <td>
+                            <input type="password" name="password" autocomplete="off" placeholder="Leave as is"/>
+                            <input type="password" name="confirmpw" autocomplete="off" placeholder="Repeat"/>
+                            <p class="desc">New password (at least 7 letters)</p>
+                        </td>
+                    </tr>
+                    <tr py:if="not is_local">
+                        <td class="label">Password</td>
+                        <td>
+                            <span>Password cannot be changed: account is not local user</span>
+                            <p class="desc">Change the password via integrated authentication service instead</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label"></td>
+                        <td>
+                            <input id="notify" type="checkbox" name="notify" value="yes" checked="checked" />
+                            <label for="notify">Send notification</label>
+                            <p class="desc">Send email notification to account about the changes - including new password if changed</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label"></td>
+                        <td class="buttons">
+                            <input type="submit" name="save" value="Save changes" class="primaryButton" />
+                            <input type="submit" name="remove" value="Delete account" class="confirm secondaryButton" py:if="'USER_REMOVE' in req.perm" />
+                            <input type="submit" name="close" value="Close" class="tetriaryButton" />
+                        </td>
+                    </tr>
+                </table>
+            </fieldset>
+        </form>
+    </div>
+  </body>
+</html>

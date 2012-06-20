@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<rss version="2.0" xmlns:py="http://genshi.edgewall.org/"
+                   xmlns:dc="http://purl.org/dc/elements/1.1/"
+                   xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="macros.rss" />
+  <channel>
+    <title>20 ${sorting} projects ${category_string}</title>
+    <link>${resultslink}</link>
+    <description> 20 ${sorting} projects ${section_string}</description>
+    <generator>Explore Projects</generator>
+    <image py:if="chrome.logo.src_abs">
+      <url>$chrome.logo.src_abs</url>
+      <link>$query_href</link>
+    </image>
+    <item py:for="project in projects">
+      <title>${project.project_name}</title>
+      <link>${projroot}/${project.env_name}</link>
+      <pubDate py:if="project.published != None">${project.published}</pubDate>
+      <description>$project.description</description>
+      <guid>$project.env_name</guid>
+      <enclosure py:if="project.icon_id" url="${projroot}/$project.env_name/projecticon?environment_name=${project.env_name}" length="${project.icon_size}" type="${project.icon_type}" />
+      <category>Project</category>
+    </item>
+ </channel>
+</rss>

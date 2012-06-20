@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<rss version="2.0" xmlns:py="http://genshi.edgewall.org/"
+                   xmlns:dc="http://purl.org/dc/elements/1.1/"
+                   xmlns:xi="http://www.w3.org/2001/XInclude">
+  <!--
+  NOTE: If you need RSS 1.0 instead, try adding ?format=rss10 in the end of the request
+  -->
+  <channel>
+    <title>${title}</title>
+    <link>${home}</link>
+    <description>${title} on ${host}</description>
+    <generator>Trac $trac.version</generator>
+    <image py:if="chrome.logo.src_abs">
+      <url>$chrome.logo.src_abs</url>
+      <link>$query_href</link>
+    </image>
+    <item py:for="project in projects">
+      <title>$project.project_name</title>
+      <link>${projroot}/$project.name</link>
+      <pubDate>${project.date}</pubDate>
+      <description>$project.description</description>
+      <guid>$project.name</guid>
+      <enclosure url="${projroot}/$project.name/projecticon?environment_name=$project.name" length="$project.icon_size" type="$project.icon_type" />
+      <category>Project</category>
+    </item>
+ </channel>
+</rss>

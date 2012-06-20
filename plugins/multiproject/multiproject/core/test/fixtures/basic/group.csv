@@ -1,0 +1,16 @@
+group_id,group_name,trac_environment_key
+131071,'tracadmin',19
+131072,'tracadmin',20
+131073,'anonymous',20
+131074,'tracadmin',21
+131075,'cartman',21
+131076,'testuser',22
+131077,'tracadmin',23
+131078,'testgroup',19
+131333,'scm_write',24
+131334,'scm_read',24
+131335,'dav',24
+131700,'davreaders',24
+132307,'Developers',24
+132432,'Administrators',24
+132668,'Members',24

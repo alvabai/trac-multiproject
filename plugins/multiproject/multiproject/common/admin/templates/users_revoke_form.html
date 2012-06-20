@@ -1,0 +1,87 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      py:strip="True">
+
+<?python
+from multiproject.core.configuration import conf
+?>
+
+        <div id="admin_user_groups">
+          <!-- Topic line -->
+          <div id="aug_heading">
+            <div class="left">Group</div>
+            <div class="right">Has users</div>
+          </div>
+          
+          <py:with vars="groups = [x + ('user',) for x in user_groups]+
+                                  [x + ('organization',) for x in organization_groups]+
+                                  [x + ('ldapgroup',) for x in ldapgroup_groups]+ [('',x,'') for x in all_groups]">
+            <div id="usergroups">
+              
+              <!-- ! For each group as a row -->
+              <div py:for="idx, (group, userlist) in enumerate(groupby(sorted(groups, key=lambda x:(x[1], x[0])), key=lambda tmp: tmp[1]))"
+                   class="group ${idx % 2 and 'odd' or 'even'}">
+                
+                <!-- ! Group name on left -->
+                <div class="groupname left">${group}</div>
+                
+                <!-- ! Users on right -->
+                <div class="users right" id="g_${group}">
+                  <div class="user" py:for="(user,group,type) in userlist" py:if="user and group and type" id="${type[0]}_${group}${user}" username="${user}">
+                    <py:choose>
+                        <py:when test="type=='user'">${conf.getUserStore().getUser(user).getDisplayName()}</py:when>
+                        <py:otherwise>${user}</py:otherwise>
+                    </py:choose>
+                  </div>
+                </div>
+                
+              </div>
+              
+              <!-- ! Recycle bin -->
+              <div class="group recyclebin">
+                <div class="groupname left">Remove from project</div>
+                <div class="users right">
+                </div>
+              </div>
+              
+            </div>
+          </py:with>
+        </div>
+        <br />
+        <div class="buttons">
+          <a href="#dummy" id="save_button" class="primaryButton"><span>Save</span></a>
+        </div>
+    
+        <!-- ! Help text -->
+        <div id="guide" class="shaded-box" style="margin-top:30px;">
+          <h4>Guide</h4>
+          <br />
+          <p class="help">
+            Add a user to your project typing the username in the top right and selecting a group.
+          </p>
+          <p class="help">
+            Add many users at once clicking on "Add users".
+          </p>
+          <p class="help">
+            Move users from a group to another using drag and drop or drop the username 
+            in the box labelled "Remove from project" and click "Save" to confirm.
+          </p>
+          <p class="help" py:if="organizations_enabled">
+            You must use an existing username, or you can ask ${domain_name}
+            maintainers to create a local user account.
+          </p>
+          <p class="help" py:if="conf.ldap_groups_enabled">
+            You can also give permissions to all users in an LDAP group by
+            adding that LDAP group using the form on the right. LDAP group
+            names are case-insensitive.
+          </p>
+          <p class="help" py:if="organizations_enabled">
+            "User type" instead of a single user name is used for adding all users with a certain
+            type of account (authentication method) to a group.
+          </p>
+          <p class="help">
+            Remember, to define permissions you should edit the groups following the link on the left menu.
+          </p>
+        </div>
+</html>

@@ -1,0 +1,32 @@
+<?python
+    from multiproject.core.configuration import conf
+?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:i18n="http://genshi.edgewall.org/i18n"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+      <py:choose>
+      
+          <py:when test="conf.filter_login_error(chrome) and req.authname == 'anonymous'">
+              <xi:include href="login_error.html" />
+          </py:when>
+          
+          <py:otherwise>
+              <!--! Show debug if it's allowed in configuration -->
+              <py:if test="conf.show_debug_page">
+                <xi:include href="debug.html" />
+              </py:if>
+              
+              <!--! Show internal error message if no debug is allowed -->
+              <py:if test="not conf.show_debug_page">
+                <xi:include href="internal_error.html" />
+              </py:if>
+          </py:otherwise>
+      
+      </py:choose>
+
+</html>

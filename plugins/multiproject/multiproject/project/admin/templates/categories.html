@@ -1,0 +1,35 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+
+<!-- ! This template is used for creating categorization fields
+       Used with ajax to render small portion of the page (context)-->
+
+<?python
+from multiproject.core.configuration import conf
+?>
+
+<!-- ! Import categorization function -->
+<xi:include href="categorizer.html" />
+
+<!-- ! Html content begins -->
+<fieldset class="fieldset_left">
+	<legend>Selected categories</legend>
+    ${list_context_categories_in_project(context, project_categories)}
+</fieldset>
+<fieldset class="fieldset_right">
+    <legend>
+    <a onclick="toggle('list_${context.context_id}'); toggleInline('closed_arrow_${context.context_id}'); toggleInline('open_arrow_${context.context_id}');">
+    <img src="${conf.theme_htdocs_location}/images/icon_arrow_closed.gif" id="closed_arrow_${context.context_id}" style="display:none"/>
+    <img src="${conf.theme_htdocs_location}/images/icon_arrow_open.gif" id="open_arrow_${context.context_id}"/>
+    </a>${context.name}
+    </legend>
+    <div id="list_${context.context_id}">
+        ${list_context_categories(context, categories, project_categories)}
+    </div>
+</fieldset>
+<!-- ! Html content ends -->
+</html>

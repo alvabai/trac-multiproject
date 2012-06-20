@@ -1,0 +1,48 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+  <xi:include href="admin.html" />
+  
+  <head>
+    <title>News Forum</title>
+  </head>
+        
+  <body>
+    <h2>Announcements</h2>
+
+
+    <form action="" method="post">
+      <p/>
+      <span>Here you can manage the visibility and functionality of the announcements forum.</span>
+      <p/>
+      <py:choose>
+        <py:when test="showforum == True">
+          <input type="submit" name="hideforum" value="Hide" style="width:80px"/>
+        </py:when>
+        <py:otherwise>
+          <input type="submit" name="showforum" value="Show" style="width:80px"/>
+        </py:otherwise>
+      </py:choose>
+      <span>Forum and announcements in your project's summary page</span><p/>
+
+
+      <py:if test="public_exists == True and showforum == True">
+        <py:choose>
+          <py:when test="allowed == True">
+            <input type="submit" name="disallow" value="Disallow" style="width:80px"/>
+          </py:when>
+          <py:otherwise>
+            <input type="submit" name="allow" value="Allow" style="width:80px"/>
+          </py:otherwise>
+        </py:choose>
+        users to comment on announcements<p/>
+      </py:if>
+      <py:if test="showforum == True">
+        <span>Rename forum to </span><input type="text" name="forumname" /> <input type="submit" name="rename" value="Save" />
+      </py:if>
+    </form>
+  </body>
+</html>

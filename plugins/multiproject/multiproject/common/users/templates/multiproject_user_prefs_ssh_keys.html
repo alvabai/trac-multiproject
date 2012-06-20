@@ -1,0 +1,70 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="prefs.html" />
+  
+  <!-- ! Show preferences page to user for managing ssh keys -->
+  <head>
+    <title>Manage SSH keys</title>
+  </head>
+  <body>
+  <p py:if="msg" class="error_msg_color">${msg}</p>
+
+  <div class="gitosis_guide shadedBox">
+    <div class="roundTop"><span></span></div>
+      <div class="module" style="padding: 10px">
+        <h4>Guide</h4><br />
+          <p><em>This key will only affect remote access to Git repositories over SSH.</em></p>
+          
+          <p>You can access your git repository securely over SSH. To enable Git-over-SSH functionality, you must first upload
+            your public key. After you have successfully uploaded an SSH key, you can access your Git repository using
+            <em>ssh://git@${domain}/git/yourproject.git</em> (note that the username is <em>git</em>, not
+               your Projects username).</p>
+          <p>Cloning your project: <em>git clone ssh://git@${domain}/git/yourproject.git</em></p>
+          
+          <p><strong>Description</strong> is a short description of the key. This is for your own convenience and is not used by the system.</p>
+          <p><strong>SSH key</strong> field must contain your public RSA key. Currently the key length must be between 2048 and 4096 bits.
+            For instructions on creating an SSH key, see your SSH client software's documentation.   
+          </p>
+          
+        </div>
+      <div class="roundBottom"><span></span></div>
+  </div>  
+  
+  <div class="ssh_keys_container" py:if="keys">
+    <dl py:for="key in keys">
+      <h2 class="title"><span>Current Git SSH key</span></h2>
+      <fieldset>
+        <legend>Added: ${key.added}</legend>
+        <div py:if="key.description">
+          <label for="currentdescription">Description</label>
+          <br />
+          <input name="currentdescription" id="currentdescription" type="text" class="sshkey" readonly="readonly" value="${key.description}" />
+        </div>
+      <label for="currentkey">SSH key</label>
+      <br />
+      <textarea name="currentkey" id="currentkey" class="sshkey" rows="6" readonly="readonly">${key.ssh_key}</textarea>
+      <br />
+      <label id="sshdelete" for="deletelist"><input type="checkbox" name="deletelist" value="${key.key_id}" /> Delete</label><br />
+      </fieldset>
+      <p />
+    </dl>
+  </div>
+  
+  <div class="ssh_keys_container">
+
+    <fieldset py:if="not hide_add_dialog">
+      <h2 class="title"><span>Create a new Git SSH key</span></h2>
+      <label for="description">Description (optional, max 200 characters)</label><br />
+      <input class="sshkey" type="text" name="description" value="" maxlength="200" /><br /><br />
+     
+      <label for="ssh_key">SSH key (copy/paste it here) <span class="requiredField">*</span></label><br />
+      <textarea class="sshkey" name="ssh_key" rows="6" cols="80"></textarea><br /><br />
+    </fieldset>
+  </div>
+  
+  </body>
+</html>

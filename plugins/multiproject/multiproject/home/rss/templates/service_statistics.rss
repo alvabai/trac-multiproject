@@ -1,0 +1,18 @@
+<?xml version="1.0"?> 
+<rss version="2.0"
+  xmlns:atom="http://www.w3.org/2005/Atom"
+  xmlns:py="http://genshi.edgewall.org/"> 
+    <channel> 
+        <title>Projects Statistics</title>
+        <link>${site}</link>
+        <atom:link href="${site}" rel="self" type="application/rss+xml" />
+        <description>Developer Projects Statistics</description>
+        <pubDate>${pubdate}</pubDate>
+
+        <item py:for="item in items">
+            <guid isPermaLink="false">${item[0]}</guid>
+            <title>${item[1]}</title>
+            <description>${item[2]}</description>
+        </item> 
+    </channel> 
+</rss>

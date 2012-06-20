@@ -1,0 +1,40 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      py:strip="True">
+
+<py:def function="list_categories(categories)">
+    <ul>
+        <li py:for="cat in categories.children" title="${cat.description}">
+            ${cat.name}
+            <py:if test="len(cat.children) > 0">
+            ${list_categories(cat)}
+            </py:if>
+        </li>
+    </ul>
+</py:def>
+
+<py:def function="render_cat_tree(cat_tree)">
+    <py:with vars="is_admin = 'TRAC_ADMIN' in req.perm">
+    <py:for each="cntx in cat_tree">
+        
+        <py:if test="cntx.name in mandatory_cntxts and is_admin and len(cntx.children) == 0">
+            <h4 class="error_msg_color" title="${cntx.description}">${cntx.name}</h4>
+            <p class="info_missing_alert error_msg_color" style="padding-left:20px;">
+               <a href="${req.base_path}/admin/general/categorization">Please complete your category information</a>.
+            </p>
+        </py:if>
+        
+        <py:if test="len(cntx.children) > 0">
+            <h4 title="${cntx.description}">${cntx.name}</h4>
+            ${list_categories(cntx)}
+        </py:if>
+        
+    </py:for>
+    </py:with>
+</py:def>
+
+</html>

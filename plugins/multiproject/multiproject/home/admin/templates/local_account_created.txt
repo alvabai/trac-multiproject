@@ -1,0 +1,4 @@
+An account has been created for you in ${system}.
+
+Your user id is: ${username}
+Your password is: ${password} 

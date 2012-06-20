@@ -1,0 +1,20 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+  <html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+    <div class="wrapper">
+        <div class="info-wrapper">
+            <div class="info">
+                <div class="avatar"><img width="50" src="${account.getAvatarUrl(50)}" /></div>
+                <div class="text">
+                    <p class="givenname" py:if="account.givenName">${account.givenName}</p>
+                    <p class="lastname" py:if="account.lastName">${account.lastName}</p>
+                    <p class="username">${account.username}</p>
+                </div>
+            </div>
+        </div>
+        <div class="actions">${actionlist}</div>
+    </div>
+</html>

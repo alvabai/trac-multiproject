@@ -1,0 +1,17 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      py:strip="True">
+
+<div class="greyBgContainer" style="margin-left:10%;width:80%;">
+    <div class="greyBgContent">
+        <py:if test="not userpage">There are a lot of great projects that need resources,
+          get started <a style="display: inline" href="${conf.url_home_path}/project/explore" title="Explore projects">now</a></py:if>.
+        <py:if test="userpage">No participated projects</py:if>
+    </div>
+</div><br/>
+
+
+</html>

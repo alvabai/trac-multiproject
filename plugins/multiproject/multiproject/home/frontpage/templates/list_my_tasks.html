@@ -1,0 +1,26 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      py:strip="True">
+
+<py:def function="list_my_tasks(tasks)">
+
+    <li class="project_list_item" py:for="project,url,summary,description,priority,time in tasks[:5]">
+        <div class="logo"><img src="${conf.theme_htdocs_location}/${conf.getThemePath()}images/d/Projects-icon.png" /></div>
+        <div class="desc">
+            <a href="${url.rsplit('/', 2)[0]}" title="Go to project ${project.project_name}">${project.project_name}</a>
+            <a href="${url}" title="Go to ticket ${summary} in ${project.project_name}"><strong>${summary}</strong></a>
+            <span>${unicode(description, 'utf-8')[:50]}..</span>
+        </div>
+        <div class="meta">
+            Task created: ${to_web_time(time, False)}
+            <div py:if="priority in known_priorities" class="priority ${priority.lower()}">${priority}</div>
+            <div py:if="priority not in known_priorities" class="priority unknown">${priority.upper()}</div>
+        </div>
+        <br />
+    </li>
+</py:def>
+</html>

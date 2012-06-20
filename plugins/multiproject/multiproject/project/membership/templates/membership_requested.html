@@ -1,0 +1,22 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+  <html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="layout.html" />
+
+<head>
+    <title py:if="type == 'privilege'">Request for more rights sent</title>
+    <title py:if="type != 'privilege'">Membership request sent</title>
+</head>
+
+<body>
+    <h1>
+    Request sent!
+    </h1>
+    <p>
+    An email has been sent to the project owners. They will review your request as soon as possible. Once it is processed you will receive an email to confirm or decline your request.
+    </p>
+</body>
+</html>

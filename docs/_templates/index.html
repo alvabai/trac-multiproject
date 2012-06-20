@@ -1,0 +1,90 @@
+{% extends "layout.html" %}
+{% set title = 'Overview' %}
+{% block body %}
+  <h1>Welcome</h1>
+
+  <p>
+      MultiProject is a <a href="http://trac.edgewall.org/">Trac</a> plugin, that allows multiple project hosting in Trac
+      environments. MultiProject features an administration project, which can be used to
+      define site front page, manage local and ldap groups and users, and a convenient
+      way of hosting multiple trac projects. For more information, check the project home
+      page, <a href="https://projects.developer.nokia.com/multiproject">https://projects.developer.nokia.com/multiproject</a>
+  </p>
+  <p>
+    MultiProject is under constant development. The following features are present,
+    work fine and can be seen in action at:
+    <a href="http://projects.developer.nokia.com/">Developer Nokia: Projects</a>
+  </p>
+
+  <div id="launchpad">
+      <table>
+         <tbody>
+            <tr>
+                <td><a class="button install" href="{{ pathto('install/index') }}"></a></td>
+                <td><a class="button usage" href="{{ pathto('usage/index') }}"></a></td>
+                <td><a class="button develop" href="{{ pathto('develop/index') }}"></a></td>
+            </tr>
+            <tr>
+                <td><a class="big" href="{{ pathto('install/index') }}">Install and setup</a></td>
+                <td><a class="big" href="{{ pathto('usage/index') }}">Usage and help</a></td>
+                <td><a class="big" href="{{ pathto('develop/index') }}">Develop &amp; contribute</a></td>
+            </tr>
+         </tbody>
+      </table>
+  </div>
+
+  <h3>Features</h3>
+    <p>Disclaimer: many of the features comes from the Trac itself. MultiProject only extends them or slightly modifies to fit it's needs.</p>
+    <ul>
+      <li>
+          <b>Create projects</b>
+          Create or fork projects without separate acceptance process, with just few clicks.
+      </li>
+      <li>
+          <b>Project Wikis</b>
+          Trac wiki system with all it's power and complexity is available for projects to use.
+      </li>
+      <li>
+          <b>Version control</b>
+          Host your project in either git, svn or mercurial. Link revision numbers into Wiki and Tickets.
+          Browse the source code with source code browser.
+      </li>
+      <li>
+          <b>Files and downloads</b>
+          Easily share files and folders between your project members. Mount the files directly to your local computer.
+      </li>
+      <li>
+          <b>Roadmap</b>
+          Plan major releases and milestones and track their progress and goals. Define expected completion dates, or do completely open milestone.
+      </li>
+      <li>
+          <b>Details tracking</b>
+          Track changes and actions done for the project via project timeline, rss feeds and by email notifications.
+      </li>
+      <li>
+          <b>Roadmap</b>
+          Plan major releases and milestones and track their progress and goals. Define expected completion dates, or do completely open milestone.
+      </li>
+      <li>
+          <b>Permission system</b>
+          Extended permission system. Manage project permissions through groups and individual permissions.
+      </li>
+    </ul>
+
+  <h3>Who's using it</h3>
+    <p>Plugin is an outcome from Nokia project - solution that powers currently several production environments.</p>
+    <div class="usage"></div>
+
+  <h3>Coming from Trac?</h3>
+  <p>MultiProject <i>is not a fork</i> from Trac, but a plugin. Having that said, it currently requires a bit more effort than
+  enabling the component. Here are few reasons why to see the trouble:</p>
+  <ul>
+      <li>Project creation from web UI</li>
+      <li>User management from web UI</li>
+      <li>Prepackage collection of plugins to work together</li>
+  </ul>
+
+  <h3>License</h3>
+  <p>Plugin and all the related scripts and resources and licensed under GPL2</p>
+
+{% endblock %}

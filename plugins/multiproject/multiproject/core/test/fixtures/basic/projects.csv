@@ -1,0 +1,7 @@
+project_id,project_name,environment_name,description,author,created,updated,published,parent_id,icon_id,trac_environment_key
+19,'test','test','desc',28,'2009-11-09 08:04:19','2009-11-09 08:04:19',null,null,null,19
+20,'This is public','publicroject','desc',28,'2009-11-09 13:33:30','2009-11-09 13:33:30',null,null,null,20
+21,'Some other project','otherprj','desc',28,'2009-11-09 14:36:03','2009-11-09 14:36:03',null,null,null,21
+22,'Test users own project','testusersprj','desc',30,'2009-11-09 14:38:20','2009-11-09 14:38:20',null,null,null,22
+23,'Cartoon world','cartoons','desc',28,'2009-11-09 15:03:21','2009-11-09 15:03:21',null,20,null,23
+24,'Storage auth testing','storageauthtest','desc',28,'2010-01-29 11:15:01','2010-01-29 11:15:01',null,null,null,24

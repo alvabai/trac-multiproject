@@ -1,0 +1,243 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+  <xi:include href="admin.html" />
+
+<?python
+from multiproject.core.configuration import conf
+?>
+
+<!-- !Define function for showing categories items in category editor -->
+<py:def function="list_category_editor_context_categories(context, categories)">
+  <!-- ! Almost copied from list_context_categories -->
+  <py:for each="category in categories.values()">
+      <py:if test="not category.parent">
+          ${_category_editor_tree_for_categories(context, category)}
+      </py:if>
+  </py:for>
+</py:def>
+
+<!-- ! Internal -->
+<py:def function="_category_editor_tree_for_categories(context, category)">
+  <ul>
+      <li id="cat_${category.category_id}">
+          <span py:if="not is_rdf_description(category.description)" class="name">${category.name}</span>
+          <span py:if="is_rdf_description(category.description)" class="name rdf_category">${category.name}</span>
+          <span class="description">${category.description}</span>
+          <span class="category_id">${category.category_id}</span>
+          <a href="#" class="edit_link">Edit</a>
+          <py:if test="category.has_children()">
+              <a class="toggle_categories" onclick="toggle('childof_${category.category_id}'); toggleInline('closed_arrow_${category.category_id}'); toggleInline('open_arrow_${category.category_id}');">
+                  <img src="${conf.theme_htdocs_location}/images/icon_arrow_closed.gif" id="closed_arrow_${category.category_id}"/>
+                  <img src="${conf.theme_htdocs_location}/images/icon_arrow_open.gif" id="open_arrow_${category.category_id}" style="display:none"/></a>
+          </py:if>
+      </li>
+      <!-- ! Recurse -->
+      <ul class="sub_categories" py:if="category.has_children()" id="childof_${category.category_id}" style="display: none;">
+          <py:for each="child_category in sorted(category.children, key=lambda x:x.name)">
+              ${_category_editor_tree_for_categories(context, child_category, project_categories)}
+          </py:for>
+      </ul>
+  </ul>
+</py:def>
+
+
+  <!-- ! Show admin page for editing custom categories -->
+  <head>
+    <title>Edit categories</title>
+  </head>
+
+  <body>
+    <h2>Edit categories</h2>
+    <div py:if="invalid_categories != []">
+        <h3>Invalid categories noticed!</h3>
+        <p>There are some categories which have different contexts than their parents. The problem is solved by updating their context to their parent's context.</p>
+        <p>The invalid categories are:</p>
+        <py:for each="category, parent_category in invalid_categories">
+            <ul>
+                <li>Category name: ${str(category.name)}, category context: ${contexts[category.context]['name']},
+                    parent context: ${contexts[parent_category.context]['name']}
+                </li>
+                <form action="" enctype="multipart/form-data" method="post">
+                    <input type="hidden" name="repositioned_category_id" value="${category.category_id}"/>
+                    <input type="hidden" name="new_parent_category_id" value="${parent_category.category_id}"/>
+                    <input type="submit" name="reposition" value="Fix it!"/>
+                </form>
+            </ul>
+        </py:for>
+    </div>
+    <div class="categories">
+        <h3>Working with categories</h3>
+        <div class="context category-bind">
+            <form action="" enctype="multipart/form-data" method="post" >
+                <fieldset class="fieldset_left">
+                    <legend>Merge category</legend>
+                    <p>
+                    <label for="merged_category_name">Merged category: </label>
+                    <input type="text" class="autocomplete-category" name="merged_category_name" id="merged_category_name" />
+                    </p><p>
+                    <label for="target_category_name">Target category: </label>
+                    <input type="text" class="autocomplete-category" name="target_category_name" id="target_category_name" />
+                    </p>
+                    <p>Updates the projects in merged category to be in the target category, and deletes the merged category.</p>
+                    <p>The contexts of the category and its sub-categories are also updated, if needed.</p>
+                    <p>
+                    <span class="primaryButton"><input type="submit" name="merge" value="Merge"/></span>
+                    </p>
+                </fieldset>
+            </form>
+            <form action="" enctype="multipart/form-data" method="post" >
+                <fieldset class="fieldset_left" >
+                    <legend>Move category under new parent</legend>
+                    <p>
+                    <label for="repositioned_category_name">Repositioned category: </label>
+                    <input type="text" class="autocomplete-category" name="repositioned_category_name" id="repositioned_category_name" />
+                    </p><p>
+                    <label for="new_parent_category_name">New parent category: </label>
+                    <input type="text" class="autocomplete-category" name="new_parent_category_name" id="new_parent_category_name" />
+                    </p><p>
+                    <input type="checkbox" class="" name="root_category" id="root_category" />
+                    <label for="root_category">Make top-level category </label>
+                    </p>
+                    <p>Updates the parent of the repositioned category to be the new parent category.</p>
+                    <p>The contexts of the category and its sub-categories are also updated, if needed.</p>
+                    <p>
+                    <span class="primaryButton"><input type="submit" name="reposition" value="Reposition"/></span>
+                    </p>
+                </fieldset>
+            </form>
+            <div id="edit_category_div" >
+                <form action="" enctype="multipart/form-data" method="post" id="edit_category" style="visibility: hidden;">
+                    <fieldset class="fieldset_left">
+                        <legend>Edit category</legend>
+                        <input type="hidden" name="edited_category_id" id="edited_category_id" />
+                        <p>
+                            <label for="edited_category_name">Category name: </label>
+                            <input type="text" name="edited_category_name" id="edited_category_name" />
+                        </p>
+                        <p>
+                            <label for="edited_category_description">Category description: </label><br/>
+                            <input type="text" name="edited_category_description" id="edited_category_description" />
+                        </p>
+                        <p>
+                            <span class="primaryButton"><input type="submit" name="edit" value="Edit" /></span>
+                            <span class="secondaryButton" style="display: none;"><input type="submit" name="cancel" value="Cancel" /></span>
+                        </p>
+                    </fieldset>
+                </form>
+                <form action="" enctype="multipart/form-data" method="post" >
+                    <fieldset class="fieldset_left">
+                        <legend>Remove category</legend>
+                        <label for="removed_category_name">Removed category: </label>
+                        <input type="text" class="autocomplete-category" name="removed_category_name" id="removed_category_name" />
+                        <br/><br/>
+                        <p>Removes the category. Note, that also sub categories are removed.</p>
+                        <span class="primaryButton"><input type="submit" name="remove" value="Remove" /></span>
+                        <span class="secondaryButton" style="display: none;"><input type="submit" name="cancel" value="Cancel" /></span>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="edit_categories_form">
+        <py:for each="context_key, context in sorted(context_by_id.items())">
+            <div class="categories">
+                <h3>${context.name}</h3>
+                <div id="context_${context_key}" class="context">
+                    <form action="" enctype="multipart/form-data" method="post">
+                    <fieldset class="fieldset_left">
+                        <legend>Categories</legend>
+                        ${list_category_editor_context_categories(context, categories_per_context[context.context_id])}
+                        <br/>
+                        <strong>Add a new category</strong><br/><br/>
+                        <label>New category:</label>
+                        <input type="text" name="category"/><br/>
+                        <py:if test="categories_per_context[context.context_id]">
+                            <label>Parent category:</label>
+                            <select name="parent">
+                                <option selected="selected" value="NONE">(None)</option>
+                                <option py:for="cat in categories_per_context[context.context_id].values()" value="${cat.category_id}">${cat.name}</option>
+                            </select><br/>
+                        </py:if>
+                        <input type="hidden" name="context" value="${context_key}"/>
+                        <input type="submit" name="add" value="Add"/><br/><br/>
+
+                        <strong>Move a category to new context</strong><br/><br/>
+                        <label>Category:</label>
+                        <select name="moved_category_id">
+                            <option py:for="cat in categories_per_context[context.context_id].values()" value="${cat.category_id}">${cat.name}</option>
+                        </select><br/>
+                        <label>New context:</label>
+                        <select name="newcontext">
+                            <option py:for="key, context in context_by_id.items()" value="${key}">${context.name}</option>
+                        </select><br/>
+                        <input type="submit" name="move" value="Move"/>
+
+                    </fieldset>
+                    </form>
+                </div>
+            </div>
+        </py:for>
+    </div>
+    <script type="text/javascript">
+        // <![CDATA[
+        var catfields = $(".autocomplete-category");
+        var requester = function (request, response) {
+            self = $(this.element[0]);
+            self.addClass('loading');
+            // Show loader class until response is shown
+            var keyword = self.val();
+            $.getJSON("${req.base_path}/catautocomplete", {q:keyword}, function(data){
+                response(data);
+                self.removeClass('loading');
+            });
+        };
+        catfields.autocomplete({source:requester, minLength:2});
+        function update_new_parent_category_name() {
+            if ($("#root_category").checked()) {
+                $("#new_parent_category_name").attr('disabled', true);
+            }
+            else {
+                $("#new_parent_category_name").removeAttr("disabled");
+            }
+        }
+        $(".edit_link").click(function (e) {
+            var top = $(this).offset().top -30;
+            var parent = $(this).parent();
+            var name = parent.find(".name").text();
+            var description = parent.find(".description").text();
+            var edited_category_id = parent.find(".category_id").text();
+            var div = $("#edit_category_div");
+            div.addClass("right");
+            console.log(div.find(".secondaryButton input"));
+            var cancelButton = div.find(".secondaryButton")
+            div.find("#edit_category").css("visibility", "visible");
+            cancelButton.show();
+            div.offset({top:top, left:div.left});
+            $("#removed_category_name").add("#edited_category_name").val(name);
+            $("#edited_category_description").val(description);
+            $("#edited_category_id").val(edited_category_id);
+            e.preventDefault();
+            e.stopPropagation();
+        });
+        $("#edit_category_div .secondaryButton input").click(function(e) {
+            var div = $("#edit_category_div");
+            div.removeClass("right");
+            div.css("position", "static");
+            div.find("input[type=text]").val("");
+            e.preventDefault();
+            e.stopPropagation();
+            div.find("#edit_category").css("visibility", "hidden");
+            cancelButton.hide();
+        });
+        $("#root_category").click(function () {
+            update_new_parent_category_name()
+        });
+        update_new_parent_category_name();
+        // ]]>
+    </script>
+  </body>
+</html>

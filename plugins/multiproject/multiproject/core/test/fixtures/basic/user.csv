@@ -1,0 +1,11 @@
+user_id,username,mail,mobile,givenName,lastName,icon_id,SHA1_PW,insider,authentication_key,user_status_key,last_login
+27,'authenticated','','','','',null,'4a8a16fc63bddd59c0322612f004531adb55e19b',0,1,1,'2011-08-16 10:53:12'
+28,'tracadmin','none','none','trac','admin',null,SHA1('q234twsnfjs'),1,1,1,'2011-08-16 10:53:12'
+30,'testuser','no@mail.thx','','','Last',null,'c91e465ca781304b3114a85fe8f4944e57d81c57',0,1,1,'2011-08-16 10:53:12'
+31,'anonymous','','','','Anonymous',null,'da39a3ee5e6b4b0d3255bfef95601890afd80709',0,1,1,'2011-08-16 10:53:12'
+32,'cartman','no@mail.thx','','Eric','Cartman',null,SHA1('cartmans_pw'),0,1,1,'2011-08-16 10:53:12'
+33,'insider','no@mail.thx','','Inside','Out',null,'aef6f23a1c74f221666becf3cd0773f5175db5d1',1,1,1,'2011-08-16 10:53:12'
+34,'kenny','kill@kenny.stout','','Kenneth','McCormick',null,SHA1('ohmygod'),0,1,1,'2011-08-16 10:53:12'
+38,'tester','','','First','Last',null,'5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8',0,1,1,'2011-08-16 10:53:12'
+39,'davreader','','','Dav','Reader',null,SHA1('davreader_pw'),0,1,1,'2011-08-16 10:53:12'
+40,'user@nomail.box','','','Mail','User',null,SHA1('nomailforme'),0,1,1,'2011-08-16 10:53:12'

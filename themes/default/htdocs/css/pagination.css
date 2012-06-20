@@ -1,0 +1,53 @@
+#content .paging {
+    margin: 0 0 2em;
+    padding: .5em 0 0;
+    font-size: 13px;
+    line-height: 2em;
+    text-align: right;
+}
+
+#content .paging .current {
+    color:white;
+    border:none;
+    padding: 2px 4px;
+    text-align:center;
+    font-weight:normal;
+    margin-top:2px;
+    background-color:#0066CB;
+}
+
+#content .paging :link, #content .paging :visited {
+    color:#222222;
+    padding: 2px 4px;
+    text-align:center;
+    margin-top:2px;
+    background-color:white;
+    border:none;
+}
+
+#content .paging :link:hover, #content .paging :visited:hover {
+    background:#0066CB;
+    color:white;
+}
+
+#content .paging .previous a, #content .paging .next a {
+    color:#222222;
+    padding: 2px 4px;
+    text-align:center;
+    margin-top:2px;
+    background-color:white;
+    border:none;
+}
+
+#content .paging .previous a:hover, #content .paging .next a:hover {
+    background: #0066CB;
+    color: white;
+}
+
+#content .paging > span {
+    border-right: 1px solid #eeece7;
+}
+
+#content .paging > span.next {
+    border-right: none;
+}

@@ -1,0 +1,25 @@
+category_id,category_name,description,parent_id,context_id
+23,'S60','Symbian Series 60',null,4
+24,'Maemo','Maemo',null,4
+25,'Linux','Linux',null,4
+26,'Windows','Windows',null,4
+27,'Entertainment','',null,5
+28,'New technology','',null,5
+29,'Economy','',null,5
+30,'Programming language','',null,6
+31,'Protocol','',null,6
+32,'Framework','',null,6
+33,'Database','',null,6
+34,'MySql 5.0','',33,6
+35,'PostgreSql','',33,6
+36,'Oracle','',33,6
+37,'MS SQL Server 2008','',33,6
+38,'C','',30,6
+39,'C++','',30,6
+40,'C#','',30,6
+41,'Java','',30,6
+42,'Python','',30,6
+43,'Standard','',null,6
+44,'Music','',27,5
+45,'Video','',27,5
+46,'Game','',27,5

@@ -1,0 +1,9 @@
+This is a notification about the account modification.
+Account ${user} has been edit by ${changed_by} as follows:
+
+{% for key,value in changes.items() %}\
+  * ${key} = ${value}
+{% end %}
+{% if not changes %}
+  * No details available
+{% end %}

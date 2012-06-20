@@ -1,0 +1,23 @@
+<!--! Template snippet for a standard table header for a dirlist -->
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:py="http://genshi.edgewall.org/"
+    xmlns:xi="http://www.w3.org/2001/XInclude" py:strip="">
+    <thead>
+        <tr>
+            <th class="name">
+              Name
+            </th>
+            <th class="size">
+              Size
+            </th>
+            <th class="date">
+              Last modified
+            </th>
+            <py:if test="'WEBDAV' in perm">
+              <th class="name">
+                Delete
+              </th>
+            </py:if>
+        </tr>
+    </thead>
+</html>

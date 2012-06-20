@@ -1,0 +1,3 @@
+#!/bin/bash
+source /etc/trac/env.sh
+python ${ROOT}/trac/dist/current/scripts/scm-incoming.py ${PWD} ${REMOTE_USER}

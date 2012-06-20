@@ -1,0 +1,30 @@
+
+[[WelcomeText()]]
+This is your project wiki start page. We created this page to help you get started, now just press the "Edit this page" button below to start editing this page.
+
+== Getting started ==
+Here is a list of things you probably want to do when starting a project
+ * Use [/admin/permissions/groups Admin|Permissions] to give rights for your project team
+   - If you flagged your project as public (default) anyone can visit your project, but only registered users can write messages in your discussion boards and open tickets.
+   - If you flagged the project as private, then you should start adding some new members that can access your project and work with you.
+   - Either way, you can add ''project members'' that will have write access to your project and can start pushing software in the SCM.
+   - If the default groups are not enough for you, you can add more.
+ * Tailor your ticketing system to have types and resolutions suitable for your project in [/admin/ticket Admin|Ticket System]
+   - Defaults usually work fine, but it's good to be aware of the possibility to make changes
+   - You can also [/admin/ticket/milestones define a roadmap] in the ticket system panel with milestones
+* Last but not least, create your SummaryPage to show more information about your project, embed images and videos and deep link to your code or documentation
+* Want to know more? Check out the [/home/wiki/HelpAndSupport Help and Support] pages
+
+== Project information ==
+
+  * Project name: [[ProjectName()]]
+  * Project identifier: [[ProjectIdentifier()]]
+  * Owner: [[ProjectOwner()]]
+  * Create date: [[ProjectCreateDate()]]
+  * Project url: [[ProjectUrl()]]
+  * Version control: [[ProjectVersioncontrolUrl()]]
+  * Project (WebDAV) shared folder: [[ProjectWebDavUrl()]]
+  * Downloads: [wiki:Downloads]
+
+== Release downloads ==
+[[FeaturedDownloads()]]

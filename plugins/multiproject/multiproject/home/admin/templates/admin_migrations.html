@@ -1,0 +1,47 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+  <xi:include href="admin.html" />
+
+  <!-- ! Template for showing migrations tags on admin panel -->
+  <head>
+    <title>System Updates</title>
+  </head>
+
+  <body>
+        <div id="database">
+          <h2>Migrations and settings</h2>
+          <fieldset>
+                <legend>System information</legend>
+                <table style="text-valign: center;" border="0" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td><b>Component&nbsp;&nbsp;&nbsp;</b></td>
+                    <td><b>Installed version</b></td>
+                  </tr>
+                  <tr>
+                    <td>Migration information&nbsp;&nbsp;&nbsp;</td>
+                    <td>$installed_upgrade</td>
+                  </tr>
+                </table>
+          </fieldset>
+          <fieldset>
+            <legend>Installed migrations</legend>
+            <table valign="center">
+                <tr>
+                    <th><strong>Migration name</strong></th>
+                    <th style="width:80px;"><strong>Status</strong></th>
+                    <th><strong>Description</strong></th>
+                </tr>
+                <tr py:for="(migration, status) in migrations">
+                    <td>${migration.id}</td>
+                    <td>${status}</td>
+                    <td>${migration.description}</td>
+                </tr>
+            </table>
+          </fieldset>
+        </div>
+  </body>
+</html>

@@ -1,0 +1,5 @@
+${authname} requested membership for '${project_name}'
+Go add ${authname} into your project: ${add_auth_url}
+
+Private message from ${authname}:
+${message}

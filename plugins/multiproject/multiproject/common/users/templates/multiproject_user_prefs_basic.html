@@ -1,0 +1,52 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="prefs.html" />
+
+  <!-- ! Show preferences page to user for changing basic information -->
+  <head>
+    <title>Basic settings</title>
+  </head>
+  <body>
+    <fieldset class="borderless">
+        <p>
+            <label for="givenName">First name</label><br />
+            <input id="givenName" type="text" name="givenName" value="${user.givenName}" />
+        </p>
+        <p>
+            <label for="lastName">Last name</label><br />
+            <input id="lastName" type="text" name="lastName" value="${user.lastName}" />
+        </p>
+        <p>
+            <label for="mail">E-mail</label><br />
+            <input id="mail" type="text" name="mail" value="${user.mail}" />
+        </p>
+        <p>
+            <label for="mobile">Mobile phone number</label><br />
+            <input id="mobile" type="text" name="mobile" value="${user.mobile}" />
+        </p>
+        <py:choose>
+            <py:when test="has_agreed_terms">
+                <p>
+                You have agreed <a href="${conf.url_home_path}/terms">terms and conditions</a>.
+                </p>
+            </py:when>
+            <py:otherwise>
+                <p>
+                You haven't agreed <a href="${conf.url_home_path}/terms">terms and conditions</a>,
+                which must be done, for example, to use version control.
+                </p>
+                <p>
+                    <input id="approve" type="checkbox" name="approve" value="on" />
+                    <label for="approve">I have read and approve</label>
+                    <a href="${conf.url_home_path}/terms">terms and conditions</a>.
+                </p>
+            </py:otherwise>
+        </py:choose>
+    </fieldset>
+
+  </body>
+</html>

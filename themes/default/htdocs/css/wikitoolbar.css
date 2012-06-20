@@ -1,0 +1,55 @@
+.wikitoolbar {
+    border:none;
+    height:28px;
+    margin-left:2px;
+    margin-top:0.3em;
+    width:270px;
+}
+
+.wikitoolbar :link, .wikitoolbar :visited {
+    background: transparent url("../images/edit-toolbar.png") no-repeat;
+    display: inline-block;
+    height:28px;
+    width:30px;
+    border:none;
+}
+
+.wikitoolbar :link:hover, .wikitoolbar :visited:hover {
+    background: transparent url("../images/edit-toolbar-hover.png") no-repeat;
+    border:none;
+}
+
+.wikitoolbar a#strong { background-position: 0 0 }
+.wikitoolbar a#em { background-position: -30px 0 }
+.wikitoolbar a#heading { background-position: -60px 0 }
+.wikitoolbar a#link { background-position: -90px 0 }
+.wikitoolbar a#code { background-position: -120px 0 }
+.wikitoolbar a#hr { background-position: -150px 0 }
+.wikitoolbar a#np { background-position: -180px 0 }
+.wikitoolbar a#br { background-position: -210px 0 }
+.wikitoolbar a#img { background-position: -240px 0 }
+
+div.trac-grip {
+    background: url("/htdocs/trac/grip.png") no-repeat scroll center 1px #EEEEEE;
+    border-color: #DDDDDD;
+    border-right: 1px solid #DDDDDD;
+    border-style: solid;
+    border-width: 0 1px 1px;
+    cursor: s-resize;
+    height: 5px;
+    overflow: hidden;
+}
+
+/* A workaround for wysiwyg plugin.
+ *
+ * Position relatively the element where wikitoolbar should be placed
+ * and absolutely inside of it
+ */
+#messageaddbox .wikitoolbar-wrapper {
+    position: absolute;
+    top: 10px;
+    right: 0;
+}
+iframe.wysiwyg {
+    width: 100%;
+}

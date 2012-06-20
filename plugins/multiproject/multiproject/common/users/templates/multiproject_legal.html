@@ -1,0 +1,36 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+  <html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="layout.html" />
+
+  <head>
+    <title>APPROVE PROJECT HOSTING SERVICES TERMS OF USE</title>    
+    <!-- Load stylesheets -->
+  </head>
+    
+  <body>
+    <div id="content">
+        <div>
+            <xi:include href="${conf.domain_name}_legal.html" />
+        </div>
+        
+        <div class="wikipage searchable">
+            <form id="ssologin" method="post" action="">
+                <fieldset>
+                    <legend>Approve terms of use</legend>
+                    <input type="hidden" name="username" id="username" value="${username}" />
+                    <input type="hidden" name="action" id="action" value="approve" />
+                    <input type="checkbox" id="approve" name="approve" />
+                    <label for="approve">I have read the terms and approve them</label>
+                    <br /><br />
+                    <input type="submit" name="submit_approval" value="Accept" />
+                </fieldset>
+            </form>
+        </div>
+        
+     </div>
+  </body>
+</html>

@@ -1,0 +1,47 @@
+<!--! Template for generating rows corresponding to directory entries -->
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude" py:strip="">
+  <py:choose>
+      <py:when test="len(files) == 0">
+          <tr>
+            <td class="name">
+                &laquo; empty &raquo;
+            </td>
+            <td class="size">
+              &nbsp;
+            </td>
+            <td class="change">
+              &nbsp;
+            </td>
+          </tr>
+      </py:when>
+      <py:when test="len(files) > 0">
+          <py:for each="idx, entry in enumerate(files)">
+              <tr class="${idx % 2 and 'even' or 'odd'}">
+                <td class="name">
+                  <a class="${entry.kind}" title="${_('View %(path_kind)s', path_kind=entry.kind.capitalize())}"
+                     href="${href.files(entry.path)}">${entry.name}</a>
+                </td>
+                <td class="size">
+                  <span title="${_('%(size)s bytes', size=entry.size)}">${pretty_size(entry.size)}</span>
+                </td>
+                <td class="change">
+                    ${entry.mtime}
+                </td>
+                <py:if test="'WEBDAV' in perm">
+                  <td class="delete" style="text-align:center;">
+                      <py:if test="entry.kind == 'file'">
+                        <form method="post" onclick="return confirmDelete(event, '${entry.name}')" onkeypress="return confirmDelete(event, '${entry.name}')">
+                            <input type="hidden" value="delete" name="action"/>
+                            <input type="hidden" value="${entry.name}" name="filename"/>
+                            <input type="submit" class="delete_button" style="display:inline-block;" value="" />
+                        </form>
+                      </py:if>
+                  </td>
+                </py:if>
+              </tr>
+          </py:for>
+      </py:when>
+  </py:choose>
+</html>

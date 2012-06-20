@@ -1,0 +1,27 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+
+    <table id="results" class="table">
+        <thead>
+            <tr>
+                <th>Member</th>
+                <th>Email</th>
+                <th>Last login</th>
+                <th>Created</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr py:for="member in results" class="member member-${member['id']}">
+                <td>${member['given_name']} ${member['last_name']} (${member['username']})</td>
+                <td>${member['mail']}</td>
+                <td>${member['last_login']}</td>
+                <td>${member['created']}</td>
+            </tr>
+        </tbody>
+    </table>
+
+</html>

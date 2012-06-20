@@ -1,0 +1,32 @@
+*** trac/log.py	2011-11-30 17:18:21.383403084 +0200
+--- trac/log.py	2012-01-05 14:53:20.811652049 +0200
+***************
+*** 19,26 ****
+--- 19,45 ----
+  import logging.handlers
+  import sys
+  
++ FACTORY_SUPPORTED = True
++ 
++ 
+  def logger_handler_factory(logtype='syslog', logfile=None, level='WARNING',
+                             logid='Trac', format=None):
++ 
++     # Custom logger factory via special logtype value
++     # factory:module.name,factory_function
++     if logtype.startswith('factory:'):
++         mod_name, func_name = logtype.split(',')
++         mod_name = mod_name.split(':')[1]
++         __import__(mod_name)
++         for obj in vars(sys.modules[mod_name]).values():
++             if callable(obj):
++                 if obj.__name__ == func_name:
++                     logger, hdlr = obj(logtype=logtype, logfile=logfile,
++                                        level=level, logid=logid, format=format)
++                     logger._trac_handler = hdlr
++                     return logger, hdlr
++         raise Exception('callable factory %s does not exists in %s' % (func_name, mod_name))
++ 
+      logger = logging.getLogger(logid)
+      logtype = logtype.lower()
+      if logtype == 'file':

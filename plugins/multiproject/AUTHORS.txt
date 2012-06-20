@@ -1,0 +1,26 @@
+Developers
+----------
+Aleksi Hänninen
+Marko Koivusalo
+Juha Mustonen
+Mika Niinistö
+
+Project managers
+----------------
+Markus Pelkonen
+
+Past developers
+---------------
+Mika Räihä
+Niko Sten
+Piia Ruokonen
+Tomi Näränen
+Ari Rusakko
+Tuomas Puranen
+Pasi Hirvonen
+Samuli Penttilä
+Sampo Vuori
+
+Past project managers
+---------------------
+Petri Ketonen

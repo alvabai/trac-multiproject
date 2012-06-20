@@ -1,0 +1,58 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+  <xi:include href="admin.html" />
+
+  <!-- ! Template for showing project relations on admin panel -->
+  <head>
+    <title>Project relations</title>
+  </head>
+
+  <body>
+  <div>
+        <h2>Related projects</h2>
+        <h3 py:if="parent_project">Parent project</h3>
+        <table py:if="parent_project" class="projectlist_table">
+            <tr>
+                <th>Project</th>
+                <th>Repository</th>
+                <th>Merge</th>
+            </tr>
+            <tr>
+                <td><a href="${parent_project.get_url()}">${parent_project.project_name}</a></td>
+                <td><a href="${parent_project.get_repository_url()}">${parent_project.get_repository_url()}</a></td>
+                <td><a class="request" href="#">Request</a></td>
+            </tr>
+        </table>
+        <h3>Child projects</h3>
+        <table py:if="len(child_projects) > 0" class="projectlist_table">
+            <tr>
+                <th>Project</th>
+                <th>Repository</th>
+                <th>Author</th>
+            </tr>
+            <py:for each="prj in child_projects">
+                <tr>
+                    <td><a href="${prj.get_url()}">${prj.project_name}</a></td>
+                    <td><a href="${prj.get_repository_url()}">${prj.get_repository_url()}</a></td>
+                    <td>${prj.author.getDisplayName()}</td>
+                </tr>
+            </py:for>
+        </table>
+        <p py:if="len(child_projects) == 0">To fork a new child project, go create <a href="${home}/project/new" title="Go create a new project">new project</a> and use repository cloning.</p>
+        <!-- Hidden form containing merge request information -->
+        <form py:if="parent_project" id="merge_request_form" method="get" action="${parent_project.get_url()}/newticket" style="display:none;">
+            <fieldset>
+	            <input type="hidden" name="description" value="Please merge my latest changes from [${_project_.get_repository_url()} ${_project_.get_repository_url()}] " />
+	            <input type="hidden" name="owner" value="${req.authname}" />
+	            <input type="hidden" name="field_priority" value="major" />
+	            <input type="hidden" name="summary" value="Merge repository from project '${_project_.project_name}'" />
+	            <input type="hidden" name="type" value="task" />
+            </fieldset>
+        </form>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html
+        PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<?python
+from multiproject.core.configuration import conf
+?>
+
+<xi:include href="layout.html" />
+
+<!-- ! This view will be removed once the admin project functionality is implemented -->
+<head>
+    <title>Project remove</title>
+</head>
+
+<body>
+
+    <div py:choose="">
+        <py:when test="project">
+            <h2>Remove project</h2>
+            <p>Do you really want to remove project?</p>
+            <table class="table">
+                <tr><td>Project identifier</td><td><a href="${baseurl}/${project.env_name}">${project.env_name}</a></td></tr>
+                <tr><td>Project name</td><td>${project.project_name}</td></tr>
+                <tr><td>Project description</td><td>${project.description}</td></tr>
+                <tr><td>Project author</td><td><a href="${conf.url_home_path}/user/${project.author.username}">${project.author.getDisplayName()}</a> </td></tr>
+            </table>
+            <form action="${conf.url_home_path}/project/remove" method="post">
+                <input type="hidden" name="project" value="${project.env_name}" />
+                <input type="hidden" name="goto" value="${goto}" />
+                <input type="submit" name="delete" value="Delete" class="blueButton"/>
+                <input type="submit" name="cancel" value="Cancel" class="blueButton"/>
+            </form>
+        </py:when>
+        <py:otherwise>
+            <h2>Give the project identifier</h2>
+            <p>Give the identifier of the project to be deleted</p>
+            <form action="${conf.url_home_path}/project/remove" method="get">
+                <input type="text" name="project" value="${env_name}" />
+                <input type="hidden" name="goto" value="${goto}" />
+                <input type="submit" name="find" value="Find" class="blueButton"/>
+            </form>
+        </py:otherwise>
+    </div>
+
+</body>
+</html>

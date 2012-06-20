@@ -1,0 +1,29 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+  <html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="layout.html" />
+<head>
+    <title>Access denied</title>
+    <style type="text/css">
+      #access_error { width: 70%; }
+    </style>
+</head>
+
+<body>
+    <h2>Access denied</h2>
+        <py:choose>
+            <py:when test="'ALLOW_REQUEST_MEMBERSHIP' in req.perm and req.authname != 'anonymous'">
+                <p class="ingress" id="access_error">Access to this content is restricted. You may
+                    request access from the project administrators.</p>
+
+                <a href="${req.base_path}/membership" class="secondaryButton"><span>request access</span></a>
+            </py:when>
+            <py:otherwise test="">
+                <p class="ingress" id="access_error">Access to this content is restricted.</p>
+            </py:otherwise>
+        </py:choose>
+</body>
+</html>

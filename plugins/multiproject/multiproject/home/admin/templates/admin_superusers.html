@@ -1,0 +1,50 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+  <xi:include href="admin.html" />
+  <head>
+    <title>Super Users</title>
+  </head>
+
+  <body>
+    <h2>Add or remove superusers</h2>
+    <p>Superusers can see inside all projects. Notice that (currently) superuser does not grant any permission to home site.</p>
+    <h3>Superusers are:</h3>
+    <ul>
+        <li py:for="username in super_users">${username}</li>
+    </ul>
+    <form method="post" action="">
+      <fieldset id="mainpanel">
+        <legend>Add new superuser</legend>
+        <div class="inputrow">
+            <div class="labelfield">Username:</div>
+            <div class="inputfield"><input id="add_username" type="text" name="username" /></div>
+        </div>
+        <div class="buttons">
+          <input type="submit" name="add" value="Add user to superusers" />
+        </div>
+      </fieldset>
+    </form>
+    <p/>
+    <form method="post" action="">
+      <fieldset id="mainpanel">
+        <legend>Remove user from superusers</legend>
+        <div class="inputrow">
+          <div class="labelfield">User type:</div>
+          <div class="inputfield">
+            <select id="remove_username" name="username">
+              <option py:for="username in super_users">${username}</option>
+            </select>
+          </div>
+        </div>
+        <div class="buttons">
+          <input type="submit" name="remove" value="Remove user from superusers" />
+        </div>
+      </fieldset>
+    </form>
+  </body>
+
+</html>

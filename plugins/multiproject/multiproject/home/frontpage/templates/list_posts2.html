@@ -1,0 +1,44 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      py:strip="True">
+
+<py:def function="list_posts(posts)">
+
+
+    <li class="project_list_item" py:for="post in posts[:10]">
+        <div class="logo">
+            <py:choose>
+                <py:when test="post.project_icon_id">
+                    <img src="${baseurl}/home/projecticon?environment_name=${post.env_name}" />
+                </py:when>
+                <py:otherwise test="">
+                    <img src="${conf.theme_htdocs_location}/${conf.getThemePath()}images/d/Projects-icon.png" />
+                </py:otherwise>
+            </py:choose>
+        </div>
+
+        <div class="desc">
+            <a href="${baseurl}/${post.env_name}" title="Go to project ${post.project_name}"><strong>${post.project_name}</strong></a>
+            <py:choose>
+                <div py:when="post.type == 'NEWTOPIC'">
+                    <a href="${baseurl}/${post.env_name}/discussion/topic/${post.id}" title="Go to topic ${post.subject}">
+                        <strong>${post.subject[:50]}<py:if test="len(post.subject) > 50">...</py:if></strong>
+                    </a>
+                </div>
+                <div py:when="post.type == 'POST'">
+                    <a href="${baseurl}/${post.env_name}/discussion/topic/${post.topic_id}#message${post.post_id}" title="Go to message ${post.subject}"><strong>${post.subject[:50]}<py:if test="len(post.subject) > 50">...</py:if></strong></a>
+                </div>
+            </py:choose>
+            <span>${post.body[:50]}<py:if test="len(post.body) > 50">...</py:if></span>
+        </div>
+        <div class="meta">
+             Post created: ${to_web_time(post.time, False)}
+             <div class="posttype ${post.type.lower()}">${post.type.lower()}</div>
+        </div>
+    </li>
+</py:def>
+</html>

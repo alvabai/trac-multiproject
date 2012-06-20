@@ -1,0 +1,57 @@
+<!DOCTYPE html
+        PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+<xi:include href="admin.html" />
+
+<head>
+    <title>Project archive</title>
+</head>
+
+<body>
+    <div>
+        <h2>Project archive</h2>
+        <p>Projects that are removed from system, are first archived. In this view, these projects can be either restored
+        or removed permanently.</p>
+        <form action="#" method="post">
+            <input type="hidden" name="action" value="remove_expired" />
+            <input type="submit" name="restore" value="Remove expired projects" alt="Are you sure you want to remove all expired projects?" class="confirm blueButton" />
+        </form>
+        <hr />
+        <div id="archived_projects">
+            <table py:if="len(projects) > 0" class="projectlist_table">
+                <tr>
+                    <th>Project</th>
+                    <th class="projectlist_table_date">Archived</th>
+                    <th>Remove due</th>
+                    <th colspan="2">Manage</th>
+                </tr>
+                <py:for each="project in projects">
+                    <tr>
+                        <td>${project.project_name}</td>
+                        <td>${project.archive_date.strftime("%Y/%m/%d")}</td>
+                        <td>${project.remove_due.strftime("%Y/%m/%d %H:%M:%S")}</td>
+                        <td>
+                            <form action="#" method="post">
+                                <input type="hidden" name="archived_project_id" value="${project.project_archive_id}" />
+                                <input type="hidden" name="action" value="restore" />
+                                <input type="submit" name="restore" value="Restore project" alt="Are you sure you want to restore project?" class="confirm blueButton" />
+                            </form>
+                        </td>
+                        <td>
+                            <form action="#" method="post">
+                                <input type="hidden" name="archived_project_id" value="${project.project_archive_id}" />
+                                <input type="hidden" name="action" value="remove" />
+                                <input type="submit" name="remove" value="Remove project" alt="Are you sure you want to remove project?" class="confirm blueButton" />
+                            </form>
+                        </td>
+                    </tr>
+                </py:for>
+            </table>
+            <p py:if="len(projects) == 0">No archived projects</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+  <xi:include href="admin.html" />
+
+
+<?python
+from multiproject.core.configuration import conf
+?>
+
+  <!-- ! This template is used for showing categorization admin panel content -->
+
+  <!-- ! Import categorization function -->
+  <xi:include href="categorizer.html" />
+  <head>
+    <title>Categorization</title>
+  </head>
+
+  <body>
+    <h2>Categorization</h2>
+    <div class="categories">
+      <py:with vars="first=True">
+        <py:for each="context in contexts">
+            <py:with vars="divstyle = {'style': 'display: block;'} if context.admin_type == context.ADMIN_TYPE_MAIN else {'style': 'display: none;'};">
+            <div class="context_header">
+                <div class="context_header_left"><span class="title">Selected ${context.name}</span><span class="notif" id="update_notification_${context.context_id}">Updated..</span></div>
+                <div class="context_header_right"><span class="title">${context.name}</span></div>
+            </div>
+            <div class="context" id="context_${context.context_id}">
+            <fieldset class="fieldset_left">
+                ${list_context_categories_in_project(context, project_categories_per_context[context.context_id])}
+            </fieldset>
+            <fieldset class="fieldset_right">
+                <legend>
+                <a onclick="toggle('list_${context.context_id}'); toggleInline('closed_arrow_${context.context_id}'); toggleInline('open_arrow_${context.context_id}');">
+                <img src="${conf.theme_htdocs_location}/images/icon_arrow_closed.gif" id="closed_arrow_${context.context_id}" py:if="context.admin_type != context.ADMIN_TYPE_MAIN"/>
+                <img src="${conf.theme_htdocs_location}/images/icon_arrow_open.gif" id="open_arrow_${context.context_id}" style="display:none" py:if="context.admin_type != context.ADMIN_TYPE_MAIN"/>
+                <img src="${conf.theme_htdocs_location}/images/icon_arrow_closed.gif" id="closed_arrow_${context.context_id}" style="display:none" py:if="context.admin_type == context.ADMIN_TYPE_MAIN"/>
+                <img src="${conf.theme_htdocs_location}/images/icon_arrow_open.gif" id="open_arrow_${context.context_id}" py:if="context.admin_type == context.ADMIN_TYPE_MAIN"/>
+                ${context.name}</a>
+                </legend>
+                <div id="list_${context.context_id}" py:attrs="divstyle">
+                    ${list_context_categories(context, categories_per_context[context.context_id], project_categories_per_context[context.context_id])}
+                </div>
+            </fieldset>
+            </div>
+
+            <div id="context_${context.context_id}_add" class="context category-bind"
+                 py:if="context.admin_type == context.ADMIN_TYPE_MAIN and len(main_addable_contexts) > 0">
+                <form action="" enctype="multipart/form-data" method="post">
+                    <fieldset class="fieldset_right">
+                        <legend>Other category name</legend>
+                        <input type="text" name="category_name" id="new_category" />
+                        <py:choose test="len(main_addable_contexts)">
+                            <py:when test="1">
+                                <input type="hidden" name="context_id" value="${main_addable_contexts[0].context_id}" />
+                            </py:when>
+                            <py:otherwise>
+                                <select name="context_id">
+                                    <py:for each="context in main_addable_contexts">
+                                        <option value="${context.context_id}">${context.name}</option>
+                                    </py:for>
+                                </select>
+                            </py:otherwise>
+                        </py:choose>
+                        <input type="submit" name="add_and_bind" value="Add your own"/>
+                        <p>Adds existing or creates new
+                            <py:if test="len(main_addable_contexts) == 1">${main_addable_contexts[0].name}</py:if>
+                            category.</p>
+                    </fieldset>
+                </form>
+            </div>
+
+            <div id="context_${context.context_id}_add" class="context category-bind"
+                 py:if="context.admin_type != context.ADMIN_TYPE_MAIN and context.edit_type == context.EDIT_TYPE_ADD">
+                <form action="" enctype="multipart/form-data" method="post">
+                    <fieldset class="fieldset_right">
+                        <legend>Other category name</legend>
+                        <input type="text" name="category_name" id="new_category_${context.context_id}" class="new_context_category" />
+                        <input type="hidden" name="context_id" value="${context.context_id}" />
+                        <input type="submit" name="add_and_bind" value="Add your own"/>
+                        <p>Adds existing or creates new ${context.name} category.</p>
+                    </fieldset>
+                </form>
+            </div>
+
+            </py:with>
+        </py:for>
+      </py:with>
+    </div>
+    <script type="text/javascript">
+        // <![CDATA[
+        var requester = function (request, response) {
+            // Show loader class until response is shown
+            var catfield = $(this.element);
+            catfield.addClass('loading');
+            var keyword = catfield.val();
+            $.getJSON("${req.base_path}/catautocomplete",
+                    {q:keyword,contexts:'${",".join([str(id) for id in not_separate_context_ids])}'},
+                    function(data){
+                response(data);
+                catfield.removeClass('loading');
+            });
+        };
+        $("#new_category").autocomplete({source:requester, minLength:2});
+        var requester_other = function (request, response) {
+            // Show loader class until response is shown
+            var catfield = $(this.element);
+            var context_id = catfield.parent().find('input[name=context_id]').first().val();
+            catfield.addClass('loading');
+            var keyword = catfield.val();
+            $.getJSON("${req.base_path}/catautocomplete",
+                    {q:keyword,contexts:[context_id]},
+                    function(data){
+                response(data);
+                catfield.removeClass('loading');
+            });
+        };
+        $(".new_context_category").autocomplete({source:requester_other, minLength:2});
+        // ]]>
+    </script>
+  </body>
+</html>

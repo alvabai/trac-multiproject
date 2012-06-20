@@ -1,0 +1,20 @@
+diff -crB trac/wiki/intertrac.py trac/wiki/intertrac.py
+*** trac/wiki/intertrac.py	2010-10-10 00:37:49.000000000 +0300
+--- trac/wiki/intertrac.py	2010-10-28 09:09:35.514733233 +0300
+***************
+*** 22,28 ****
+  from trac.mimeview import Context
+  from trac.perm import PermissionError
+  from trac.util.translation import _
+! from trac.web import IRequestHandler
+  from trac.wiki.api import IWikiMacroProvider
+  from trac.wiki.formatter import extract_link
+
+--- 22,28 ----
+  from trac.mimeview import Context
+  from trac.perm import PermissionError
+  from trac.util.translation import _
+! from trac.web.api import IRequestHandler
+  from trac.wiki.api import IWikiMacroProvider
+  from trac.wiki.formatter import extract_link
+

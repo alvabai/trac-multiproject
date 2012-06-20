@@ -1,0 +1,6 @@
+include *.txt
+recursive-include multiproject *.png *.js *.css *.html *.rss *.txt
+recursive-exclude multiproject *.pyc
+recursive-exclude multiproject/core/test *.*
+global-exclude test/*
+global-exclude stubs/*
