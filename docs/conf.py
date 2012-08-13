@@ -115,7 +115,7 @@ html_theme = 'default'
 
 # Make ReadTheDocs really to use theme:
 # http://read-the-docs.readthedocs.org/en/latest/faq.html#i-want-to-use-the-blue-default-sphinx-theme
-html_style = '_static/'
+html_style = None
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the

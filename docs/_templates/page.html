@@ -1,12 +1,12 @@
-{% extends "!layout.html" %}
+{% extends "!page.html" %}
 
 {% block extrahead %}
-{{ super() }}
-{%- if not embedded %}
 <style type="text/css">
   /* Adjust style */
   div.body p, div.body dd, div.body li { text-justify: none; }
   div.body p.caption { color: #666; }
+
+  body { color: blue; }
 
   table.right { float: right; margin-left: 20px; }
   table.right td { border: 1px solid #ccc; }
@@ -31,35 +31,14 @@
   div.tip { background-color:#ccddff; border: 1px solid #aaa; }
 
 </style>
+{% endblock %}
 
-{%- endif %}
+{% block body %}
+  {{ body }}
 {% endblock %}
 
 {% block rootrellink %}
-        <li><a href="{{ pathto('index') }}">Document home</a>&nbsp;|&nbsp;</li>
-        <li><a href="{{ pathto('contents') }}">Table of contents</a>
-          &raquo;</li>
-{% endblock %}
-
-<!-- Add navigation links also in in the end of the body -->
-{%- block document %}
-    <div class="documentwrapper">
-    {%- if render_sidebar %}
-    <div class="bodywrapper">
-    {%- endif %}
-    <div class="body">
-        {% block body %} {% endblock %}
-        <div id="footernav">
-            {%- if prev %}
-                <link rel="prev" title="{{ prev.title|striptags|e }}" href="{{ prev.link|e }}" />
-            {%- endif %}
-            {%- if next %}
-                <link rel="next" title="{{ next.title|striptags|e }}" href="{{ next.link|e }}" />
-            {%- endif %}
-        </div>
-    </div>
-    {%- if render_sidebar %}
-    </div>
-    {%- endif %}
-</div>
-{%- endblock %}
+     <li><a href="{{ pathto('index') }}">Document home</a>&nbsp;|&nbsp;</li>
+     <li><a href="{{ pathto('contents') }}">Table of contents</a>
+       &raquo;</li>
+ {% endblock %}
