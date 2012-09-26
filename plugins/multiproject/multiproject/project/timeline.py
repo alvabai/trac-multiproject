@@ -3,7 +3,7 @@ import os.path
 from genshi.builder import tag
 from datetime import datetime, timedelta
 
-from trac.core import ExtensionPoint, Component, implements
+from trac.core import ExtensionPoint, Component, implements, TracError
 from trac.env import IEnvironmentSetupParticipant
 from trac.mimeview import Context
 from trac.wiki.formatter import format_to_oneliner
@@ -128,6 +128,9 @@ class TimelineDatabaseUpgrade(Component):
                 module = __import__('multiproject.project.database.webdav_events_%s' % script_name,
                 globals(), locals(), ['do_upgrade'])
                 module.do_upgrade(self.env, cursor)
+                db.commit()
+        except:
+            raise TracError("Upgrading timeline environment failed")
         finally:
             cursor.close()
 
