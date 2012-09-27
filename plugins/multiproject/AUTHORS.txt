@@ -3,7 +3,7 @@ Developers
 Aleksi Hänninen
 Marko Koivusalo
 Juha Mustonen
-Mika Niinistö
+Timo Ojala
 
 Project managers
 ----------------
@@ -20,6 +20,7 @@ Tuomas Puranen
 Pasi Hirvonen
 Samuli Penttilä
 Sampo Vuori
+Mika Niinistö
 
 Past project managers
 ---------------------
