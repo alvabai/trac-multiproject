@@ -176,7 +176,8 @@ class PermissionsAdminPanel(Component):
 
         # Get/check if user exists
         auth = Authentication()
-        trac_username = auth.get_trac_username(username)
+        username = auth.get_trac_username(username)
+        self.log.debug('adding username: %s' % username)
 
         # check if already exists
         if username in [e[0] for e in group_store.get_all_user_groups() if e[1] == group]:
@@ -184,7 +185,7 @@ class PermissionsAdminPanel(Component):
             return
 
         # User does not yet exists in multiproject database => retrieve and create user from authentication backend(s)
-        if not trac_username:
+        if not username:
             # Create user using authentication backends and sync functionality
             if not auth.sync_user(username):
                 # Show warning with possibility to create a local user - if user has enough permissions.
@@ -204,26 +205,26 @@ class PermissionsAdminPanel(Component):
 
             add_notice(req, _('Added user %s to service' % username))
             # Now, retrieve the username again
-            trac_username = auth.get_trac_username(username)
+            username = auth.get_trac_username(username)
 
         # when adding to normal project, accept possible membership requests
         if membership is not None:
             # If adding user in group it means that membership is accepted
-            if trac_username in membership.get_membership_requests():
-                membership.accept_membership(trac_username)
-                add_notice(req, _('Membership request has been accepted for %(who)s.', who=trac_username))
+            if username in membership.get_membership_requests():
+                membership.accept_membership(username)
+                add_notice(req, _('Membership request has been accepted for %(who)s.', who=username))
 
-        if not group_store.can_add_user_to_group(trac_username, group):
+        if not group_store.can_add_user_to_group(username, group):
             add_warning(req, _("Can't add anonymous to that group. Group "
                                "contains permissions that are not allowed for anonymous."))
             return
 
-        if group_store.add_user_to_group(trac_username, group):
+        if group_store.add_user_to_group(username, group):
             add_notice(req, _('User %(who)s has been added to group %(where)s.',
-                who=trac_username, where=group))
+                who=username, where=group))
         else:
             add_warning(req, _('User %(who)s cannot be added to group %(where)s.',
-                who=trac_username, where=group))
+                who=username, where=group))
 
     def _add_perm_to_group(self, req, group_store, perm_sys):
         req.perm.require('PERMISSION_GRANT')
