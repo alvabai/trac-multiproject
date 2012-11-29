@@ -206,10 +206,12 @@ class PermissionsAdminPanel(Component):
             # Now, retrieve the username again
             trac_username = auth.get_trac_username(username)
 
-        # If adding user in group it means that membership is accepted
-        if trac_username in membership.get_membership_requests():
-            membership.accept_membership(trac_username)
-            add_notice(req, _('Membership request has been accepted for %(who)s.', who=trac_username))
+        # when adding to normal project, accept possible membership requests
+        if membership is not None:
+            # If adding user in group it means that membership is accepted
+            if trac_username in membership.get_membership_requests():
+                membership.accept_membership(trac_username)
+                add_notice(req, _('Membership request has been accepted for %(who)s.', who=trac_username))
 
         if not group_store.can_add_user_to_group(trac_username, group):
             add_warning(req, _("Can't add anonymous to that group. Group "
@@ -294,7 +296,7 @@ class PermissionsAdminPanel(Component):
                     who=member, where=group))
             else:
                 if ajax == 'true':
-                    req.send('FAIL', content_type='text/html', status=200)
+                    req.send('FAIL', content_type='text/html', status=500)
                     return
                 else:
                     add_warning(req, _('User %(who)s cannot be removed from group %(where)s.',
@@ -309,7 +311,7 @@ class PermissionsAdminPanel(Component):
                     who=member, where=group))
             else:
                 if ajax == 'true':
-                    req.send('FAIL', content_type='text/html', status=200)
+                    req.send('FAIL', content_type='text/html', status=500)
                     return
                 add_warning(req, _('Organization %(who)s cannot be removed from group %(where)s.',
                     who=member, where=group))
@@ -323,7 +325,7 @@ class PermissionsAdminPanel(Component):
                     who=member, where=group))
             else:
                 if ajax == 'true':
-                    req.send('FAIL', content_type='text/html', status=200)
+                    req.send('FAIL', content_type='text/html', status=500)
                     return
                 add_warning(req, _('LDAP group %(who)s cannot be removed from group %(where)s.',
                     who=member, where=group))
@@ -358,7 +360,6 @@ class PermissionsAdminPanel(Component):
         else:
             if req.args.get('ajax') == 'true':
                 send_json(req, {'result': 'FAIL'}, status=500)
-                req.send('SUCCESS', content_type='text/html', status=200)
                 return
             else:
                 add_warning(req, _('The permission %(what)s cannot be revoked from %(where)s.',
