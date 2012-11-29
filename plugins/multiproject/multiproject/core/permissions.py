@@ -290,18 +290,6 @@ class CQDEUserGroupStore(object):
         except InvalidPermissionsState:
             return False
 
-    # TODO: only couple uses in "admin/permissions.py"
-    def can_add_user_to_group(self, user_name, group_name):
-        """ Anonymous can not be added in the group which contains
-            too much permissions
-        """
-        ug = self.get_all_user_groups() + [(user_name, group_name)]
-        try:
-            self.is_valid_group_members(user_groups=ug)
-            return True
-        except InvalidPermissionsState:
-            return False
-
     # TODO: only one use in "admin/permissions.py"
     def can_grant_permission_to_group(self, group_name, permission_name):
         """ If anonymous is in a group, there are limitations of
@@ -451,8 +439,7 @@ class CQDEUserGroupStore(object):
         self._cache.clear_group_perms(self.trac_environment_key)
 
         group_name = group_name.encode('utf-8')
-        return _call_proc_with_success("create_group",
-            [group_name, self.trac_environment_key])
+        return _call_proc_with_success("create_group", [group_name, self.trac_environment_key])
 
     def remove_group(self, group_name):
         """
@@ -473,8 +460,7 @@ class CQDEUserGroupStore(object):
         self._cache.clear_group_perms(self.trac_environment_key)
         self._cache.clear_group_id(group_name, self.trac_environment_key)
 
-        result = _call_proc_with_success("remove_group",
-            [group_id])
+        result = _call_proc_with_success("remove_group", [group_id])
 
         self._update_published_time()
         return result
@@ -486,8 +472,12 @@ class CQDEUserGroupStore(object):
 
         :param str user_name: User name
         :param str group_name: Group name
-        :returns: False if failed
+        :raises InvalidPermissionsState: If cannot add user
         """
+        # Test if we can add the user
+        ug = self.get_all_user_groups() + [(user_name, group_name)]
+        self.is_valid_group_members(user_groups=ug)
+
         userstore = get_userstore()
         user = userstore.getUser(user_name)
 
@@ -499,7 +489,7 @@ class CQDEUserGroupStore(object):
             user = userstore.getUser(user_name)
 
         if not user:
-            return False
+            raise InvalidPermissionsState('Unknown user %s' % user_name)
 
         # Create group if it doesn't exist
         group_name = group_name.encode('utf-8')
@@ -510,11 +500,10 @@ class CQDEUserGroupStore(object):
 
         self._cache.clear_user_groups(self.trac_environment_key)
 
-        result = _call_proc_with_success("add_user_to_group",
-            [user.id, group_id])
+        if not _call_proc_with_success("add_user_to_group", [user.id, group_id]):
+            raise Exception('add_user_to_group procedure failed')
 
         self._update_published_time()
-        return result
 
     def remove_user_from_group(self, user_name, group_name):
         """

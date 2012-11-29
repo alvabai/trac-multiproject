@@ -13,7 +13,7 @@ from multiproject.core.restful import send_json
 from multiproject.common.membership.api import MembershipApi
 from multiproject.common.projects import Project
 from multiproject.core.configuration import Configuration
-from multiproject.core.permissions import CQDEUserGroupStore, CQDEOrganizationStore
+from multiproject.core.permissions import CQDEUserGroupStore, CQDEOrganizationStore, InvalidPermissionsState
 
 
 class PermissionsAdminPanel(Component):
@@ -214,17 +214,13 @@ class PermissionsAdminPanel(Component):
                 membership.accept_membership(username)
                 add_notice(req, _('Membership request has been accepted for %(who)s.', who=username))
 
-        if not group_store.can_add_user_to_group(username, group):
-            add_warning(req, _("Can't add anonymous to that group. Group "
-                               "contains permissions that are not allowed for anonymous."))
-            return
-
-        if group_store.add_user_to_group(username, group):
+        try:
+            group_store.add_user_to_group(username, group)
             add_notice(req, _('User %(who)s has been added to group %(where)s.',
-                who=username, where=group))
-        else:
-            add_warning(req, _('User %(who)s cannot be added to group %(where)s.',
-                who=username, where=group))
+                       who=username, where=group))
+        except InvalidPermissionsState, e:
+            add_warning(req, _('User %(who)s cannot be added to group %(where)s. %(reason)s',
+                        who=username, where=group, reason=e.message))
 
     def _add_perm_to_group(self, req, group_store, perm_sys):
         req.perm.require('PERMISSION_GRANT')
