@@ -576,6 +576,18 @@ class Configuration(object):
 
         self.log = logger_factory(logtype, logfile, level, 'multiproject', format)
 
+    def get(self, section, option, default=None):
+        """
+        Return configuration value with provided section name and key
+        :param str section: Section name
+        :param str option: Config key
+        :param default: Default value if key cannot be found
+        :return: Configuration value or default
+        """
+        if not self.config_parser.has_option(section, option):
+            return default
+        return self.config_parser.get(section, option)
+
     def f_default_projects(self, value):
         self.default_projects = self._list(value)
 
