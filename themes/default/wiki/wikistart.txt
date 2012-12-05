@@ -4,7 +4,7 @@ This is your project wiki start page. We created this page to help you get start
 
 == Getting started ==
 Here is a list of things you probably want to do when starting a project
- * Use [/admin/permissions/groups Admin|Permissions] to give rights for your project team
+ * Use [/admin/general/permissions Admin|Permissions] to give rights for your project team
    - If you flagged your project as public (default) anyone can visit your project, but only registered users can write messages in your discussion boards and open tickets.
    - If you flagged the project as private, then you should start adding some new members that can access your project and work with you.
    - Either way, you can add ''project members'' that will have write access to your project and can start pushing software in the SCM.

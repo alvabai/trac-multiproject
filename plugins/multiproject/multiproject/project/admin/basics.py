@@ -80,7 +80,7 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
             # Notify user
             add_notice(req, tag(
                 _("Project published: "),
-                tag.a(_('public groups added'), href=req.href('admin/permissions/groupspermissions'))
+                tag.a(_('public groups added'), href=req.href('admin/general/permissions'))
             ))
         else:
             add_warning(req, "Failed to publish project")
@@ -94,7 +94,7 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
             # Notify user
             add_notice(req, tag(
                 _("Unpublished project: "),
-                tag.a(_('public groups removed'), href=req.href('admin/permissions/groupspermissions'))
+                tag.a(_('public groups removed'), href=req.href('admin/general/permissions'))
             ))
         else:
             add_warning(req, "Failed to unpublish project")
@@ -128,7 +128,7 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
                             add_notice(req, _('Added TRAC_ADMIN permissions to user: {0}'.format(author.username)))
 
                     if not admin_rights:
-                        permlink = tag.a('You way want to modify permissions', href=req.href('admin/permissions/groups'))
+                        permlink = tag.a('You way want to modify permissions', href=req.href('admin/general/permissions'))
                         add_warning(req, tag(_('User {0} does not have administrative rights to project. '.format(author.username)), permlink))
 
             # Save changes to database
