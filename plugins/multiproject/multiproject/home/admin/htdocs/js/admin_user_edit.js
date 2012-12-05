@@ -26,13 +26,14 @@ $(document).ready(function(){
     };
     userfield.onSelect = function(event, ui) {
         author_id.val(ui.item.id);
+        return false;
     };
     userfield.onChange = function(event, ui) {
         // Reset the author_id info
         if (!ui.item) {
             author_id.val("");
         }
-        return true;
+        return false;
     };
     // Remove the id also on save because the onChange event does not happen when doing directly: clear -> save
     $('input[name="save"]').click(function(event) {
