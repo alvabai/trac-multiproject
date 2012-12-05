@@ -245,7 +245,7 @@ class MyProjectsModule(Component):
                         posts.append({'env_name': prj.env_name,
                                       'project_name': prj.project_name,
                                       'project_id': str(prj.id),
-                                      'project_icon_id': prj.icon_id,
+                                      'project_icon_name': prj.icon_name,
                                       'id': row[0],
                                       'forum_id': row[1],
                                       'topic_id': row[2],

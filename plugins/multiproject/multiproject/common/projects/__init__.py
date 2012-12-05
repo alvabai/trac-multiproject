@@ -11,4 +11,3 @@ from multiproject.common.projects.project import Project
 from multiproject.common.projects.project import HomeProject
 from multiproject.common.projects.projects import Projects
 from multiproject.common.projects.archive import ProjectArchive
-from multiproject.common.projects.icon import IconRenderer

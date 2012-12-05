@@ -17,6 +17,10 @@ class MigrateBase(object):
         self.id = ""
         self.description = ""
         self.manager = MigrateMgr.instance()
+        self.printout = lambda msg, title=None: self._print(msg, title)
+        self.printerr = lambda msg, title=None: self._print(msg, title, 'error')
+        self.printwarn = lambda msg, title=None: self._print(msg, title, 'warning')
+        self.printok = lambda msg, title=None: self._print(msg, title, 'success')
 
     def upgrade(self):
         return
@@ -26,6 +30,25 @@ class MigrateBase(object):
 
     def applied(self):
         return
+
+    def _print(self, msg, title=None, flag=''):
+        """
+        Simple console print. Example usage::
+
+            printerr('Uh-oh')
+            printerr('Uh-oh', 'FAIL')
+            printok('Looking good')
+
+        :param str msg: Message to show
+        :param str title: Optional title to set/highlight
+        :param str flag: Message flag that
+        """
+        templates = {
+            'success': "\033[32m{0}\033[0m: {1}",
+            'warning': "\033[44m{0}\033[0m: {1}",
+            'error': "\033[31m{0}\033[0m: {1}",
+        }
+        print templates.get(flag, '{0}{1}').format(title or flag.upper(), msg)
 
 
 class MigrateConfigure(object):

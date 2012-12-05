@@ -37,17 +37,17 @@ from trac.core import implements, Component, ExtensionPoint, Interface
 from trac.web.chrome import ITemplateProvider, add_script_data
 from trac.web.api import IRequestFilter
 
+from multiproject.common.projects import Project
+
 
 class CommonResourceModule(Component):
     """
-    Provides common templates and resources for multiproject plugin.
-    Inject the scripts in component with:
+    Provides common templates and resources for multiproject plugin:
 
-        from trac.web.chrome import add_script
-        add_script(req, 'multiproject/js/raphael.js')
+    - mproject: Current project class
 
     """
-    implements(ITemplateProvider)
+    implements(ITemplateProvider, IRequestFilter)
 
     # ITemplateProvider methods
     def get_htdocs_dirs(self):
@@ -59,6 +59,24 @@ class CommonResourceModule(Component):
 
     def get_templates_dirs(self):
         return []
+
+    # IRequestFilter methods
+
+    def pre_process_request(self, req, handler):
+        """
+        Process request to add some data in request
+        """
+        return handler
+
+    def post_process_request(self, req, template, data, content_type):
+        """
+        Puts global ``mproject`` variable into data
+        """
+        if self.config.get('multiproject', 'sys_home_project_name', 'home') != self.env.path.split('/')[-1] and data:
+            project = Project.get(self.env)
+            data.update({'mproject': project})
+
+        return template, data, content_type
 
 
 class JQueryUpgradeFilter(Component):

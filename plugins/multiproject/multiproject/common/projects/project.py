@@ -17,6 +17,7 @@ from multiproject.core.files.files_conf import FilesConfiguration
 from multiproject.core.users import User, get_userstore
 from multiproject.core.exceptions import ProjectValidationException
 from multiproject.core.permissions import CQDEUserGroupStore, CQDEPermissionStore
+from trac.web import Href
 
 
 class Project(object):
@@ -45,14 +46,14 @@ class Project(object):
         'updated': 'updated',
         'published': 'published',
         'parent_id': 'parent_id',
-        'icon_id': 'icon_id',
+        'icon_name': 'icon_name',
         'trac_environment_key': 'trac_environment_key',
     }
     FIELD_COUNT = len(FIELDS)
 
     def __init__(self, id, env_name, project_name, description, author_id, created, trac_environment_key=None,
                  updated=None, published=None, parent_id=None,
-                 discforum=False, icon_id=None):
+                 discforum=False, icon_name=None):
 
         # Private attributes for properties
         self._parent_project = None
@@ -74,9 +75,10 @@ class Project(object):
         self.updated = updated
         self.published = published
         self.discforum = discforum
-        self.icon_id = icon_id
-        self.icon_type = ""
-        self.icon_size = 0
+        self.icon_name = icon_name
+        #self.icon_id = icon_id
+        #self.icon_type = ""
+        #self.icon_size = 0
 
     @staticmethod
     def get(env=None, id=None, env_name=None, use_cache=True):
@@ -137,7 +139,7 @@ class Project(object):
                 return project
 
         query = ("SELECT project_id, environment_name, project_name, description, author, created, updated, "
-                 "published, parent_id, icon_id, trac_environment_key "
+                 "published, parent_id, icon_name, trac_environment_key "
                  "FROM projects WHERE {0} = %s".format('environment_name' if by_env else 'project_id'))
 
         try:
@@ -156,7 +158,7 @@ class Project(object):
                     updated=row[6],
                     published=row[7],
                     parent_id=row[8],
-                    icon_id=row[9],
+                    icon_name=row[9],
                     trac_environment_key=row[10],
                 )
             if use_cache:
@@ -242,9 +244,11 @@ class Project(object):
         Returns the URL path to project icon, or default if not set
         :return: Path of the icon URL
         """
-        icon_default_url = conf.get('multiproject-projects', 'icon_default_url', '')
+        icon_url = conf.get('multiproject-projects', 'icon_default_url', '')
+        if self.icon_name:
+            icon_url = Href(conf.get('multiproject-projects', 'icon_url', ''))(self.icon_name)
 
-        return icon_default_url
+        return icon_url
 
 
     def save(self):
@@ -508,7 +512,7 @@ class Project(object):
         self.created = project.created
         self.parent_id = project.parent_id
         self.discforum = project.discforum
-        self.icon_id = project.icon_id
+        self.icon_name = project.icon_name
         self.trac_environment_key = project.trac_environment_key
 
         if project.parent_project:
@@ -578,6 +582,8 @@ class Project(object):
         """
         Creates icon for user based on icon sent on create form
         """
+        raise NotImplementedError('Do not use')
+
         if icon is None:
             with admin_transaction() as cursor:
                 if self.icon_id is not None:

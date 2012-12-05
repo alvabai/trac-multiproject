@@ -42,7 +42,7 @@ def sane(stri):
 
     <h1 class="project_heading" py:if="is_project">
         <a href="${req.base_path}">
-            <img src="${sane(req.base_path)}/projecticon?environment_name=${sane(req.base_path).rsplit('/',1)[1]}" id="projecticon" alt="" />
+            <img src="${mproject.icon_url}" id="projecticon" alt="" />
         </a>
         <a href="${req.base_path}">${project.name}</a>
     </h1>
