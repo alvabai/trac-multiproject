@@ -158,7 +158,7 @@ class NotificationCommandProvider(Component):
         if not os.path.exists(email_path):
             raise AdminCommandError(_("Email template was not found!"))
 
-        project = Project.get(env_name=self.env.project_identifier)
+        project = Project.get(self.env)
         email_template = ''
         try:
             with open(email_path) as fd:
