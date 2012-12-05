@@ -6,42 +6,19 @@
 
   <div id="welcomeright">
 
-    <!-- Recent public projects -->
-    <div py:if="newestprojects" class="resource-box">
-      <h2 class="resources-title">
-        <div class="headerRssLink">
-          <a href="${baseurl}/home/rss/newest.xml"></a>
-        </div>
-        Recent projects
-      </h2>
-
-      <ul class="projectlist">
-        <li py:for="project in newestprojects" class="project_list_item">
-          <img class="icon" src="${req.base_path}/projecticon?environment_name=${project.name}" />
-          <a href = "${baseurl}/${project.name}">$project.project_name</a>
-          Created on ${project.date.strftime("%Y %B %d")}
-        </li>
-        <li>
-          <a class="more" href="${req.base_path}/project/explore#tab=recent" shape="rect">More Recent Projects &gt;</a>
-        </li>
-      </ul>
+    <!-- Recent projects -->
+    <div class="resource-box" id="project-recent">
+        ${wiki_to_html(context, '[[RecentProjects(count=5)]]')}
     </div>
 
     <!-- Most active projects -->
-    <div py:if="mostactiveprojects" class="resource-box">
-      <h2 class="resources-title">
-        <div class="headerRssLink">
-          <a href="${baseurl}/home/rss/mostactive.xml"></a>
-        </div>
-        Most active projects
-      </h2>
-      <ul class="projectlist">
-	<li class="single_line" py:for="project in mostactiveprojects">
-	  <img class="icon" src="${req.base_path}/projecticon?environment_name=${project.name}" />
-	  <a href="${baseurl}/${project.name}">$project.project_name</a>
-	</li>
-	<li><a class="more" href="${req.base_path}/project/explore#tab=active" shape="rect">More Active Projects &gt;</a></li>
-      </ul>
+    <div class="resource-box" id="project-active">
+        ${wiki_to_html(context, '[[ActiveProjects(count=5)]]')}
+    </div>
+
+    <!-- Featured projects -->
+    <div class="resource-box" id="project-annoucements">
+        ${wiki_to_html(context, '[[FeaturedProjects(count=5)]]')}
     </div>
 
     <!-- Projects' activities -->
@@ -67,23 +44,6 @@
         <li>
           <a class="more" href="${req.base_path}/globaltimeline" shape="rect">More Activities &gt;</a>
         </li>
-      </ul>
-    </div>
-
-    <!-- Featured projects -->
-    <div py:if="featuredprojects" class="resource-box">
-      <h2 class="resources-title">
-        <div class="headerRssLink">
-          <a href="${baseurl}/home/rss/featured.xml"></a>
-        </div>
-        Featured projects
-      </h2>
-      <ul class="projectlist">
-	<li py:for="project in featuredprojects" class="single_line">
-	  <img class="icon" src="${req.base_path}/projecticon?environment_name=${project.name}" />
-	  <a href="${baseurl}/${project.name}">$project.project_name</a>
-	</li>
-	<li class="last"></li>
       </ul>
     </div>
 

@@ -1,7 +1,8 @@
+(function($, window, undefined) {
 $(document).ready(function(){
     // Bind confirmation on button click
     $('form input.confirm').click(function(event){
-        return confirm('Are you sure you want to delete account?');
+        return window.confirm('Are you sure you want to delete account?');
     });
 
     // Create date range selection
@@ -17,7 +18,8 @@ $(document).ready(function(){
     // Author autocomplete field
     var author_id = $('input#author_id');
     var author_text = $('input#author');
-    var userfield = new multiproject.ui.UserField(author_text);
+    var fields = ['id', 'username', 'firstname', 'lastname', 'email'];
+    var userfield = new multiproject.ui.UserField(author_text, {fields: fields});
     userfield.onFocus = function(event, ui) {
         author_text.val(ui.item.firstname + " " + ui.item.lastname);
         return false;
@@ -34,10 +36,11 @@ $(document).ready(function(){
     };
     // Remove the id also on save because the onChange event does not happen when doing directly: clear -> save
     $('input[name="save"]').click(function(event) {
-        if (author_text.val().trim().length == 0) {
+        if (author_text.val().trim().length === 0) {
             author_id.val("");
         }
     });
 
     userfield.render();
 });
+})(jQuery, window);

@@ -1,0 +1,227 @@
+<!--! Template for generating rows corresponding to directory entries -->
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude" py:strip="">
+
+<xi:include href="multiproject_files_util.html" />
+
+<!-- ! BEGIN: Create new folder and file forms -->
+<py:if test="can_edit">
+<tr class="files_entry_head add_mode opened action_row" py:attrs="action_row_attrs['add_mode']['row']">
+    <td class="first_col"><span>&nbsp;</span></td>
+    <td class="filename">
+        <span><label for="create_folder">Add new folder</label></span>
+    </td>
+    <td class="change"><span>&nbsp;</span></td>
+    <td class="type"><span>&nbsp;</span></td>
+    <td class="size"><span>&nbsp;</span></td>
+    <td class="other"><span>&nbsp;</span></td>
+</tr>
+<tr>
+    <td colspan="6">
+        <div class="files_entry_body add_mode action_row" py:attrs="action_row_attrs['add_mode']['div']">
+            <div class="files_entry_body_container">
+                <form class="mode_area current_mode_area" enctype="multipart/form-data" method="post" id="create_folder_form" action="${dir_node.get_href(req)}">
+                    <dl class="files_form">
+                        <dt><label for="create_folder">New folder</label></dt><dd><input id="create_folder" name="folder_filename" type="text"/></dd>
+                    </dl>
+                    <input type="hidden" name="action" value="add_folder" />
+                    <input type="submit" name="submit" value="${_('Create folder')}" />
+                    <input type="submit" name="cancel" class="table_mode_cancel secondaryButton" value="${_('Cancel')}" />
+                </form>
+            </div>
+        </div>
+    </td>
+</tr>
+<tr><td class="td_between add_mode action_row" colspan="6" py:attrs="action_row_attrs['add_mode']['td']"> </td></tr>
+<tr class="files_entry_head upload_mode opened action_row" py:attrs="action_row_attrs['upload_mode']['row']">
+ <td class="first_col"><span>&nbsp;</span></td>
+ <td class="filename">
+         <span><label for="upload_file">Upload new file</label></span>
+ </td>
+ <td class="change"><span>&nbsp;</span></td>
+ <td class="type"><span>&nbsp;</span></td>
+ <td class="size"><span>&nbsp;</span></td>
+ <td class="other"><span>&nbsp;</span></td>
+</tr>
+<tr>
+ <td colspan="6">
+     <div class="files_entry_body upload_mode action_row" py:attrs="action_row_attrs['upload_mode']['div']">
+         <div class="files_entry_body_container">
+             <form class="mode_area current_mode_area" enctype="multipart/form-data" method="post" id="upload_file_form" action="${dir_node.get_href(req)}">
+             <dl class="files_form">
+                 <dt><label for="upload_file">Uploaded file</label></dt>
+                 <dd><input id="upload_file" name="upload[]" type="file" multiple="multiple"/>
+                     <p class="desc">You can upload many files at the same time.</p>
+                 </dd>
+                 <py:if test="dir_node.is_download()">
+                     ${download_form_part('add_file', None)}
+                 </py:if>
+             </dl>
+             <input type="hidden" name="action" value="add_file" />
+             <input type="submit" name="submit" value="${_('Upload file')}" />
+             <input type="submit" name="cancel" class="table_mode_cancel secondaryButton" value="${_('Cancel')}" />
+             </form>
+         </div>
+     </div>
+ </td>
+</tr>
+<tr><td class="td_between upload_mode action_row" colspan="6" py:attrs="action_row_attrs['upload_mode']['td']"> </td></tr>
+
+<tr class="files_entry_head modify_mode opened action_row" py:attrs="action_row_attrs['modify_mode']['row']">
+ <td class="first_col"><span>&nbsp;</span></td>
+ <td class="filename">
+     <span>Modify selected</span>
+ </td>
+ <td class="change"><span>&nbsp;</span></td>
+ <td class="type"><span>&nbsp;</span></td>
+ <td class="size"><span>&nbsp;</span></td>
+ <td class="other"><span>&nbsp;</span></td>
+</tr>
+<tr>
+ <td colspan="6">
+     <div class="files_entry_body modify_mode action_row ${'' if current_mode.endswith('multiple_mode') else 'no_mode'}" py:attrs="action_row_attrs['modify_mode']['div']">
+         <div class="files_entry_body_container">
+             <div class="node_button_row">
+                 ${action_button(None, 'move_multiple_mode', 'open_in_mode', 'Move', 'move_multiple_mode')}
+                 ${action_button(None, 'delete_multiple_mode', 'open_in_mode', 'Delete', 'delete_multiple_mode')}
+             </div>
+             <div class="mode_area move_multiple_mode ${current_mode == 'move_multiple_mode' and 'current_mode_area' or ''}">
+                 <form enctype="multipart/form-data" method="post" id="modify_form" action="${dir_node.get_href(req)}">
+                     <!-- ! selected_items must contain a template, which is used by js -->
+                     <div class="selected_items"><input type="hidden" name="selected_file[]" value="" /></div>
+                     <dl class="files_form">
+                         <dt><label for="modify_input">Move selected files and folders to folder</label></dt>
+                         <dd>
+                             <input class="modify_input" id="modify_input" name="to_relative_path" type="hidden" value="/${dir_node.relative_path != '.' and dir_node.relative_path or ''}" />
+                             <table class="dirlist">
+                                 <tbody>
+                                 <tr class="even">
+                                     <td class="name">
+                                         <a class="dir" title="${_('Choose Directory')}" href="${href.files('.')}">Home dir</a>
+                                     </td>
+                                     <td class="size">
+                                     </td>
+                                 </tr>
+                                 <xi:include href="multiproject_files_tree.html" py:with="tree_dirs = root_dirs; tree_files = root_files;"/>
+                                 </tbody>
+                             </table>
+                         </dd>
+                     </dl>
+                     <input type="hidden" name="action" value="move_multiple" />
+                     <input type="submit" name="submit" value="${_('Move')}" />
+                     <input type="submit" name="cancel" class="table_mode_cancel secondaryButton" value="${_('Cancel')}" />
+                 </form>
+             </div>
+             ${delete_box('delete_multiple_mode', None, 'delete_multiple_mode', 'delete_multiple')}
+         </div>
+     </div>
+ </td>
+</tr>
+<tr><td class="td_between modify_mode action_row" colspan="6" py:attrs="action_row_attrs['modify_mode']['td']"> </td></tr>
+<tr><td class="td_between no_mode action_row" colspan="6"> </td></tr>
+</py:if>
+<!-- ! END: Create new folder and file forms -->
+
+<py:choose>
+<py:when test="len(files) == 0 and len(dirs) == 0">
+    <tr class="files_entry_head no_entries">
+        <td class="first_col"><span>&nbsp;</span></td>
+        <td class="filename">
+            <span><em><py:choose test="dir_node.relative_path">
+                <py:when test="'.'">There are no files or folders in this project.</py:when>
+                <py:when test="dir_node.downloads_dir">No downloads are available in this project.</py:when>
+                <py:otherwise>This folder is empty.</py:otherwise>
+            </py:choose></em></span>
+        </td>
+        <td class="change"><span>&nbsp;</span></td>
+        <td class="type"><span>&nbsp;</span></td>
+        <td class="size"><span>&nbsp;</span></td>
+        <td class="other"><span>&nbsp;</span></td>
+    </tr>
+    <tr><td class="td_between" colspan="6"> </td></tr>
+</py:when>
+<py:otherwise>
+    <py:for each="idx, dir in enumerate(dirs)">
+        <tr class="files_entry_head ${can_edit and 'needs_init' or 'on_click_follow'} ${target_filename == dir.filename and 'opened' or ''}">
+            <td class="first_col"><span py:if="not can_edit">&nbsp;</span>
+                <input py:if="can_edit" type="checkbox" value="${dir.filename}" class="file_selector"/></td>
+            <td class="filename ">
+                <div class="node_icon ${dir.get_div_class()}">&nbsp;</div>
+                <span><a class="file_link" title="${_('View directory %(filename)s', filename=dir.filename)}" href="${dir.get_href(req)}">
+                    ${format_filename(dir.filename, 46)}</a></span>
+            </td>
+            <td class="change"><span>${format_date(dir.time_changed)}</span></td>
+            <td class="type"><span>${dir.relative_path == dir.downloads_dir and _('Downloads') or _('File folder')}</span></td>
+            <td class="size"><span>&nbsp;</span></td>
+            <td class="other"><span>&nbsp;</span></td>
+        </tr>
+        <tr py:if="can_edit">
+            <td colspan="6">
+                <div class="files_entry_body ${files_entry_class(dir)}">
+                <div class="files_entry_body_container">
+                    <div class="node_button_row">
+                        ${action_button(dir, 'show_mode', 'open_in_mode', 'Info', 'show_mode')}
+                        <py:if test="can_edit">
+                            ${action_button(dir, 'move_mode', 'open_in_mode', 'Rename', 'move_mode')}
+                            ${action_button(dir, 'delete_mode', 'open_in_mode', 'Delete', 'delete_mode')}
+                        </py:if>
+                    </div>
+                    ${details_box(node=dir)}
+                    <py:if test="can_edit">
+                        ${delete_box('node_delete{0}_'.format(idx), dir, 'delete_mode', 'delete')}
+                        ${rename_box('node_rename{0}_'.format(idx), dir)}
+                    </py:if>
+                </div>
+                </div>
+            </td>
+        </tr>
+        <tr><td class="td_between" colspan="6"> </td></tr>
+    </py:for>
+    <py:for each="idx, file in enumerate(files, len(dirs))">
+        <tr class="files_entry_head ${(can_edit or file.is_download()) and 'needs_init' or 'on_click_follow'}
+ ${target_filename == file.filename and 'opened' or ''}">
+            <td class="first_col"><span py:if="not can_edit">&nbsp;</span>
+                <input py:if="can_edit" type="checkbox" value="${file.filename}" class="file_selector"/></td>
+            <td class="filename">
+                <div class="node_icon ${file.get_div_class()}"><div>&nbsp;</div></div>
+                <span><a class="file_link" title="${_('Download file %(filename)s', filename=file.filename)}" href="${file.get_href(req)}">
+                    ${format_filename(file.filename, 46)}</a></span>
+            </td>
+            <td class="change"><span>${file.is_download() and format_date(file.download().created) or format_date(file.time_changed)}</span></td>
+            <td class="type"><span>${file.is_download() and 'Download' or 'File'}</span></td>
+            <td class="size"><span>${pretty_size(file.size)}</span></td>
+            <td class="other"><span>&nbsp;</span></td>
+        </tr>
+        <tr py:if="(can_edit or file.is_download())">
+            <td colspan="6">
+                <div class="files_entry_body ${files_entry_class(file)}">
+                <div class="files_entry_body_container">
+                    <div class="node_button_row">
+                        ${action_button(file, 'show_mode', 'open_in_mode', 'Info', 'show_mode')}
+                        ${action_button(file, 'download_mode', 'download', 'Download', 'download')}
+                        <py:if test="can_edit">
+                            <py:if test="file.is_download()">
+                                ${action_button(file, 'edit_mode', 'open_in_mode', 'Edit', 'edit_mode')}
+                            </py:if>
+                            <py:if test="not file.is_download()">
+                                ${action_button(file, 'move_mode', 'open_in_mode', 'Rename', 'move_mode')}
+                            </py:if>
+                            ${action_button(file, 'delete_mode', 'open_in_mode', 'Delete', 'delete_mode')}
+                        </py:if>
+                    </div>
+                    ${details_box(node=file)}
+                    <py:if test="can_edit">
+                        ${edit_box('node_edit{0}_'.format(idx), file)}
+                        ${delete_box('node_delete{0}_'.format(idx), file, 'delete_mode', 'delete')}
+                        ${rename_box('node_rename{0}_'.format(idx), file)}
+                    </py:if>
+                </div>
+                </div>
+            </td>
+        </tr>
+        <tr><td class="td_between" colspan="6"> </td></tr>
+    </py:for>
+</py:otherwise>
+</py:choose>
+</html>

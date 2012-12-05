@@ -2,9 +2,6 @@
 <rss version="2.0" xmlns:py="http://genshi.edgewall.org/"
                    xmlns:dc="http://purl.org/dc/elements/1.1/"
                    xmlns:xi="http://www.w3.org/2001/XInclude">
-<?python
-from multiproject.core.configuration import conf
-?>
   <channel>
     <title>Global timeline</title>
     <link>${abs_href.timeline()}</link>
@@ -22,8 +19,10 @@ from multiproject.core.configuration import conf
     <item py:for="event in events"
           py:with="abs_url = '%s%s' %(conf.url_service, event.render('url', context))">
       <title>${'%s - %s' % (event.project_name,
-        plaintext(str(event.render('summary', context)) or
-                  str(event.render('title', context)), keeplinebreaks=False))
+        plaintext(str((event.render('summary', context) != 'None'
+        and event.render('summary', context) != '')
+        and event.render('summary', context) or event.render('title', context)),
+        keeplinebreaks=False))
       }</title>
       <xi:include href="author_or_creator.rss" py:with="author = event.author"/>
       <pubDate>${http_date(event.date)}</pubDate>

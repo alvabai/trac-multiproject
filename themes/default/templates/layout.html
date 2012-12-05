@@ -32,13 +32,14 @@
       var ${key}=${to_json(value)};
       </py:for>
     </script>
-    <py:for each="script in chrome.scripts">
-       <!-- ! Hack: we ignore jquery.js here and include it in the combined
-            resource files. Maybe do this for babel.js etc -->
-       <py:if test="not script.href.endswith('/htdocs/trac/js/jquery.js')">
-         <script type="${script.type}" src="${script.href}"></script>
-       </py:if>
-    </py:for>
+      <py:for each="script in chrome.scripts">
+          <!-- ! Hack: we ignore jquery.js here and include it in the combined
+          resource files. Maybe do this for babel.js etc -->
+          <py:if test="not script.href.endswith('/htdocs/trac/js/jquery.js')">
+            <script type="${script.type}" src="${script.href}"></script>
+          </py:if>
+      </py:for>
+
     ${Markup('&lt;!--[if lt IE 7]&gt;')}
     <script type="text/javascript" src="${chrome.htdocs_location}js/ie_pre7_hacks.js"></script>
     ${Markup('&lt;![endif]--&gt;')}
@@ -53,8 +54,12 @@
         jQuery.loadStyleSheet("${link.href}", "${link.type}");
       </py:for>
     </script>
-    <script py:for="script in chrome.late_scripts"
-            type="${script.type}" src="${script.href}"></script>
+    <script py:if="chrome.late_script_data" type="text/javascript">
+      <py:for each="key, value in chrome.late_script_data.iteritems()">
+      var ${key}=${to_json(value)};
+      </py:for>
+    </script>
+    <script py:for="script in chrome.late_scripts" type="${script.type}" src="${script.href}"></script>
 
     <div id="altlinks" py:if="'alternate' in chrome.links">
       <h2 class="tableheader greentitle">Download in other formats:</h2>

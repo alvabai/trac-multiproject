@@ -6,11 +6,13 @@ from trac.core import Component, implements
 from trac.web import IRequestHandler
 from trac.web.chrome import ITemplateProvider
 
-from multiproject.common.projects import Projects
+from multiproject.common.projects import Project
 from multiproject.core.configuration import conf
+from multiproject.core.users import get_userstore
 from multiproject.core.util import to_web_time
 from multiproject.core.watchlist import CQDEWatchlistStore
 from multiproject.home.watchlist.watchlist_events import WatchlistEvents
+
 
 class WatchlistTimeline(Component):
     """
@@ -58,15 +60,15 @@ class WatchlistTimeline(Component):
 
     def _get_watchlist_events(self, req):
         events = []
-        store = conf.getUserStore()
-        user = store.getUser(req.authname)
+        user = get_userstore().getUser(req.authname)
         if not user:
             return None
 
         watchlist = CQDEWatchlistStore().get_projects_by_user(user.id)
-        event_helper = WatchlistEvents()
+        event_helper = WatchlistEvents(self.env)
+        # TODO: inefficient querying
         for watch in watchlist:
-            project = Projects().get_project(watch.project_id)
+            project = Project.get(id=watch.project_id)
             project_events = event_helper.get_project_events(project, days = 7, minutes = 0)
             # filter eventlist by user's permissions
             project_events = event_helper.filter_events(project_events, user, project)

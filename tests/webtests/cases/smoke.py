@@ -2,10 +2,13 @@
 """
 Contents of this module
 """
+import logging
+import os
 import time
 import unittest
 
 from webtests import WebBrowser, HttpResponseError, URL, ElementNotFoundError, Config
+from webtests.pages.base import PageObject
 from webtests.pages.home import LoginPage
 from webtests.pages.home import WelcomePage
 from webtests.pages.home import CreateProjectPage
@@ -16,24 +19,30 @@ from webtests.pages.project import (
 )
 
 
-config = Config()
-
-
 class SmokeTestCase(unittest.TestCase):
     """
     Smoke test set to cover basic usage of the service
     """
     def setUp(self):
+
+        # Read configuration path set by custom Nose plugin (see tasks/dist.py:test)
+        config_path = getattr(self, 'config_path', os.path.join(os.curdir, 'tests.ini'))
+
         self.project_name = 'New project'
         self.project_env = 'newproject'
         self.project_desc = 'desc for new project'
 
-        self.browser = WebBrowser()
-        self.config = Config()
+        self.config = Config(config_path)
+
+        self.browser = WebBrowser(self.config)
         self.user = self.config['user']
         self.password = self.config['password']
         self.host = self.config['host']
         self.url = URL(self.config['host'])
+
+        # Monkeypatch PageObject to have config and browser
+        #PageObject._config = self.config
+        PageObject._browser = self.browser
 
         # Login to service
         self.browser.visit(self.url('home/user'))
@@ -56,7 +65,8 @@ class SmokeTestCase(unittest.TestCase):
                 adminremove = AdminSystemPage()
                 adminremove.remove_project()
                 time.sleep(2)
-        except (HttpResponseError, ElementNotFoundError):
+        except (HttpResponseError, ElementNotFoundError) as err:
+            logging.info('Project was not found, no need to remove it (%s)' % err)
             pass
 
     def test_smoke(self):
@@ -78,6 +88,7 @@ class SmokeTestCase(unittest.TestCase):
         create.identifier.value = self.project_env
         create.description.value = self.project_desc
         create.select_vcs(self.config['vcs'])
+        create.take_screenshot()
         create.submit.click()
 
         # We're on the project summary page
@@ -92,6 +103,7 @@ class SmokeTestCase(unittest.TestCase):
         new_ticket = NewTicketPage()
         new_ticket.summary.value = ticket_summary
         new_ticket.description.value = ticket_description
+        new_ticket.take_screenshot()
         new_ticket.submit.click()
 
         # We're on the review page of the new ticket, check for the entered values to be present
@@ -103,6 +115,7 @@ class SmokeTestCase(unittest.TestCase):
         # TODO: Implement modify as a context
         ticket_review.activate_modify()
         ticket_review.set_cc(self.user)
+        ticket_review.take_screenshot()
         ticket_review.submit.click()
 
         # Go to wiki
@@ -120,6 +133,7 @@ class SmokeTestCase(unittest.TestCase):
 
         # check the modifications are there
         wiki = WikiPage()
+        wiki.take_screenshot()
         assert self.browser.is_text_present(wiki_text)
         wiki.navigation.timeline.click()
 
@@ -127,33 +141,39 @@ class SmokeTestCase(unittest.TestCase):
         assert self.browser.is_text_present(wiki_comment)
         assert self.browser.is_text_present(ticket_summary)
         assert self.browser.is_text_present(ticket_description)
+        timeline.take_screenshot()
         timeline.navigation.roadmap.click()
 
         roadmap = RoadmapPage()
         roadmap.verify_texts()
+        roadmap.take_screenshot()
         roadmap.navigation.source.click()
 
         source = SourcePage()
         source.verify_texts()
+        source.take_screenshot()
         source.navigation.files.click()
 
         files = FilesPage()
         files.verify_texts()
+        files.take_screenshot()
         files.navigation.search.click()
 
         # Search for created ticket
         search = SearchPage()
         search.verify_texts()
         search.select_area('Tickets')
-        time.sleep(3) # Sleep due the ajax request that enables the field
+        time.sleep(3)  # Sleep due the ajax request that enables the field
         search.do_search(ticket_summary)
-        time.sleep(3) # Sleep due the ajax request
+        time.sleep(3)  # Sleep due the ajax request
         assert self.browser.is_text_present('defect: %s' % ticket_summary)
+        search.take_screenshot()
         search.navigation.discussion.click()
 
         # Finally, land on discussion page
         discussion = DiscussionPage()
         discussion.verify_texts()
+        discussion.take_screenshot()
         discussion.navigation.admin.click()
 
         # Go through each admin view
@@ -161,71 +181,80 @@ class SmokeTestCase(unittest.TestCase):
         admin.verify_texts()
 
         admin = AdminPage()
+        admin.take_screenshot()
         admin.admin_navigation.basic.click()
 
         admin = AdminPage()
+        admin.take_screenshot()
         admin.admin_navigation.announcement.click()
 
         admin = AdminPage()
+        admin.take_screenshot()
         admin.admin_navigation.backup.click()
 
         admin = AdminPage()
+        admin.take_screenshot()
         admin.admin_navigation.category.click()
 
         admin = AdminPage()
+        admin.take_screenshot()
         admin.admin_navigation.icon.click()
 
         admin = AdminPage()
+        admin.take_screenshot()
         admin.admin_navigation.relation.click()
 
         admin = AdminPage()
+        admin.take_screenshot()
         admin.admin_navigation.storage.click()
 
         admin = AdminPage()
+        admin.take_screenshot()
         admin.admin_navigation.system.click()
 
         admin = AdminPage()
+        admin.take_screenshot()
         admin.admin_navigation.forum.click()
 
         admin = AdminPage()
+        admin.take_screenshot()
         admin.admin_navigation.forum_group.click()
 
         admin = AdminPage()
-        admin.admin_navigation.download.click()
+        admin.take_screenshot()
+        admin.admin_navigation.permissions.click()
 
         admin = AdminPage()
-        admin.admin_navigation.platform.click()
-
-        admin = AdminPage()
-        admin.admin_navigation.type.click()
-
-        admin = AdminPage()
-        admin.admin_navigation.user.click()
-
-        admin = AdminPage()
+        admin.take_screenshot()
         admin.admin_navigation.group.click()
 
         admin = AdminPage()
+        admin.take_screenshot()
         admin.admin_navigation.component.click()
 
         admin = AdminPage()
+        admin.take_screenshot()
         admin.admin_navigation.milestone.click()
 
         admin = AdminPage()
+        admin.take_screenshot()
         admin.admin_navigation.priority.click()
 
         admin = AdminPage()
+        admin.take_screenshot()
         admin.admin_navigation.resolution.click()
 
         admin = AdminPage()
+        admin.take_screenshot()
         admin.admin_navigation.severity.click()
 
         admin = AdminPage()
+        admin.take_screenshot()
         admin.admin_navigation.ticket_type.click()
 
         admin = AdminPage()
+        admin.take_screenshot()
         admin.admin_navigation.version.click()
-
 
     def tearDown(self):
         #self.browser.quit()

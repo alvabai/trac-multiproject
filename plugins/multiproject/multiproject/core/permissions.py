@@ -1,8 +1,86 @@
 # -*- coding: utf-8 -*-
+from multiproject.core.cache.memcached import memcached
 from multiproject.core.configuration import conf
 from multiproject.core.cache.permission_cache import GroupPermissionCache
 from multiproject.core.exceptions import SingletonExistsException
 from multiproject.core.db import admin_query, admin_transaction, safe_int
+from multiproject.core.users import get_userstore
+from trac.perm import PermissionSystem
+
+
+def _call_proc_with_success(name, args):
+    """
+    .. WARNING: Phase out this function
+
+    :param name: Procedure name
+    :param args: Procedure arguments
+    :return: True if succeeded, False otherwise
+    """
+    try:
+        with admin_query() as cursor:
+            cursor.callproc(name, args)
+    except Exception:
+        conf.log.exception("_call_proc_with_success failed. name: %s args: %s" %
+                           (name, args))
+        return False
+    return True
+
+
+def _get_trac_environment_key(env):
+    """Helper for migrating to environment based constructors."""
+    from multiproject.common.environment import TracEnvironment
+    return TracEnvironment.read(conf.resolveProjectName(env)).environment_id
+
+
+def get_special_users(username):
+    """
+    :param username: Name of the current user
+    :return: List of special users this username is equivalent of, e.g. ['anonymous'] or ['anonymous', 'authenticated']
+    """
+    users = ['anonymous']
+    if username and username != 'anonymous':
+        users.append('authenticated')
+    return users
+
+
+@memcached(timeout=15*60)
+def get_permission_id(permission_name):
+    """
+    Get permission key from db (cached for 15minutes).
+
+    .. NOTE: Will create the permission if it doesn't exists
+
+    :param permission_name: Name
+    :return: Id of the permission or None if failed to create
+    """
+    with admin_query() as cursor:
+        try:
+            cursor.execute("SELECT action_id FROM action WHERE action_string = %s", permission_name)
+            row = cursor.fetchone()
+            if row is not None:
+                return row[0]
+        except Exception:
+            conf.log.exception("Exception. Failed getting permission id for '%s'" % str(permission_name))
+    return create_permission_id(permission_name)
+
+
+def create_permission_id(permission_name):
+    """
+    :param str permission_name: Permission name
+    :return: Created permission id or None
+    """
+    with admin_transaction() as cursor:
+        try:
+            cursor.execute("INSERT INTO action(action_string) VALUES(%s)", permission_name)
+            cursor.execute("SELECT action_id FROM action WHERE action_string = %s", permission_name)
+            row = cursor.fetchone()
+            if row is not None:
+                return row[0]
+            else:
+                return None
+        except Exception:
+            conf.log.exception("Exception. Failed creating permission id with name '%s'" % str(permission_name))
+            raise
 
 
 class InvalidPermissionsState(Exception):
@@ -13,12 +91,24 @@ class CQDEPermissionStore(object):
     """
     Provides methods that are required by Trac IPermissionStore
 
-    .. NOTE:: Avoid using directly. Instead use Trac ``PermissionSystem``.
+    .. NOTE::
 
+        Avoid using directly!
+        Instead use Trac ``PermissionSystem`` or ``PermissionCache`` when possible.
+
+        See examples in :class:`~CQDEPermissionPolicy`
     """
-
-    def __init__(self, trac_environment_key):
+    def __init__(self, trac_environment_key=None, env=None):
+        """
+        :param trac_environment_key: We want to get rid of this eventually so use ``env`` kwargs instead.
+        :param env: Trac environment which identifies the project
+        """
+        if trac_environment_key is None and env is None:
+            raise ValueError('Neither trac_environment_key or env given')
+        if env is not None:
+            trac_environment_key = _get_trac_environment_key(env)
         self._store = CQDEUserGroupStore(trac_environment_key)
+        self.trac_environment_key = trac_environment_key
 
     def get_user_permissions(self, subject):
         """
@@ -30,34 +120,44 @@ class CQDEPermissionStore(object):
             would indicate only user being correct. This is how Trac
             implements groups (at least in 0.12)
 
-        .. WARNING:: Group name as ``subject`` not supported yet.
-
         :returns: List of permission names
         """
-        user_store = conf.getUserStore()
-        user = user_store.getUser(subject)
+        user = get_userstore().getUser(subject)
 
-        user_groups = self._store.get_all_user_groups()
-        group_perms = self._store.get_all_group_permissions()
-        organization_groups = self._store.get_all_organization_groups()
+        if user is not None:
+            # construct list of groups where user belongs to
+            groups = []
+            for username, group in self._store.get_all_user_groups():
+                if username == user.username:
+                    groups.append(group)
 
-        groups = []
-        for username, group in user_groups:
-            if username == user.username:
-                groups.append(group)
+            # add organization groups
+            org_store = CQDEOrganizationStore.instance()
+            for organization, group in self._store.get_all_organization_groups():
+                org_id = org_store.get_organization_id(organization)
+                if org_id in user.organization_keys:
+                    groups.append(group)
 
-        org_store = CQDEOrganizationStore.instance()
-        for org, group in organization_groups:
-            org_id = org_store.get_organization_id(org)
-            if org_id in user.organization_keys:
-                groups.append(group)
+            # construct list of permissions based on group list
+            permissions = []
+            for group, perm in self._store.get_all_group_permissions():
+                if group in groups:
+                    permissions.append(perm)
 
-        permissions = []
-        for group, perm in group_perms:
-            if group in groups:
-                permissions.append(perm)
-
-        return permissions
+            return permissions
+        else:
+            # no such user, asked with group name
+            group_store = CQDEUserGroupStore(self.trac_environment_key)
+            permissions = []
+            for name, permission in group_store.get_all_group_permissions():
+                if permission is None:
+                    # TODO: this should NOT happen!
+                    conf.log.warning('Group %s has permission None in trac_environment_key %s!' %
+                                     (subject, self.trac_environment_key))
+                    continue
+                if name == subject:
+                    permissions.append(permission)
+            return permissions
 
     def get_users_with_permissions(self, permission_names):
         """
@@ -97,9 +197,7 @@ class CQDEPermissionStore(object):
 
     # TODO: only used in discussion, refactor out!
     def get_user_project_groups(self, audit_username):
-        user_store = conf.getUserStore()
-        user = user_store.getUser(audit_username)
-
+        user = get_userstore().getUser(audit_username)
         user_groups = self._store.get_all_user_groups()
 
         groups = []
@@ -111,23 +209,42 @@ class CQDEPermissionStore(object):
 
 
 class CQDEUserGroupStore(object):
-    """ DAO for user groups
+    """
+    DAO for user groups
+
+    .. NOTE::
+
+        Avoid using directly!
+        Instead use Trac ``PermissionSystem`` or ``PermissionCache`` when possible.
+
+        See examples in :class:`~CQDEPermissionPolicy`
     """
 
-    def __init__(self, trac_environment_key):
+    def __init__(self, trac_environment_key=None, env=None):
+        """
+        :param trac_environment_key: We want to get rid of this eventually so use ``env`` kwargs instead.
+        :param env: Trac environment which identifies the project
+        """
+        if trac_environment_key is None and env is None:
+            raise ValueError('Neither trac_environment_key or env given')
+        if env is not None:
+            trac_environment_key = _get_trac_environment_key(env)
         self._cache = GroupPermissionCache.instance()
-        self._helper = CQDEPermissionHelper.instance()
         self._organizations = CQDEOrganizationStore.instance()
         self._ldapgroups = CQDELdapGroupStore.instance()
         self.trac_environment_key = trac_environment_key
 
+    # TODO: used only in project.py and summary.py - remove!
     def is_public_project(self):
         """
+
+        .. WARNING:: Use :class:`~multiproject.common.projects.project.Project` instead!
+
         Function checks if the project defined in ``self.trac_environment_key``
         is considered public. This is True if anonymous user group has permissions
         defined in configuration. Example::
 
-          public_anon_group = Public viewers:VIEW,VERSION_CONTROL_VIEW
+          public_anon_group = Public viewers:PROJECT_SUMMARY_VIEW,VERSION_CONTROL_VIEW
 
         Otherwise the project is private and function will return False.
         """
@@ -162,13 +279,6 @@ class CQDEUserGroupStore(object):
 
         return groups
 
-    def can_remove_group(self, group_name):
-        """ Checks that group can be removed and trac environment
-            will still have an admin user
-        """
-        # If you can revoke trac_admin from group it must be ok
-        return self.can_revoke_trac_admin(group_name)
-
     def can_revoke_trac_admin(self, group_name):
         """ Checks that it is ok to remove TRAC_ADMIN permission from group
         """
@@ -180,28 +290,19 @@ class CQDEUserGroupStore(object):
         except InvalidPermissionsState:
             return False
 
-    def can_remove_user_from_group(self, group_name, username):
-        """ Checks that it is ok to remove user from group
-        """
-        ug = self.get_all_user_groups()
-        ug = [(user, group) for user, group in ug if not (user == username and group == group_name)]
-        try:
-            self.is_valid_group_members(user_groups=ug)
-            return True
-        except InvalidPermissionsState:
-            return False
-
-    def can_add_user_to_group(self, username, group_name):
+    # TODO: only couple uses in "admin/permissions.py"
+    def can_add_user_to_group(self, user_name, group_name):
         """ Anonymous can not be added in the group which contains
             too much permissions
         """
-        ug = self.get_all_user_groups() + [(username, group_name)]
+        ug = self.get_all_user_groups() + [(user_name, group_name)]
         try:
             self.is_valid_group_members(user_groups=ug)
             return True
         except InvalidPermissionsState:
             return False
 
+    # TODO: only one use in "admin/permissions.py"
     def can_grant_permission_to_group(self, group_name, permission_name):
         """ If anonymous is in a group, there are limitations of
             what permissions can be added
@@ -213,6 +314,7 @@ class CQDEUserGroupStore(object):
         except InvalidPermissionsState:
             return False
 
+    # TODO: only used in "admin/permissions.py"
     def is_valid_group_members(self, group_permissions=None, user_groups=None):
         """
         Check whether the requested users and groups state is allowed or not
@@ -247,7 +349,7 @@ class CQDEUserGroupStore(object):
 
                     raise InvalidPermissionsState(
                         "%s %s not allowed for anonymous. Anonymous would get this from %s." % (
-                        str(items), is_are, group))
+                            str(items), is_are, group))
 
         # 2. Check that there's always someone having TRAC_ADMIN privilege
         users_with_admin = set([])
@@ -260,8 +362,9 @@ class CQDEUserGroupStore(object):
             raise InvalidPermissionsState("Trac needs an administrator (someone with TRAC_ADMIN privilege)")
 
     def _group_tuples(self, tuples):
-        """ Groups tuples by items in both ways
-            Works only with two item tuples
+        """
+        Groups tuples by items in both ways
+        Works only with two item tuples
         """
         ab = {}
         ba = {}
@@ -297,23 +400,6 @@ class CQDEUserGroupStore(object):
 
         return user_groups
 
-    def get_user_count_from_groups(self):
-        users = {}
-        organizations = {}
-        user_groups = self.get_all_user_groups()
-        for username, groupname in user_groups: #@UnusedVariable
-            if groupname in users:
-                users[groupname] += 1
-            else:
-                users[groupname] = 1
-        org_groups = self.get_all_organization_groups()
-        for organization, groupname in org_groups: #@UnusedVariable
-            if groupname in organizations:
-                organizations[groupname] += 1
-            else:
-                organizations[groupname] = 1
-        return [users, organizations]
-
     def get_all_organization_groups(self):
         """
         :returns: a list of tuples (organization_name, group_name)
@@ -338,7 +424,8 @@ class CQDEUserGroupStore(object):
 
     def get_all_group_permissions(self):
         """
-        :returns: a list of groups and their permissions
+        :returns: list of tuples (group name, permission) in this environment
+        :rtype: list
         """
         group_perms = self._cache.get_group_perms(self.trac_environment_key)
         if group_perms is not None:
@@ -364,15 +451,17 @@ class CQDEUserGroupStore(object):
         self._cache.clear_group_perms(self.trac_environment_key)
 
         group_name = group_name.encode('utf-8')
-        return self._helper.call_proc_with_success("create_group",
+        return _call_proc_with_success("create_group",
             [group_name, self.trac_environment_key])
 
     def remove_group(self, group_name):
         """
         Removes group.
         Updates the published time of the project accordingly.
+
+        :return: False if not allowed or failed
         """
-        if not self.can_remove_group(group_name):
+        if not self.can_revoke_trac_admin(group_name):
             return False
 
         group_name = group_name.encode('utf-8')
@@ -384,26 +473,30 @@ class CQDEUserGroupStore(object):
         self._cache.clear_group_perms(self.trac_environment_key)
         self._cache.clear_group_id(group_name, self.trac_environment_key)
 
-        result = self._helper.call_proc_with_success("remove_group",
+        result = _call_proc_with_success("remove_group",
             [group_id])
 
         self._update_published_time()
         return result
 
-    def add_user_to_group(self, username, group_name):
+    def add_user_to_group(self, user_name, group_name):
         """
         Adds user to group.
         Updates the published time of the project accordingly.
+
+        :param str user_name: User name
+        :param str group_name: Group name
+        :returns: False if failed
         """
-        userstore = conf.getUserStore()
-        user = userstore.getUser(username)
+        userstore = get_userstore()
+        user = userstore.getUser(user_name)
 
         if not user:
             from multiproject.core.auth.auth import Authentication
 
             auth = Authentication()
-            auth.sync_user(username)
-            user = userstore.getUser(username)
+            auth.sync_user(user_name)
+            user = userstore.getUser(user_name)
 
         if not user:
             return False
@@ -417,22 +510,36 @@ class CQDEUserGroupStore(object):
 
         self._cache.clear_user_groups(self.trac_environment_key)
 
-        result = self._helper.call_proc_with_success("add_user_to_group",
+        result = _call_proc_with_success("add_user_to_group",
             [user.id, group_id])
 
         self._update_published_time()
         return result
 
-    def remove_user_from_group(self, username, group_name):
+    def remove_user_from_group(self, user_name, group_name):
         """
         Removes user from group.
         Updates the published time of the project accordingly.
+
+        :param str user_name: User name
+        :param str group_name: Group name
+        :returns: False if failed or not allowed
         """
-        if not self.can_remove_user_from_group(group_name, username):
+
+        def allowed(group_name, user_name):
+            """Checks that it is ok to remove user from group"""
+            ug = self.get_all_user_groups()
+            ug = [(user, group) for user, group in ug if not (user == user_name and group == group_name)]
+            try:
+                self.is_valid_group_members(user_groups=ug)
+                return True
+            except InvalidPermissionsState:
+                return False
+
+        if not allowed(group_name, user_name):
             return False
 
-        userstore = conf.getUserStore()
-        user = userstore.getUser(username)
+        user = get_userstore().getUser(user_name)
         if not user:
             return False
 
@@ -440,13 +547,24 @@ class CQDEUserGroupStore(object):
         group_id = self.get_group_id(group_name)
         self._cache.clear_user_groups(self.trac_environment_key)
 
-        result = self._helper.call_proc_with_success("remove_user_from_group",
+        result = _call_proc_with_success("remove_user_from_group",
             [user.id, group_id])
 
         self._update_published_time()
         return result
 
     def add_organization_to_group(self, organization_name, group_name):
+        """
+        Add organization to the group, creates group if it doesn't already exists.
+
+        :param str organization_name: Name of organization
+        :param str group_name: Name of group to be added
+        :raises: ValueError if organization already exists in the group
+        :raises: Exception on failure to add
+        """
+        if organization_name in [org[0] for org in self.get_all_organization_groups() if org[1] == group_name]:
+            raise ValueError('Organization %s already exists' % organization_name)
+
         organization_id = self._organizations.get_organization_id(organization_name)
 
         # Create group if it doesn't exist
@@ -458,8 +576,9 @@ class CQDEUserGroupStore(object):
 
         self._cache.clear_organization_groups(self.trac_environment_key)
 
-        return self._helper.call_proc_with_success("add_organization_to_group",
-            [organization_id, group_id])
+        if not _call_proc_with_success("add_organization_to_group",
+            [organization_id, group_id]):
+            raise Exception('Procedure add_organization_to_group failed')
 
     def remove_organization_from_group(self, organization_name, group_name):
         organization_id = self._organizations.get_organization_id(organization_name)
@@ -468,15 +587,18 @@ class CQDEUserGroupStore(object):
 
         self._cache.clear_organization_groups(self.trac_environment_key)
 
-        return self._helper.call_proc_with_success("remove_organization_from_group",
+        return _call_proc_with_success("remove_organization_from_group",
             [organization_id, group_id])
 
     def grant_permission_to_group(self, group_name, permission_name):
         """
         Grants permission to group.
         Updates the published time of the project accordingly.
+        :param str group_name: Group name, will be created if does not exists
+        :param str permission_name: Perm name, will be created if does not eixts
+        :return: True if succeeded
         """
-        permission_id = self._helper.get_permission_id(permission_name)
+        permission_id = get_permission_id(permission_name)
 
         # Create group if it doesn't exist
         group_name = group_name.encode('utf-8')
@@ -487,7 +609,7 @@ class CQDEUserGroupStore(object):
 
         self._cache.clear_group_perms(self.trac_environment_key)
 
-        result = self._helper.call_proc_with_success("grant_permission_to_group",
+        result = _call_proc_with_success("grant_permission_to_group",
             [group_id, permission_id])
 
         self._update_published_time()
@@ -496,20 +618,24 @@ class CQDEUserGroupStore(object):
 
     def revoke_permission_from_group(self, group_name, permission_name):
         """
-        Revokes permission to group.
+        Revokes permission from group.
         Updates the published time of the project accordingly.
+
+        :param str group_name: Group name
+        :param str permission_name: Permission name
+        :return: False if not allowed or failed
         """
         if permission_name == 'TRAC_ADMIN':
             if not self.can_revoke_trac_admin(group_name):
                 return False
 
-        permission_id = self._helper.get_permission_id(permission_name)
+        permission_id = get_permission_id(permission_name)
         group_name = group_name.encode('utf-8')
         group_id = self.get_group_id(group_name)
 
         self._cache.clear_group_perms(self.trac_environment_key)
 
-        result = self._helper.call_proc_with_success("revoke_permission_from_group",
+        result = _call_proc_with_success("revoke_permission_from_group",
             [group_id, permission_id])
 
         self._update_published_time()
@@ -517,6 +643,10 @@ class CQDEUserGroupStore(object):
         return result
 
     def get_group_id(self, group_name):
+        """
+        :param str group_name: Group name
+        :return: Group id
+        """
         # Try from cache
         gid = self._cache.get_group_id(group_name, self.trac_environment_key)
         if gid is not None:
@@ -536,6 +666,13 @@ class CQDEUserGroupStore(object):
         return gid
 
     def add_ldapgroup_to_group(self, ldapgroup_name, group_name):
+        """
+        Adds LDAP group into a group
+
+        :param str ldapgroup_name: LDAP group name
+        :param str group_name: Trac permission group name
+        :return: False if failed
+        """
         # Create ldap group if it doesn't exist
         ldapgroup_name = ldapgroup_name.encode('utf-8')
         ldapgroup_id = self._ldapgroups.get_ldapgroup_id(ldapgroup_name)
@@ -554,7 +691,7 @@ class CQDEUserGroupStore(object):
 
         self._cache.clear_trac_environment_ldap_groups(self.trac_environment_key)
 
-        result = self._helper.call_proc_with_success("add_ldapgroup_to_group",
+        result = _call_proc_with_success("add_ldapgroup_to_group",
             [ldapgroup_id, group_id])
         if not result:
             conf.log.error("LDAP: Adding LDAP group %s to group %s failed. (ldap group %s, group %s)" %
@@ -563,17 +700,26 @@ class CQDEUserGroupStore(object):
         return result
 
     def remove_ldapgroup_from_group(self, ldapgroup_name, group_name):
+        """
+        Removes LDAP group from a group
+
+        :param str ldapgroup_name: LDAP group name
+        :param str group_name: Trac permission group name
+        :return: False if failed
+        """
         ldapgroup_id = self._ldapgroups.get_ldapgroup_id(ldapgroup_name)
         group_name = group_name.encode('utf-8')
         group_id = self.get_group_id(group_name)
 
         self._cache.clear_trac_environment_ldap_groups(self.trac_environment_key)
 
-        return self._helper.call_proc_with_success("remove_ldapgroup_from_group",
+        return _call_proc_with_success("remove_ldapgroup_from_group",
             [ldapgroup_id, group_id])
 
+    # TODO: rename
     def get_all_trac_environment_ldap_groups(self):
-        """ Returns list of tuples (ldapgroup, group)
+        """
+        :return: list of tuples (ldapgroup, group)
         """
         ldapgroups = self._cache.get_trac_environment_ldap_groups(self.trac_environment_key)
         if ldapgroups is not None:
@@ -604,7 +750,7 @@ class CQDEUserGroupStore(object):
             query = "UPDATE projects SET `published` = NULL WHERE trac_environment_key = %s"
         else:
             query = ("UPDATE projects SET `published` = now() "
-                    "WHERE trac_environment_key = %s AND published IS NULL")
+                     "WHERE trac_environment_key = %s AND published IS NULL")
 
         with admin_transaction() as cursor:
             try:
@@ -615,13 +761,15 @@ class CQDEUserGroupStore(object):
 
 
 class CQDESuperUserStore(object):
+    """
+    Class for manipulating super users
+    """
     _instance = None
 
     def __init__(self):
         if CQDESuperUserStore._instance:
             raise SingletonExistsException("Use CQDESuperUserStore.instance()")
         self._cache = GroupPermissionCache.instance()
-        self._helper = CQDEPermissionHelper.instance()
 
     @staticmethod
     def instance():
@@ -652,11 +800,11 @@ class CQDESuperUserStore(object):
     def add_superuser(self, username):
         """ Add user to superusers list
         """
-        userstore = conf.getUserStore()
+        userstore = get_userstore()
         if not userstore.userExists(username):
             return False
 
-        if self._helper.call_proc_with_success("add_superuser", [username]):
+        if _call_proc_with_success("add_superuser", [username]):
             self._cache.clear_superusers()
             return True
         return False
@@ -664,11 +812,11 @@ class CQDESuperUserStore(object):
     def remove_superuser(self, username):
         """ Add user to superusers list
         """
-        userstore = conf.getUserStore()
+        userstore = get_userstore()
         if not userstore.userExists(username):
             return False
 
-        if self._helper.call_proc_with_success("remove_superuser", [username]):
+        if _call_proc_with_success("remove_superuser", [username]):
             self._cache.clear_superusers()
             return True
         return False
@@ -679,220 +827,6 @@ class CQDESuperUserStore(object):
         return False
 
 
-class CQDEPermissionHelper(object):
-    """ Provides helper methods that are needed on permission classes
-    """
-    _instance = None
-
-    def __init__(self):
-        if CQDEPermissionHelper._instance:
-            raise SingletonExistsException("Use CQDEPermissionHelper.instance()")
-        self._cache = GroupPermissionCache.instance()
-
-    @staticmethod
-    def instance():
-        if CQDEPermissionHelper._instance is None:
-            CQDEPermissionHelper._instance = CQDEPermissionHelper()
-        return CQDEPermissionHelper._instance
-
-    def get_permission_id(self, permission_name):
-        """ Get permission key from cache or db
-        """
-        permission_id = self._cache.get_permission_id(permission_name)
-        if permission_id is not None:
-            return permission_id
-
-        with admin_query() as cursor:
-            try:
-                cursor.execute("SELECT action_id FROM action WHERE action_string = %s", permission_name)
-                row = cursor.fetchone()
-                if row is not None:
-                    permission_id = row[0]
-                    self._cache.set_permission_id(permission_name, permission_id)
-            except:
-                conf.log.exception("Exception. Failed getting permission id for '%s'" % str(permission_name))
-
-        if not permission_id:
-            permission_id = self.create_permission_id(permission_name)
-
-        return permission_id
-
-    def create_permission_id(self, permission_name):
-        """ Create permission and return its id
-        """
-        permission_id = None
-
-        with admin_transaction() as cursor:
-            try:
-                cursor.execute("INSERT INTO action(action_string) VALUES(%s)", permission_name)
-                cursor.execute("SELECT action_id FROM action WHERE action_string = %s", permission_name)
-                row = cursor.fetchone()
-                if row is not None:
-                    permission_id = row[0]
-                    self._cache.set_permission_id(permission_name, permission_id)
-            except:
-                conf.log.exception("Exception. Failed creating permission id with name '%s'" % str(permission_name))
-                raise
-
-        return permission_id
-
-    def call_proc_with_success(self, name, args):
-        """ Helper method for wrapping database connection initialization
-            and Exception handling away from code that wont need it.
-
-            To be used with queries that can throw away it's results
-            and should just succesfully run.
-
-            Returns true/false to tell if query failed or not
-
-        """
-        try:
-            with admin_query() as cursor:
-                cursor.callproc(name, args)
-        except:
-            return False
-
-        return True
-
-    def parse_enum_type(self, enum_str):
-        methods = []
-        enum_str = enum_str.replace('enum(', '').strip(')')
-        for item in enum_str.split(','):
-            methods.append(item.strip("' "))
-
-        return methods
-
-
-class CQDEAuthenticationStore(object):
-    """ DAO for authentications
-    """
-    _instance = None
-
-    def __init__(self):
-        if CQDEAuthenticationStore._instance:
-            raise SingletonExistsException("Use CQDEAuthenticationStore.instance()")
-        self.__helper = CQDEPermissionHelper.instance()
-        self.__cache = GroupPermissionCache.instance()
-
-        # Consider for not hardcoding this
-        self.LOCAL = 'LocalDB'
-        # self.LDAP also hardcoded in ldap_auth.py
-        self.LDAP = 'LDAP'
-
-    @staticmethod
-    def instance():
-        if CQDEAuthenticationStore._instance is None:
-            CQDEAuthenticationStore._instance = CQDEAuthenticationStore()
-        return CQDEAuthenticationStore._instance
-
-    def _compare(self, id, name):
-        return id == self.get_authentication_id(name)
-
-    def is_local(self, id):
-        return self._compare(id, self.LOCAL)
-
-    def is_ldap(self, id):
-        return self._compare(id, self.LDAP)
-
-    def is_authenticated_by(self, id, name):
-        """
-        Check if user is authenticated with method ``name``
-        :param string name: Authentication name
-        :return: True or False
-        :raises: ValueError if ``name`` is not known authentication method
-        """
-        if not name in [auth.name for auth in self.get_authentications()]:
-            raise ValueError('%s is not known authentication method in the database' % name)
-        return self._compare(id, name)
-
-    def get_authentications(self):
-        """ Returns a list of AuthenticationEntity class instances
-        """
-        authentications = []
-        with admin_query() as cursor:
-            try:
-                cursor.execute("SELECT * FROM authentication")
-
-                for row in cursor:
-                    auth = AuthenticationEntity()
-                    auth.id = row[0]
-                    auth.name = row[1]
-                    authentications.append(auth)
-            except:
-                conf.log.exception("Exception. Failed to get authentications.")
-
-        return authentications
-
-    def get_authentication_method(self, authentication_id):
-        """ Returns authentication method
-        """
-        method = None
-
-        # For anonymous users, this is None
-        if authentication_id is None:
-            return None
-
-        with admin_query() as cursor:
-            try:
-                cursor.execute(
-                    "SELECT method FROM authentication WHERE id = %d " % safe_int(authentication_id))
-                row = cursor.fetchone()
-                if row:
-                    method = row[0]
-            except:
-                conf.log.exception("Exception. get_authentication_method failed.")
-                raise
-
-        return method
-
-    def get_authentication_id(self, authentication_name):
-        authentication_id = self.__cache.get_authentication_id(authentication_name)
-        if authentication_id is not None:
-            return authentication_id
-
-        with admin_query() as cursor:
-            try:
-                query = "SELECT id FROM authentication WHERE authentication.method = %s"
-                cursor.execute(query, authentication_name)
-                row = cursor.fetchone()
-                if row:
-                    authentication_id = row[0]
-                    self.__cache.set_authentication_id(authentication_name, authentication_id)
-            except:
-                conf.log.exception("Exception. get_authentication_id(%s) procedure call failed" %
-                                   str(authentication_name))
-
-        return authentication_id
-
-    def create_authentication(self, authentication_name):
-        try:
-            with admin_transaction() as cursor:
-                try:
-                    query = "INSERT IGNORE INTO authentication(method) VALUES(%s)"
-                    cursor.execute(query, authentication_name)
-                except:
-                    conf.log.exception("Exception. create_authentication(%s) query failed" %
-                                       str(authentication_name))
-
-                    # Re-raise the exception so that the context manager can roll back
-                    raise
-        except:
-            # Return False on failure, but trust logging is used in context manager and
-            # query execution
-            return False
-
-        return True
-
-
-class AuthenticationEntity(object):
-    """ Class for database authentication entities
-    """
-
-    def __init__(self):
-        self.id = None
-        self.name = None
-
-
 class CQDEOrganizationStore(object):
     """ DAO for organizations
     """
@@ -901,7 +835,6 @@ class CQDEOrganizationStore(object):
     def __init__(self):
         if CQDEOrganizationStore._instance:
             raise SingletonExistsException("Use CQDEOrganizationStore.instance()")
-        self._helper = CQDEPermissionHelper.instance()
         self._cache = GroupPermissionCache.instance()
 
     @staticmethod
@@ -947,60 +880,105 @@ class CQDEOrganizationStore(object):
         self._cache.clear_organization_id(organization_name)
         # TODO: We need to clear organizationname / groupname cache for all
         # trac environments that have permissions for this organization (may be slow)
-        return self._helper.call_proc_with_success("remove_organization", [organization_name])
+        return _call_proc_with_success("remove_organization", [organization_name])
 
     def get_organization_keys(self, user, auth_method=None):
         """
+        Returns list of organization keys matching with the user (and optionally authentication method)
+
         Each authentication method has corresponding organization,
         which are applied to the user by default, when user is created
-        """
-        if not conf.organizations:
-            return None
 
+        :param User user: User to get organization keys for
+        :param str auth_method:
+            Name of the authentication method / backend.
+            Valid values: LocalDB,LDAP,
+
+        Example::
+
+            from multiproject.core.auth.local_auth import LocalAuthentication
+            from multiproject.core.users import get_userstore
+
+            userstore = get_userstore()
+            user = userstore.getUser('name')
+
+            get_organization_keys(user, LocalAuthentication.LOCAL)
+
+        """
+        from multiproject.common.projects import HomeProject
+        from multiproject.common.users import OrganizationManager
+
+        organization_ids = []
+
+        # Load home env to load component
+        self.env = HomeProject().get_env()
+        orgman = self.env[OrganizationManager]
+
+        if not orgman.use_organizations:
+            return []
+
+        # If authentication method/backend is not defined, load info from user
         if not auth_method:
+            # TODO: do not use CQDEAuthenticationStore to check this, the information should
+            #       be available from User object (add if not!)
+            from multiproject.core.authentication import CQDEAuthenticationStore
+
             auth_store = CQDEAuthenticationStore.instance()
             auth_method = auth_store.get_authentication_method(user.authentication_key)
 
-        organizations = []
-
         if auth_method:
             try:
-                organization = conf.organizations[auth_method]
-                if organization[1] == 'auths':
-                    id = int(self.get_organization_id(organization[2]))
-                    if id and id not in organizations:
-                        organizations.append(id)
+                # Iterate all organization names that matches with authentication backend name
+                be_orgs = [org for org in orgman.get_organizations_by_backend(auth_method) if org['type'] == 'auth']
+                if not be_orgs:
+                    conf.log.info('Failed to find backend based organization info: %s' % auth_method)
+
+                for org in be_orgs:
+                    id = int(self.get_organization_id(org['name']))
+                    if id and id not in organization_ids:
+                        organization_ids.append(id)
             except:
                 conf.log.exception("Exception on auth_method")
 
+        # Check if mail based organizations are defined
         if user.mail:
             try:
+                # Iterate all organization names that matches with email domain: @domain.com
                 mailhost = "@" + user.mail.split("@")[1]
-                organization = conf.organizations[mailhost]
-                if organization[1] == 'email':
-                    id = int(self.get_organization_id(organization[2]))
-                    if id and id not in organizations:
-                        organizations.append(id)
-            except:
-                conf.log.exception("Exception on user.mail")
+                mail_orgs = [org for org in orgman.get_organizations_by_backend(mailhost) if org['type'] == 'email']
+                if not mail_orgs:
+                    conf.log.info('Failed to find email based organization info: %s' % mailhost)
 
-        return organizations
+                for org in mail_orgs:
+                    id = int(self.get_organization_id(org['name']))
+                    if id and id not in organization_ids:
+                        organization_ids.append(id)
+
+            except:
+                conf.log.exception("Failed to read email based organization info")
+
+        conf.log.debug('Found organization ids %s for user %s' % (organization_ids, user))
+
+        return organization_ids
 
     def get_organization_id(self, organization_name):
         organization_id = self._cache.get_organization_id(organization_name)
         if organization_id is not None:
             return organization_id
 
+        sql = '''
+        SELECT organization_id FROM organization
+        WHERE organization.organization_name = %s
+        '''
         with admin_query() as cursor:
             try:
-                cursor.callproc("get_organization_id", [organization_name])
+                cursor.execute(sql, organization_name)
                 row = cursor.fetchone()
                 if row:
                     organization_id = row[0]
                     self._cache.set_organization_id(organization_name, organization_id)
             except:
-                conf.log.exception("Exception. get_organization_id(%s) procedure call failed" %
-                                   str(organization_name))
+                conf.log.exception('Failed to get org id: %s' % organization_name)
                 raise
 
         return organization_id
@@ -1044,7 +1022,6 @@ class CQDELdapGroupStore(object):
     def __init__(self):
         if CQDELdapGroupStore._instance:
             raise SingletonExistsException("Use CQDELdapGroupStore.instance()")
-        self.__helper = CQDEPermissionHelper.instance()
         self.__cache = GroupPermissionCache.instance()
 
     @staticmethod
@@ -1057,7 +1034,7 @@ class CQDELdapGroupStore(object):
         """ Stores ldap group into database
         """
         ldapgroup_name = ldapgroup_name.encode('utf-8')
-        return self.__helper.call_proc_with_success("create_ldapgroup",
+        return _call_proc_with_success("create_ldapgroup",
             [ldapgroup_name])
 
     def remove_ldapgroup(self, ldapgroup_name):
@@ -1065,7 +1042,7 @@ class CQDELdapGroupStore(object):
         """
         self.__cache.clear_trac_environment_ldap_group_id(ldapgroup_name)
 
-        return self.__helper.call_proc_with_success("remove_ldapgroup",
+        return _call_proc_with_success("remove_ldapgroup",
             [ldapgroup_name])
 
     def get_ldapgroup_id(self, ldapgroup_name):
@@ -1088,6 +1065,37 @@ class CQDELdapGroupStore(object):
 
 
 class CQDEPermissionPolicy(object):
+
+    """
+    .. NOTE:: Avoid using this class, use Trac functionality instead when possible
+
+    Examples::
+
+        if 'WIKI_CREATE' in req.env.perm:
+            print 'Creating page'
+
+        perms = PermissionCache(env=home_env, username=req.authname)
+        if 'WIKI_CREATE' in perms:
+            print 'Creating page'
+
+    However if environment is not available and the situation requires speedy access,
+    this is currently only way to check permission from other environments.
+    """
+    def __init__(self, env):
+        self.env = env
+        self.perm_system = env[PermissionSystem]
+
+        # Load meta permission from components
+        metaperms = {}
+        for requestor in self.perm_system.requestors:
+            for action in requestor.get_permission_actions() or []:
+                if isinstance(action, tuple):
+                    if action[0] not in metaperms:
+                        metaperms[action[0]] = []
+                    metaperms[action[0]] += list(action[1])
+
+        self.meta_perms = metaperms
+
     def check_permission(self, trac_environment_id, permission, check_username):
         """
         Helper class for the GlobalPermissionPolicy.check_permission,
@@ -1100,8 +1108,7 @@ class CQDEPermissionPolicy(object):
             return False
 
         # Get user in question
-        user_store = conf.getUserStore()
-        user = user_store.getUser(check_username)
+        user = get_userstore().getUser(check_username)
         store = CQDEUserGroupStore(trac_environment_id)
         superusers = CQDESuperUserStore.instance()
 
@@ -1113,9 +1120,6 @@ class CQDEPermissionPolicy(object):
         if superusers.is_superuser(user.username):
             return True
 
-        # Get all permissions that grants this permission
-        granting_permissions = self.get_granting_permissions(permission)
-
         # Get all groups and users
         user_groups = store.get_all_user_groups()
         group_perms = store.get_all_group_permissions()
@@ -1124,10 +1128,12 @@ class CQDEPermissionPolicy(object):
         # List groups that have the permission
         groups = []
         for group, perm in group_perms:
-            if perm in granting_permissions:
+            # NOTE: Also extend the meta permissions into list
+            perms = [perm] + self.meta_perms.get(perm, [])
+            if permission in perms:
                 groups.append(group)
 
-        users = self.get_special_users(user.username)
+        users = get_special_users(user.username)
         users.append(user.username)
 
         # See if user is in one of the groups
@@ -1145,7 +1151,11 @@ class CQDEPermissionPolicy(object):
                     return True
 
         if conf.ldap_groups_enabled:
+            # TODO: do not use CQDEAuthenticationStore to check this, the information should
+            #       be available from User object (add if not!)
             # See if any ldap groups are allowed in environment
+            from multiproject.core.authentication import CQDEAuthenticationStore
+
             auth_store = CQDEAuthenticationStore.instance()
             is_ldap_account = auth_store.is_ldap(user.authentication_key)
             trac_environment_ldapgroups = store.get_all_trac_environment_ldap_groups()
@@ -1159,42 +1169,3 @@ class CQDEPermissionPolicy(object):
                             return True
 
         return False
-
-    def get_granting_permissions(self, permission):
-        """ Gives permissions that grants permission (except permission it's self)
-        """
-        # At least the permission it's self grants the permission
-        granting_permissions = [permission]
-
-        # Group *_VIEW, *_CREATE etc. to simple permissions
-        groups = {}
-        groups['DELETE'] = ['DELETE']
-        groups['CREATE'] = ['CREATE', 'DELETE']
-        groups['MODIFY'] = ['MODIFY', 'CREATE', 'DELETE']
-        groups['VIEW'] = ['VIEW', 'MODIFY', 'CREATE', 'DELETE']
-
-        # Hash table of permission => other granting permissions
-        permissions = {}
-        permissions['VERSION_CONTROL_VIEW'] = ['VERSION_CONTROL']
-        permissions['WEBDAV_VIEW'] = ['WEBDAV']
-        permissions['TICKET_CHGPROP'] = ['TICKET_MODIFY'] + groups['MODIFY']
-        permissions['TICKET_APPEND'] = ['TICKET_MODIFY'] + groups['MODIFY']
-
-        group = permission.split("_")[-1]
-        if groups.has_key(group):
-            granting_permissions.extend(groups[group])
-
-        if permissions.has_key(permission):
-            granting_permissions.extend(permissions[permission])
-
-        # TRAC_ADMIN always grants permissions so append it into list if not already in
-        if permission != 'TRAC_ADMIN':
-            granting_permissions.append('TRAC_ADMIN')
-
-        return granting_permissions
-
-    def get_special_users(self, username):
-        users = ['anonymous']
-        if username and username != 'anonymous':
-            users.append('authenticated')
-        return users

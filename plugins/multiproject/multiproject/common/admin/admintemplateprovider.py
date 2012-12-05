@@ -3,6 +3,7 @@ from pkg_resources import resource_filename
 from trac.core import Component, implements
 from trac.web.chrome import ITemplateProvider
 
+
 class HomeAdminTemplateProvider(Component):
     implements(ITemplateProvider)
 
@@ -10,4 +11,4 @@ class HomeAdminTemplateProvider(Component):
         return [resource_filename('multiproject.common.admin', 'templates')]
 
     def get_htdocs_dirs(self):
-        return []
+        return [('multiproject', resource_filename(__name__, 'htdocs'))]

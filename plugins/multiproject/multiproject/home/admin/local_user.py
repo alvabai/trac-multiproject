@@ -10,15 +10,11 @@ from trac.util.translation import _
 from trac.web.chrome import add_script, Markup, tag
 
 from multiproject.common.notifications.email import EmailNotifier
+from multiproject.core.authentication import CQDEAuthenticationStore
 from multiproject.core.configuration import conf
-from multiproject.core.users import User
-
-
-# Formatting rules for python and javascript: 25/01/12
-DATEFORMATS = {
-    'py':'%m/%d/%y',
-    'js':'mm/dd/y'
-}
+from multiproject.core.permissions import CQDEOrganizationStore
+from multiproject.core.auth.local_auth import LocalAuthentication
+from multiproject.core.users import User, get_userstore, DATEFORMATS
 
 
 class CreateLocalUserAdminPanel(Component):
@@ -30,7 +26,7 @@ class CreateLocalUserAdminPanel(Component):
         """ Introduce new component into admin panel navi
         """
         if 'USER_CREATE' in req.perm:
-            yield ('users', 'Users', 'create_local', 'Create new user')
+            yield ('users', 'Users', 'create_local', 'Create user')
 
     def render_admin_panel(self, req, cat, page, path_info):
         """ Renders admin panel and handles new user creation request
@@ -58,7 +54,7 @@ class CreateLocalUserAdminPanel(Component):
             return 'admin_user_create.html', data
 
         elif req.method.upper() == 'POST':
-            userstore = conf.getUserStore()
+            userstore = get_userstore()
             user = self._get_user(req)
             author = userstore.getUser(req.authname)
 
@@ -75,6 +71,11 @@ class CreateLocalUserAdminPanel(Component):
                 return 'admin_user_create.html', data
             user.author_id = author.id
             user.expires = expires
+
+            org_store = CQDEOrganizationStore.instance()
+            auth_store = CQDEAuthenticationStore.instance()
+            user.authentication_key = auth_store.get_authentication_id(LocalAuthentication.LOCAL)
+            user.organization_keys = org_store.get_organization_keys(user, LocalAuthentication.LOCAL) or None
 
             # Validate user object
             error_msg = self.validate_user(req, user)
@@ -121,19 +122,13 @@ class CreateLocalUserAdminPanel(Component):
         user.mobile = req.args.get('mobile')
         user.createIcon(req.args.get('icon'))
 
-        # None makes it default (Local users)
-        user.organization_key = None
-
-        # FIXME: DEPRECATED: We should remove the insider flag
-        user.insider = 0
-        if req.args.get('insider') == 'on':
-            user.insider = 1
+        # Empty makes it default (Local users)
+        user.organization_keys = []
 
         return user
 
     def validate_user(self, req, user):
-        local_store = conf.getUserStore()
-        if local_store.userExists(user.username):
+        if get_userstore().userExists(user.username):
             return 'User name already reserved'
 
         if not user.username:

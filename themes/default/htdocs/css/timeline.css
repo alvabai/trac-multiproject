@@ -17,11 +17,30 @@ li.timeline_event .icon {
     width: 24px;
     height: 24px;
 }
+
+li.timeline_event .ga_icon {
+    position:absolute;
+    top: 10px;
+    left: 0;
+    padding-top: 2px;
+    max-height: 24px;
+    max-width: 24px;
+    border:none;
+    display:inline;
+}
+
 .resource-box li.timeline_event a {
     display:inline;
 }
 .timeline_event .event {
     margin-top:3px;
+}
+
+.resource-box li.rss_separator {
+}
+
+.resource-box li.no_rss_separator {
+    border-top-style: none
 }
 
 /* Sprite background positions */
@@ -66,17 +85,36 @@ li.timeline_event.newtopic .icon {
 li.timeline_event.wiki .icon {
     background-position: 0 -200px;
 }
-#global_events_list dl dt.webdavevent-add,
-li.timeline_event.webdavevent-add .icon {
+#global_events_list dl dt.filesevent-add,
+li.timeline_event.filesevent-add .icon{
     background-position: 0 -225px;
 }
-#global_events_list dl dt.webdavevent-mv,
-li.timeline_event.webdavevent-mv .icon {
+#global_events_list dl dt.filesevent-mv,
+#global_events_list dl dt.downloadsevent-mv,
+li.timeline_event.filesevent-mv .icon,
+li.timeline_event.downloadsevent-mv .icon {
     background-position: 0 -250px;
 }
-#global_events_list dl dt.webdavevent-rm,
-li.timeline_event.webdavevent-rm .icon {
+#global_events_list dl dt.filesevent-cp,
+#global_events_list dl dt.downloadsevent-cp,
+li.timeline_event.filesevent-cp .icon,
+li.timeline_event.downloadsevent-cp .icon {
+    background-position: 0 -250px;
+}
+#global_events_list dl dt.filesevent-rm,
+#global_events_list dl dt.downloadsevent-rm,
+li.timeline_event.filesevent-rm .icon,
+li.timeline_event.downloadsevent-rm .icon {
     background-position: 0 -275px;
+}
+
+#global_events_list dl dt.rss,
+li.timeline_event.rss .icon {
+    background-position: 0 -300px;
+}
+#global_events_list dl dt.downloadsevent-add,
+li.timeline_event.downloadsevent-add .icon {
+    background-position: 0 -325px;
 }
 
 #global_events_list dl dt {

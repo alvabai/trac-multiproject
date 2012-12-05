@@ -109,6 +109,57 @@ def get_connection(db_name=''):
     return conn
 
 
+def debug_db_execute(fn):
+    """
+    Simple debugger for database queries: use this function to patch the
+    original db cursor.execute::
+
+        def db_query(db_name='', cursor_type=None):
+            conn = get_connection(db_name)
+            cursor = conn.cursor(cursor_type)
+            # PATCH!
+            cursor.execute = debug_db_execute(cursor.execute)
+            yield cursor
+
+    As outcome, all the queries are logged for further analysis
+
+    .. important::
+
+        Do *not* enable this in production environment!
+
+    """
+    import re
+    import traceback
+    from datetime import datetime
+    from multiproject.core.configuration import Configuration
+
+    stack_depth = 5
+    conf = Configuration.instance()
+    reprex = re.compile('\\n\s*')
+
+    def execute(*args, **kwargs):
+        query = [reprex.sub(' ', str(arg)).strip() for arg in args]
+        before = datetime.utcnow()
+
+        # Run the actual query
+        output = fn(*args, **kwargs)
+
+        # Log output:
+        diff = datetime.utcnow() - before
+        diffs = str(diff).rsplit(':', 1)[1]
+
+        # Raise exception to get execute information
+        try:
+            raise Exception('traceback')
+        except Exception:
+            trace = traceback.extract_stack(limit=stack_depth)
+            conf.log.error('SQL: %s, %s (took: %s sec, stack: %s)' % (query, kwargs, diffs, trace[:-1]))
+
+        return output
+
+    return execute
+
+
 @contextmanager
 def db_query(db_name='', cursor_type=None):
     """
@@ -152,9 +203,11 @@ def db_query(db_name='', cursor_type=None):
 
     try:
         cursor = conn.cursor(cursor_type)
+        # Uncomment for debugging
+        #cursor.execute = debug_db_execute(cursor.execute)
         yield cursor
     except Exception:
-        conf.log.error('Exception in db_query(%s)' % db_name)
+        conf.log.exception('Exception in db_query(%s)' % db_name)
         raise
     finally:
         cursor.close()
@@ -199,6 +252,8 @@ def db_transaction(db_name=''):
     # Simple fallbacking from commit to rollback
     try:
         cursor = conn.cursor()
+        # Uncomment for debugging
+        #cursor.execute = debug_db_execute(cursor.execute)
         yield cursor
         conn.commit()
     except Exception:
@@ -223,13 +278,12 @@ def admin_query(cursor_type=None):
     """
     from multiproject.core.configuration import Configuration
     conf = Configuration.instance()
-    conf.update_organizations()
 
     with db_query(conf.db_admin_schema_name, cursor_type) as cursor:
         try:
             yield cursor
         except Exception:
-            conf.log.error('Exception in admin_query()')
+            conf.log.exception('Exception in admin_query()')
             raise
 
 
@@ -250,7 +304,7 @@ def admin_transaction():
         try:
             yield cursor
         except Exception:
-            conf.log.error('Exception in admin_transaction()')
+            conf.log.exception('Exception in admin_transaction()')
             raise
 
 

@@ -1,0 +1,20 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      py:strip="">
+    <div py:if="active_projects" class="resource-box">
+        <h2 class="resources-title">
+            <div class="headerRssLink"><a href="${req.href('..', 'home/rss/mostactive.xml')}"></a></div>
+            Active projects
+        </h2>
+        <ul class="projectlist">
+            <li py:for="project in active_projects" class="project_list_item">
+                <img class="icon" src="${req.href('projecticon', environment_name=project.name)}" />
+                <a href="${req.href('..', project.name)}">$project.project_name</a>
+            </li>
+            <li>
+                <a class="more" href="${req.href('..', 'home/project/explore')}#tab=active" shape="rect">More Active Projects &gt;</a>
+            </li>
+            <li py:if="not active_projects">No project activity available</li>
+        </ul>
+    </div>
+</html>

@@ -9,8 +9,12 @@
         <script type="text/javascript">
             // Callback for drawing a graph
             var drawGraph = function(){
-                // Try to use global theme object for style
-                theme = theme || {fillColor:"#f00", fontFamily:"sans-serif", fontSize:12, contentWidth:700};
+                var theme = {
+                    fillColor: "#264581",
+                    fontFamily: "sans-serif",
+                    fontSize: 12,
+                    contentWidth: 700
+                };
 
                 var placeholder = $('#chart').addClass('loading');
 

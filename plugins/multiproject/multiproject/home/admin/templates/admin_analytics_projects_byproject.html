@@ -9,9 +9,17 @@
         <script type="text/javascript">
             // Function for drawing the graph
             var drawGraph = function(){
-                // Try to use global theme object for style
-                var getColor = function(){ return '#f00'; };
-                theme = theme || {fillColor:"#f00", fontFamily:"sans-serif", fontSize:12, contentWidth:700, getColor:getColor};
+                var getColor = function(seed) {
+                    var colors = ['#264581', '#5b7e36', '#d75330', '#eae83f', '#d78630', '#a41c1c', '#c41c53', '#ab2ba0', '#672d98', '#2d8398'];
+                    return colors[seed % colors.length];
+                };
+                var theme = {
+                    fillColor:"#f00",
+                    fontFamily:"sans-serif",
+                    fontSize:12,
+                    contentWidth:700,
+                    getColor:getColor
+                };
 
                 // Get placeholder and set loading info
                 var placeholder = $('#chart').addClass('loading');

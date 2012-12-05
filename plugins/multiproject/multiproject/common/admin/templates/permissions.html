@@ -1,0 +1,224 @@
+<!DOCTYPE html
+        PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+<xi:include href="admin.html"/>
+<head>
+    <title>Permissions</title>
+</head>
+
+<body>
+
+<h2>Manage group permissions</h2>
+
+<div id="tools">
+
+    <div id="new_group_button_container">
+        <form method="post" action="" class="create_group">
+            <input type="submit" class="blueButton" id="new_group_button" alt="Create new group"
+                   value="Create group" name="create-new"/>
+        </form>
+    </div>
+
+    <div id="new_group" title="Create new group">
+        <form action="" method="post">
+
+            <p>Please select one or more permissions for the group</p>
+
+            <div id="create_group_name">
+                <label for="group_name">Name</label>
+                <input type="text" id="group_name" name="group_name" size="35" placeholder="Group name" />
+            </div>
+
+            <div class="clearfxc">
+                <py:for each="permission in permissions">
+                    <div class="group_perm">
+                        <input type="checkbox" name="group_perms" value="${permission}" id="${permission}"/>
+                        <label for="${permission}">${permission}</label>
+                    </div>
+                </py:for>
+            </div>
+
+            <div id="create_button_container">
+                <input type="hidden" name="action" value="create_group" />
+                <input type="submit" class="blueButton" alt="Create"
+                       value="Create" name="create_button" id="create_button" disabled="disabled" />
+            </div>
+
+        </form>
+    </div>
+
+</div>
+
+<div class="membership_header clearfxc" py:if="membership_requests">
+    <div class="name">
+        <h4>Membership requests</h4>
+    </div>
+    <table class="membership_line">
+        <tr py:for="username in membership_requests">
+            <td class="membership_name"><span class="author">${username}</span></td>
+            <td class="membership_add">
+                <form method="post" action="" class="">
+                    <div class="buttons">
+                        <input type="hidden" name="action" value="add_member" />
+                        <input type="hidden" name="add_type" value="user" />
+                        <input type="hidden" name="member" value="${username}" />
+                        <select class="membership_group" name="group">
+                            <option py:for="group, values in perm_data.iteritems()">${group}</option>
+                        </select>
+                        <span class="primaryButton">
+                            <input type="submit" value="Add to group" name="add"/>
+                        </span>
+                    </div>
+                </form>
+            </td>
+            <td class="membership_decline">
+                <form method="post" action="" class="">
+                    <div class="buttons">
+                        <input type="hidden" name="action" value="decline_membership" />
+                        <input type="hidden" name="applicant" value="${username}" />
+                        <span class="secondaryButton">
+                            <input type="submit" value="Decline" name="decline"/>
+                        </span>
+                    </div>
+                </form>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<py:for each="group, values in perm_data.iteritems()">
+    <div class="group clearfxc">
+        <!-- group header -->
+        <div class="group_header clearfxc">
+            <div class="name">
+                <h4>${group}</h4>
+            </div>
+
+            <div class="remove">
+                <form method="post" action="">
+                    <div>
+                        <input type="hidden" name="action" value="remove_group" />
+                        <input type="hidden" name="group" value="${group}" />
+                        <input type="submit" class="remove_group" value="" />
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- group members -->
+        <div class="members">
+            <ul>
+                <li py:for="member, type in values['members']">
+                    <form method="post" action="" class="remove_member">
+                        <div class="member_icon ${type}">&nbsp;</div>
+                        <div class="member_name">
+                            <py:choose>
+                                <span py:when="type == 'user'" class="author">${member}</span>
+                                <py:otherwise>${member}</py:otherwise>
+                            </py:choose>
+                        </div>
+                        <div class="remove_member">
+                            <input type="hidden" name="action" value="remove_member" />
+                            <input type="hidden" name="type" value="${type}" />
+                            <input type="hidden" name="member" value="${member}" />
+                            <input type="hidden" name="group" value="${group}" />
+                            <input type="submit" class="remove_member" value="" />
+                        </div>
+                    </form>
+                </li>
+            </ul>
+            <!-- add new member -->
+            <form method="post" action="" class="add_member">
+                <div class="add_type_container">
+                    <select name="add_type" class="add_type">
+                        <option value="user" selected="selected">User</option>
+                        <option value="login_status">Login status</option>
+                        <option value="organization" py:if="use_organizations">Organization</option>
+                        <option value="ldap_group" py:if="use_ldap">LDAP group</option>
+                    </select>
+                </div>
+                <div class="add_type_user">
+                    <input type="text" name="member" placeholder="Add user" />
+                </div>
+                <div class="add_type_organization">
+                    <select name="organization" class="organization">
+                        <option py:for="organization in organizations" value="${organization}">${organization}</option>
+                    </select>
+                </div>
+                <div class="add_type_ldap">
+                    <input type="text" class="ldap" name="ldap_group" placeholder="Add LDAP group" />
+                </div>
+                <div class="add_type_login_status">
+                    <select name="login_status" class="login_status">
+                        <option value="anonymous">anonymous</option>
+                        <option value="authenticated">authenticated</option>
+                    </select>
+                </div>
+                <div class="buttons">
+                    <input type="hidden" name="action" value="add_member" />
+                    <input type="hidden" name="group" value="${group}" />
+                    <span class="primaryButton">
+                        <input type="submit" value="Add" name="add"/>
+                    </span>
+                </div>
+            </form>
+        </div>
+
+        <!-- group permissions -->
+        <div class="permissions">
+            <ul>
+                <py:for each="permission, implicit in values['permissions']">
+                    <py:choose>
+                    <py:when test="implicit">
+                        <li class="implicit">
+                            <div class="permission_name implicit"
+                                 title="This permission is implicitly given trough another related higher permission (eg. ADMIN, DELETE, MODIFY).">
+                                 ${permission}
+                            </div>
+                        </li>
+                    </py:when>
+                    <py:otherwise>
+                        <li>
+                            <form method="post" action="" class="remove_permission">
+                                <div class="permission_name">
+                                    ${permission}
+                                </div>
+                                <div class="remove_permission">
+                                    <input type="hidden" name="action" value="remove_permission" />
+                                    <input type="hidden" name="permission" value="${permission}" />
+                                    <input type="hidden" name="group" value="${group}" />
+                                    <input type="submit" class="remove_permission" value="" />
+                                </div>
+                            </form>
+                        </li>
+                    </py:otherwise>
+                    </py:choose>
+                </py:for>
+            </ul>
+            <a py:if="values['implicit_count']" class="all_permissions">
+                Display ${values['implicit_count']} hidden implicit permission(s)
+            </a>
+            <!-- add new permission -->
+            <form action="" method="post">
+            <div class="buttons">
+                <input type="hidden" name="group" value="${group}" />
+                <select name="permission">
+                    <option></option>
+                    <option py:for="permission in permissions" value="${permission}">${permission}</option>
+                </select>
+                <span class="primaryButton">
+                    <input type="hidden" name="action" value="add_permission" />
+                    <input type="submit" value="Add" name="add"/>
+                </span>
+            </div>
+            </form>
+        </div>
+
+    </div>
+</py:for>
+
+</body>
+</html>

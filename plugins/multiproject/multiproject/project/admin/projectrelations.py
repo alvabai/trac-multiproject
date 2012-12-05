@@ -3,7 +3,7 @@ from trac.core import Component, implements
 from trac.util.translation import _
 from trac.admin.api import IAdminPanelProvider
 
-from multiproject.common.projects import Projects
+from multiproject.common.projects import Project
 from multiproject.core.configuration import conf
 from trac.web.chrome import add_script
 
@@ -19,8 +19,7 @@ class ProjectForkingAdminPanel(Component):
     def render_admin_panel(self, req, cat, page, path_info):
         req.perm.require('TRAC_ADMIN')
 
-        projects = Projects()
-        project = projects.get_project(env_name = conf.resolveProjectName(self.env))
+        project = Project.get(self.env)
         child_projects = project.get_child_projects()
 
         data = {

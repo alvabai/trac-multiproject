@@ -1,9 +1,8 @@
-import multiproject.project.admin
-import multiproject.project.database
-import multiproject.project.ticket
-import multiproject.project.summary
-import multiproject.project.membership
-import multiproject.project.files
-import multiproject.project.hacks
-from multiproject.project import browser
+from multiproject.project.admin import *
+from multiproject.project.ticket import *
+from multiproject.project.summary import *
+from multiproject.project.membership import *
+from multiproject.project.files import *
+from multiproject.project.search import *
+from multiproject.project.browser import *
 from multiproject.project.timeline import *

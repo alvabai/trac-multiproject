@@ -29,15 +29,15 @@ from multiproject.core.configuration import conf
             <!-- ! Id will be cat_123top for top_categories, and cat_123 for all categories -->
             <py:with vars="el_id = 'cat_'+str(cat.category_id)+(is_top_category and '_top' or ''); element_style=(is_top_category and 'category_item item_top' or 'category_item');">
             <li id="${el_id}" class="${element_style}">
-                <span class="category_checkbox"><input name="${el_id}_cb" id="${el_id}_cb" type="checkbox" value="unchecked" /></span>
+                <span class="category_checkbox"><input name="${el_id}_cb" id="${el_id}_cb" type="checkbox" /></span>
                 <div class="toggle_button" py:if="cat.has_children()"> </div>
                 <label for="${el_id}_cb"><span class="list_name">${cat.name}</span></label>
+                <py:if test="cat.has_children and cat.has_children()">
+                    <ul id="children_${el_id}" class="catlist subcatlist">
+                    ${explore_projects_list_categories(sorted(cat.children, key=lambda x: x.name), is_top_category)}
+                    </ul>
+                </py:if>
             </li>
-            <py:if test="cat.has_children and cat.has_children()">
-                <ul id="children_${el_id}" class="catlist subcatlist">
-                ${explore_projects_list_categories(sorted(cat.children, key=lambda x: x.name), is_top_category)}
-                </ul>
-            </py:if>
             </py:with>
         </py:for>
     </py:def>
@@ -47,15 +47,15 @@ from multiproject.core.configuration import conf
             <!-- ! Id will be cat_context123-->
             <py:with vars="el2_id = 'catcontext_'+str(cntxt.context_id)">
             <li id="${el2_id}" class="context_item_top category_item">
-                <span class="context_checkbox"><input name="${el_id}_cb" id="${el2_id}_cb" type="checkbox" value="unchecked" disabled="disabled" /></span>
+                <span class="context_checkbox"><input name="${el_id}_cb" id="${el2_id}_cb" type="checkbox" disabled="disabled" /></span>
                 <div class="toggle_button" py:if="cntxt.has_children()"> </div>
                 <label for="${el_id}_cb"><span class="list_name">${cntxt.name}</span></label>
+                <py:if test="cntxt.has_children()">
+                    <ul id="children_${el2_id}" class="catlist subcatlist contextchild">
+                    ${explore_projects_list_categories(cntxt.children, True)}
+                    </ul>
+                </py:if>
             </li>
-            <py:if test="cntxt.has_children()">
-                <ul id="children_${el2_id}" class="catlist subcatlist contextchild">
-                ${explore_projects_list_categories(cntxt.children, True)}
-                </ul>
-            </py:if>
             </py:with>
         </py:for>
     </py:def>
@@ -175,6 +175,5 @@ from multiproject.core.configuration import conf
             </div>
 
         </div>
-    <script type="text/javascript" src="${conf.theme_htdocs_location}/js/jquery.ba-bbq.js"></script>
     </body>
 </html>

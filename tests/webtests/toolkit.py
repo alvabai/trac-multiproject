@@ -14,8 +14,7 @@ Config:
     entry in the 'general' section
 """
 from urlparse import urlparse
-from contextlib import contextmanager
-import time
+from string import Template
 import logging
 import os
 from ConfigParser import ConfigParser, NoOptionError
@@ -42,26 +41,27 @@ class Config(object):
     """
     instance = None
 
-    def __new__(cls, *arg):
+    def __new__(cls, config_path):
         if not Config.instance:
-            Config.instance = super(Config, cls).__new__(cls)
+            Config.instance = super(Config, cls).__new__(cls, config_path)
         return Config.instance
 
-    def __init__(self):
+    def __init__(self, config_path):
         """
-        Initialize test configuration. It expects to find tests.ini config file from:
-
-        1. ~/tests.ini
-        2. ./tests.ini
+        Initialize test configuration.
 
         """
         # Find and parse tests configuration
         self.parser = ConfigParser(self.defaults())
-        self.path = self.parser.read([os.path.expanduser('~/tests.ini'), 'tests.ini'])[0]
+        paths = [os.path.expanduser(config_path)]
+        paths_found = self.parser.read(paths)
+        if not paths_found:
+            raise Exception('Configuration file was not found from expected locations: %s' % paths)
+
+        self.path = paths_found[0]
         self.group = self.parser.get('general', 'setup')
 
         logging.info('Using test configuration: %s, setup: %s' % (self.path, self.group))
-        logging.info('Using page definitions: %s' % os.path.join(self.path, self.get('page_definitions')))
 
     def __getitem__(self, item):
         """
@@ -111,31 +111,70 @@ class WebBrowser(object):
   """
   instance = None
 
-  def __new__(cls, *arg):
+  def __new__(cls, config):
       if not WebBrowser.instance:
           # Read the browser driver from config: chrome (default), firefox,..
-          WebBrowser.instance = Browser(Config().get('browser', 'chrome').lower())
+          WebBrowser.instance = Browser(config.get('browser', 'chrome').lower())
+          WebBrowser.instance._config = config
       return WebBrowser.instance
 
 
-@contextmanager
-def take_screenshot(browser):
+def take_screenshot(browser, nameformat=None):
     """
-    Context funtion to take screenshot in the end of the current task.
-    Name of the file is generated based on current browser url
+    Take screenshot immediatelly from the current browser view.
 
-    >>> with take_screenshot(browser):
-    ...   browser.find_element_by_id('mylink').click()
-    >>>
+    Screenshots are created to location defined in configuration by
+    ``screenshot_dir = /tmp`` (defaults to ``/tmp``)
 
+    .. NOTE::
+
+        - If ``screenshot_dir`` is empty, taking screenshots is skipped altogher.
+        - Image format is always PNG
+
+    :param str nameformat:
+        Optional name format that can contain placeholders:
+
+        - browser: Name of the browser: chrome, firefox, ..
+        - sequence: Running sequence number 1,2,3...
+        - url: URL to the browser
+
+        Defaults to: ${browser}-${sequence}-${url}.${ext}
+
+    :return: Path to screenshot
     """
-    # Create FS compatible file name based on current browser url
-    parseresult = urlparse(browser.current_url)
+    config = browser._config
+    browser_name = config.get('browser', 'chrome')
+    screenshot_dir = config.get('screenshot_dir', '/tmp')
+
+    # If not set, skip taking screenshots
+    if not screenshot_dir:
+        return
+
+    # Using singleton class as calculator
+    browser.screenshot_counter = browser.screenshot_counter + 1 if hasattr(browser, 'screenshot_counter') else 1
+
+    parseresult = urlparse(browser.url)
     path = parseresult.path[1:] if parseresult.path.startswith('/') else parseresult.path
     urlfile = path.replace('/','_')
 
-    yield
-    time.sleep(0.5)
+    nametemplate = Template(nameformat or '${browser}-${sequence}-${url}.${ext}')
+    filename = nametemplate.substitute(browser=browser_name, sequence=browser.screenshot_counter, url=urlfile, ext='png')
+    screenshot_file = os.path.join(screenshot_dir, filename)
 
-    # TODO: Read the location from the configuration file
-    browser.get_screenshot_as_file('/tmp/selenium_sc-%s.png' % urlfile)
+    try:
+        # Create screenshot dir if not existing yet
+        if not os.path.exists(screenshot_dir):
+            os.makedirs(screenshot_dir)
+
+        # Try taking the screenshot (may fail with some drivers)
+        browser.driver.save_screenshot(screenshot_file)
+        logging.info('Captured screenshot to: %s' % screenshot_file)
+
+    except Exception:
+        logging.warning('Failed to take screenshot')
+
+    return screenshot_file
+
+
+
+

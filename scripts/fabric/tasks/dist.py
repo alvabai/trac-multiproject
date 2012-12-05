@@ -248,7 +248,7 @@ def buildext(patch='true'):
 
     """
     ext_resources = [
-        TarResource('trac', 'http://ftp.edgewall.com/pub/trac/Trac-0.12.3.tar.gz'),
+        TarResource('trac', 'http://ftp.edgewall.com/pub/trac/Trac-0.12.4.tar.gz'),
         TarResource('trac-mastertickets', 'https://github.com/coderanger/trac-mastertickets/tarball/master'),
         TarResource('gitosis', 'https://github.com/tv42/gitosis/tarball/dedb3dc63f413ed6eeba8082b7e93ad136b16d0d'),
         TarResource('trac-git', 'https://github.com/hvr/trac-git-plugin/tarball/master'),
@@ -576,24 +576,61 @@ def autobuild(taskname='builddoc', watchdir='docs', taskopts=''):
     logger.info('Listening %s for %s events and running task: %s' % (watchdir, event, taskname))
     notifier.loop()
 
+@task
+def trac_admin(env, cmd, sudoer=None):
+    """
+    Runs trac-admin command on specified environment with permiss
+    :param env: Name or path to the environment
+    :param cmd: Command to pass to trac-admin
+    :param sudoer: Optional sudo user, defaults to Apache user
+
+    Examples::
+
+        fab dist.trac_admin:home,help
+        fab dist.trac_admin:"home","mp deploy"
+        fab dist.trac_admin:env="home",cmd="mp deploy",sudoer="root"
+        fab dist.trac_admin:"/var/www/trac/projects/projectx","upgrade"
+        fab dist.trac_admin:"/var/www/trac/projects/projectx","upgrade","www-data"
+
+    """
+    trac_root_dir = config['trac_root']
+    sudoer = sudoer or config['webserver_user']
+    if sudoer == 'root':
+        sudoer = None
+
+    # Check if path is given, otherwise consider it project name
+    if not exists(env):
+        env = os.path.join(trac_root_dir, 'projects', env)
+        if not exists(env):
+            return abort('Given environment "%s" cannot be found on server' % env)
+
+    with cd(env):
+        tracadmin_cmd = 'trac-admin %s %s' % (env, cmd)
+        sudo(tracadmin_cmd, user=sudoer)
+
 
 @task
-def test(case=''):
+def test(case='', config='tests.ini'):
     """
     Runs the functional tests against the setup specified in configuration
 
     :param str case: Name or path to case file
+    :param str config: Path to config file, relative to current directory
 
     Examples::
 
         fab dist.test:smoke
         fab dist.test:path/to/case.py
+        fab dist.test:smoke,~/firefox.ini
+        fab dist.test:smoke,config=path/to/config.ini
 
     """
     try:
         from nose.core import TestProgram
+        from nose.plugins import Plugin
     except ImportError:
         TestProgram = None
+        Plugin = object
         return abort('For running tests, Nose testing framework is required. Please install it first: "pip install nose"')
 
     if not case:
@@ -602,9 +639,35 @@ def test(case=''):
     # Determine the case file: name or path accepted
     webtests_dir = rel_join('tests/webtests')
     casepath = os.path.abspath(case) if case.endswith('.py') else join(webtests_dir, 'cases/%s.py' % case)
+    configpath = os.path.join(os.curdir, os.path.expanduser(config))
 
     logger.info('Running functional tests from: %s' % casepath)
-    TestProgram(argv=['fab', casepath])
+    logger.info('Reading tests configuration from: %s' % configpath)
+
+    class TestConfigPlugin(Plugin):
+        """
+        Simple Nose plugin to set test configuration path to testcase::
+
+            class MyTestcase(unittest.TestCase)
+                def setUp(self):
+                    self.config_path
+
+        """
+        name = 'testconfig'
+        can_configure = True
+        enabled = True
+
+        def options(self, parser, env):
+            pass
+
+        def configure(self, options, conf):
+            pass
+
+        def startTest(self, test):
+            test_case = test.test.__class__
+            test_case.config_path = configpath
+
+    TestProgram(argv=['fab', casepath], addplugins=[TestConfigPlugin()])
 
 
 @task

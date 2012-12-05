@@ -1,16 +1,11 @@
 import unittest
-from unit import permissions_test, permission_cache_test, user_cache_test, project_cache_test,\
+from unit import permission_cache_test, user_cache_test, project_cache_test,\
     users_test, cqdecategorystore_test, cqdewatchliststore_test, ssh_keys_test, auth
 
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(permission_cache_test.PermissionCacheTestCase))
     suite.addTest(unittest.makeSuite(permission_cache_test.AuthenticationCacheTestCase))
-    suite.addTest(unittest.makeSuite(permissions_test.CQDEPermissionStoreTestCase))
-    suite.addTest(unittest.makeSuite(permissions_test.CQDEUserGroupStoreTestCase))
-    suite.addTest(unittest.makeSuite(permissions_test.CQDEOrganizationStoreTestCase))
-    suite.addTest(unittest.makeSuite(permissions_test.CQDEAuthenticationStoreTestCase))
-    suite.addTest(unittest.makeSuite(permissions_test.CQDEPermissionPolicyTestCase))
     suite.addTest(unittest.makeSuite(user_cache_test.UserCacheTestCase))
     suite.addTest(unittest.makeSuite(project_cache_test.ProjectCacheTestCase))
     suite.addTest(auth.suite())

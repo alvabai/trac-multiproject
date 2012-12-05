@@ -1,73 +1,54 @@
-diff -uNr gitosis/access.py gitosis/access.py
 --- gitosis/access.py	2009-09-17 08:32:59.000000000 +0300
-+++ gitosis/access.py	2012-05-23 16:49:05.141290001 +0300
-@@ -1,8 +1,18 @@
--import os, logging
-+import os, logging, re
++++ gitosis/access.py	2012-11-16 15:29:42.912873631 +0200
+@@ -1,6 +1,13 @@
+ import os, logging
  from ConfigParser import NoSectionError, NoOptionError
 
++from trac.env import open_environment
++from trac.perm import PermissionCache
++
++from multiproject.core.configuration import conf
++from multiproject.core.proto import ProtocolManager
++from multiproject.common.projects import Project
++
  from gitosis import group
 
-+def isCqdeGitProject(project_name, conf):
-+    log = logging.getLogger('gitosis.access.isCqdeGitProject')
-+    project_config = conf.getEnvironmentConfigPath(project_name)
-+    with open(project_config, 'r') as f:
-+        for line in f:
-+            if re.match(r"^\s*repository_type\s*=\s*git\s*$", line):
-+                return True
-+    log.debug('Version control type of CQDE project %s is not git.' % project_name)
-+    return False
-+
  def haveAccess(config, user, mode, path):
-     """
-     Map request for write access to allowed path.
-@@ -86,3 +96,57 @@
+@@ -86,3 +93,45 @@
                  path=mapping,
                  ))
              return (prefix, mapping)
 +
-+    # If the access was not granted by the gitosis.conf settings,
-+    # we will get to this point.
-+    # Check for the authentication from CQDE system.
-+    from multiproject.core.util import env_id, resolve_project_id
-+    from multiproject.core.permissions import CQDEPermissionPolicy
-+    from multiproject.core.configuration import conf
-+    from multiproject.core.proto import ProtocolManager
++    # PATCH: Authenticate against MultiProject backend(s)
 +
 +    if path.startswith('git/'):
 +        path = path[4:]
-+
 +    project_name = path
-+    log.debug('CQDE access check for %(user)r path %(path)r' %
-+              dict(user=user, path=project_name,))
 +
-+    # First check if the project is a CQDE Git project.
-+    if not isCqdeGitProject(project_name, conf):
++    env = open_environment(conf.getEnvironmentSysPath(project_name), use_cache=True)
++
++    # Ensure project is using git repo
++    if env.config.get('trac', 'repository_type', default='') != 'git':
 +        return None
 +
 +    # Map the mode to the action.
 +    action = None
 +    if mode == 'readonly':
 +        action = 'VERSION_CONTROL_VIEW'
-+    elif mode == 'writable' or mode == 'writeable':
++    elif mode in ('writable', 'writeable'):
 +        action = 'VERSION_CONTROL'
 +    else:
 +        return None
 +
-+    # Get the id of the project and check if the user has permissions
-+    # for the action on the project.
-+    env_id = env_id(project_name)
-+    project_id = resolve_project_id(project_name)
-+    policy = CQDEPermissionPolicy()
-+    has_permission = policy.check_permission(env_id, action, user)
-+
-+    protocols = ProtocolManager(project_id)
++    # Check if protocol is allowed or not
++    project = Project.get(env)
++    protocols = ProtocolManager(project.id)
 +    if not protocols.is_protocol_allowed('ssh', 'git'):
 +        return None
 +
-+    if has_permission:
-+        log.debug('CQDE Access ok for %(user)r as %(mode)r on %(path)r' %
-+                  dict(user=user, mode=mode, path=path,))
++    # Check permissions
++    if action in PermissionCache(env, username=user):
++        env.log.info('Granted Gitosis access for %s as %s on %s' % (user, mode, path))
 +
 +        # Get the prefix and mapping
 +        vcs_path = conf.getEnvironmentVcsPath(project_name)
@@ -76,12 +57,12 @@ diff -uNr gitosis/access.py gitosis/access.py
 +            prefix = os.path.dirname(vcs_path)
 +            log.debug('Using prefix %(prefix)r for %(path)r' %
 +                      dict(prefix=prefix, path=mapping,))
-+            return (prefix, mapping)
++            return prefix, mapping
 +    else:
-+        log.info('No CQDE access (%s - %s - %s)' % (user, mode, path))
-diff -uNr gitosis/init.py gitosis/init.py
++        env.log.warning('Unauthorized access for %s as %s on %s' % (user, mode, path))
+
 --- gitosis/init.py	2009-09-17 08:32:59.000000000 +0300
-+++ gitosis/init.py	2011-02-25 14:41:03.943075000 +0200
++++ gitosis/init.py	2012-11-16 15:01:30.000000000 +0200
 @@ -129,7 +129,7 @@
          log.info('Creating repository structure...')
          repositories = util.getRepositoryDir(cfg)
@@ -91,9 +72,9 @@ diff -uNr gitosis/init.py gitosis/init.py
          init_admin_repository(
              git_dir=admin_repository,
              pubkey=pubkey,
-diff -uNr gitosis/run_hook.py gitosis/run_hook.py
+
 --- gitosis/run_hook.py	2009-09-17 08:32:59.000000000 +0300
-+++ gitosis/run_hook.py	2012-05-23 17:06:32.414827211 +0300
++++ gitosis/run_hook.py	2012-11-16 15:01:30.000000000 +0200
 @@ -34,14 +34,17 @@
      gitweb.set_descriptions(
          config=cfg,
@@ -120,9 +101,9 @@ diff -uNr gitosis/run_hook.py gitosis/run_hook.py
      authorized_keys = util.getSSHAuthorizedKeysPath(config=cfg)
      ssh.writeAuthorizedKeys(
          path=authorized_keys,
-diff -uNr gitosis-orig/gitosis/serve.py gitosis-changed/gitosis/serve.py
+
 --- gitosis/serve.py	2009-09-17 08:32:59.000000000 +0300
-+++ gitosis/serve.py	2011-02-25 14:41:03.943075000 +0200
++++ gitosis/serve.py	2012-11-16 15:01:30.000000000 +0200
 @@ -128,7 +128,9 @@
      (topdir, relpath) = newpath
      assert not relpath.endswith('.git'), \
@@ -134,9 +115,9 @@ diff -uNr gitosis-orig/gitosis/serve.py gitosis-changed/gitosis/serve.py
      fullpath = os.path.join(topdir, repopath)
      if not os.path.exists(fullpath):
          # it doesn't exist on the filesystem, but the configuration
-diff -uNr gitosis/ssh.py gitosis/ssh.py
+
 --- gitosis/ssh.py	2009-09-17 08:32:59.000000000 +0300
-+++ gitosis/ssh.py	2011-02-25 14:41:03.943075000 +0200
++++ gitosis/ssh.py	2012-11-16 15:01:30.000000000 +0200
 @@ -34,14 +34,14 @@
  COMMENT = '### autogenerated by gitosis, DO NOT EDIT'
 

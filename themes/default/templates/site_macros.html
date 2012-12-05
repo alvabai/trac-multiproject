@@ -14,6 +14,10 @@ In addition, the file is also dependant to CQDE api because of the configuration
 <?python
 from genshi.core import escape
 from multiproject.core.configuration import conf
+from multiproject.core.users import get_userstore
+
+if 'setup_late_scripts_and_stylesheets' in chrome:
+    chrome['setup_late_scripts_and_stylesheets'](chrome)
 ?>
 
 <!--! Encode possible HTML characters from the text object -->
@@ -40,7 +44,7 @@ from multiproject.core.configuration import conf
 
 <!--! Format user as a link to profile or as a displayname -->
 <py:def function="format_username(user)">
-    <py:with vars="userObj = conf.getUserStore().getUser(user)">
+    <py:with vars="userObj = get_userstore().getUser(user)">
     ${userObj and format_user(userObj) or user}
     </py:with>
 </py:def>

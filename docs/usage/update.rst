@@ -4,7 +4,7 @@
 ========
 Updating
 ========
-This chapter describes how to update existing Multiproject setup.
+This chapter describes how to update existing MultiProject setup.
 
 .. contents::
    :local:
@@ -28,6 +28,8 @@ Multiproject comes with simple deploy script, located in package: `scripts/deplo
     .. note::
 
         The ``-t`` option installs also the default theme for multiproject.
+        The ``-g`` option updates the htdocs from globally installed plugins, which must be used,
+        if the static files of the global plugins are used by Apache.
         See ``deploy.sh -h``  for all options.
 
 #.  Restart Apache and Memcache servers
@@ -81,9 +83,17 @@ Example output (one new migration available)::
     To install migrations
         python update.py --update=[target_migration_name]
 
+    Other options are:
+        --update-to=MIGRATION, -t=MIGRATION
+            - Runs all migrations up or down to the given name
+        --cherry-pick-update=MIGRATION, -p=MIGRATION
+            - Tries to update one, single migration. Dangerous!
+        --cherry-pick-downgrade=MIGRATION, -d=MIGRATION
+            - Tries to downgrade one, single migration. Dangerous!
+
 To run migration step::
 
-    python update.py --update=20120210150000_project_events
+    python update.py --update-new
 
 
 .. _usage-backup-db:
@@ -99,3 +109,87 @@ To restore the database dump, run::
 
     mysql -u root < multiproject-20120405.mysql.sql
 
+
+.. _usage-org-update:
+
+Update organization info
+========================
+MultiProject allows to put users into organizations based on authentication backend and/or
+email domain.
+
+#.  Update configuration
+
+    Set ``use_organizations = true`` and set organizations rules in configuration::
+
+        [multiproject-users]
+        use_organizations = true
+        # org.<auth|email>.<position> = <backend|@domain>,<orgname>
+        org.auth.1 = LDAP,LDAP users
+        org.auth.2 = LocalDB,Local users
+        org.email.3 = @gmail.com,Gmail
+
+    With with example configuration, permissions can be defined for:
+
+    - All LDAP users
+    - All local users
+    - All Gmail users
+
+#.  Update organization info into database using ``trac-admin`` command::
+
+        trac-admin /var/www/trac/projects/home mp user update org
+
+.. _import_old_files:
+
+Migrating to Files Downloads
+============================
+
+If the existing instance of MultiProject would not have Files Downloads, there are some extra
+tasks needed to be done.
+
+#.  Update the Apache configuration for the webdav by adding the PythonCleanupHandler
+    directive::
+
+        <LocationMatch "^/dav/.+">
+            PythonHeaderParserHandler multiproject.core.auth.mod_python_access.webdav
+            PythonCleanupHandler multiproject.core.auth.mod_python_access.webdav
+            PythonOption realm "MultiProject webdav"
+            Allow from all
+        </LocationMatch>
+
+#.  Disable the DownloadsGlue components by default. Disable FilesWebAdmin in case you don't
+    want users to be able to change the downloads dir::
+
+        [components]
+        multiproject.project.files.downloadsglue.downloadsglue = disabled
+        multiproject.project.files.admin.fileswebadmin = disabled
+
+#.  Move [multiproject] sys_dav_root and url_dav_path keys into [multiproject-files],
+    and remove leading slash from url_dav_path, if they are set in project.ini.
+    Also, you might want to update the configurations for [multiproject] public_auth_group,
+    public_auth_group, anon_forbidden_actions, and default_groups so that the
+    WEBDAV_* and DOWNLOADS_* permissions are renamed to FILES_* and FILES_DOWNLOADS_*
+    permissions and the proper permissions are given by default and revoked from
+    anonymous user.
+
+#.  Upgrade all existing project environments with MultiProject global upgrade::
+
+        trac-admin /var/www/trac/projects/home mp upgrade do
+
+#.  Finally, If an existing instance of MultiProject was with TracDownloads (see
+    :ref:`install-plugin-downloads`) enabled, you need to run the following
+    trac-admin commands as a web server user::
+
+        # To create default downloads folder for all projects (except "home")
+        trac-admin /var/www/trac/projects/home mp run files download create
+        # To import existing downloads files from TracAdmin
+        # and to enable DownloadsGlue component
+        trac-admin /var/www/trac/projects/home mp run files import
+
+#.  The TracDownloads is currently not compatible with Files Downloads feature, since
+    :class:`multiproject.project.files.wiki.ProjectDownloadsWiki` component overrides
+    the TracDownloads links and
+    :class:`multiproject.project.files.downloadsglue.DownloadsGlue`
+    overrides the TracDownloads macros. Thus, it should be disabled::
+
+        [components]
+        tracdownloads.* = disabled

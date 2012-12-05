@@ -2,49 +2,69 @@
 """
 Contents of this module
 """
+import time
 from ConfigParser import ConfigParser
+import logging
 import os
 import urllib
 
-from webtests.toolkit import WebBrowser, Config
+from webtests.toolkit import WebBrowser, take_screenshot
+
+initialized = False
 
 
 class PageObject(object):
     """
     Model for the page
     """
-    _config = None
+    _browser = None
+    _page_config = None
 
     def __init__(self, section=None):
         """
         :param section: Explicitly give out section name to be used for getting selector.
         Otherwise class name is used.
         """
+        global initialized
+
         self.required_texts = []
         self.forbidden_texts = []
         self.section = section or self.__class__.__name__
-        if PageObject._config is None:
-            tests_config = Config()
+
+        if not self._browser or not self._browser._config:
+            raise Exception('Attribute _browser needs to be set first')
+
+        config = self._browser._config
+
+        # NOTE: Wait a little before loading the page browser can find elements
+        time.sleep(float(config.get('request_sleep', '0.5')))
+
+        # If already loaded, return right away
+        if self._page_config is not None:
+            return
+
+        # Read page_definition location, relative to config file itself
+        # (or if environment variables or home dir is used in path, the directly from those)
+        page_config_path = os.path.join(
+            os.path.dirname(config.path),
+            os.path.expandvars(os.path.expanduser(config['page_definitions']))
+        )
+
+        # If still not found, give up
+        if not os.path.exists(page_config_path):
+            raise ValueError('configuration file %s not found' % page_config_path)
+        elif not initialized:
+            logging.info('Using page definitions: %s' % page_config_path)
+
+        with open(page_config_path) as conffd:
             # Load default configuration
-            PageObject._config = ConfigParser()
-            # Read page_definition location, relative to config file itself
-            pages_config = os.path.join(
-                os.path.dirname(tests_config.path),
-                tests_config['page_definitions']
-            )
+            page_config = ConfigParser()
+            page_config.readfp(conffd)
+            page_config.read(page_config_path)
 
-            if not os.path.exists(pages_config):
-                raise ValueError('configuration file %s not found' % pages_config)
+            self._page_config = page_config
 
-            with open(pages_config) as conffd:
-                PageObject._config.readfp(conffd)
-
-            # Override if style / different layout is specified in test.ini
-            if tests_config.get('style'):
-                style_config = os.path.join('pages', 'definitions', tests_config['style'])
-                if not os.path.exists(style_config):
-                    raise ValueError('Configuration file %s not found' % style_config)
-                PageObject._config.read(style_config)
+        initialized = True
 
     def selector(self, key):
         """
@@ -69,7 +89,10 @@ class PageObject(object):
         {'partial_text':'value'}
 
         """
-        value = PageObject._config.get(self.section, key)
+        if not self._page_config:
+            raise Exception('Page config missing: %s is incorrectly initialized' % self.__class__)
+
+        value = self._page_config.get(self.section, key)
 
         # If colon exists, consider first part to be a selector type
         if ':' in value:
@@ -77,7 +100,7 @@ class PageObject(object):
             return dict(str(parts[0]).strip(), str(parts[1]).strip())
 
         # Default to css selector
-        return {'css':value}
+        return {'css': value}
 
 
     def verify_texts(self):
@@ -86,7 +109,7 @@ class PageObject(object):
         and none of ``self.forbidden_texts`` are.
         :raises: Exception if there is issue with texts present.
         """
-        browser = WebBrowser()
+        browser = self._browser
         for text in self.forbidden_texts:
             if browser.is_text_present(text):
                 raise Exception('Forbidden text `%s` is present on the page.' % text)
@@ -94,13 +117,16 @@ class PageObject(object):
             if not browser.is_text_present(text):
                 raise Exception('Required text `%s` is not present on the page.' % text)
 
+    def take_screenshot(self, nameformat=None):
+        return take_screenshot(self._browser, nameformat)
+
 
 class PageElement(object):
     """
     Base object for page elements. Works a bit like factory method, returns different instance
     based on circumstances.
     """
-    def __new__(cls, css=None, **kwargs):
+    def __new__(cls, browser, css=None, **kwargs):
         """
         Example with css_selector:
         >>> elem = PageElement('h1#role') # css-like selector
@@ -113,9 +139,10 @@ class PageElement(object):
         :returns: Instance of splinter ElementApi (?) if css_selector matches element on the page,
         otherwise instance of ElementNotFound is returned.
         """
-        browser = WebBrowser()
-        matches = None
+        if isinstance(browser, WebBrowser):
+            browser = browser.instance
 
+        matches = None
         matchers = {
             'css': 'find_by_css',
             'xpath': 'find_by_xpath',
@@ -140,7 +167,7 @@ class PageElement(object):
             element.browser = browser
             return element
 
-        raise ElementNotFoundError(kwargs)
+        raise ElementNotFoundError(browser, kwargs)
 
 
 class TextInput(PageElement):
@@ -168,9 +195,13 @@ class ElementNotFoundError(Exception):
     Custom error that is thrown when element matcher did
     not found the specified element.
     """
-    def __init__(self, selectors, *args, **kwargs):
-        self.selectors_msg = '''Selectors: %s didn't match any elements on the page and
-        'therefore the attempt to call method on it failed.''' % (selectors)
+    def __init__(self, browser, selectors, *args, **kwargs):
+        self.selectors_msg = '''Selectors %s didn't match any elements on the page (%s) and
+        'therefore the attempt to call method on it failed.''' % (selectors, browser.url)
+
+        # Try taking screenshot from issue
+        take_screenshot(browser, nameformat='${browser}-error.${ext}')
+
         super(ElementNotFoundError, self).__init__(self.selectors_msg, *args, **kwargs)
 
     def __str__(self):

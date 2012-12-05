@@ -1,0 +1,277 @@
+/* resize spinner a bit */
+
+div.remove_permission input.loading {
+    background-size: 30% !important;
+    background-position: right 20%;
+}
+
+/* groups */
+
+.clearfxc {
+    overflow: hidden;
+    width: 100%;
+}
+
+div.group {
+    margin-bottom: 1em;
+}
+
+div.group_header {
+    background: #ededed;
+    margin-bottom: 1em;
+}
+
+div.group_header div.name {
+    float: left;
+    margin-left: 0.5em;
+}
+
+div.group_header div.remove {
+    float: right;
+    line-height: 2.5em;
+    margin-right: 0.5em;
+}
+
+/* group members */
+
+div.members {
+    float: left;
+    width: 48%;
+}
+
+div.members ul {
+    margin: 0 0 1em;
+    list-style: none none;
+}
+
+div.members ul li {
+    height: 40px;
+}
+
+div.members ul li:hover {
+    background: #f0f0f0;
+}
+
+div.member_icon {
+    float: left;
+}
+
+div.member_name {
+    float: left;
+    line-height: 40px;
+    margin-left: 1em;
+}
+
+/* member icons */
+
+div.member_icon {
+    width: 40px;
+    height: 40px;
+}
+
+div.login_status {
+    background-image: url('../images/login_status.png');
+}
+
+div.user {
+    background-image: url('../images/user.png');
+}
+
+div.organization {
+    background-image: url('../images/organization.png');
+}
+
+div.ldap {
+    background-image: url('../images/ldap.png');
+}
+
+/* member delete button */
+
+div.remove_member {
+    float: right;
+    line-height: 40px;
+    padding-right: 0.5em;
+}
+
+/* group organizations */
+
+div.organization_icon {
+    float: left;
+}
+
+div.remove_organization {
+    float: right;
+    line-height: 40px;
+    padding-right: 0.5em;
+}
+
+
+/* group permissions */
+
+div.permissions {
+    float: right;
+    width: 48%;
+}
+
+div.permissions ul {
+    margin: 0 0 1em;
+    list-style: none none;
+}
+
+div.permissions ul li {
+    height: 18px;
+    margin: 0;
+}
+
+div.permissions ul li:hover {
+    background: #f0f0f0;
+}
+
+div.permission_name {
+    float: left;
+}
+
+div.implicit {
+    color: #aaaaaa;
+}
+
+li.implicit {
+    display: none;
+}
+
+div.remove_permission {
+    float: right;
+    margin-right: 0.5em;
+}
+
+a.all_permissions {
+    margin-bottom: 0.4em;
+    display: block;
+}
+
+/* add related styles */
+
+select[name="permission"] {
+    width: 23em;
+    float: left;
+}
+
+div.add_type_container {
+    float: left;
+}
+
+.add_type {
+    margin-right: 1em !important;
+}
+
+.add_member input[type="text"] {
+    width: 13em;
+}
+
+div.add_type_user {
+    float: left;
+}
+
+div.add_type_organization {
+    display: none;
+    float: left;
+}
+
+div.add_type_ldap {
+    display: none;
+    float: left;
+}
+
+div.add_type_login_status {
+    display: none;
+    float: left;
+}
+
+/* remove buttons */
+
+input.remove_member:hover,
+input.remove_permission:hover
+{
+    opacity: 1;
+    filter: alpha(opacity=100); /* For IE8 and earlier */
+}
+
+input.remove_group,
+input.remove_member,
+input.remove_permission
+{
+    background: url("/htdocs/theme/images/delete_x.png") no-repeat scroll 0 3px transparent;
+    width: 10px;
+    height: 14px;
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+
+    opacity: 0.6;
+    filter: alpha(opacity=60); /* For IE8 and earlier */
+}
+
+/* new group */
+
+#new_group_button_container {
+    float: right;
+    margin-top: -2.7em;
+}
+
+#new_group {
+    display: none;
+}
+
+#create_group_name {
+    margin-bottom: 1em;
+}
+
+#create_group_name label {
+    display: none;
+}
+
+.group_perm {
+    width: 19em;
+    float: left;
+}
+
+#create_button_container {
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+    float: right;
+}
+
+/* membership request */
+
+div.membership_header {
+    background: #d1d1d1;
+    margin-bottom: 1em;
+}
+
+div.membership_header div.name {
+    margin-left: 0.5em;
+}
+
+table.membership_line td {
+    vertical-align: middle;
+}
+
+td.membership_name {
+    padding: 2px 6px 6px 0px;
+}
+
+td.membership_name span {
+    margin-left: 20px;
+}
+
+select.membership_group {
+    margin-right: 3px !important;
+}
+
+td.membership_decline {
+    width: 60px;
+}
+
+td.membership_add {
+    width: 300px;
+}

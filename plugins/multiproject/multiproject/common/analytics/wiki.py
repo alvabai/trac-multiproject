@@ -12,7 +12,7 @@ class WikiAnalytics(Component):
     implements(IWikiChangeListener)
 
     def __init__(self):
-        self.env_name = self.env.path.split('/')[-1]
+        self.env_name = self.env.project_identifier
 
     def wiki_page_added(self, page):
         log = EventLogIO()

@@ -372,8 +372,12 @@ form#query #folding input#updatebutton {
 
 /* Styles in ticket block for actions (work flow support) */
 fieldset#action div.round_grey_input {
-    width: 160px;
+    width: 200px;
     display: inline-block;
+}
+
+fieldset#action div.round_grey_input input {
+    width: 200px;
 }
 
 fieldset#action > div {

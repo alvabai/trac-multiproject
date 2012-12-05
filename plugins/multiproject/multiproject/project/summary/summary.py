@@ -2,17 +2,19 @@
 from pkg_resources import resource_filename
 
 from trac.wiki.model import WikiPage
+from trac.wiki import IWikiMacroProvider
 from trac.mimeview.api import Context, WikiTextRenderer
 from trac.core import Component, implements
 from trac.perm import IPermissionRequestor
 from trac.web import IRequestHandler
-from trac.web.chrome import ITemplateProvider, INavigationContributor, tag, Markup
+from trac.web.chrome import ITemplateProvider, INavigationContributor, tag, Chrome
 from trac.util.datefmt import LocalTimezone, utc
 from trac.util.translation import _
 
-from multiproject.common.projects import Projects
+from multiproject.core.util import to_web_time
 from multiproject.core.categories import CQDECategoryStore
 from multiproject.core.permissions import CQDEUserGroupStore
+from multiproject.common.projects import Project
 from multiproject.project.timeline import ProjectTimelineEvents
 
 
@@ -23,15 +25,25 @@ def local_to_utc(dt):
         aware = local_tz.localize(dt)
     return aware.astimezone(utc)
 
-def format_dt(dt):
-    utc_dt = local_to_utc(dt)
-    return utc_dt.isoformat().split('+')[0].split('.')[0]
-
 
 class SummaryModule(Component):
     """ Trac component for showing project summary
     """
-    implements(ITemplateProvider, IRequestHandler, IPermissionRequestor, INavigationContributor)
+    implements(ITemplateProvider, IRequestHandler, IPermissionRequestor, INavigationContributor, IWikiMacroProvider)
+
+    # Macros
+    macros = {
+        'ProjectSummary': '''
+Provides a block for project summary.
+
+Example usage:
+{{{
+[[ProjectSummary]]
+}}}
+''',
+    }
+
+    # IRequestHandler methods
 
     def match_request(self, req):
         """ Path used for showing this page
@@ -44,43 +56,20 @@ class SummaryModule(Component):
         data = {}
 
         if req.authname == 'anonymous':
-            req.perm.require('SUMMARY_VIEW')
+            req.perm.require('PROJECT_VIEW')
 
-        if not ('SUMMARY_VIEW' in req.perm or 'PRIVATE_SUMMARY_VIEW' in req.perm):
+        if not ('PROJECT_VIEW' in req.perm or 'PROJECT_PRIVATE_VIEW' in req.perm):
             return 'no_access.html', data, None
 
-        data = self._init_data_for_summary(req)
+        # Load project from db
+        project = Project.get(self.env)
 
-        return 'summary.html', data, None
-
-    def get_active_navigation_item(self, req):
-        return 'summary'
-
-    def get_navigation_items(self, req):
-        if 'SUMMARY_VIEW' in req.perm:
-            yield ('mainnav', 'summary',
-                   tag.a('Summary', href = req.href()))
-
-    def _init_data_for_summary(self, req):
-        """
-        Reads all necessary data to display the summary page. Uses
-        downloads plugin, gets metadata, team and timeline...
-
-        :returns: A massive dict containing all data needed on the summary page
-        """
-        data = {}
-
-        env_name = self.env.path.split('/')[-1]
-        project = Projects().get_project(env_name=env_name)
-
-        # Get project metadata (categories)
-        (combined_categories, separated_categories_per_context, context_by_id,
-         context_order, languages) = self._metadata(project)
-
+        # TODO: Move project timeline implementation into macro
         # Get recent timeline events
         timeline = ProjectTimelineEvents(self.env)
         events = timeline.get_latest_timeline_events(req, 5)
 
+        # TODO: Move project downloads implementation into macro
         # Get list of featured downloads
         downloads = []
         if self.env.is_component_enabled('tracdownloads.api.DownloadsApi'):
@@ -96,10 +85,7 @@ class SummaryModule(Component):
             if api:
                 downloads = api.get_summary_items()
 
-        # Get project visibility, Public or Private
-        ug = CQDEUserGroupStore(project.trac_environment_key)
-        visibility = _('Public') if ug.is_public_project() else _('Private')
-
+        # Load wiki:SummaryPage and show it as a main page
         summary_content = None
         summary_wiki = WikiPage(self.env, 'SummaryPage')
         if summary_wiki:
@@ -111,21 +97,88 @@ class SummaryModule(Component):
             '_project_': project, # project object of a project we are in
             'activities': events, # list of latest activities
             'downloads': downloads, # list of featured downloads
+            'wiki_summary': summary_content, # Rendered content of the SummaryPage
+            'is_summary': True,
+            'env': self.env,
+        }
+
+        return 'summary.html', data, None
+
+    # INavigationContributor methods
+
+    def get_active_navigation_item(self, req):
+        return 'summary'
+
+    def get_navigation_items(self, req):
+        if 'PROJECT_VIEW' in req.perm:
+            yield ('mainnav', 'summary',
+                   tag.a('Summary', href = req.href()))
+
+    # IPermissionRequestor methods
+
+    def get_permission_actions(self):
+        return ['PROJECT_VIEW', 'PROJECT_PRIVATE_VIEW',
+                'MEMBERSHIP_REQUEST_CREATE', 'TEAM_VIEW']
+
+    # ITemplateProvider methods
+
+    def get_templates_dirs(self):
+        return [resource_filename('multiproject.project.summary', 'templates')]
+
+    def get_htdocs_dirs(self):
+        return []
+
+    # IWikiMacroProvider methods
+
+    def get_macros(self):
+        for macro in self.macros:
+            yield macro
+
+    def get_macro_description(self, name):
+        return self.macros.get(name)
+
+    def expand_macro(self, formatter, name, content, args=None):
+        """
+        Returns the outcome from macro.
+        Supported arguments:
+
+        - project: Name of the project to show status / provide follow buttons. Defaults to current project
+
+        """
+        req = formatter.req
+
+        # Load project from db
+        project = Project.get(self.env)
+
+        # Get project metadata (categories)
+        (combined_categories, separated_categories_per_context, context_by_id,
+         context_order, languages) = self._get_project_categories(project)
+
+        # Get project visibility: public or private
+        ug = CQDEUserGroupStore(project.trac_environment_key)
+        visibility = _('Public') if ug.is_public_project() else _('Private')
+
+        # Return rendered HTML with JS attached to it
+        data = {
+            '_project_': project,
             'combined_categories': combined_categories,
             'separated_categories_per_context': separated_categories_per_context,
             'context_order': context_order,
             'languages': languages,
             'context_by_id': context_by_id,
             'visibility_label': visibility, # Private / Public
-            'wiki_summary': summary_content, # Rendered content of the SummaryPage
-            'is_summary': True,
-            'env': self.env,
-            'fmt_date': format_dt,
+            'to_web_time': to_web_time # TODO: Is this really required?
         }
 
-        return data
+        chrome = Chrome(self.env)
+        stream = chrome.render_template(req, 'multiproject_summary.html', data, fragment=True)
+        if req.form_token:
+            stream |= chrome._add_form_token(req.form_token)
+        return stream
 
-    def _metadata(self, project):
+    # Internal methods
+
+    def _get_project_categories(self, project):
         """
         Create list of categories. License, Language and Development status are shown separately
         and are therefore taken out from the category listing.
@@ -182,14 +235,3 @@ class SummaryModule(Component):
 
         return (combined_categories, separated_categories_per_context, context_by_id,
                context_order, languages)
-
-    def get_permission_actions(self):
-        return ['SUMMARY_VIEW', 'PRIVATE_SUMMARY_VIEW',
-                'ALLOW_REQUEST_MEMBERSHIP', 'TEAM_VIEW']
-
-    def get_templates_dirs(self):
-        return [resource_filename('multiproject.project.summary', 'templates')]
-
-    def get_htdocs_dirs(self):
-        return []
-

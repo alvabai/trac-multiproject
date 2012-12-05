@@ -2,28 +2,26 @@
 """
 Contents of this module
 """
-import csv
 import math
-import time
 
 from trac.util.translation import _
 from trac.core import TracError
 
-from multiproject.common.projects.commands import Commander, CreateTracDatabase, CloneVersionControl, CreateTracVersionControl, \
-    InitCommitHooks, CreateTracEnvironment, ConfigureTrac, ListUpProject, SetPermissions, MakeProjectPublic, CreateDav, \
-    CreateDownloads, InitTracWiki, TruncateDefaultInformation, RefreshStatistics, ConfigureFilesystemPermissions, ProjectsInfo
-from multiproject.common.projects.project import Project, ProjectSizeTemplate, ProjectNotifications
+from multiproject.common.projects import commands
+from multiproject.common.projects.project import Project
+from multiproject.core.authentication import CQDEAuthenticationStore
 from multiproject.core.cache import ProjectCache
 from multiproject.core.categories import CQDECategoryStore
 from multiproject.core.configuration import conf
 from multiproject.core.db import admin_query, admin_transaction, safe_string, safe_int, cursors
 from multiproject.core.exceptions import ProjectValidationException
-from multiproject.core.permissions import CQDEPermissionPolicy, CQDEAuthenticationStore, CQDEPermissionHelper
+from multiproject.core.permissions import get_permission_id, get_special_users
+from multiproject.core.users import get_userstore
 
 
 class Projects(object):
-    """ Api class for multiproject plugin. Used for actions like creating,
-        removing and listing projects
+    """
+    Api class for multiproject plugin. Used for querying projects and statistics among multiple projects.
     """
 
     def create_project(self, project, services):
@@ -47,37 +45,78 @@ class Projects(object):
         project.validate()
 
         # Build list of needed commands
-        commander = Commander()
+        commander = commands.Commander()
         commandlist = []
-        commandlist.append(CreateTracDatabase(project))
+        commandlist.append(commands.CreateTracDatabase(project))
 
         # Create a new repository or clone an existing one
         if project.parent_project:
-            commandlist.append(CloneVersionControl(project))
+            commandlist.append(commands.CloneVersionControl(project))
         else:
-            commandlist.append(CreateTracVersionControl(project, services))
+            commandlist.append(commands.CreateTracVersionControl(project, services))
 
-        commandlist.append(InitCommitHooks(project, services))
-        commandlist.append(CreateTracEnvironment(project, services))
-        commandlist.append(ConfigureTrac(project, services))
-        commandlist.append(ListUpProject(project))
-        commandlist.append(SetPermissions(project))
+        commandlist.append(commands.InitCommitHooks(project, services))
+        commandlist.append(commands.CreateTracEnvironment(project, services))
+        commandlist.append(commands.ConfigureTrac(project, services))
+        commandlist.append(commands.ListUpProject(project))
+        commandlist.append(commands.SetPermissions(project))
 
         if project.published:
-            commandlist.append(MakeProjectPublic(project))
+            commandlist.append(commands.MakeProjectPublic(project))
 
-        commandlist.append(CreateDav(project))
-        commandlist.append(CreateDownloads(project))
-        commandlist.append(InitTracWiki(project))
-        commandlist.append(TruncateDefaultInformation(project))
-        commandlist.append(RefreshStatistics(project))
-        commandlist.append(ConfigureFilesystemPermissions(project))
+        commandlist.append(commands.CreateDav(project))
+        commandlist.append(commands.CreateDownloads(project))
+        commandlist.append(commands.CreateFilesDownloads(project))
+        commandlist.append(commands.InitTracWiki(project))
+        commandlist.append(commands.TruncateDefaultInformation(project))
+        commandlist.append(commands.RefreshStatistics(project))
+        commandlist.append(commands.ConfigureFilesystemPermissions(project))
 
         # Run all commands, on failure roll all back
         for cmd in commandlist:
             if not commander.run(cmd):
                 commander.rollallback()
                 raise Exception
+
+    def remove_project(self, project):
+        """
+        Removes existing project.
+
+        :arg project: :class:`Project` to be removed.
+        """
+        vcs_type = conf.getVersionControlType(project.env_name)
+
+        # Remove project from db
+        cmd = commands.ListUpProject(project)
+        cmd.success = True
+        cmd.undo()
+
+        # Remove configuration
+        cmd = commands.ConfigureTrac(project, {'vcs_type': vcs_type})
+        cmd.success = True
+        cmd.undo()
+
+        # Remove trac environment
+        cmd = commands.CreateTracEnvironment(project, {'vcs_type': vcs_type})
+        cmd.success = True
+        cmd.undo()
+
+        cmd = commands.CreateTracVersionControl(project, {'vcs_type': vcs_type})
+        cmd.success = True
+        cmd.undo()
+
+        # Remove database
+        cmd = commands.CreateTracDatabase(project)
+        cmd.success = True
+        cmd.undo()
+
+        cmd = commands.CreateDav(project)
+        cmd.undo()
+
+        cmd = commands.CreateDownloads(project)
+        cmd.undo()
+
+        return True
 
     def project_count(self):
         """ Number of projects
@@ -95,10 +134,9 @@ class Projects(object):
     def public_project_count(self):
         """ Number of public projects
         """
-        users = conf.getUserStore()
 
         # Chances are that we get these from the cache
-        anon = users.getUser('anonymous')
+        anon = get_userstore().getUser('anonymous')
         auth = None #users.getUser('authenticated')
 
         users_in = []
@@ -146,8 +184,7 @@ class Projects(object):
         """ Check that username matches project's author
         """
         row = []
-        store = conf.getUserStore()
-        user = store.getUser(username)
+        user = get_userstore().getUser(username)
 
         query = """
         SELECT author
@@ -169,57 +206,6 @@ class Projects(object):
             return False
         return True
 
-    def remove_project(self, project):
-        """
-        Removes existing project.
-
-        :arg project: :class:`Project` to be removed.
-        """
-        vcs_type = conf.getVersionControlType(project.env_name)
-
-        # Remove project from db
-        cmd = ListUpProject(project)
-        cmd.success = True
-        cmd.undo()
-
-        # Remove configuration
-        cmd = ConfigureTrac(project, {'vcs_type': vcs_type})
-        cmd.success = True
-        cmd.undo()
-
-        # Remove trac environment
-        cmd = CreateTracEnvironment(project, {'vcs_type': vcs_type})
-        cmd.success = True
-        cmd.undo()
-
-        cmd = CreateTracVersionControl(project, {'vcs_type': vcs_type})
-        cmd.success = True
-        cmd.undo()
-
-        # Remove database
-        cmd = CreateTracDatabase(project)
-        cmd.success = True
-        cmd.undo()
-
-        cmd = CreateDav(project)
-        cmd.undo()
-
-        cmd = CreateDownloads(project)
-        cmd.undo()
-
-        return True
-
-    def get_project_team(self, project_key):
-        """ Returns a list of those users that have rights to project
-        """
-        query = ("SELECT DISTINCT user.* FROM user "
-                 "INNER JOIN user_group ON user.user_id = user_group.user_key "
-                 "INNER JOIN `group` ON user_group.group_key = group.group_id "
-                 "INNER JOIN projects ON projects.trac_environment_key = group.trac_environment_key "
-                 "WHERE projects.project_id = %d" % safe_int(project_key))
-        user_store = conf.getUserStore()
-        return user_store.query_users(query)
-
     def searchUserProjects(self, search_str, username):
         """ List projects that have identifier like search string
         """
@@ -229,54 +215,21 @@ class Projects(object):
             return self.get_projects_with_params(username, "VERSION_CONTROL_VIEW",
                 search_str.strip('*'))
 
+    # TODO: only used from tracdiscussion
     def get_project(self, project_id=None, env_name=None):
-        """ Returns a project with a given id
-            Usage.
-                  projects.get_project(453)
-                  projects.get_project(project_id = 453)
-                  projects.get_project(env_name = "some_environment")
         """
-        if env_name:
-            project_id = self.get_project_id(env_name)
+        .. WARNING: Deprecated! Use Project.get instead!
 
-        if not project_id:
-            return None
-
-        # Try cache
-        cache = ProjectCache.instance()
-        project = cache.getProject(project_id)
-        if project:
-            return project
-
-        query = ("SELECT * FROM projects WHERE projects.project_id = %d LIMIT 1" %
-                 safe_int(project_id))
-
-        projects = self.queryProjectObjects(query)
-        if len(projects) > 0:
-            cache.setProject(projects[0])
-            return projects[0]
-        return None
-
-    def get_project_id(self, env_name):
-        # Try from cache
-        cache = ProjectCache.instance()
-        id = cache.getProjectId(env_name)
-        if id:
-            return id
-
-        # Get from db
-        query = ("SELECT project_id FROM projects WHERE environment_name = '%s'" %
-                 safe_string(env_name))
-
-        with admin_query() as cursor:
-            try:
-                cursor.execute(query)
-                row = cursor.fetchone()
-                if row:
-                    cache.setProjectId(env_name, row[0])
-                    return row[0]
-            except Exception, e:
-                conf.log.exception(e)
+        Returns a project with a given id
+        Usage::
+            projects.get_project(453)
+            projects.get_project(project_id = 453)
+            projects.get_project(env_name = "some_environment")
+        """
+        if project_id:
+            return Project.get(id=project_id)
+        else:
+            return Project.get(env_name=env_name)
 
     def get_projects_with_rights(self, username, action):
         """
@@ -287,19 +240,14 @@ class Projects(object):
            Permissions coming via LDAP groups are not included in the results
 
         """
-        userstore = conf.getUserStore()
-        user = userstore.getUser(username)
-
-        # Get actions
-        policy = CQDEPermissionPolicy()
-        actions = policy.get_granting_permissions(action)
+        user = get_userstore().getUser(username)
 
         # Get subjects
         subjects = set([username])
-        subjects.update(policy.get_special_users(username))
+        subjects.update(get_special_users(username))
 
         # Surround string elements with ' and join them with comma
-        actions_str = ','.join(["'{0}'".format(safe_string(action)) for action in actions])
+        actions_str = ','.join("'%s'" % safe_string(p) for p in [action, 'TRAC_ADMIN'])
         subjects_str = ','.join(["'{0}'".format(safe_string(subject)) for subject in subjects])
         organizations_str = ','.join(["{0}".format(safe_int(org_key)) for org_key in user.organization_keys])
 
@@ -321,20 +269,15 @@ class Projects(object):
         """ Returns a list of projects where user have right for "action".
         """
         categories = categories or []
-        userstore = conf.getUserStore()
-        user = userstore.getUser(username)
+        user = get_userstore().getUser(username)
         user_organization = user.organization_keys
-
-        # Get actions
-        policy = CQDEPermissionPolicy()
-        actions = policy.get_granting_permissions(perm)
 
         # Get subjects
         subjects = set([username])
-        subjects.update(policy.get_special_users(username))
+        subjects.update(get_special_users(username))
 
         # Construct comma separated lists for queries
-        actions_str = ','.join("'%s'" % safe_string(action) for action in actions)
+        actions_str = ','.join("'%s'" % safe_string(p) for p in [perm, 'TRAC_ADMIN'])
         subjects_str = ','.join("'%s'" % safe_string(subject) for subject in subjects)
         categories_str = ','.join("'%s'" % safe_string(cat) for cat in categories)
 
@@ -458,14 +401,12 @@ class Projects(object):
         and_anon_condition= ''
         union_all_organization_condition = ''
         union_all_ldap_condition = ''
-        permission_helper = CQDEPermissionHelper.instance()
-        perm_ids = ', '.join([str(safe_int(permission_helper.get_permission_id(action)))
-                           for action in ('VIEW', 'TEAM_VIEW')])
+        perm_ids = ', '.join([str(safe_int(get_permission_id(action)))
+                              for action in ('TEAM_VIEW',)])
         if public_only:
             # fetch anonymous user id
             # FIXME: Would be nice if we didn't have to do this all the time
-            store = conf.getUserStore()
-            anon = store.getUser('anonymous')
+            anon = get_userstore().getUser('anonymous')
             if not anon:
                 conf.log.warning("Error in get_participated_projects: No anonymous user obtained!")
                 raise TracError("Error while fetching user's projects.")
@@ -541,7 +482,7 @@ class Projects(object):
             Default projects are shown always in the My Projects page
         """
         if not conf.default_projects:
-            return []
+            return [[], set([])]
 
         identifiers = ','.join(["'%s'" % prj for prj in conf.default_projects])
         query = """SELECT * FROM projects WHERE environment_name IN (%s)""" % identifiers
@@ -563,7 +504,7 @@ class Projects(object):
     def get_participated_public_projects(self, username):
         """ Get public projects username has participated in
         """
-        store = conf.getUserStore()
+        store = get_userstore()
         user = store.getUser(username)
         if not user:
             return []
@@ -594,8 +535,7 @@ class Projects(object):
         """ Get those projects that user with 'username' has participated
             ordered by newest first, limited by projectcount
         """
-        store = conf.getUserStore()
-        user = store.getUser(username)
+        user = get_userstore().getUser(username)
 
         query = "SELECT projects.*, '" + safe_string(
             user.getDisplayName().encode('utf-8')) + "' FROM projects "
@@ -687,63 +627,112 @@ class Projects(object):
 
         return total, closed
 
-    def get_projects_for_rss(self, user_id, limit_start, projectcount, query_type):
+    def get_projects_for_rss(self, query_type, user_id=None, limit_start=None, limit_count=None, limit_activity=None):
         """
         Returns the most active/newest/featured projects, if user can see the project.
         Results can be limited by starting index and by how many projects we want to see.
 
+        :param str query_type: Type of query (NEWEST/MOSTACTIVE/FEATURED)
         :param int user_id: The user id for the user as in database.
         :param int limit_start: Index on where to start listing
-        :param int projectcount: How many projects to list
-        :param str query_type: Type of query (NEWEST/NEWESTFILTERED/MOSTACTIVE/FEATURED)
+        :param int limit_count: How many projects to list
         :returns: List of project object matching query
         """
         query = None
 
+        # If user is not given, default to anonymous user
         if not user_id:
+            anon = get_userstore().getUser('anonymous')
+            if not anon:
+                return []
+            user_id = anon.id
+
+        # Validate input
+        user_id = safe_int(user_id)
+        limit_start = safe_int(limit_start) if limit_start else 0
+        limit_count = safe_int(limit_count) if limit_count else 50
+        limit_activity = safe_int(limit_activity) if limit_activity else 0
+        default_icon_id = safe_int(conf.default_icon_id)
+
+        # Get projects created lately, having some activity in them if activity_limit is set
+        if query_type  == 'NEWEST':
+            # Eliminating the project creation activity from project activity to help keep
+            # test projects out of the Recent Projects macro output.
+            wiki_factor = 2
+            discussion_factor = 1
+            try:
+                wiki_factor = float(conf.get_activity_factor('wiki'))
+                discussion_factor = float(conf.get_activity_factor('discussion'))
+            except ValueError:
+                conf.log.warning("Failed validating activity factors to floats")
+
+            daterange = safe_int(conf.activity_calculation_daterange)
+            if daterange is None:
+                daterange = 60
+
+            query = '''
+            SELECT
+                p.environment_name AS name,
+                p.description AS description,
+                p.created AS date,
+                p.published AS published,
+                p.project_name,
+                pi.content_type AS icon_type,
+                length(pi.icon_data) AS icon_size,
+                (pa.ticket_changes + pa.wiki_changes + pa.scm_changes + pa.discussion_changes + pa.attachment_changes)
+                 - IF((DATEDIFF(NOW(), p.created)) <= %f, ((%f/IFNULL(DATEDIFF(NOW(), p.created),1)*4*%f) + (%f/IFNULL(DATEDIFF(NOW(), p.created),1)*2*%f)), 0) AS changes
+            FROM `group` AS g
+            INNER JOIN user_group AS ug ON ug.group_key = g.group_id
+            INNER JOIN projects AS p ON g.trac_environment_key = p.trac_environment_key
+            LEFT JOIN project_icon AS pi ON IFNULL(p.icon_id, %d) = pi.icon_id
+            INNER JOIN project_activity AS pa ON pa.project_key = p.project_id
+            WHERE ug.user_key = %d
+            GROUP BY g.trac_environment_key
+            HAVING changes >= %d AND published
+            ORDER BY p.published DESC, p.created DESC LIMIT %d, %d
+            ''' % (daterange, daterange, wiki_factor, daterange, discussion_factor, default_icon_id, user_id, limit_activity, limit_start, limit_count)
+
+        # List most active (ticket/wiki/scm/attachment/discussion changes) projects
+        elif query_type == 'MOSTACTIVE':
+            query = '''
+            SELECT
+                projects.environment_name AS name,
+                projects.description AS
+                description,
+                projects.created AS date,
+                projects.project_name,
+                project_icon.content_type AS icon_type,
+                length(project_icon.icon_data) AS icon_size
+            FROM `group`
+            INNER JOIN projects ON group.trac_environment_key = projects.trac_environment_key
+            INNER JOIN project_activity ON project_activity.project_key = projects.project_id
+            INNER JOIN user_group ON user_group.group_key = group.group_id
+            LEFT JOIN project_icon ON IFNULL(projects.icon_id, %d) = project_icon.icon_id
+            WHERE user_group.user_key = %d
+            GROUP BY group.trac_environment_key
+            ORDER BY (ticket_changes+wiki_changes+scm_changes+attachment_changes+discussion_changes) DESC LIMIT %d, %d
+            ''' % (default_icon_id, user_id, limit_start, limit_count)
+
+        # List featured projects
+        elif query_type == 'FEATURED':
+            query = '''
+            SELECT
+                projects.environment_name AS name,projects.description AS description,
+                projects.created AS date,
+                projects.project_name,
+                project_icon.content_type AS icon_type,
+                length(project_icon.icon_data) AS icon_size
+            FROM project_selected
+            INNER JOIN projects ON project_selected.project_id = projects.project_id
+            LEFT JOIN project_icon ON IFNULL(projects.icon_id, %d) = project_icon.icon_id
+            ORDER BY project_selected.value LIMIT %d, %d
+            ''' % (default_icon_id, limit_start, limit_count)
+
+        else:
+            conf.log.warning('Requested projects with non-macthing query: %s' % query_type)
             return []
 
-        if query_type in ["NEWEST", "NEWESTFILTERED"]:
-            query = ("SELECT projects.environment_name AS name, projects.description AS description, "
-                     "projects.created AS date, projects.project_name, project_icon.content_type AS "
-                     "icon_type, length(project_icon.icon_data) AS icon_size FROM `group` "
-                     "INNER JOIN user_group ON user_group.group_key = group.group_id "
-                     "INNER JOIN projects ON group.trac_environment_key = projects.trac_environment_key "
-                     "LEFT JOIN project_icon ON IFNULL(projects.icon_id,%d) = project_icon.icon_id " %
-                     safe_int(conf.default_icon_id))
-            if conf.use_project_filtering and query_type == "NEWESTFILTERED":
-                subq = ("SELECT pd.project_key AS project_key FROM %(database)s.event_fact AS ef "
-                        "INNER JOIN %(database)s.project_dim AS pd ON pd.project_sk = ef.project_sk "
-                        "GROUP BY ef.project_sk" % {'database': conf.db_analytical_schema_name})
-                query += "INNER JOIN (%s) AS tmp ON tmp.project_key = projects.project_id " % subq
-            query += ("WHERE user_group.user_key = '%d' GROUP BY group.trac_environment_key "
-                      "ORDER BY projects.published DESC,projects.created DESC LIMIT %d,%d" %
-                      (safe_int(user_id), safe_int(limit_start), safe_int(projectcount)))
-        elif query_type == "MOSTACTIVE":
-            query = ("SELECT projects.environment_name AS name, projects.description AS "
-                     "description, projects.created AS date, projects.project_name, "
-                     "project_icon.content_type AS icon_type, length(project_icon.icon_data) AS "
-                     "icon_size FROM `group` INNER JOIN projects ON group.trac_environment_key = "
-                     "projects.trac_environment_key INNER JOIN project_activity ON "
-                     "project_activity.project_key = projects.project_id INNER JOIN user_group "
-                     "ON user_group.group_key = group.group_id LEFT JOIN project_icon ON "
-                     "IFNULL(projects.icon_id,%d) = project_icon.icon_id "
-                     "WHERE user_group.user_key = '%d' GROUP BY group.trac_environment_key "
-                     "ORDER BY (ticket_changes+wiki_changes+scm_changes+attachment_changes+"
-                     "discussion_changes) DESC LIMIT %d,%d" %
-                     (safe_int(conf.default_icon_id), safe_int(user_id), safe_int(limit_start),
-                      safe_int(projectcount)))
-        elif query_type == "FEATURED":
-            query = ("SELECT projects.environment_name AS name,projects.description AS description, "
-                     "projects.created AS date, projects.project_name, project_icon.content_type AS "
-                     "icon_type, length(project_icon.icon_data) AS icon_size FROM project_selected "
-                     "INNER JOIN projects ON project_selected.project_id = projects.project_id "
-                     "LEFT JOIN project_icon ON IFNULL(projects.icon_id,%d) = project_icon.icon_id "
-                     "ORDER BY project_selected.value LIMIT %d,%d" %
-                     (safe_int(conf.default_icon_id), safe_int(limit_start), safe_int(projectcount)))
-
-        if query:
-            return self.__queryProjectsWithDescr(query)
+        return self.__queryProjectsWithDescr(query)
 
     def search(self, keywords, category_ids, username='anonymous', order_by='newest', sub_page=1, limit=5,
                icon_data=False, all_categories=None):
@@ -918,11 +907,24 @@ class Projects(object):
         projects, activities = self.queryProjectObjectsForSearch(query)
         return projects, activities, query_count
 
+    def _get_single_result(self, query):
+        value = None
+        with admin_query() as cursor:
+            try:
+                cursor.execute(query)
+                row = cursor.fetchone()
+                if row:
+                    value = row[0]
+            except Exception, e:
+                conf.log.exception("Project query failed: {0}".format(query))
+
+        return value
+
     def search_project(self, keywords, category_ids, sub_page=1, limit=5):
         """ Search for projects with fulltext and categories
         """
         limit = safe_int(limit)
-        limit_attr = {'limit_start': (int(sub_page) - 1) * limit, 'limit': limit}
+        limit_attr = {'limit_start': (safe_int(sub_page) - 1) * limit, 'limit': limit}
 
         select = "SELECT DISTINCT p.project_id,p.project_name,p.environment_name,p.description,"\
                  "p.author,p.created,p.updated,p.published,p.parent_id,p.icon_id FROM "\
@@ -961,8 +963,7 @@ class Projects(object):
 
     def add_public_project_visibility(self, project_id):
         # check if anonymous user exists
-        user_store = conf.getUserStore()
-        anon = user_store.getUser('anonymous')
+        anon = get_userstore().getUser('anonymous')
         if not anon:
             return
 
@@ -976,8 +977,7 @@ class Projects(object):
 
     def remove_public_project_visibility(self, project_id):
         # check if anonymous user exists
-        user_store = conf.getUserStore()
-        anon = user_store.getUser('anonymous')
+        anon = get_userstore().getUser('anonymous')
         if not anon:
             return
 
@@ -988,19 +988,6 @@ class Projects(object):
                 cursor.execute(sql, (project_id, anon.id))
             except Exception, e:
                 conf.log.exception("Project query failed: {0}".format(sql))
-
-    def _get_single_result(self, query):
-        value = None
-        with admin_query() as cursor:
-            try:
-                cursor.execute(query)
-                row = cursor.fetchone()
-                if row:
-                    value = row[0]
-            except Exception, e:
-                conf.log.exception("Project query failed: {0}".format(query))
-
-        return value
 
     def get_activity_quartals(self):
         """ Return an array of count boundaries for
@@ -1257,87 +1244,3 @@ class Projects(object):
                 store['services'][othertypes[service]] = {}
 
         return store
-
-    # FIXME: Maybe create another class for StorageNotifications?
-    def get_storage_info(self):
-        rootpath = conf.sys_root
-        api = ProjectsInfo()
-        info = api.disk_free(rootpath)
-        info[0] = rootpath
-        return info
-
-    # FIXME: Maybe create another class for StorageNotifications?
-    def get_storage_csv_modification_time(self):
-        api = ProjectsInfo()
-        filename = conf.generated_content_dir + "/" + conf.storage_usage
-        return time.strftime("%m/%d/%Y %I:%M:%S %p", time.localtime(api.file_modified(filename)))
-
-    # FIXME: Should be private helper method
-    def is_week_gone(self, today, lastsend):
-        if (today - long(lastsend)) < 604800: # week in seconds
-            return False
-        else:
-            return True
-
-    # FIXME: Maybe create another class for StorageNotifications?
-    def get_notified_projects(self):
-
-        projects = {}
-        errorlimit = long(conf.storage_locking_limit)
-        today = long(time.time())
-        notificationfile = conf.generated_content_dir + "/" + conf.notifications_file
-        storageusagefile = conf.generated_content_dir + "/" + conf.storage_usage
-        try:
-            readnew = csv.reader(open(storageusagefile, "rb"))
-            for row in readnew:
-                if len(row) >= 4:
-                    total = long(row[1]) + long(row[2]) + long(row[3])
-                    if total > errorlimit > 0:
-                        projects[row[0]] = ProjectNotifications(today, total, True)
-        except Exception, e:
-            conf.log.exception("Failed the read projects storage information")
-
-        try:
-            readold = csv.reader(open(notificationfile, "rb"))
-            for row in readold:
-                if len(row) >= 2:
-                    if projects[row[0]]:
-                        projects[row[0]].notifynow = self.is_week_gone(today, row[1])
-                        if projects[row[0]].notifynow:
-                            projects[row[0]].notifytime = today
-                        else:
-                            projects[row[0]].notifytime = row[1]
-        except Exception, e:
-            conf.log.exception("Failed the read notification times from file")
-
-        try:
-            writer = csv.writer(open(notificationfile, 'w'),
-                delimiter='\n', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-            writer.writerow([s.encode("utf-8") + "," + str(projects[s].notifytime) for s in projects.keys()])
-        except Exception, e:
-            conf.log.exception("Failed the write notification times to file")
-
-        return projects
-
-    # FIXME: Should be private method and probably in somewhere else
-    def get_storage_sizes(self):
-
-        projectsinfo = []
-        errorlimit = long(conf.storage_locking_limit)
-        warninglimit = long(conf.storage_warning_limit)
-        try:
-            reader = csv.reader(open(conf.generated_content_dir + "/" + conf.storage_usage, "rb"))
-            for row in reader:
-                if len(row) >= 4:
-                    total = long(row[1]) + long(row[2]) + long(row[3])
-                    state = ""
-                    if total > errorlimit > 0:
-                        state = " limit"
-                    elif total > warninglimit > 0:
-                        state = " warn"
-                    projectsinfo.append(ProjectSizeTemplate(
-                        total, row[0], row[1], row[2], row[3], state))
-        except Exception, e:
-            conf.log.exception("Cannot load storage usage statistics.")
-
-        return sorted(projectsinfo, key=lambda project: project.total_space, reverse=True)[:int(conf.max_items_shown)]

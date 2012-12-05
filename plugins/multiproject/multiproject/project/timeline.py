@@ -1,150 +1,18 @@
-import os.path
-
-from genshi.builder import tag
+# -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
 
-from trac.core import ExtensionPoint, Component, implements, TracError
-from trac.env import IEnvironmentSetupParticipant
-from trac.mimeview import Context
-from trac.wiki.formatter import format_to_oneliner
-from trac.util import datefmt
-from trac.util.datefmt import to_timestamp, to_datetime, utc
-from trac.timeline import ITimelineEventProvider
+from genshi.filters.transform import Transformer
+from genshi.builder import Element
 
-from multiproject.common.projects import Projects
-from multiproject.core.configuration import conf
-from multiproject.core.path import syspath
-from multiproject.core.db import trac_db_query
+from trac.core import ExtensionPoint, Component, implements
+from trac.util import datefmt
+from trac.util.datefmt import to_timestamp, utc
+from trac.timeline import ITimelineEventProvider
+from trac.web.api import ITemplateStreamFilter
+from multiproject.common.projects import Project
+
 
 timeline_db_version = 1
-
-
-class TimelineInformer(Component):
-    """ The timeline module implements timeline events.
-    """
-    implements(ITimelineEventProvider)
-
-    # ITimelineEventProvider
-    def get_timeline_filters(self, req):
-        if 'WEBDAV' in req.perm or 'WEBDAV_VIEW' in req.perm or 'FILE_VIEW' in req.perm:
-            yield ('webdavevents', 'File events')
-
-    def get_timeline_events(self, req, start, stop, filters):
-        if 'webdavevents' not in filters or 'WEBDAV' not in req.perm:
-            return
-
-        # Create context.
-        context = Context.from_request(req)
-        context.realm = 'webdav-core'
-        # Get webdav events
-        for event in self._get_events(context, start, stop):
-            # Return event.
-            # Filter out empty parts at the same time.
-            path_parts = [p for p in str(event['to']).split('/') if p]
-            filename = ""
-            if len(path_parts) > 0:
-                filename = path_parts[-1]
-            title = 'File or directory %s ' % filename
-            if event['method'] == 'MOVE':
-                title += 'moved'
-                description = tag('From %s to %s' % (event['from'], event['to']))
-                yield ('webdavevent-mv', event['time'], event['author'], (title, description, event['to']))
-            elif event['method'] == 'PUT':
-                title += 'added'
-                description = tag('%s' % (event['to']))
-                yield ('webdavevent-add', event['time'], event['author'], (title, description, event['to']))
-            elif event['method'] == 'DELETE':
-                title += 'removed'
-                description = tag('%s' % (event['to']))
-                yield ('webdavevent-rm', event['time'], event['author'], (title, description, event['to']))
-
-    def render_timeline_event(self, context, field, event):
-        # Decompose event data.
-        title, description, path = event[3]
-        # Return apropriate content.
-        if field == 'url':
-            if self._path_exists(context, path):
-                return context.href.files(path)
-            else:
-                return ""
-        elif field == 'title':
-            return tag(title)
-        elif field == 'description':
-            return tag(description)
-
-    def _path_exists(self, context, path):
-        if path.startswith('/'):
-            path = path[1:]
-        project = conf.resolveProjectName(self.env)
-        full_path = os.path.join(syspath.dav, project, path)
-        return os.path.exists(full_path.encode('utf-8'))
-
-    # Internal methods.
-    def _get_events(self, context, start, stop):
-        columns = ('author', 'time', 'method', 'from', 'to')
-        sql = "SELECT  we.author, we.time, we.method, we.from, we.to " \
-              "FROM webdav_events we WHERE we.time BETWEEN %s AND %s"
-        with trac_db_query(self.env) as cursor:
-            try:
-                cursor.execute(sql, (to_timestamp(start), to_timestamp(stop)))
-                self.log.debug(sql % (start, stop))
-                for row in cursor:
-                    row = dict(zip(columns, row))
-                    row['time'] = to_datetime(row['time'], utc)
-                    row['subject'] = format_to_oneliner(self.env, context, row['method'])
-                    row['description'] = format_to_oneliner(self.env, context, row['to'])
-                    yield row
-            except Exception, e:
-                self.log.exception(e)
-
-
-class TimelineDatabaseUpgrade(Component):
-    """
-       Init component initialises database and environment for downloads plugin.
-    """
-    implements(IEnvironmentSetupParticipant)
-
-    # IEnvironmentSetupParticipanttr
-    def environment_created(self):
-        db = self.env.get_db_cnx()
-        self.upgrade_environment(db)
-
-    def environment_needs_upgrade(self, db):
-        cursor = db.cursor()
-        # Is database up to date?
-        return self._get_db_version(cursor) != timeline_db_version
-
-    def upgrade_environment(self, db):
-        self.log.debug("Upgrading timeline environment")
-        cursor = db.cursor()
-
-        # Get current database schema version
-        db_version = self._get_db_version(cursor)
-
-        # Perform incremental upgrades
-        try:
-            for i in range(db_version + 1, timeline_db_version + 1):
-                script_name = 'db%i' % i
-                module = __import__('multiproject.project.database.webdav_events_%s' % script_name,
-                globals(), locals(), ['do_upgrade'])
-                module.do_upgrade(self.env, cursor)
-                db.commit()
-        except:
-            raise TracError("Upgrading timeline environment failed")
-        finally:
-            cursor.close()
-
-    def _get_db_version(self, cursor):
-        try:
-            sql = "SELECT value FROM system WHERE name='webdav_events_version'"
-            self.log.debug(sql)
-            cursor.execute(sql)
-            for row in cursor:
-                return int(row[0])
-            return 0
-        except Exception, e:
-            self.log.exception(e)
-            return 0
 
 
 class ProjectTimelineEvents(Component):
@@ -200,12 +68,8 @@ class ProjectTimelineEvents(Component):
                 break
             filters = [f[0] for f in available_filters if test(f)]
 
-        # end time of timeline is current time
-        todate = datetime.now(datefmt.localtz)
-
         # start time of timeline is last update of if not known, last two monts
-        prjs = Projects()
-        project = prjs.get_project(env_name = conf.resolveProjectName(self.env))
+        project = Project.get(self.env)
 
         project_start_date = project.created
         project_start_date = project_start_date.replace (tzinfo = datefmt.localtz)
@@ -253,3 +117,13 @@ class ProjectTimelineEvents(Component):
 
         events.sort(lambda x, y: cmp(y['date'], x['date']))
         return events
+
+
+class TimelineEmptyMessage(Component):
+    implements(ITemplateStreamFilter)
+
+    def filter_stream(self, req, method, filename, stream, data):
+        if filename == 'timeline.html':
+            if not data['events']:
+                return stream | Transformer('//form[@id="prefs"]').before(Element('p')('No events match your search criteria, change the parameters and try again'))
+        return stream

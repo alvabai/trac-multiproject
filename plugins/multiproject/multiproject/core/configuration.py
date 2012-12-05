@@ -1,19 +1,21 @@
 # -*- coding: utf-8 -*-
 import os
+from urlparse import urlparse
 import sys
-from ConfigParser import ConfigParser, NoOptionError
+from ConfigParser import ConfigParser, NoOptionError, NoSectionError
 
+from trac.config import ListOption, Option
 from trac.log import logger_factory
 from trac.env import open_environment
-
+from trac.config import ConfigurationError
 from genshi.builder import Fragment
 
-from multiproject.core.db import get_connection
+from multiproject.core.db import get_connection, safe_int
 from multiproject.core.exceptions import SingletonExistsException
 from multiproject.core.stubs.memcache_stub import MemcacheStub
-from multiproject.core.util import safe_int
-from multiproject.core.util.organizations import OrganizationUpdater
 from multiproject.core.decorators import deprecated
+from multiproject.core.decorators import singleton
+from multiproject.core.util.filesystem import safe_path
 
 
 # TODO: This is EViL practice but seems to be needed
@@ -27,6 +29,78 @@ except:
     pass
 
 
+class MultiOption(Option):
+    """
+    Configuration option for multiple entries, each having same name prefix, given as variable.
+
+    Example config::
+
+        [section]
+        prefix.1 = foo
+        prefix.2 = foo
+        another = value
+
+    Python::
+
+        from trac.core import Component, implements
+        from multiproject.core.configuration import MultiOption
+
+        class MyComponent(Component):
+            implements(IAdminCommandProvider)
+            my_option = MultiOption('section', 'prefix', 'default')
+
+            # IAdminCommandProvider methods
+
+            def get_admin_commands(self):
+                for option in MultiOption.get_options(Section(self.config, 'section'), 'prefix'):
+                    self.config[option.section].get(option.name))
+
+    """
+    def __init__(self, section, prefix, default=None, doc=''):
+        Option.__init__(self, section, prefix, default, doc)
+        self.prefix = prefix
+        self._options = []
+
+    @classmethod
+    def get_options(cls, section, prefix, default=None, option_cls=None):
+        """
+        Returns options by using given section
+
+        :param Section section: Trac config Section
+        """
+        options = []
+        option_cls = option_cls or Option
+
+        for option in section.iterate():
+            if option.startswith('%s.' % prefix):
+                # Patch option class to always return self so that we can access option properties
+                opt = option_cls(section.name, option, default)
+                opt.__get__ = lambda self, instance, owner: self
+                options.append(opt)
+
+        return options
+
+    def accessor(self, section, name, default):
+        """
+        Returns values from option
+        """
+        values = []
+
+        for option in self.__class__.get_options(section, name, default):
+            values.append(section.get(option.name, default))
+
+        return values
+
+
+class MultiListOption(MultiOption):
+    """
+    Extended version of MultiOption to automatically return ListOptions with ``get_options``
+    """
+    @classmethod
+    def get_options(cls, section, prefix, default=None, option_cls=None):
+        return super(MultiListOption, cls).get_options(section, prefix, default, option_cls or ListOption)
+
+
 class Configuration(object):
     """
     .. WARNING:: Avoid using!
@@ -37,17 +111,16 @@ class Configuration(object):
        can do both of these very easily.
     """
 
-    __instance = None
-    __memcached = None
+    _instance = None
+    _memcached = None
 
-    _organizations_updated = False
     default_groups = []
     activity_factors = {}
     config_file = '/etc/trac/project.ini'
 
     def __init__(self):
         # Make sure that configuration is created only once
-        if Configuration.__instance:
+        if Configuration._instance:
             raise SingletonExistsException("Singleton violation")
 
         self.config_parser = None
@@ -64,7 +137,6 @@ class Configuration(object):
         # Path to home page  '/trac/home'
         self.url_home_path = self.url_projects_path + "/" + self.sys_home_project_name
         # For projects: self.url_projects_path (configurable)
-        # For DAV     : self.url_dav_path      (configurable)
 
         # Your server's url with project path: 'http://some.server.com/trac'
         # DEPRECATED: Use req.abs_href instead
@@ -82,26 +154,22 @@ class Configuration(object):
 
     @staticmethod
     def instance():
-        if Configuration.__instance is None:
-            Configuration.__instance = Configuration()
-        return Configuration.__instance
+        if Configuration._instance is None:
+            Configuration._instance = Configuration()
+        return Configuration._instance
 
     def defaults(self):
         # First initialize the ones with None default value
         self.ldap_bind_user = None
         self.ldap_bind_password = None
-        self.insider_organization = None
-        self.organizations = {}
 
         # Create a dict with the rest of the default settings
         defaults_dict = {
             'default_http_scheme': 'https',
-            'domain_name': 'cqde.test.site.com',
-            'url_projects_path': '/trac',
-            'url_dav_path': '/dav',
+            'domain_name': '',
+            'url_projects_path': '/',
             'sys_home_project_name': 'home',
             'sys_root': '/storage/trac',
-            'sys_dav_root': '/storage/trac/webdav',
             'sys_projects_root': '/storage/trac/projects',
             'sys_vcs_root': '/storage/trac/repositories',
             'db_host': 'localhost',
@@ -118,7 +186,6 @@ class Configuration(object):
 
             # LDAP configuration. Maybe could be in it's on [LDAP] section or something
             'ldap_connect_path': 'ldap://localhost',
-            'host_match': '',
             'ldap_uid': 'uid',
             'ldap_user_rdn': 'ou=People',
             'ldap_base_dn': 'dc=ldaphost',
@@ -131,22 +198,145 @@ class Configuration(object):
             'ldap_groups_dn': 'ou=groups,o=company',
             'ldap_groups_cn': 'cn',
             'salt': 'TODO: Make this long and unique!',
-            'organizations_enabled': 'false',
             'allow_ldap_user_administration': 'False',
             'memcached_host': '127.0.0.1',
             'memcached_port': '11211',
             'memcached_enabled': 'true',
             'global_conf_path': '/etc/trac/project.ini',
             'archive_path': '/storage/trac/archive',
-            'authentication_order': 'local',
+            'authentication_order': 'LocalDB',
             'authentication_providers': 'multiproject.core.auth.local_auth.LocalAuthentication',
             'show_debug_page': 'false',
             'use_alchemy_pool': 'false',
-            'default_groups': 'Administrators:TRAC_ADMIN|Owners:TRAC_ADMIN|Developers:VIEW,TICKET_CREATE',
-            'public_auth_group': 'Public contributors:DELETE,VERSION_CONTROL,WEBDAV,XML_RPC',
-            'private_auth_group': '',
-            'public_anon_group': 'Public viewers:VIEW,VERSION_CONTROL_VIEW',
-            'anon_forbidden_actions': '',
+            # "|" is group separator, ":" separates the group name and the permission list
+            'default_groups': """
+                 Owners:TRAC_ADMIN|
+                 Members:
+                  ATTACHMENT_CREATE,
+                  BROWSER_VIEW,
+                  CHANGESET_VIEW,
+                  DISCUSSION_APPEND,
+                  DISCUSSION_ATTACH,
+                  DISCUSSION_VIEW,
+                  EMAIL_VIEW,
+                  FILES_ADMIN,
+                  FILES_DOWNLOADS_VIEW,
+                  FILE_VIEW,
+                  LOG_VIEW,
+                  MEMBERSHIP_REQUEST_CREATE,
+                  MESSAGE_CREATE,
+                  MESSAGE_VIEW,
+                  MILESTONE_VIEW,
+                  PROJECT_VIEW,
+                  ROADMAP_VIEW,
+                  SEARCH_VIEW,
+                  TEAM_VIEW,
+                  TICKET_APPEND,
+                  TICKET_BATCH_MODIFY,
+                  TICKET_CHGPROP,
+                  TICKET_CREATE,
+                  TICKET_EDIT_CC,
+                  TICKET_MODIFY,
+                  TICKET_VIEW,
+                  TIMELINE_VIEW,
+                  USER_VIEW,
+                  VERSION_CONTROL,
+                  WIKI_CREATE,
+                  WIKI_MODIFY,
+                  WIKI_VIEW,
+                  XML_RPC
+            """,
+            'public_auth_group': """
+                Public contributors:
+                  BROWSER_VIEW,
+                  CHANGESET_VIEW,
+                  DISCUSSION_APPEND,
+                  DISCUSSION_ATTACH,
+                  DISCUSSION_VIEW,
+                  FILES_DOWNLOADS_VIEW,
+                  FILES_VIEW,
+                  FILE_VIEW,
+                  LOG_VIEW,
+                  MEMBERSHIP_REQUEST_CREATE,
+                  MESSAGE_CREATE,
+                  MESSAGE_VIEW,
+                  MILESTONE_VIEW,
+                  PROJECT_VIEW,
+                  ROADMAP_VIEW,
+                  SEARCH_VIEW,
+                  TEAM_VIEW,
+                  TICKET_APPEND,
+                  TICKET_CREATE,
+                  TICKET_VIEW,
+                  TIMELINE_VIEW,
+                  USER_VIEW,
+                  VERSION_CONTROL_VIEW,
+                  WIKI_VIEW,
+                  XML_RPC
+            """,
+            'private_auth_group': """
+                Public contributors:MEMBERSHIP_REQUEST_CREATE
+            """,
+            'public_anon_group': """
+                Public viewers:
+                  BROWSER_VIEW,
+                  CHANGESET_VIEW,
+                  DISCUSSION_VIEW,
+                  FILES_DOWNLOADS_VIEW,
+                  FILES_VIEW,
+                  FILE_VIEW,
+                  LOG_VIEW,
+                  MILESTONE_VIEW,
+                  PROJECT_VIEW,
+                  ROADMAP_VIEW,
+                  SEARCH_VIEW,
+                  TEAM_VIEW,
+                  TICKET_VIEW,
+                  TIMELINE_VIEW,
+                  USER_VIEW,
+                  VERSION_CONTROL_VIEW,
+                  WIKI_VIEW
+            """,
+            'anon_forbidden_actions': """
+                ATTACHMENT_CREATE,
+                DISCUSSION_ADMIN,
+                DISCUSSION_ANNOUNCEAPPEND,
+                DISCUSSION_ANNOUNCECREATE,
+                DISCUSSION_ATTACH,
+                DISCUSSION_MODERATE,
+                EMAIL_VIEW,
+                FILES_ADMIN,
+                FILES_DOWNLOADS_ADMIN,
+                MEMBERSHIP_REQUEST_CREATE,
+                MILESTONE_ADMIN,
+                MILESTONE_CREATE,
+                MILESTONE_DELETE,
+                MILESTONE_MODIFY,
+                PERMISSION_ADMIN,
+                PERMISSION_GRANT,
+                PERMISSION_REVOKE,
+                ROADMAP_ADMIN,
+                TICKET_ADMIN,
+                TICKET_BATCH_MODIFY,
+                TICKET_CHGPROP,
+                TICKET_EDIT_CC,
+                TICKET_EDIT_COMMENT,
+                TICKET_EDIT_DESCRIPTION,
+                TICKET_MODIFY,
+                TRAC_ADMIN,
+                USER_ADMIN,
+                USER_AUTHOR,
+                USER_CREATE,
+                USER_DELETE,
+                USER_MODIFY,
+                VERSION_CONTROL,
+                WIKI_ADMIN,
+                WIKI_CREATE,
+                WIKI_DELETE,
+                WIKI_MODIFY,
+                WIKI_RENAME,
+                XML_RPC
+            """,
             'initial_login_page': '/home',
             'expose_user_identity': 'false',
             'display_name': 'username',
@@ -171,14 +361,11 @@ class Configuration(object):
             # If user avatar is in external location this configuration variable can be used. username will be added to the end.
             'external_avatar_url': '',
 
-            'user_editable_contexts': 'Custom',
             'default_icon_id': '1',
             'anonymous_desc_string': 'Anonymous users are casual visitors that either do not have a login or have decided not to login. Anonymous users will have rights to browser, but not of any interaction.'
             ,
             'authenticated_desc_string': 'Authenticated users are those that have logged in with their credentials. By default authenticated users are allowed to contribute to a project by joining the discussion boards and opening tickets. Unless changed by the project administrators authenticated users that are not members of a project will not be allowed to perform many actions such as committing updates to the server or editing Wiki pages.'
             ,
-            'hidden_contexts': 'Custom',
-            'combined_contexts': 'Custom',
             'non_browsable_contexts': 'Natural language,License',
             'activity_factors': 'ticket:2|wiki:2|scm:5|attachment:1|discussion:1',
             'allow_public_projects': 'True',
@@ -209,9 +396,6 @@ class Configuration(object):
             'allow_anonymous_frontpage': 'False',
             # Will be shown in the My projects page always
             'default_projects': '',
-            'use_project_filtering': 'False',
-            # Http proxy for outgoing connections. Used for example for reading external RSS feed.
-            'http_proxy': '',
             'punch_line': '',
             # Statistics
             'statistic_scheme': 'http'
@@ -228,10 +412,8 @@ class Configuration(object):
         assignment_values = [
             'sys_home_project_name', # Main (home) project name
             'sys_root', # WebDav root directory ?
-            'sys_dav_root', # WebDav root directory
             'sys_projects_root', # Place where trac instances will be created
             'sys_vcs_root', # Place where repositories are created
-            'url_dav_path',
             'repo_type',
             'salt',
             'db_host',
@@ -271,7 +453,6 @@ class Configuration(object):
             'default_icon_id',
             'anonymous_desc_string',
             'authenticated_desc_string',
-            'insider_organization',
             'gitosis_repo_path',
             'gitosis_clone_path',
             'dav_help_url',
@@ -291,19 +472,15 @@ class Configuration(object):
 
         # Cases that have some things to do before setting the value
         # have their own functions to do so.
-        calls = {'host_match': self.f_host_match,
+        calls = {
                  'ldap_object_classes': self.f_ldap_object_classes,
                  'ldap_use_tsl': self.f_ldap_use_tsl,
                  'ldap_use_sasl': self.f_ldap_use_sasl,
-                 'organizations_enabled': self.f_organizations_enabled,
                  'allow_ldap_user_administration': self.f_allow_ldap_user_administration,
                  'ldap_groups_enabled': self.f_ldap_groups_enabled,
                  'memcached_host': self.f_memcached_host,
                  'memcached_enabled': self.f_memcached_enabled,
                  'default_groups': self.f_default_groups,
-                 'user_editable_contexts': self.f_user_editable_contexts,
-                 'hidden_contexts': self.f_hidden_contexts,
-                 'combined_contexts': self.f_combined_contexts,
                  'non_browsable_contexts': self.f_non_browsable_contexts,
                  'activity_factors': self.f_activity_factors,
                  'public_auth_group': self.f_public_auth_group,
@@ -332,10 +509,8 @@ class Configuration(object):
                  'refresh_global_timeline': self.f_refresh_global_timeline,
                  'url_projects_path': self.f_url_projects_path,
                  'visibility_db_batch_size': self.f_visibility_db_batch_size,
-                 'url_dav_path': self.f_url_dav_path,
-                 'use_project_filtering': self.f_use_project_filtering,
                  'statistic_scheme': self.f_statistics_scheme,
-                 'http_proxy': self.f_http_proxy}
+        }
 
         for opt in options:
             # First check if it's a value we just need to set
@@ -353,11 +528,6 @@ class Configuration(object):
         """
         return open_environment(env_path=os.path.join(conf.sys_projects_root, conf.sys_home_project_name), use_cache=True)
 
-    def handle_organizations(self, organizations):
-        for opt in organizations:
-            organization_type, position = opt[0].split('.')
-            authentication, organization = opt[1].split(',')
-            self.organizations[authentication] = [position, organization_type, organization]
 
     def refresh(self):
         self.config_parser = ConfigParser()
@@ -367,11 +537,6 @@ class Configuration(object):
         if len(files) > 0:
             options = self.config_parser.items('multiproject')
             self.handle_multiproject_conf(options)
-            try:
-                organizations = self.config_parser.items('organizations')
-                self.handle_organizations(organizations)
-            except:
-                pass
         else:
             raise Exception("Configuration file %s not found!" % Configuration.config_file)
 
@@ -411,10 +576,6 @@ class Configuration(object):
 
         self.log = logger_factory(logtype, logfile, level, 'multiproject', format)
 
-    def f_host_match(self, value):
-        # Frendly hostnames
-        self.host_match = self._list(value)
-
     def f_default_projects(self, value):
         self.default_projects = self._list(value)
 
@@ -431,9 +592,6 @@ class Configuration(object):
     def f_ldap_use_sasl(self, value):
         self.ldap_use_sasl = self._bool(value)
 
-    def f_organizations_enabled(self, value):
-        self.organizations_enabled = self._bool(value)
-
     def f_allow_ldap_user_administration(self, value):
         self.allow_ldap_user_administration = self._bool(value)
 
@@ -447,27 +605,18 @@ class Configuration(object):
         self.memcached_enabled = self._bool(value)
 
     def f_default_groups(self, value):
-        # input is 'Administrators:TRAC_ADMIN,DISCUSSIONFORUM|Owners:TRAC_ADMIN|Developers:VIEW,TICKET_CREATE'
+        # input is 'Owners:TRAC_ADMIN|Developers:TICKET_CREATE,FILES_VIEW'
 
         del self.default_groups[:]
 
-        groups = value.split('|')
-        # -> ['Administrators:TRAC_ADMIN,DISCUSSIONFORUM','Owners:TRAC_ADMIN','Developers:VIEW,TICKET_CREATE']
+        groups = self._list(value, sep='|')
+        # -> [''Owners:TRAC_ADMIN','Developers:TICKET_CREATE,FILES_VIEW']
 
         for group in groups:
+            group_and_perms = self._get_group_and_perms(group)
             # 'Administrators:TRAC_ADMIN,DISCUSSIONFORUM'
-            grpname, rights = group.split(':')
-            rightslist = rights.split(',')
-            self.default_groups.append((grpname, rightslist))
-
-    def f_user_editable_contexts(self, value):
-        self.user_editable_contexts = self._list(value)
-
-    def f_hidden_contexts(self, value):
-        self.hidden_contexts = self._list(value)
-
-    def f_combined_contexts(self, value):
-        self.combined_contexts = self._list(value)
+            if group_and_perms:
+                self.default_groups.append(group_and_perms)
 
     def f_non_browsable_contexts(self, value):
         self.non_browsable_contexts = self._list(value)
@@ -489,23 +638,23 @@ class Configuration(object):
             self.activity_factors[eventtype] = factor
 
     def f_public_auth_group(self, value):
-        self.public_auth_group = None
-        if value:
-            grpname, rights = value.split(':')
-            rightslist = rights.split(',')
-            self.public_auth_group = (grpname, rightslist)
+        self.public_auth_group = self._get_group_and_perms(value)
 
     def f_private_auth_group(self, value):
-        self.private_auth_group = None
-        if value:
-            grpname, rights = value.split(':')
-            rightslist = rights.split(',')
-            self.private_auth_group = (grpname, rightslist)
+        self.private_auth_group = self._get_group_and_perms(value)
 
     def f_public_anon_group(self, value):
+        self.public_anon_group = self._get_group_and_perms(value)
+
+    def _get_group_and_perms(self, value):
+        """
+        For a value 'Group name: FIRST_PERMISSION, OTHER_PERMISSION, ...',
+        returns a tuple ('Group name', ['FIRST_PERMISSION', 'OTHER_PERMISSION', ...])
+        """
+        if not value:
+            return None
         grpname, rights = value.split(':')
-        rightslist = rights.split(',')
-        self.public_anon_group = (grpname, rightslist)
+        return grpname.strip(), self._list(rights)
 
     def f_anon_forbidden_actions(self, value):
         # Actions forbidden for anonymous user
@@ -529,7 +678,8 @@ class Configuration(object):
         self.expose_user_identity = self._bool(value)
 
     def f_display_name(self, value):
-        self.display_name = self._list(value)
+        items = [item.strip() for item in value.split(',')]
+        self.display_name = map(lambda x: x or ' ', items)
 
     def f_create_public_as_default(self, value):
         self.create_public_as_default = self._bool(value)
@@ -578,19 +728,10 @@ class Configuration(object):
     def f_url_projects_path(self, value):
         self.url_projects_path = value.strip(" ").rstrip("/")
 
-    def f_url_dav_path(self, value):
-        self.url_dav_path = value.strip(" ").rstrip("/")
-
     def f_visibility_db_batch_size(self, value):
         self.visibility_db_batch_size = safe_int(value) or 5000
         if self.visibility_db_batch_size == 0:
             self.visibility_db_batch_size = 5000
-
-    def f_use_project_filtering(self, value):
-        self.use_project_filtering = self._bool(value)
-
-    def f_http_proxy(self, value):
-        self.http_proxy = value
 
     def f_statistics_scheme(self, value):
         self.statistics_scheme = value
@@ -600,29 +741,20 @@ class Configuration(object):
             return False
         return value.lower() != "false"
 
-    def _list(self, value):
-        return value.split(',')
+    def _list(self, value, sep=',', keep_empty=False):
+        """
+        Returns a list as `trac.config.Configuration.getlist`
+        """
+        items = [item.strip() for item in value.split(sep)]
+        if not keep_empty:
+            items = filter(None, items)
+        return items
 
     #
     # Helper functions
     #
     # FIXME: Move all helper functions away from configuration
     #
-
-    def update_organizations(self):
-        """
-        Private function to update organizations from configuration file into database. This
-        is allowed to be run only once on configuration object's life time and only when
-        we actually have organizations in configuration file
-        """
-        if self._organizations_updated:
-            return
-        if not self.organizations_enabled:
-            return
-        if not self.organizations:
-            return
-
-        self._organizations_updated = OrganizationUpdater.update_to_db(self)
 
     def getThemePath(self):
         if len(self.theme_name) > 0:
@@ -690,18 +822,18 @@ class Configuration(object):
         Get memcached client
         :return: Instance of memcache client or if disabled stubclient that works similarly.
         """
-        if Configuration.__memcached is None:
+        if Configuration._memcached is None:
             # Create instance (stub if disabled)
             if self.memcached_enabled:
                 try:
                     import memcache
-                    Configuration.__memcached = memcache.Client(self.getMemcachedLocation(), debug=0)
+                    Configuration._memcached = memcache.Client(self.getMemcachedLocation(), debug=0)
                 except ImportError:
                     memcache = None
-                    Configuration.__memcached = MemcacheStub()
+                    Configuration._memcached = MemcacheStub()
             else:
-                Configuration.__memcached = MemcacheStub()
-        return Configuration.__memcached
+                Configuration._memcached = MemcacheStub()
+        return Configuration._memcached
 
     def resolveProjectName(self, env):
         """ Helper function for resolving project name based on environment
@@ -829,5 +961,6 @@ class Configuration(object):
                     chrome['notices'].remove(notice)
                     return True
         return False
+
 
 conf = Configuration.instance()

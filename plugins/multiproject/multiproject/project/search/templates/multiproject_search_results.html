@@ -1,0 +1,47 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      py:strip="True">
+    <xi:include href="pagination.html" />
+
+        <div>
+          <ul id="fnSearchResults">
+            <py:if test="quickjump">
+              <li id="quickjump">
+                <p><a href="${quickjump.href}">Quickjump to ${quickjump.name}</a></p>
+                <div>${quickjump.description}</div>
+              </li>
+            </py:if>
+            <py:for each="result in results">
+                <li>
+                    <h3><a href="${result.href}" class="searchable">${result.title}</a></h3>
+                    <div class="fnResultDescr">${result.excerpt}</div>
+                    <span class="fnResultDate">${result.date}</span>
+                    <cite><a href="${result.href}">${req.abs_href(result.href)}</a></cite>
+                </li>
+            </py:for>
+            <py:if test="query and not (results or quickjump)" >
+                <dt>
+                    No matches found.
+                </dt>
+            </py:if>
+          </ul>
+        </div>
+
+        <!-- ! Pagination only for subpages (page numbers) -->
+        <py:if test="results and results.shown_pages">
+        <?python
+            # TODO: Get rid of inline script
+            max = 1
+            for page in results.shown_pages:
+                if int(page.get('string')) > max:
+                    max = int(page.get('string'))
+        ?>
+        <div class="pagination" py:if="max > 1">
+           ${numbered_pagination(1, max+1, int(results.current_page.string), max)}
+        </div>
+        </py:if>
+</html>

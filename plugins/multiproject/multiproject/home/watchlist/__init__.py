@@ -8,17 +8,20 @@ Watchlist timeline:
 
 User preferences:
     User can see and modify the list of followed projects in user preferences.
-    Implementation exists in :class:`WatchlistPreferencePanel`
+    Implementation exists in :class:`multiproject.common.users.prefs_watchlist.WatchlistPreferencePanel`
 
+Project following macro:
+    Plugin comes with the macro: ``[[WatchProject]]`` that will provide a block for project following.
+    It is implemented in :class:`multiproject.project.summary.watch.WatchProjectsModule`
+
+.. NOTE::
+
+    Project following modules should be all be moved into one location, preferably ``multiproject.following``:
 
 Technical notes
 ===============
 
-- Module adds new table `webdav_events` into each project. See ``multiproject/project/database/webdav_events_db1.py``
-  for details about the columns
 - ProjectTimelineEvents introduces a new extension point: ITimelineEventProvider.
-- :class:`multiproject.project.timeline.TimelineInformer` implements the defined extension point for the projects.
-
 
 """
 

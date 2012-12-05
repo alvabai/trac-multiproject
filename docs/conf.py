@@ -105,6 +105,21 @@ rst_epilog = """
 .. _Memcache: http://memcached.org/
 .. _Apache: http://httpd.apache.org/
 .. _XMLRPC: http://en.wikipedia.org/wiki/XML-RPC
+.. _Forever: https://github.com/nodejitsu/forever
+.. _Node.js: http://nodejs.org/
+.. _Redis: http://redis.io/
+.. _Facebook: http://www.facebook.com/
+.. _NPM: http://npmjs.org/
+.. _Juggernaut: https://github.com/maccman/juggernaut
+.. _TracMercurial: http://trac.edgewall.org/wiki/TracMercurial
+.. _Git: http://git-scm.com/
+.. _CentOS: https://www.centos.org/
+.. _TracGit: https://github.com/hvr/trac-git-plugin
+.. _KCachegrind: http://kcachegrind.sourceforge.net/
+.. _Zenoss: http://www.zenoss.org/
+.. _RabbitMQ: http://www.rabbitmq.com/
+.. _SNMP: http://www.net-snmp.org/
+.. _Nagios: http://nagios.org/
 """
 
 # -- Options for HTML output ---------------------------------------------------

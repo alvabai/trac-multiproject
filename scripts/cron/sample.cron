@@ -18,6 +18,9 @@
 # Refresh summary data (Every hour)
 10 * * * * python /storage/trac/dist/current/scripts/analytics/summarize.py
 
+# Rotate partitions so that the analytics data can be inserted (From time to time)
+0 4 * * * python /storage/trac/dist/current/scripts/analytics/rotate_partitions.py
+
 # Clone dimension data from operational database (Every day)
 0 4 * * * python /storage/trac/dist/current/scripts/analytics/dimension_sync.py
 

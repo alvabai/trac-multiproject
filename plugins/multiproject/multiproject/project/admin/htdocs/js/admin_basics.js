@@ -14,13 +14,14 @@ $(document).ready(function(){
 
     // On selection, format text style
     userfield.onFocus = function(event, ui) {
-        author_text.val(ui.item.firstname + " " + ui.item.lastname + " (" + ui.item.username + ")");
+        author_text.val(new String(ui.item.firstname + " " + ui.item.lastname + " (" + ui.item.username + ")").trim());
         return false;
     };
 
     // On select, update field value
     userfield.onSelect = function(event, ui) {
         author_id.val(ui.item.id);
+        return false;
     };
 
     // When value is changed, clear author_id value if empty
@@ -29,7 +30,7 @@ $(document).ready(function(){
         if (!ui.item) {
             author_id.val("");
         }
-        return true;
+        return false;
     };
 
     // Remove the id also on save because the onChange event does not happen when doing directly: clear -> save

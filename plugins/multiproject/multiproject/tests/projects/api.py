@@ -49,19 +49,6 @@ class ProjectsApiTestCase(CQDETestCase):
         self.assertFalse(p.project_environment_exists("testi"))
         self.assertTrue(dbStub.closed)
 
-    def test_get_project_team(self):
-        conf.use_test_db(True)
-        self.load_fixtures()
-        p = Projects()
-        project = p.get_project(env_name = 'storageauthtest')
-        team = project.get_team()
-
-        self.assertEquals(len(team), 4)
-        self.assertEquals(team[3].username, "testuser")
-        self.assertEquals(team[2].username, "davreader")
-        self.assertEquals(team[1].username, "cartman")
-        self.assertEquals(team[0].username, "kenny")
-
     def test_get_my_tasks(self):
         dbStub.addResult(project_tasks_result)
         p = Projects()
@@ -177,12 +164,3 @@ class ProjectTestCase(CQDETestCase):
         except ProjectValidationException as exc:
             msg = exc.value
         self.assertTrue(msg.startswith("Too long project indentifier. L"))
-
-    def test_get_child_projects(self):
-        api = Projects()
-        conf.use_test_db(True)
-        self.load_fixtures()
-        parent = api.get_project(20)
-        childs = parent.get_child_projects()
-        self.assertEquals(len(childs), 1)
-        self.assertEquals(childs[0].id, 23)

@@ -12,16 +12,17 @@ class Navigation(PageObject):
 
     def __init__(self):
         super(Navigation, self).__init__()
-        self.summary = Link(partial_text="Summary")
-        self.wiki = Link(partial_text="Wiki")
-        self.timeline = Link(partial_text="Timeline")
-        self.roadmap = Link(partial_text="Roadmap")
-        self.source = Link(partial_text="Source")
-        self.files = Link(partial_text="Files")
-        self.tickets = Link(partial_text="Tickets")
-        self.search = Link(text="Search")
-        self.admin = Link(partial_text="Admin")
-        self.discussion = Link(partial_text="Discussion")
+        browser = self._browser
+        self.summary = Link(browser, partial_text="Summary")
+        self.wiki = Link(browser, partial_text="Wiki")
+        self.timeline = Link(browser, partial_text="Timeline")
+        self.roadmap = Link(browser, partial_text="Roadmap")
+        self.source = Link(browser, partial_text="Source")
+        self.files = Link(browser, partial_text="Files")
+        self.tickets = Link(browser, partial_text="Tickets")
+        self.search = Link(browser, text="Search")
+        self.admin = Link(browser, partial_text="Admin")
+        self.discussion = Link(browser, partial_text="Discussion")
 
 
 class ProjectLayout(PageObject):
@@ -38,17 +39,18 @@ class ProjectLayout(PageObject):
 class TicketsPage(ProjectLayout):
     def __init__(self):
         super(TicketsPage, self).__init__()
-        self.new_ticket = Link(partial_text='New Ticket')
+        self.new_ticket = Link(self._browser, partial_text='New Ticket')
 
 
 class NewTicketPage(ProjectLayout):
 
     def __init__(self):
         super(NewTicketPage, self).__init__()
-        self.summary = TextInput(**self.selector('summary'))
-        self.reporter = TextInput(**self.selector('reporter'))
-        self.description = TextInput(**self.selector('description'))
-        self.submit = PageElement(**self.selector('submit'))
+        browser = self._browser
+        self.summary = TextInput(browser, **self.selector('summary'))
+        self.reporter = TextInput(browser, **self.selector('reporter'))
+        self.description = TextInput(browser, **self.selector('description'))
+        self.submit = PageElement(browser, **self.selector('submit'))
 
 
 class TicketReviewPage(ProjectLayout):
@@ -57,8 +59,8 @@ class TicketReviewPage(ProjectLayout):
     """
     def __init__(self):
         super(TicketReviewPage, self).__init__()
-        self.modify = Link(**self.selector('modify'))
-        self.submit = PageElement(**self.selector('submit'))
+        self.modify = Link(self._browser, **self.selector('modify'))
+        self.submit = PageElement(self._browser, **self.selector('submit'))
 
         # Elements that are hidden/non-existing at first
         self.cc_block = None
@@ -67,24 +69,21 @@ class TicketReviewPage(ProjectLayout):
 
     def activate_modify(self):
         self.modify.click()
-        self.cc_block = TextInput(**self.selector('cc_block'))
-        self.cc_button = PageElement(**self.selector('cc_button'))
+        self.cc_block = TextInput(self._browser, **self.selector('cc_block'))
+        self.cc_button = PageElement(self._browser, **self.selector('cc_button'))
 
     def set_cc(self, value):
-        # Click to button just for testing purposes
-        self.cc_button.click()
-
         # Input field is hidden until block is clicked
-        self.cc_block.click()
-        self.cc_field = TextInput(**self.selector('cc_input'))
+        self.cc_field = TextInput(self._browser, **self.selector('cc_input'))
         self.cc_field.value = value
+        self.cc_button.click()
 
 
 class WikiPage(ProjectLayout):
 
     def __init__(self):
         super(WikiPage, self).__init__()
-        browser = WebBrowser()
+        browser = self._browser
         self.edit_page = browser.find_by_value('Edit this page')
 
 
@@ -92,11 +91,12 @@ class EditWikiPage(ProjectLayout):
 
     def __init__(self):
         super(EditWikiPage, self).__init__()
-        self.text = TextInput('textarea#text')
-        self.comment = TextInput('input#comment')
-        self.preview = PageElement('input[name="preview"]')
-        self.review = PageElement('input[name="diff"]')
-        self.submit = PageElement('input[name="save"]')
+        browser = self._browser
+        self.text = TextInput(browser, 'textarea#text')
+        self.comment = TextInput(browser, 'input#comment')
+        self.preview = PageElement(browser, 'input[name="preview"]')
+        self.review = PageElement(browser, 'input[name="diff"]')
+        self.submit = PageElement(browser, 'input[name="save"]')
 
 
 class TimelinePage(ProjectLayout):
@@ -121,15 +121,15 @@ class FilesPage(ProjectLayout):
 
     def __init__(self):
         super(FilesPage, self).__init__()
-        self.required_texts = ['Last modified']
+        self.required_texts = ['Date modified']
 
 
 class SearchPage(ProjectLayout):
 
     def __init__(self):
         super(SearchPage, self).__init__()
-        self.input = TextInput('input#searchForProjects')
-        self.submit = Submit('button#searchProjectsBtn')
+        self.input = TextInput(self._browser, 'input#searchForProjects')
+        self.submit = Submit(self._browser, 'button#searchProjectsBtn')
         self.required_texts = ['Select area']
 
     def select_area(self, title):
@@ -138,7 +138,7 @@ class SearchPage(ProjectLayout):
 
         :param str title: Link title
         """
-        browser = WebBrowser()
+        browser = self._browser
         arealink = browser.find_link_by_text(title).last
         arealink.click()
 
@@ -150,28 +150,26 @@ class SearchPage(ProjectLayout):
 class AdminNavigation(PageObject):
     def __init__(self):
         super(AdminNavigation, self).__init__()
-        self.basic = Link(partial_text="Basic")
-        self.announcement = Link(partial_text="Announcements")
-        self.backup = Link(partial_text="Backup")
-        self.category = Link(partial_text="Categorization")
-        self.icon = Link(partial_text="Project Icon")
-        self.relation = Link(partial_text="Project relations")
-        self.storage = Link(partial_text="Storages")
-        self.system = Link(partial_text="System")
-        self.forum = Link(partial_text="Forums")
-        self.forum_group = Link(partial_text="Forum Groups")
-        self.download = Link(partial_text="Downloads")
-        self.platform = Link(partial_text="Platforms")
-        self.type = Link(partial_text="Types")
-        self.user = Link(partial_text="Users")
-        self.group = Link(partial_text="Groups")
-        self.component = Link(partial_text="Components")
-        self.milestone = Link(partial_text="Milestones")
-        self.priority = Link(partial_text="Priorities")
-        self.resolution = Link(partial_text="Resolutions")
-        self.severity = Link(partial_text="Severities")
-        self.ticket_type = Link(partial_text="Ticket Types")
-        self.version = Link(partial_text="Versions")
+        browser = self._browser
+        self.basic = Link(browser, partial_text="Basic")
+        self.announcement = Link(browser, partial_text="Announcements")
+        self.backup = Link(browser, partial_text="Backup")
+        self.category = Link(browser, partial_text="Categorization")
+        self.icon = Link(browser, partial_text="Project Icon")
+        self.relation = Link(browser, partial_text="Project relations")
+        self.storage = Link(browser, partial_text="Storages")
+        self.system = Link(browser, partial_text="System")
+        self.forum = Link(browser, partial_text="Forums")
+        self.forum_group = Link(browser, partial_text="Forum Groups")
+        self.permissions = Link(browser, partial_text="Permissions")
+        self.group = Link(browser, partial_text="Groups")
+        self.component = Link(browser, partial_text="Components")
+        self.milestone = Link(browser, partial_text="Milestones")
+        self.priority = Link(browser, partial_text="Priorities")
+        self.resolution = Link(browser, partial_text="Resolutions")
+        self.severity = Link(browser, partial_text="Severities")
+        self.ticket_type = Link(browser, partial_text="Ticket Types")
+        self.version = Link(browser, partial_text="Versions")
 
 
 class AdminPage(ProjectLayout):
@@ -181,16 +179,16 @@ class AdminPage(ProjectLayout):
         self.admin_navigation = AdminNavigation()
         self.required_texts = ['Basic Settings']
 
+
 class AdminSystemPage(ProjectLayout):
 
     def remove_project(self):
-        button = PageElement('input[name="remove"]')
+        button = PageElement(self._browser, 'input[name="remove"]')
         button.click()
 
-        # Handle alert confirmation
-        browser = WebBrowser()
-        alert = browser.get_alert()
-        alert.accept()
+        # Handle confirmation dialog: first button is Confirmation
+        browser = self._browser
+        browser.find_by_css('span.ui-button-text').first.click()
 
 
 class DiscussionPage(ProjectLayout):

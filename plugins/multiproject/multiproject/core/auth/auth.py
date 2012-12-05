@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
+from multiproject.core.authentication import CQDEAuthenticationStore
 from multiproject.core.configuration import conf
-from multiproject.core.users import User
-from multiproject.core.permissions import CQDEAuthenticationStore
+from multiproject.core.users import User, get_userstore
 
 
 class MultiprojectAuthentication(object):
@@ -51,6 +51,9 @@ class Authentication(object):
     # Import authentication plugins.
     # Trac's ExtensionPoint system would be handy, but unfortunately it
     # depends on Environment which we don't want here.
+    # Update: It depends on 1) Component, 2) ComponentManager,
+    # 3) the module is imported. This would fix recursion errors on importing local_auth.py
+    # Relates to 20120525000000_missing_organizations.py
     __auth_providers = []
     for item in conf.authentication_providers:
         try:
@@ -77,8 +80,7 @@ class Authentication(object):
             return None
 
         # old user
-        users = conf.getUserStore()
-        user = users.getUser(username)
+        user = get_userstore().getUser(username)
         if user:
             authentication_name = self.auth_store.get_authentication_method(user.authentication_key)
             auth_module = self._get_auth_module(authentication_name)
@@ -137,22 +139,13 @@ class Authentication(object):
         conf.log.warning('Failed to sync user %s with all of the auth backeds' % username)
         return False
 
-    # Check if host is in friendly list
-    def _is_allowed_host(self, hostname):
-        for hname in conf.host_match:
-            if hname and hostname.endswith(hname):
-                return True
-
-        return False
-
     def get_trac_username(self, username):
         """
         Returns the username of the user existing in the local DB,
         which corresponds the given username.
         """
         # 1. Test first if username is already a real trac account name
-        userstore = conf.getUserStore()
-        user = userstore.getUser(username)
+        user = get_userstore().getUser(username)
         if user:
             return username
 

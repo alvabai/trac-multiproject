@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+from multiproject.core.authentication import CQDEAuthenticationStore
 from multiproject.core.configuration import conf
 from multiproject.core.users import get_userstore, get_authstore
-from multiproject.core.permissions import CQDEOrganizationStore, CQDEAuthenticationStore, CQDELdapGroupStore
+from multiproject.core.permissions import CQDEOrganizationStore, CQDELdapGroupStore
 from multiproject.core.auth.auth import MultiprojectAuthentication
 
 
@@ -9,12 +10,19 @@ class LdapAuthentication(MultiprojectAuthentication):
     """
     Provides LDAP based authentication backend for Multiproject plugin
     """
+    LDAP = 'LDAP'
+
     def __init__(self):
-        self.LDAP = 'LDAP'
+
         self.org_store = CQDEOrganizationStore.instance()
         self.auth_store = CQDEAuthenticationStore.instance()
-        if not self.auth_store.get_authentication_id(self.LDAP):
+        self.ldap_authentication_key = self.auth_store.get_authentication_id(self.LDAP)
+        if not self.ldap_authentication_key:
             self.auth_store.create_authentication(self.LDAP)
+            self.ldap_authentication_key = self.auth_store.get_authentication_id(self.LDAP)
+        if not self.ldap_authentication_key:
+            # This should not happen
+            raise Exception('LdapAuthentication: Could not get authentication id for LDAP')
 
     def match(self, identifier):
         return identifier.lower() == self.LDAP.lower()
@@ -56,7 +64,7 @@ class LdapAuthentication(MultiprojectAuthentication):
 
         # Existing user: check authentication_key
         if trac_user:
-            if not self.auth_store.is_ldap(trac_user.authentication_key):
+            if self.ldap_authentication_key != trac_user.authentication_key:
                 # The user is authenticated by other authentication
                 return None
 
@@ -80,10 +88,9 @@ class LdapAuthentication(MultiprojectAuthentication):
         :param str username: Name of the user to create
         :returns: True on success, False on failure
         """
-        users = conf.getUserStore()
 
         # If user already exists, no need to continue
-        if users.userExists(username):
+        if get_userstore().userExists(username):
             return True
 
         # Try to create user from LDAP
@@ -112,12 +119,8 @@ class LdapAuthentication(MultiprojectAuthentication):
 
         # Create user using LDAP store
         user = ldap_store.getUser(username)
-        user.authentication_key = self.auth_store.get_authentication_id(self.auth_store.LDAP)
-        user.organization_keys = self.org_store.get_organization_keys(user, self.auth_store.LDAP)
-        if conf.insider_organization in user.organization_keys:
-            user.insider = 1
-        else:
-            user.insider = 0
+        user.authentication_key = self.ldap_authentication_key
+        user.organization_keys = self.org_store.get_organization_keys(user, self.LDAP) or None
 
         # Store user in user store
         conf.log.info('Created new user from LDAP: %s' % user.username)
@@ -146,11 +149,10 @@ class LdapAuthentication(MultiprojectAuthentication):
 
         query = """SELECT
                         user_id, username, mail, mobile, givenName, lastName,
-                        icon_id, SHA1_PW, insider, authentication_key,
+                        icon_id, SHA1_PW, authentication_key,
                         user_status_key, last_login, created, expires, author_id
                      FROM user
-               INNER JOIN authentication ON `user`.authentication_key = authentication.id
                     WHERE username COLLATE utf8_general_ci = %s
-                      AND authentication.method = %s """
-        user_or_none = userstore.queryUser(query, (username, self.LDAP))
+                      AND authentication_key = %s """
+        user_or_none = userstore.queryUser(query, (username, self.ldap_authentication_key))
         return user_or_none

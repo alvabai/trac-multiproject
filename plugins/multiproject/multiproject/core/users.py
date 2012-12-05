@@ -1,11 +1,12 @@
-# Common
+"""
+User model and related backend implementations.
+"""
 from contextlib import contextmanager
 from datetime import datetime
 import ldap
 import ldap.filter
-import re
-import crypt, base64
 import unicodedata
+from trac.perm import PermissionCache
 
 try:
     from hashlib import sha1 as sha
@@ -19,12 +20,19 @@ except ImportError:
 
 from multiproject.core.configuration import conf
 from multiproject.core.util.ldaphelper import get_search_results
-from multiproject.core.util import env_id
 from multiproject.core.cache.user_cache import UserCache
 from multiproject.core.cache.permission_cache import AuthenticationCache
 from multiproject.core.cache.permission_cache import GroupPermissionCache
-from multiproject.core.permissions import CQDEAuthenticationStore, CQDEPermissionPolicy
 from multiproject.core.db import admin_transaction, admin_query, safe_string, safe_int
+from multiproject.core.authentication import CQDEAuthenticationStore
+
+
+# Formatting rules for python and javascript: 25/01/12
+DATEFORMATS = {
+    'py': '%m/%d/%y',
+    'pydt': '%m/%d/%y %H:%m',
+    'js': 'mm/dd/y'
+}
 
 
 # This module contains api classes for user management
@@ -46,7 +54,6 @@ class User(object):
         self.givenName = None
         self.lastName = None
         self.icon = None
-        self.insider = False
         self.authentication_key = None
         self.status = None
         self.last_login = None
@@ -75,6 +82,10 @@ class User(object):
         return {
             'id': self.id,
             'username': self.username,
+            'displayname': self.getDisplayName(),
+            'firstname': self.givenName,
+            'lastname': self.lastName,
+            'avatar_url': self.getAvatarUrl(),
         }
 
     def getDisplayName(self):
@@ -127,20 +138,6 @@ class User(object):
                 conf.log.exception("Exception. Failed creating icon.")
                 raise
 
-    def equals(self, user):
-        test = False
-        try:
-            test = self.username == user.username and\
-                   self.id == user.id and\
-                   self.givenName == user.givenName and\
-                   self.lastName == user.lastName and\
-                   self.mail == user.mail and\
-                   self.mobile == user.mobile and\
-                   self.password == user.password
-        except:
-            pass
-        return test
-
     def activate(self):
         query = ("UPDATE user SET user_status_key = %s "
                  "WHERE user.user_id = %s LIMIT 1")
@@ -152,23 +149,12 @@ class User(object):
                 conf.log.exception("Exception. Failed activating user with query '''%s'''." % query)
                 raise
 
-        UserCache.instance().clearUser(self.username)
+        UserCache.instance().clear_user_by_user(self)
 
         self.status = self.STATUS_ACTIVE
         return self.status
 
-    def isProjectBrowsingAllowed(self):
-        # TODO: Replace the function with the trac permission check instead
-        if conf.allow_public_projects:
-            return True
-
-        # TODO: The self.insider flag is deprecated and should be removed
-        if conf.insider_organization in self.organization_keys:
-            return True
-
-        return False
-
-    def getAvatarUrl(self, size):
+    def getAvatarUrl(self, size=40):
         from multiproject.core.auth.auth import Authentication
 
         auth = Authentication()
@@ -180,11 +166,17 @@ class User(object):
             return conf.theme_htdocs_location + "/images/no_icon.gif"
 
     def can_create_project(self):
-        policy = CQDEPermissionPolicy()
-        home_env_id = env_id(conf.sys_home_project_name)
-        has_permission = policy.check_permission(home_env_id, "CREATE_PROJECT", self.username)
-        return has_permission
+        """
+        .. WARNING:: This may be expensive call because it opens home project environment!
 
+        :return: Boolean
+        """
+        # Avoid circular imports
+        from multiproject.common.projects import HomeProject
+
+        homeenv = HomeProject().get_env()
+        homeperm = PermissionCache(homeenv, username=self.username)
+        return 'PROJECT_CREATE' in homeperm
 
     @staticmethod
     def update_last_login(username):
@@ -248,10 +240,10 @@ class MySqlUserStore(UserStore):
         self.__cache = UserCache.instance()
         self.__authcache = AuthenticationCache.instance()
         self.USER_STATUS_LABELS = {
-            User.STATUS_INACTIVE:'inactive',
-            User.STATUS_ACTIVE:'active',
-            User.STATUS_BANNED:'banned',
-            User.STATUS_DISABLED:'disabled'
+            User.STATUS_INACTIVE: 'inactive',
+            User.STATUS_ACTIVE: 'active',
+            User.STATUS_BANNED: 'banned',
+            User.STATUS_DISABLED: 'disabled'
         }
         # Provide also opposite mapping: {'inactive':User.STATUS_INACTIVE}
         self.USER_STATUS_KEYS = dict((v, k) for k, v in self.USER_STATUS_LABELS.items())
@@ -275,7 +267,7 @@ class MySqlUserStore(UserStore):
             query = '''
             SELECT
                 user_id, username, mail, mobile, givenName, lastName,
-                icon_id, SHA1_PW, insider, authentication_key, user_status_key,
+                icon_id, SHA1_PW, authentication_key, user_status_key,
                 last_login, created, expires, author_id
             FROM user
             WHERE username = %s
@@ -284,12 +276,12 @@ class MySqlUserStore(UserStore):
             user = self.queryUser(query, (username,))
             if user:
                 self.fetchUserOrganizations(user)
-                self.fetchUsersPreferences(user) # update user preferences inside user object
+                self.fetchUsersPreferences(user)  # update user preferences inside user object
                 self.__cache.setUser(user)
 
         return user
 
-    def fetchUsersPreferences (self, user):
+    def fetchUsersPreferences(self, user):
         """ Get users preferences
         """
         if user is None:
@@ -353,7 +345,7 @@ class MySqlUserStore(UserStore):
         query = '''
         SELECT
             user_id, username, mail, mobile, givenName, lastName,
-            icon_id, SHA1_PW, insider, authentication_key,
+            icon_id, SHA1_PW, authentication_key,
             user_status_key, last_login, created, expires, author_id
         FROM user
         WHERE user_id = %s
@@ -364,17 +356,14 @@ class MySqlUserStore(UserStore):
             return None
 
         self.fetchUserOrganizations(user)
+        self.fetchUsersPreferences(user)  # update user preferences inside user object
         self.__cache.setUser(user)
-
         return user
 
-    def queryUser(self, query, params = None):
+    def queryUser(self, query, params=None):
         """ Method for creating user object from mysql query
         """
-        row = None
-
         conf.log.debug('Querying user with params {0}'.format(params))
-
         with admin_query() as cursor:
             try:
                 if params:
@@ -382,14 +371,11 @@ class MySqlUserStore(UserStore):
                 else:
                     cursor.execute(query)
                 row = cursor.fetchone()
+                if row:
+                    return MySqlUserStore.sqlToUser(row)
             except:
                 conf.log.exception("Exception. User query failed '''%s'''." % query)
                 raise
-
-        if row:
-            return MySqlUserStore.sqlToUser(row)
-
-        return None
 
     def query_users(self, query):
         users = []
@@ -410,9 +396,7 @@ class MySqlUserStore(UserStore):
         """
         if not user.author_id:
             return None
-
         return self.getUserWhereId(user.author_id)
-
 
     @staticmethod
     def sqlToUser(row):
@@ -426,15 +410,14 @@ class MySqlUserStore(UserStore):
         user.mobile = unicode(row[3])
         user.givenName = unicode(row[4])
         user.lastName = unicode(row[5])
-        user.icon = row[6]
+        user.icon = row[6] or None
         user.pwHash = unicode(row[7])
-        user.insider = row[8]
-        user.authentication_key = row[9]
-        user.status = row[10]
-        user.last_login = row[11]
-        user.created = row[12]
-        user.expires = row[13]
-        user.author_id = row[14]
+        user.authentication_key = row[8]
+        user.status = row[9]
+        user.last_login = row[10]
+        user.created = row[11]
+        user.expires = row[12]
+        user.author_id = row[13]
 
         return user
 
@@ -444,7 +427,8 @@ class MySqlUserStore(UserStore):
 
         .. IMPORTANT::
 
-            Function also saves the password into database
+            Function also saves the password hash into database.
+            If non-local user, pw hash will be 'invalidNonLocalUserPwHash'.
 
         :returns: True on success, False on failure
         """
@@ -455,19 +439,21 @@ class MySqlUserStore(UserStore):
         user.password = user.password or ''
         user.givenName = user.givenName or ''
         user.lastName = user.lastName or ''
-        user.icon = user.icon or None
+        user.icon = safe_int(user.icon) or None
         user.created = user.created or datetime.utcnow()
-        user.expires = user.expires or None # By default, no expire date
-        user.author_id = user.author_id or None # By default, no author/owner information
+        user.expires = user.expires or None  # By default, no expire date
+        user.author_id = user.author_id or None  # By default, no author/owner information
 
         # Check the required fields: username and password
         if not user.username:
             conf.log.error('User object is missing username - giving up user store')
             return False
 
+        auth_store = CQDEAuthenticationStore.instance()
+        local_authentication_key = auth_store.get_authentication_id(auth_store.LOCAL)
+
         if not user.authentication_key:
-            auth_store = CQDEAuthenticationStore.instance()
-            user.authentication_key = auth_store.get_authentication_id(auth_store.LOCAL)
+            user.authentication_key = local_authentication_key
 
         # Set default status id based on name defined configuration
         default_status_name = conf.default_user_status.lower()
@@ -476,32 +462,36 @@ class MySqlUserStore(UserStore):
             self.log.error('Failed to find and set user default status')
             return False
 
+        sha1_pw = 'SHA1(%s)'
+        if user.authentication_key != local_authentication_key:
+            user.password = 'invalidNonLocalUserPwHash'
+            sha1_pw = '%s'
+
         # SQL query for creating a new user
         query = """
         INSERT INTO user (
             user_id, username, mail, mobile, givenname, lastname, created,
-            icon_id, SHA1_PW, insider, authentication_key, user_status_key,
+            icon_id, SHA1_PW, authentication_key, user_status_key,
             expires, author_id
         )
-        VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, SHA1(%s), %s, %s, %s, %s, %s)
-        """
+        VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, {sha1_pw}, %s, %s, %s, %s)
+        """.format(sha1_pw=sha1_pw)
 
         # SQL params
         params = (
             user.username, user.mail, user.mobile,
-            user.givenName.encode('utf-8'), user.lastName.encode('utf-8'), user.created, str(user.icon),
-            user.password.encode('utf-8'), str(user.insider), str(user.authentication_key), str(status_key),
+            user.givenName.encode('utf-8'), user.lastName.encode('utf-8'), user.created, user.icon,
+            user.password.encode('utf-8'), str(user.authentication_key), str(status_key),
             user.expires, user.author_id
         )
 
         with admin_transaction() as cursor:
             try:
                 cursor.execute(query, params)
+                user.id = cursor.lastrowid
             except:
                 conf.log.exception("Failed to create user")
                 raise
-
-        user.id = self.getUser(user.username).id
 
         self.storeUserOrganizations(user)
         self.updateUserPreferences(user)
@@ -545,7 +535,7 @@ class MySqlUserStore(UserStore):
     def deleteUser(self, user):
         """ Function for removing user from persistent storage
         """
-        self.__cache.clearUser(user.username)
+        self.__cache.clear_user_by_user(user)
         query = "DELETE FROM user WHERE user_id = %s"
         with admin_transaction() as cursor:
             try:
@@ -561,21 +551,21 @@ class MySqlUserStore(UserStore):
         Updates user but not a password.
         There is a separate method for updating password
         """
-        self.__cache.clearUser(user.username)
+        self.__cache.clear_user_by_user(user)
 
-        user.icon = user.icon or None
+        user.icon = safe_int(user.icon) or None
 
         # FIXME: Usernames can not be changed. Unnecessary update?
         query = '''
         UPDATE user
         SET
             username = %s, mail = %s, mobile = %s, givenName = %s, lastName = %s, icon_id = %s,
-            insider = %s, authentication_key = %s, user_status_key = %s, created = %s, expires = %s, author_id = %s
+            authentication_key = %s, user_status_key = %s, created = %s, expires = %s, author_id = %s
         WHERE user_id = %s
         '''
         params = (
             user.username, user.mail, user.mobile, user.givenName.encode('utf-8'), user.lastName.encode('utf-8'),
-            user.icon, str(user.insider), str(user.authentication_key), str(user.status), user.created,
+            user.icon, str(user.authentication_key), str(user.status), user.created,
             user.expires, user.author_id, user.id
         )
 
@@ -594,7 +584,7 @@ class MySqlUserStore(UserStore):
         :param User user: user to be updated (id must be set)
         :param str password: password either ordinary or unicode string
         """
-        self.__cache.clearUser(user.username)
+        self.__cache.clear_user_by_user(user)
 
         if not password:
             return False
@@ -626,10 +616,11 @@ class MySqlUserStore(UserStore):
             SHA1_PW must not contain space characters, since it is used in memcache key
 
         """
-        self.__cache.clearUser(user.username)
+        self.__cache.clear_user_by_user(user)
 
         if not user.id:
             return False
+        from multiproject.core.authentication import CQDEAuthenticationStore
         auth_store = CQDEAuthenticationStore.instance()
         query = """UPDATE `user`
                INNER JOIN authentication ON `user`.authentication_key = authentication.id
@@ -649,14 +640,14 @@ class MySqlUserStore(UserStore):
                     cursor.execute(query, (user.id, auth_store.LOCAL))
                     if not cursor.rowcount:
                         conf.log.error("Nothing affected when invalidating password for user %s"
-                            % user.username)
+                                       % user.username)
                         result = False
             except Exception:
                 conf.log.exception("Failed to invalidate password for user %s." % user.username)
                 return False
         return result
 
-    def update_user_email(self, user, email = None):
+    def update_user_email(self, user, email=None):
         """
         Updates user email address.
         :param str email: when given, updates only when different from user.mail
@@ -667,7 +658,7 @@ class MySqlUserStore(UserStore):
             else:
                 user.mail = email
 
-        self.__cache.clearUser(user.username)
+        self.__cache.clear_user_by_user(user)
         # TODO: Update also the email in global and project-specific session(s)
 
         query = '''
@@ -687,7 +678,7 @@ class MySqlUserStore(UserStore):
         """
         Updates the user status based on given status key. Use mapping fournd in userstore::
 
-            userstore = conf.getUserStore()
+            userstore = get_userstore()
             userstore.update_user_status(user, userstore.USER_STATUS_LABELS['banned'])
 
         :param int status_id: Status id (if not given, status_label must be given)
@@ -712,7 +703,7 @@ class MySqlUserStore(UserStore):
 
         return match
 
-    def userExists(self, username, password = None):
+    def userExists(self, username, password=None):
         """ Check that user exists in persistence
             If password given, it must also match ow. False
         """
@@ -734,6 +725,7 @@ class MySqlUserStore(UserStore):
         :param User user: User to check
         :returns: True if user is a local user, otherwise False
         """
+        from multiproject.core.authentication import CQDEAuthenticationStore
         auth_store = CQDEAuthenticationStore.instance()
         return auth_store.is_local(user.authentication_key)
 
@@ -762,7 +754,7 @@ class MySqlUserStore(UserStore):
 
         return initials, initial_counts
 
-    def get_all_users(self, limit = 0, count = 50, initial = None):
+    def get_all_users(self, limit=0, count=50, initial=None):
         """ List all users
 
             If no parameters given, lists first 50 users.
@@ -781,12 +773,11 @@ class MySqlUserStore(UserStore):
             try:
                 cursor.execute(query)
                 for user in cursor:
-                    s = {}
-                    s['username'] = user[0]
-                    s['first'] = user[1]
-                    s['last'] = user[2]
-                    s['email'] = user[3]
-                    s['mobile'] = user[4]
+                    s = {'username': user[0],
+                         'first': user[1],
+                         'last': user[2],
+                         'email': user[3],
+                         'mobile': user[4]}
                     users.append(s)
             except:
                 conf.log.exception("Exception. Users.get_all_users query failed '''%s'''." % query)
@@ -937,7 +928,7 @@ class LdapUserStore(UserStore):
 
         self.__cache = GroupPermissionCache.instance()
 
-    def _connect(self, username = None, password = None):
+    def _connect(self, username=None, password=None):
         """
         Initializes and binds the LDAP connection
 
@@ -999,7 +990,6 @@ class LdapUserStore(UserStore):
 
         :returns: Output of the LDAP action
         :raises: Exception in a case of issues
-
         """
         def decorator(self, *args, **kwargs):
             conf.log.debug('LDAP connection required by %s' % ldapfn.__name__)
@@ -1026,7 +1016,6 @@ class LdapUserStore(UserStore):
         >>>      self._connection.add_s(user_dn, user_record)
         >>>
         >>>   # Connection is automatically closed after
-
         """
         try:
             self._connect()
@@ -1046,19 +1035,19 @@ class LdapUserStore(UserStore):
         # Attribute mappings between LDAP and UserStore
         # In case of multiple keys, secondary are the fallbacks
         regfields = {
-            'username':[self._uid],
-            'lastName':['sn','surname'],
-            'mail':['mail'],
+            'username': [self._uid],
+            'lastName': ['sn', 'surname'],
+            'mail': ['mail'],
         }
         optfields = {
-            'gn':['gn'],
-            'givenName':['givenName'],
-            'mobile':['mobile'],
+            'gn': ['gn'],
+            'givenName': ['givenName'],
+            'mobile': ['mobile'],
         }
         # Since the pwHash contains non-hex characters, MySqlUserStore._compare_password
         # always returns False
         default_fields = {
-            'pwHash':'invalidNonLocalUserPwHash',
+            'pwHash': 'invalidNonLocalUserPwHash',
         }
 
         userdata = self._search_user(username)
@@ -1072,8 +1061,8 @@ class LdapUserStore(UserStore):
                 fvalue = None
                 for fkey in fkeys:
                     if userdata.has_attribute(fkey):
-                       fvalue = userdata.get_attr_values(fkey)[0]
-                       break
+                        fvalue = userdata.get_attr_values(fkey)[0]
+                        break
 
                 # If no value was found, raise an issue. Otherwise store the value
                 if not fvalue:
@@ -1127,7 +1116,6 @@ class LdapUserStore(UserStore):
             self._connection.delete(self._createUserDn(user))
         except Exception:
             return False
-
         return True
 
     def reset_cache(self, username):
@@ -1167,13 +1155,13 @@ class LdapUserStore(UserStore):
         # Create record having mandatory information
         # We are always creating inetOrgPerson because it can hold all necessary information
         record = [
-                  ('objectclass', self._object_classes),
-                  (self._uid, [uid]),
-                  ('cn', [cn]),
-                  ('sn', [sn]),
-                  ('userpassword', [pw]),
-                  ('mail', [mail])
-                  ]
+            ('objectclass', self._object_classes),
+            (self._uid, [uid]),
+            ('cn', [cn]),
+            ('sn', [sn]),
+            ('userpassword', [pw]),
+            ('mail', [mail])
+        ]
 
         # These are optional fields
         if user.givenName:
@@ -1251,12 +1239,10 @@ class LdapUserStore(UserStore):
             return None
 
         # Use ldaphelper.get_search_results to create nice results
-        results = get_search_results(data)
-
-        return results
+        return get_search_results(data)
 
     @ldapconnection
-    def userExists(self, username, password = None):
+    def userExists(self, username, password=None):
         """
         Check that user exists. If password given, checks it too
 
@@ -1312,7 +1298,6 @@ class LdapUserStore(UserStore):
             self.__cache.set_user_ldap_groups(username, groups)
         return groups
 
-
     def parseUsername(self, text):
         first_step = text.partition(',')
         if not first_step[1] == ',':
@@ -1353,6 +1338,7 @@ class LdapUserStore(UserStore):
 
         return usernames
 
+
 def get_userstore():
     """
     Returns the active userstore.
@@ -1366,6 +1352,7 @@ def get_userstore():
     :rval: MySqlUserStore
     """
     return MySqlUserStore()
+
 
 def get_authstore():
     """

@@ -4,3 +4,4 @@ from multiproject.common.analytics.tickets import TicketAnalytics
 from multiproject.common.analytics.wiki import WikiAnalytics
 from multiproject.common.analytics.releases import ReleaseAnalytics
 from multiproject.common.analytics.projects import ProjectAnalytics
+from multiproject.common.analytics.files import FilesAnalytics

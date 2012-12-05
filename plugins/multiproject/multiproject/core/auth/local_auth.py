@@ -1,16 +1,23 @@
 # -*- coding: utf-8 -*-
+from multiproject.core.authentication import CQDEAuthenticationStore
 from multiproject.core.configuration import conf
-from multiproject.core.permissions import CQDEAuthenticationStore
 from multiproject.core.auth.auth import MultiprojectAuthentication
+from multiproject.core.users import get_userstore
 
 
 class LocalAuthentication(MultiprojectAuthentication):
+    LOCAL = "LocalDB"
 
     def __init__(self):
-        self.LOCAL = "LocalDB"
+
         self.auth_store = CQDEAuthenticationStore.instance()
-        if not self.auth_store.get_authentication_id(self.LOCAL):
+        self.local_authentication_key = self.auth_store.get_authentication_id(self.LOCAL)
+        if not self.local_authentication_key:
             self.auth_store.create_authentication(self.LOCAL)
+            self.local_authentication_key = self.auth_store.get_authentication_id(self.LOCAL)
+        if not self.local_authentication_key:
+            # This should not happen
+            raise Exception('LocalAuthentication: Could not get authentication id for LocalDB')
 
     def match(self, identifier):
         """
@@ -28,11 +35,11 @@ class LocalAuthentication(MultiprojectAuthentication):
         :param str password: Password of the user
         :returns: Username of success, otherwise None
         """
-        users = conf.getUserStore()
+        users = get_userstore()
         user = users.getUser(username)
 
         if user:
-            if not self.auth_store.is_local(user.authentication_key):
+            if user.authentication_key != self.local_authentication_key:
                 return None
 
             conf.log.debug('Trying local authentication for ' + username)

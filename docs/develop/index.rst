@@ -12,4 +12,6 @@ http://projects.developer.nokia.com/multiproject/newticket
    env
    build
    test
+   design/index
    fabric
+   credits

@@ -54,6 +54,27 @@ class ProjectCache(object):
         key = self.__project_key(project_id)
         self.mc.delete(key)
 
+    def get_project_by_env_name(self, env_name):
+        key = self.__project_by_env_key(env_name)
+        try:
+            return self.mc.get(key)
+        except Client.MemcachedKeyError:
+            # Invalid key, eg. with spaces - should not happen unless someone is manipulating requests
+            from multiproject.core.configuration import conf
+            conf.log.warning('ProjectCache.getProjectId invalid key "%s"' % env_name)
+            return None
+
+    def set_project_by_env_name(self, env_name, project):
+        key = self.__project_by_env_key(env_name)
+        self.mc.set(key, project, self.PROJECT_CACHE_TIME)
+
+    def clear_project(self, project):
+        key_by_env_name = self.__project_by_env_key(project.env_name)
+        self.mc.delete(key_by_env_name)
+        key_by_id = self.__project_key(project.id)
+        self.mc.delete(key_by_id)
+        self.clearProjectIcon(project.id)
+
     # Caching project icons
     def getProjectIcon(self, project_id):
         """ returns (content, content_type) tuple or None
@@ -105,8 +126,12 @@ class ProjectCache(object):
         key = 'project:' + str(project_id)
         return key.encode('utf-8')
 
-    def __project_name_id_key(self, project_name):
-        key = 'project_name_id:' + project_name
+    def __project_name_id_key(self, identifier):
+        key = 'project_name_id:' + identifier
+        return key.encode('utf-8')
+
+    def __project_by_env_key(self, identifier):
+        key = 'project_by_env:' + identifier
         return key.encode('utf-8')
 
     def __project_icon_key(self, id):

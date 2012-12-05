@@ -1,0 +1,144 @@
+<!--! Template snippet for a standard table header for a dirlist -->
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude" py:strip="">
+
+<py:def function="download_form_part(id_prefix, download)">
+    <py:with vars="featured_checked = (download and download.is_featured() and {'checked': 'checked'}) or {}; ">
+        <dt><label for="${id_prefix}_desc">Description</label></dt><dd class="description"><textarea id="${id_prefix}_desc" name="description" cols="100" rows="5">${download.description if download else ''}</textarea></dd>
+        <dt><label for="${id_prefix}_platform">Platform</label></dt><dd class="platform"><input id="${id_prefix}_platform" type="text" name="platform" value="${download.platform if download else ''}"/></dd>
+        <dt><label for="${id_prefix}_featured">Featured</label></dt><dd><input id="${id_prefix}_featured" type="checkbox" name="is_featured" value="1" py:attrs="featured_checked" /> <label for="${id_prefix}_featured">is shown in featured downloads list</label></dd>
+    </py:with>
+</py:def>
+
+<!-- param other_info is tuple of (list of terms, list of values) -->
+<py:def function="details_box(node=None, download=None, other_info=None)">
+    <div class="mode_area show_mode ${'current_mode_area' if (not node or node.filename != target_filename) else 'current_mode_area' if node and node.filename == target_filename and current_mode == 'show_mode' else ''}">
+        <py:choose>
+            <py:when test="node and not node.is_download()">
+                <dl class="files_form"><dt>Description</dt>
+                    <dd>
+                        <py:if test="node.is_file()">This is an ordinary file.</py:if>
+                        <py:if test="node.is_dir()">This is an ordinary folder.</py:if>
+                    </dd>
+                </dl>
+            </py:when>
+            <py:when test="node and node.is_dir()"><dl class="files_form"><dt>Description</dt><dd>This is a download folder. This folder contains project downloads.</dd></dl></py:when>
+            <py:otherwise>
+                <py:with vars="download = download or node.download();">
+                    <py:choose>
+                        <dl class="files_form" py:when="node and not download.is_available()">
+                            <dt class="error">Error!</dt>
+                            <dd>Description or platform is not available.
+                                <py:if test="can_edit">Edit this file to fill up the missing download information.</py:if>
+                            </dd>
+                        </dl>
+                        <py:when test="download.entry_exists()">
+                            <p class="download_count"><py:choose test="download.count">
+                                <py:when test="1">Downloaded ${download.count} time.</py:when>
+                                <py:otherwise>Downloaded ${download.count} times.</py:otherwise>
+                            </py:choose></p>
+                            <p py:if="download.is_featured()" class="is_featured" >Featured download</p>
+                            <dl class="files_form">
+                                <py:if test="node and can_edit and not download.is_valid()">
+                                    <dt class="error">Error!</dt>
+                                    <dd>The related download information is not available. Edit this file to fill up the missing download information.</dd>
+                                </py:if>
+                                <dt>Created by</dt><dd>${user_by_id[download.uploader_id].getDisplayName()}</dd>
+                                <dt py:if="download.description">Description</dt><dd>${download.description}</dd>
+                                <dt py:if="download.platform">Platform</dt><dd>${download.platform}</dd>
+                                <py:if test="other_info">
+                                    <py:for each="item in other_info">
+                                        <dt>${item[0]}</dt><dd>${item[1]}</dd>
+                                    </py:for>
+                                </py:if>
+                                <dt>SHA256 Hash</dt><dd>${download.hash}</dd>
+                            </dl>
+                        </py:when>
+                    </py:choose>
+                </py:with>
+            </py:otherwise>
+        </py:choose>
+    </div>
+</py:def>
+
+<py:def function="rename_box(id_prefix, node)">
+    <form py:if="not node.is_file() or not node.is_download()"
+          class="mode_area move_mode ${node.filename == target_filename and current_mode == 'move_mode' and 'current_mode_area' or ''}"
+          method="POST" action="${dir_node.get_href(req)}">
+        <dl class="files_form">
+            <dt><label for="${id_prefix}_rename_to">Rename to</label></dt><dd class="move_to"><input id="${id_prefix}_rename_to" type="text" name="to_relative_path" value="${node.filename}" size="40" />
+            <p class="desc">You can move file also by appending the folder name. For example, subfolder/example.txt</p></dd>
+        </dl>
+        <input type="hidden" name="target" value="${node.filename}" />
+        <input type="hidden" name="action" value="rename" />
+        <input type="submit" name="submit" value="${_('Rename')}" />
+        <input type="submit" name="cancel" class="mode_cancel secondaryButton" value="${_('Cancel')}" />
+    </form>
+</py:def>
+
+<!-- ! Note, that download is unavailable in the listing for the deleted downloads (optimization). -->
+<py:def function="edit_box(id_prefix, node)">
+    <form py:if="node.is_file() and node.is_download()"
+          class="mode_area edit_mode ${node.filename == target_filename and current_mode == 'edit_mode' and 'current_mode_area' or ''}"
+          method="POST" action="${dir_node.get_href(req)}">
+        <py:with vars="download = node.download()">
+            <dl class="files_form">
+                <dt><label for="${id_prefix}_edit_to">Filename</label></dt><dd class="move_to"><input id="${id_prefix}_edit_to" type="text" name="to_relative_path" value="${node.filename}" size="40" /></dd>
+            </dl>
+            <dl class="files_form">
+                ${download_form_part(id_prefix, download.is_available() and download or None)}
+            </dl>
+            <input type="hidden" name="version" value="${download and download.version or 0}" />
+            <input type="hidden" name="target" value="${node.filename}" />
+            <input type="hidden" name="action" value="update" />
+            <input type="submit" name="submit" value="${_(download.is_available() and 'Update' or 'Save')}" />
+            <input type="submit" name="cancel" class="mode_cancel secondaryButton" value="${_('Cancel')}" />
+        </py:with>
+    </form>
+</py:def>
+
+<!-- ! mode_string can be delete_multiple_mode or delete_mode, action_string is mode_string - "_mode" -->
+<py:def function="delete_box(id_prefix, node, mode_string, action_string)">
+    <!-- ! Don't allow deleting featured downloads or the main downloads folder. -->
+        <py:choose test="node and node.is_download() and ((node.is_dir() and dir_node.relative_path == '.') or (node.is_file() and node.download().is_featured()))">
+            <div py:when="True" class="mode_area ${mode_string} ${((not node or node.filename == target_filename) and current_mode == mode_string and 'current_mode_area') or ''}">
+                <dl class="files_form">
+                <dt>Forbidden action</dt><dd><py:if test="node.is_dir()">The main downloads folder cannot be removed.</py:if>
+                    <py:if test="node.is_file()">Featured files cannot be deleted. Instead, you can edit them to be normal files.</py:if></dd>
+                </dl>
+            </div>
+            <py:otherwise py:with="is_single_action = action_string != 'delete_multiple'; force_delete_checkbox = is_single_action and node.is_dir()">
+            <form class="mode_area ${mode_string} ${((not node or node.filename == target_filename) and current_mode == mode_string and 'current_mode_area') or ''}"
+                  action="${dir_node.get_href(req)}" method="POST">
+                <dl class="files_form">
+                    <dt>${_("Delete selected files and folders") if not is_single_action else node.is_dir() and _("Delete folder") or _("Delete file")}</dt><dd>This operation cannot be undone.</dd>
+                    <py:if test="force_delete_checkbox">
+                        <dt>Force delete</dt>
+                        <dd><input id="${id_prefix}_force_remove" type="checkbox" name="force_remove" value="yes" />
+                            <label for="${id_prefix}_force_remove">Delete even if not empty</label></dd>
+                    </py:if>
+                </dl>
+                <div py:if="not is_single_action" class="selected_items"><input type="hidden" name="selected_file[]" value="" /></div>
+                <input py:if="is_single_action" type="hidden" name="target" value="${node.filename}" />
+                <input type="hidden" name="action" value="${action_string}" />
+                <input type="submit" name="submit" value="${_('Delete')}" />
+                <input type="submit" name="cancel" class="${action_string != 'delete_multiple' and 'mode_cancel' or 'table_mode_cancel'} secondaryButton" value="${_('Cancel')}" />
+            </form>
+            </py:otherwise>
+        </py:choose>
+</py:def>
+
+<!-- ! In wiki context, there is a show_mode button without actual link (a) element. -->
+<py:def function="action_button(node, css_class, action_string, submit_text, mode)">
+    <py:with vars="link_args = {'action':'open_in_mode', 'mode':mode} if not node else {'action':'open_in_mode', 'target':node.filename, 'mode':mode} if action_string != 'download' else {}">
+        <py:with vars="link_href = (action_string == 'download') and node.get_href(req) or dir_node.get_href(req, **link_args)">
+        <a href="${link_href}" class="mode_button ${css_class} ${'current_mode_button' if is_current_mode and is_current_mode(node, mode, target_filename, current_mode) else ''}">
+            <span class="action_icon">&nbsp;</span>
+            <span class="action_text">${_(submit_text)}</span>
+        </a>
+    </py:with>
+    </py:with>
+</py:def>
+
+</html>

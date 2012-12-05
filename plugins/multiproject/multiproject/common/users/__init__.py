@@ -4,3 +4,5 @@ from multiproject.common.users.preferences import *
 from multiproject.common.users.prefs_watchlist import WatchlistPreferencePanel
 from multiproject.common.users.api import UserRestAPI
 from multiproject.common.users.profile import UserProfileBox
+from multiproject.common.users.organizations import OrganizationManager, OrganizationAdminCommand
+

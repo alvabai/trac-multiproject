@@ -37,22 +37,25 @@ setup(
     package_data={
         'multiproject.common.web': ['htdocs/css/*.css', 'htdocs/js/*.js', 'htdocs/images/*.*'],
         'multiproject.common.membership': ['templates/*.txt'],
-        'multiproject.common.admin': ['templates/*.html'],
+        'multiproject.common.admin': ['templates/*.html', 'htdocs/js/*.js', 'htdocs/css/*.css', 'htdocs/images/*.*'],
         'multiproject.common.users': ['templates/*.html', 'templates/*.txt', 'htdocs/js/*.js'],
-        'multiproject.common.notifications': ['templates/*.txt'],
+        'multiproject.common.notifications': ['templates/*.txt', 'templates/*.html', 'htdocs/js/*.js'],
+        'multiproject.common.messages': ['templates/*.html', 'htdocs/js/*.js'],
         'multiproject.common.pagination': ['templates/*.html'],
         'multiproject.common.wiki': ['templates/*.html'],
+        'multiproject.common.featured': ['templates/*.html'],
         'multiproject.home.admin': ['templates/*.html','templates/*.txt', 'htdocs/js/*.js', 'htdocs/css/*.css'],
         'multiproject.home.frontpage': ['templates/*.html'],
-        'multiproject.home.projectlist': ['templates/*.html', 'templates/*.rss'],
+        'multiproject.home.projectlist': ['templates/*.html', 'templates/*.rss', 'htdocs/js/*.js'],
         'multiproject.home.rss': ['templates/*.*'],
         'multiproject.home.watchlist': ['templates/*.html', 'templates/*.rss'],
         'multiproject.home.timeline': ['templates/*.html', 'templates/*.rss'],
+        'multiproject.project.search': ['templates/*.html', 'htdocs/js/*.js', 'htdocs/css/*.css'],
         'multiproject.project.summary': ['templates/*.html', 'htdocs/js/*.js', 'htdocs/css/*.css'],
         'multiproject.project.news': ['templates/*.html'],
         'multiproject.project.membership': ['templates/*.html'],
         'multiproject.project.admin': ['templates/*.html', 'htdocs/js/*.js', 'htdocs/css/*.css'],
-        'multiproject.project.files': ['templates/*.html'],
+        'multiproject.project.files': ['templates/*.html','htdocs/js/*.js', 'htdocs/css/*.css', 'htdocs/images/*.*'],
         'multiproject.project.ticket': ['templates/*.html']
     },
     install_requires=[
@@ -71,7 +74,8 @@ setup(
         'batchmodify': ['BatchModify >= 0.8.0'],
         'downloads': ['TracDownloads >= 0.3'],
         'discussion': ['TracDiscussion >= 0.8'],
-        'wysiwyg': ['TracWysiwyg >= 0.12.0']
+        'wysiwyg': ['TracWysiwyg >= 0.12.0'],
+        'redis': ['redis >= 2.4.0']
     },
     test_suite='multiproject.tests.alltests.suite'
 )

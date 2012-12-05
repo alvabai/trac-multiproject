@@ -15,7 +15,7 @@
 <body>
     <h2>Access denied</h2>
         <py:choose>
-            <py:when test="'ALLOW_REQUEST_MEMBERSHIP' in req.perm and req.authname != 'anonymous'">
+            <py:when test="'MEMBERSHIP_REQUEST_CREATE' in req.perm and req.authname != 'anonymous'">
                 <p class="ingress" id="access_error">Access to this content is restricted. You may
                     request access from the project administrators.</p>
 

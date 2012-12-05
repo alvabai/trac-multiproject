@@ -41,7 +41,6 @@ class EditUsersTestCase(CQDETestCase):
             'icon' : u'',
             'password' : 'password',
             'confirmpw' : 'password',
-            'insider' : '1'
         }
         self.req.method = "POST"
         userstoreStub.user.givenName = "somebody"

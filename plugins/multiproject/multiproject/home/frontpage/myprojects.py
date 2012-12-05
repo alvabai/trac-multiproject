@@ -1,25 +1,29 @@
 # -*- coding: utf-8 -*-
+"""
+Module contains the components for the profiles views
+"""
 import re
 from pkg_resources import resource_filename
 
-import MySQLdb
 from trac.core import Component, implements, TracError
 from trac.web import IRequestHandler
 from trac.web.chrome import ITemplateProvider
 from trac.util.datefmt import to_datetime
 
+from multiproject.common.projects import Project
 from multiproject.common.projects.projects import Projects
 from multiproject.core.permissions import CQDEPermissionPolicy
 from multiproject.core.watchlist import CQDEWatchlistStore
 from multiproject.home.watchlist.watchlist_events import WatchlistEvents
 from multiproject.core.configuration import conf
-from multiproject.core.users import MySqlUserStore
+from multiproject.core.users import get_userstore
 from multiproject.core.util import to_web_time
 from multiproject.core.db import trac_db_query, safe_string
 
 
 RE_HOME_USER = re.compile(r'^/user/[a-zA-Z0-9.@_ ]*$')
 
+# TODO: Separate the code+template between own profile and other profile
 
 class MyProjectsModule(Component):
     """ Trac component for showing welcome screen for user with most relevant
@@ -31,7 +35,8 @@ class MyProjectsModule(Component):
 
     # IRequestHandler methods
     def match_request(self, req):
-        """ Match /myprojects path to this page
+        """
+        Match /myprojects path to this page
         """
         if req.path_info.startswith('/myprojects'):
             return True
@@ -39,12 +44,12 @@ class MyProjectsModule(Component):
         return bool(RE_HOME_USER.match(req.path_info))
 
     def process_request(self, req):
-        """ Render welcome page
         """
-
+        Render welcome page
+        """
         # Cast into bool directly, since match object properties are not needed
         viewing_user_profile = bool(RE_HOME_USER.match(req.path_info))
-        store = MySqlUserStore()
+        userstore = get_userstore()
 
         if (req.authname == 'anonymous'
             and not self.env.config.getbool('multiproject', 'allow_public_projects')):
@@ -55,7 +60,7 @@ class MyProjectsModule(Component):
         else:
             username = req.authname
 
-        user = store.getUser(username)
+        user = userstore.getUser(username)
         if not user:
             raise TracError("User not found.")
 
@@ -130,7 +135,7 @@ class MyProjectsModule(Component):
 
         # Get tickets and posts
         # [project, row[URL], row[SUMMARY], row[DESCRIPTION], row[PRIORITY], to_datetime(row[TIME]/1000000)]
-        policy = CQDEPermissionPolicy()
+        policy = CQDEPermissionPolicy(self.env)
         ticket_projects = []
         post_projects = []
         if viewing_user_profile:
@@ -201,10 +206,11 @@ class MyProjectsModule(Component):
     def _get_watchlist_events(self, user):
         watchlist = CQDEWatchlistStore().get_projects_by_user(user.id)
         events = []
-        event_helper = WatchlistEvents()
+        event_helper = WatchlistEvents(self.env)
 
+        # TODO: inefficient querying
         for watch in watchlist:
-            project = Projects().get_project(watch.project_id)
+            project = Project.get(id=watch.project_id)
             project_events = event_helper.get_project_events(project, days = 7, minutes = 0)
             # filter eventlist by user's permissions
             project_events = event_helper.filter_events(project_events, user, project)

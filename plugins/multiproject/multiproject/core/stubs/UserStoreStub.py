@@ -9,7 +9,6 @@ class UserStub(object):
         self.givenName = None
         self.lastName = None
         self.icon = None
-        self.insider = False
         self.organization_keys = []
         self.authentication_key = 1 # local user
 

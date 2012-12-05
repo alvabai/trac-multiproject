@@ -63,10 +63,26 @@ class UserCache(object):
     def clearUser(self, keysuffix):
         """
         Clears user cache based on given key
+
+        .. warning::
+
+            Should be used only prior inserting User into database
+
         :param mixed keysuffix: Either id or str or unicode
         """
         key = self.__user_key(keysuffix)
         return self.mc.delete(key)
+
+    def clear_user_by_user(self, user):
+        """
+        Clears user cache based on User object.
+        :param User user: User object having id and username
+        """
+        key_user = self.__user_key(user.username)
+        key_id = self.__user_key(user.id)
+        by_user = self.mc.delete(key_user)
+        by_id = self.mc.delete(key_id)
+        return by_user and by_id
 
     # Key getters
     def __user_key(self, username):

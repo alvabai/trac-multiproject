@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import MySQLdb, datetime, urllib
 
+from multiproject.core.authentication import CQDEAuthenticationStore
 from multiproject.core.configuration import conf
-from multiproject.core.permissions import CQDEAuthenticationStore
 from multiproject.core.db import analytical_query, analytical_transaction, admin_query, safe_string, safe_int
 from multiproject.core.users import get_userstore
 
@@ -701,7 +701,8 @@ class ContextDimension(object):
         """ From event/action name to
             event surrogate key
         """
-        path_info = urllib.quote(path_info)
+        # If path_info is unicode, urllib.quote will fail
+        path_info = urllib.quote(path_info.encode('utf-8'))
 
         # To simplify things, we allow only first part of the path for now
         environment_type = self._environment_type(project_identifier)

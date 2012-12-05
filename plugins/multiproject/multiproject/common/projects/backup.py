@@ -47,7 +47,7 @@ class ProjectBackup(object):
         :param project: Instance of the :class:`Project` to backup/restore
         """
         self.project = project
-        self.env = open_environment(self.project.get_trac_fs_path(), use_cache=True)
+        self.env = open_environment(self.project.trac_fs_path, use_cache=True)
         backup_dir = self.env.config.get('trac', 'backup_dir', '/tmp')
         self.backup_path_tmpl =  backup_dir + '/project-%s.snapshot-%d.sql'
         self.mysql_path = self.env.config.get('trac', 'mysql_path', 'mysql')

@@ -27,6 +27,9 @@ def json_encoder(o):
         return o.__json__()
 
     if isinstance(o, datetime):
+        # Ensure everyone gets the timezone info
+        if o.tzinfo is None:
+            return '%sZ' % o.isoformat()
         return o.isoformat()
 
     # Encoder must raise TypeError if encoding should be delegated
@@ -49,6 +52,7 @@ def send_json(req, data, status=200):
         data = {'key':'data}
         req.send(json.dumps(data, default=json_encoder), content_type='application/json', status=200)
 
+    :param Request req: Trac request
     :param data: Any data that can be serialized
     :param int status: HTTP response code. 200 by default.
     :returns: Trac response

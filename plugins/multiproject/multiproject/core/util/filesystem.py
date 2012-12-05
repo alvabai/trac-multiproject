@@ -88,3 +88,42 @@ def safe_path(*path_parts):
     return os.path.join(*res_path_parts) if res_path_parts else '/'
 
 
+def get_normalized_base_path(base_path):
+    """
+    Assumes that the path is in unicode.
+    Returns normalized base_path without trailing '/'
+    """
+    if not os.path.isabs(base_path):
+        logging.warning('Invalid base path: {0}'.format(base_path))
+        raise InvalidFilenameOrPath('Error in filename or path')
+        # /path/to/base (without trailing slash)
+    base_path = os.path.normpath(base_path.rstrip('/\\'))
+
+    return base_path
+
+
+def get_normalized_relative_path(base_path, path, assume_relative_path=False):
+    """
+    If assume_relative_path, strip leading '/' from path and assume that path is relative.
+    """
+
+    if not assume_relative_path and os.path.isabs(path):
+        try:
+            path = os.path.relpath(path, base_path)
+        except ValueError:
+            raise InvalidFilenameOrPath('Error in filename or path')
+    else:
+        # path is relative to base_path
+        path = path.lstrip('/\\')
+        if os.path.isabs(path):
+            raise InvalidFilenameOrPath('Error in filename or path')
+        path = os.path.normpath(path)
+    if path.startswith('..') and (len(path) == 2 or path[2:3] == os.sep):
+        logging.debug('Invalid relative path: {0}, {1}'.format(path, base_path))
+        raise InvalidFilenameOrPath('Error in filename or path')
+
+    return path
+
+
+class InvalidFilenameOrPath(TracError):
+    pass

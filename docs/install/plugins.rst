@@ -87,12 +87,22 @@ Installation
             new       : 20120210150000_project_events
 
 
-            To install migrations
-                    python update.py --update=[target_migration_name]
+            To install migrations, run:
+                python update.py --update-new
+                    - Runs all new migration. Shorthand: -u
+
+            Other options are:
+                --update-to=MIGRATION, -t=MIGRATION
+                    - Runs all migrations up or down to the given name
+                --cherry-pick-update=MIGRATION, -p=MIGRATION
+                    - Tries to update one, single migration. Dangerous!
+                --cherry-pick-downgrade=MIGRATION, -d=MIGRATION
+                    - Tries to downgrade one, single migration. Dangerous!
+
 
         In this case, the database would be upgraded with command::
 
-            python update.py --update=20120210150000_project_events
+            python update.py --update-new
 
     #.  Copy version control hooks from the package::
 
@@ -121,15 +131,15 @@ Installation
             0 * * * * python /var/www/trac/scripts/rss_generator.py
 
             # Goes through projects to see how much resources they consumes
-            #0 3 * * * /storage/trac/scripts/cron/storageusage.sh
+            #0 3 * * * /var/www/trac/scripts/cron/storageusage.sh
 
             # Send watchlist mail notification
-            */5 * * * * python /storage/trac/scripts/cron/watchlist_notify.py immediate
-            0 0 * * * python /storage/trac/scripts/cron/watchlist_notify.py daily
-            30 0 * * 1 python /storage/trac/scripts/cron/watchlist_notify.py weekly
+            */5 * * * * python /var/www/trac/scripts/cron/watchlist_notify.py immediate
+            0 0 * * * python /var/www/trac/scripts/cron/watchlist_notify.py daily
+            30 0 * * 1 python /var/www/trac/scripts/cron/watchlist_notify.py weekly
 
             # Do indexing for projects. Needed for explore projects feature.
-            0 6,18 * * * nice python /project/trac/scripts/cron/generate_project_user_visibility.py 2>&1 > /tmp/generate_project_user_visibility.log
+            0 6,18 * * * nice python /var/www/trac/scripts/cron/generate_project_user_visibility.py 2>&1 > /tmp/generate_project_user_visibility.log
 
 .. _install-plugin-batchmodify:
 
@@ -403,23 +413,38 @@ shipped with the subversion. To test the bindings, run (no errors should be show
 
 TracMercurial
 -------------
-Plugin provides Mercurial version control support for Trac.
+TracMercurial_ plugin provides the Mercurial version control support for Trac_.
+Plugin is `compatible only with selected Mercurial versions <http://trac.edgewall.org/wiki/TracMercurial#Releases>`_.
+Project page contains a compatibility table, whereas following combinations are tested:
 
-#.  Install matching versions of mercurial and trac-mercurial plugins. Table available in
-    `TracMercurial <http://trac.edgewall.org/wiki/TracMercurial#Releases>`_ homepage. Good combination is to
-    install is latest mercurial and revision 10899 from trac-mercurial::
+============  ==============  =============
+Mercurial     TracMercurial   Compatibility
+============  ==============  =============
+1.7.5         0.12.0.29       OK
+1.8           0.12.0.29       OK
+1.9           0.12.0.29       NOT OK
+2.0           0.12.0.29       NOT OK
+============  ==============  =============
 
-        apt-get install mercurial
-        # OR: sudo pip install mercurial (required python headers)
+#.  Install Mercurial (both methods supported, just ensure the version compatibility)::
 
-        svn co http://svn.edgewall.com/repos/trac/plugins/0.12/mercurial-plugin -r 10899
+        # Using system package manager
+        sudo apt-get install mercurial
+
+        # Using python installer (requires python headers)
+        sudo pip install mercurial==1.9
+
+#.  Install TracMercurial plugin::
+
+        hg clone https://hg.edgewall.org/trac/mercurial-plugin
         cd mercurial-plugin
+        hg up 0.12
         sudo python setup.py install
-        cd -
 
-#.  Instal hgweb CGI script from MultiProject repository::
+#.  Instal hgweb CGI script from MultiProject_ repository::
 
-        sudo cp -a MultiProjectPlugin/ext/libs/hgweb /var/www/trac/
+        sudo cp -a ext/libs/hgweb /var/www/trac/
+        sudo chown -R www-data.www-data /var/www/trac/hgweb
 
 #.  Update Apache configuration (``/var/www/trac/config/multiproject.conf``)::
 
@@ -439,8 +464,8 @@ Plugin provides Mercurial version control support for Trac.
         [collections]
         /var/www/trac/repositories = /var/www/trac/repositories
 
-#.  Disable all mercurial related components in ``/etc/trac/project.ini``, but add a global
-    configuration for all projects, so hg can be enabled easily:
+#.  Disable all TracMercurial sub-components in shared project configuration file ``/etc/trac/project.ini``,
+    but leave options:
 
     .. code-block:: ini
 
@@ -451,45 +476,65 @@ Plugin provides Mercurial version control support for Trac.
         node_format = short
         show_rev = yes
 
-#.  Enable only the plugin accessor in home project configuration (``/var/www/trac/projects/home/conf/trac.ini``),
-    the accessor needs to be enabled, so a new project with mercurial can be created:
+#.  Enable only the plugin accessor in home project configuration (``/etc/trac/home.ini``),
+    so a new project with Mercurial can be created:
 
     .. code-block:: ini
 
         [components]
         tracext.hg.backend.mercurialconnector = enabled
 
-Now, if project creation with Mercurial and hg clone for the project work, then the configuration was successful.
-Most likely, if experiencing problems with mercurial, the versions installed into the system are incompatible.
+Now, if project creation with Mercurial and hg clone for the project does work, the configuration was successful.
+
+.. tip::
+
+    If you are experiencing problems with Mercurial, :ref:`check the version compatibility table <install-plugin-hg>`.
 
 .. _install-plugin-git:
 
 TracGit
-~~~~~~~
-Trac git plugin offers a wrapping for git to allow trac integrate git version control. This will bring git
-repositories into Trac's source browser, integrate it into timeline and add a content parser for git hash
-refs to point into specific commits.
+-------
+TracGit_ plugin offers a Trac integration to Git_ version control system. Plugin gives Git
+repository views into Trac's source browser, integrates it into timeline and adds a content parser for Git hash
+refs to point into specific commits. Trac Git plugin offers a front end and some customization to Source code browser in Trac.
+MultiProject uses the latest version of the TracGit plugin, at least for the time being.
 
-Trac Git plugin offers a front end and some customatization to Source code browser in Trac.
-MultiProject uses the head version from master, at least for the time being.
+.. note::
 
-#.  Install plugin::
+    TracGit_ supports Git version starting from 1.5.6, but some features like repository archive requires
+    more up-to-date version. Using Git 1.7.10 or better is suggested.
 
-        wget --no-check-certificate -O trac-git.tar.gz https://github.com/hvr/trac-git-plugin/tarball/master
-        tar -xzf trac-git.tar.gz
-        cd hvr-trac-git-plugin-722342e
+
+#.  Install Git_ using system's package manager::
+
+        sudo apt-get install git
+
+#.  Configure ``git-core`` path in Apache configuration ``/etc/apache2/conf.d/multiproject.conf`` to match with the
+    Git installation:
+
+    .. code-block:: apacheconf
+
+        ScriptAliasMatch "^/git(/.+?)(\.git)?/(.*)?" /usr/lib/git-core/git-http-backend/$1/$3
+
+    .. note::
+
+        At least in CentOS_ the path is ``/usr/libexec/git-core`` instead of ``/usr/lib/git-core``
+
+#.  Install TracGit plugin::
+
+        git clone https://github.com/hvr/trac-git-plugin
+        cd trac-git-plugin
         sudo python setup.py install
         cd -
 
-#.  To allow git projects to be created via home project, set following in
-    ``/var/www/trac/projects/home/conf/trac.ini``:
+#.  Enable Git project creation in home project (``/etc/trac/home.ini``):
 
     .. code-block:: ini
 
         [components]
         tracext.git.git_fs.gitconnector = enabled
 
-#.  To enable global git backend configuration (for all projects), set following in ``/etc/trac/project.ini``:
+#.  Enable Git backend in global configuration in ``/etc/trac/project.ini``:
 
     .. code-block:: ini
 
@@ -500,17 +545,19 @@ MultiProject uses the head version from master, at least for the time being.
         shortrev_len = 7
         use_committer_id = true
 
-When the project with git repository is created from web ui, it will generate following in the specified project
-config:
+How it works
+    When the project with Git repository is created from web ui, it automatically enables the plugin in the specified project
+    config:
 
-.. code-block:: ini
+    .. code-block:: ini
 
-    [components]
-    tracext.git.* = enabled
+        [components]
+        tracext.git.* = enabled
 
-    [trac]
-    repository_type = git
+        [trac]
+        repository_type = git
 
 .. note::
 
     For more information on Trac Git plugin, see `GitPlugin project page <http://trac-hacks.org/wiki/GitPlugin>`_.
+    The source is hosted in `Github <https://github.com/hvr/trac-git-plugin>`_.

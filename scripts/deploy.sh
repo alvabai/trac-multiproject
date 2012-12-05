@@ -5,6 +5,7 @@ function helpme()
   echo "This is a custom script for updating the existing multiproject powered Trac setup."
   echo ""
   echo "Parameters:"
+  echo "  -g or --global-htdocs   : Deploy global htdocs. Default false"
   echo "  -a or --activate        : Updates automatically 'current' link. Default false"
   echo "  -b or --batchmodify     : Install batch modify plugin. Default false"
   echo "  -c or --childtickets    : Install also childtickets plugin in to trac. Default false"
@@ -23,6 +24,7 @@ CHILDTICKETS=0
 DATELINKS=0
 ACTIVATE=0
 THEME=0
+GLOBAL_HTDOCS=0
 SUDO="sudo"
 WEBSRV_USER=www-data
 WEBSRV_GROUP=www-data
@@ -31,6 +33,7 @@ EXTENSIONS="TracMultiProject TracDiscussion TracDownloads"
 
 for par in $* ; do
     case $par in
+          "-g" | "--global-htdocs") GLOBAL_HTDOCS=1 ;;
       "-b" |  "--bm" |"--batchmodify") BATCHMODIFY=1  ;;
      "-c" |  "--ct" |"--childtickets") CHILDTICKETS=1 ;;
                       "-h" | "--help") helpme ; exit  ;;
@@ -133,6 +136,11 @@ if [ $ACTIVATE -eq 1 ] ; then
 else
   echo "   [ ] Activate latest installation"
 fi
+if [ $GLOBAL_HTDOCS -eq 1 ] ; then
+  echo "   [x] Deploy global htdocs"
+else
+  echo "   [ ] Deploy global htdocs"
+fi
 
 printf "\nSTEP: Creating path for current dist\n"
 
@@ -172,6 +180,16 @@ fi
 ${SUDO} cp /tmp/cqde/dist.pth ${dist}/dist.pth
 
 printf "\nSTEP: Distribution actions\n"
+
+# Install global htdocs
+if [  $GLOBAL_HTDOCS -eq 1 ] ; then
+    echo "STEP: Global htdocs"
+    if [ -z $HOME_PROJECT ] ; then
+        echo "Environment variable HOME_PROJECT not set in ${ENV_PTH}, using the default ('home')"
+        HOME_PROJECT="home"
+    fi
+    ${SUDO} bash -c "source ${ENV_PTH}; trac-admin ${ROOT}/trac/projects/${HOME_PROJECT} mp deploy"
+fi
 
 if [ $ACTIVATE -eq 1 ] ; then
   echo " * Activating"

@@ -1,0 +1,115 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+  <html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="layout.html" />
+
+<?python
+from multiproject.core.configuration import conf
+?>
+
+<head>
+    <title>Files</title>
+    <script type="text/javascript" src="${conf.theme_htdocs_location}/js/ZeroClipboard.js"></script>
+</head>
+
+<body>
+	<div id="content">
+
+      <h1>Files</h1>
+      <div id="files">
+          <p py:if="can_edit and not dir_node.is_download()">This area is for sharing pictures, documents, releases, etc.
+              Use this area for large files which don't need version control.</p>
+          <py:if test="dir_node.is_download() and can_edit">
+              <p>This folder is a downloads folder. The files in this folder having description and
+                  platform information can be downloaded by users having FILES_DOWNLOADS_VIEW permission.</p>
+              <p>You can edit the description and platform information for these files.
+                  You can also mark some files to be featured, which makes them shown in the summary view.</p>
+          </py:if>
+
+          <table id="header_table">
+              <tbody>
+                  <tr><td id="folders_text"><div>Folders and files</div>
+                      <p>Select the row and choose the action.</p></td>
+                      <td><div class="mounturl"><div id="map_text">Map network drive</div>
+                      <input type="text" value="${dav_url}" name="map_address" id="map_address" readonly="readonly" />
+                      <input class="flippedButton" type="submit" id="copybutton" value="Copy to clipboard"/>
+                  </div></td></tr>
+              </tbody>
+          </table>
+
+          <p class="parent_dir_breadcrumb">
+              <py:for each="node in parent_folders">
+                  <span class="breadcrumb_item">
+                      <span class="node_icon ${node.get_div_class()}">&nbsp;</span>
+                      <a href="${node.get_href(req)}">${node.filename}</a>
+                  </span> <span class="separator">&nbsp;</span>
+              </py:for>
+              <span class="last breadcrumb_item">
+                  <span class="node_icon ${current_folder.get_div_class()}">&nbsp;</span>
+                  ${current_folder.filename}</span>
+          </p>
+
+          <table class="files_table ${current_table_mode}">
+              <thead class="files_heading">
+                <xi:include href="multiproject_files_heading.html" />
+              </thead>
+              <tbody class="files_entries">
+                <xi:include href="multiproject_files_entries.html" />
+              </tbody>
+          </table>
+
+          <div id="help" py:if="helpurl"><strong>Note:</strong>
+              See <a href="${helpurl}">Help</a> for help how to mount projects.</div>
+
+          <div py:if="old_downloads" id="old_downloads">
+              <h2>Deleted downloads from all downloads folders</h2>
+              <table class="files_table">
+                  <thead class="files_heading">
+                  <tr class="files_entry_head">
+                      <th class="first_col">&nbsp;</th>
+                      <th class="filename">
+                          <span>Name</span>
+                      </th>
+                      <th class="created"><span>Date created</span></th>
+                      <th class="deleted"><span>Date deleted</span></th>
+                      <th class="size"><span>Size</span></th>
+                      <th class="other ">&nbsp;</th>
+                  </tr>
+                  </thead>
+                  <tbody class="files_entries">
+                  <py:for each="old in old_downloads">
+                      <tr class="files_entry_head needs_init">
+                          <td class="first_col"><span>&nbsp;</span></td>
+                          <td class="filename">
+                              <div class="node_icon ${get_div_class(old.filename)}"><div>&nbsp;</div></div>
+                              <span>${old.filename}</span>
+                          </td>
+                          <td class="created"><span>${format_datetime(old.created)}</span></td>
+                          <td class="deleted"><span>${format_datetime(old.changed)}</span></td>
+                          <td class="size"><span>${pretty_size(old.size)}</span></td>
+                          <td class="other"><span>&nbsp;</span></td>
+                      </tr>
+                      <tr>
+                          <td colspan="6">
+                              <div class="files_entry_body">
+                                  <div class="files_entry_body_container old_download">
+                                      ${details_box(download=old,
+                                          other_info=[(_("Other info"), _("Deleted from \"%(path)s\"",
+                                          path="/{0}/{1}".format(dir_node.downloads_dir, old.download_path)))])}
+                                  </div>
+                              </div>
+                          </td>
+                      </tr>
+                      <tr><td class="td_between" colspan="6"> </td></tr>
+                  </py:for>
+                  </tbody>
+              </table>
+          </div>
+      </div>
+
+    </div> <!-- end of content-->
+</body>
+</html>

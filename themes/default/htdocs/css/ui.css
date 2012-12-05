@@ -165,12 +165,13 @@ h4 {
         font-size: 14px; color:#333333; line-height:20px;
                 }
 
-ul {margin: 0 0 30px 17px;
+ul {
+    margin: 0 0 0 17px;
     list-style-type: disc;
     list-style-image:url(/htdocs/theme/images/bullet.png);
     color:#222222;
     font-size:12px;
-        }
+}
 
 li { margin: 0 0 5px 0; line-height: 130%; }
 

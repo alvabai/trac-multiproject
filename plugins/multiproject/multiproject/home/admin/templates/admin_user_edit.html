@@ -7,11 +7,11 @@
   <xi:include href="admin.html" />
 
   <head>
-    <title>Edit user</title>
+    <title>Manage User</title>
   </head>
 
   <body>
-     <h2>Edit user: ${user.username} <span py:if="user.username == req.authname">(this is your account)</span></h2>
+     <h2>Manage User: ${user.username} <span py:if="user.username == req.authname">(this is your account)</span></h2>
      <div id="content">
         <form action="" enctype="multipart/form-data" method="post">
             <fieldset>
@@ -45,15 +45,6 @@
                         </td>
                     </tr>
                     <tr>
-                        <td class="label"></td>
-                        <td>
-                            <input type="checkbox" id="insider" name="insider" value="${user.insider}" py:if="user.insider" checked="checked"/>
-                            <input type="checkbox" id="insider" name="insider" value="${user.insider}" py:if="not user.insider" />
-                            <label for="insider">Insider</label>
-                            <p class="desc">Insiders see listings of all projects while outsiders don't</p>
-                        </td>
-                    </tr>
-                    <tr>
                         <td class="label">Status</td>
                         <td>
                             <select name="status" id="states">
@@ -73,7 +64,18 @@
                     </tr>
                     <tr py:if="user.created">
                         <td class="label">Created</td>
-                        <td><span>${user.created.strftime(dateformats['py'])}</span></td>
+                        <td>
+                            <input type="text" id="created" name="created" readonly="readonly" value="${user.created.strftime(dateformats['pydt'])}" />
+                            <p class="desc">Date when account was created into system</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label">Last login</td>
+                        <td>
+                            <input type="text" id="lastlogin" readonly="readonly" name="lastlogin" value="${user.last_login.strftime(dateformats['pydt'])}" placeholder="Never" py:if="user.last_login" />
+                            <input type="text" id="lastlogin" readonly="readonly" name="lastlogin" value="" placeholder="Never" py:if="not user.last_login" />
+                            <p class="desc">Last date and time where user logged in to service</p>
+                        </td>
                     </tr>
                     <tr>
                         <td class="label">Author</td>
@@ -130,6 +132,13 @@
                 </table>
             </fieldset>
         </form>
+        <hr/>
+        <h3>Authored Projects</h3>
+        <p>Projects which are authored by user. Before removing or disabling the account, the ownership of the projects should be handed out.</p>
+        <ul>
+            <li py:for="project in projects"><a href="${req.href('..', project.env_name)}">${project.project_name}</a></li>
+            <li py:if="not projects">No projects</li>
+        </ul>
     </div>
   </body>
 </html>

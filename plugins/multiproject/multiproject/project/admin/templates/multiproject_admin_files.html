@@ -1,0 +1,91 @@
+<!DOCTYPE html
+        PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+<xi:include href="admin.html" />
+
+<!-- Downloads folder -->
+<head>
+    <title>Files and downloads</title>
+</head>
+
+<body>
+<h2>Downloads directory changing</h2>
+
+<p py:if="old_dir_exists">Note: Changing the downloads directory will break the links to your downloads which already exist.</p>
+<p>Note: Recommended downloads directory is "${public_downloads_default}".</p>
+
+<div id="content">
+    <form class="mod" id="modbasic" method="post" action="">
+        <fieldset>
+            <table class="">
+                <tr>
+                    <td class="label"><p>Choose downloads directory</p></td>
+                    <td class="content">
+                        <input id="old_downloads_dir" type="hidden" name="old_downloads_dir" value="${downloads_dir}" />
+
+                        <py:if test="available_dirs">
+                            <p class="desc">Existing directories:</p>
+                            <ul>
+                                <py:for each="index, dir in enumerate(available_dirs)">
+                                    <li py:with="cond_checked = downloads_dir == dir.relative_path and {'checked': 'checked'} or {}">
+                                        <input id="dir_${index}" type="radio" name="old_dir_select" py:attrs="cond_checked" value="${dir.filename}" />
+                                        <label for="dir_${index}">${dir.filename}</label> <span py:if="cond_checked">[current downloads directory]</span></li>
+                                </py:for>
+                            </ul>
+                        </py:if>
+                        <p class="desc"><label for="new_dir_name">New directory:</label></p>
+                        <ul>
+                            <li py:with="cond_checked = not old_dir_exists and {'checked': 'checked'} or {}">
+                                <input id="dir_new" type="radio" name="old_dir_select" py:attrs="cond_checked" value="" />
+                                <input id="new_dir_name" type="text" name="new_dir_name" size="50"
+                                       placeholder="New downloads directory name" value="${new_dir_name}" />
+                                <ul py:if="old_dir_exists">
+                                    <li><input id="move_also" type="radio" name="move_also" checked="checked" value="on" />
+                                        <label for="move_also">Move the existing downloads directory and its contents.</label></li>
+                                    <li><input id="create_new" type="radio" name="move_also" value="" />
+                                        <label for="create_new">Don't move the existing downloads directory, instead, create new, empty one.</label></li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <py:if test="old_dir_exists">
+                            <p class="desc"><label for="unset_existing">Unset downloads directory</label></p>
+                            <ul>
+                                <li><input id="unset_existing" type="radio" name="old_dir_select" value="__delete__" />
+                                    <label for="move_also">Unset the downloads directory, mark all downloads to be deleted.</label></li>
+                            </ul>
+                        </py:if>
+                    </td>
+                </tr>
+                <py:if test="show_confirm">
+                    <tr>
+                        <td class="label"><label for="confirm">Yes, I'm sure.</label></td>
+                        <td class="content">
+                            <input id="confirm" type="checkbox" name="confirm" checked="checked" value="on" />
+                            <p class="desc">I acknowledge that changing the directory will break the existing links to my downloads.</p>
+                        </td>
+                    </tr>
+                </py:if>
+                <tr>
+                    <td class="label"></td>
+                    <td class="buttons">
+                        <input type="submit" name="apply" value="${_('Apply changes')}" /></td>
+                </tr>
+            </table>
+        </fieldset>
+    </form>
+    <script type="text/javascript">
+        // <![CDATA[
+        $(document).ready(function () {
+            $('#new_dir_name').focus(function() {
+                $('#dir_new').attr("checked", "checked");
+            });
+        });
+        // ]]>
+    </script>
+</div>
+
+</body>
+</html>

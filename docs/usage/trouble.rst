@@ -140,6 +140,41 @@ Try installing newer version::
     sudo pip install --upgrade mercurial
 
 
+Unsupported version control system "hg": No module named repo
+=============================================================
+The installed TracMercurial_ plugin is incompatible with the Mercurial. See :ref:`install-plugin-hg`.
+
+TypeError: plain() takes exactly 1 argument (2 given)
+=====================================================
+Getting following error? The installed TracMercurial_ plugin is incompatible with the Mercurial. See :ref:`install-plugin-hg`.
+
+.. code-block:: pytb
+
+    2012-09-07 15:14:16,652 Trac[hgproject:main] ERROR: Internal Server Error:
+    Traceback (most recent call last):
+      File "/usr/lib/python2.6/site-packages/Trac-0.12.3-py2.6.egg/trac/web/main.py", line 522, in _dispatch_request
+        dispatcher.dispatch(req)
+      File "/usr/lib/python2.6/site-packages/Trac-0.12.3-py2.6.egg/trac/web/main.py", line 208, in dispatch
+        chosen_handler)
+      File "/usr/lib/python2.6/site-packages/Trac-0.12.3-py2.6.egg/trac/web/main.py", line 350, in _pre_process_request
+        chosen_handler = filter_.pre_process_request(req, chosen_handler)
+      File "/usr/lib/python2.6/site-packages/Trac-0.12.3-py2.6.egg/trac/versioncontrol/api.py", line 330, in pre_process_request
+        repo = self.get_repository(reponame)
+      File "/usr/lib/python2.6/site-packages/Trac-0.12.3-py2.6.egg/trac/versioncontrol/api.py", line 538, in get_repository
+        repos = connector.get_repository(rtype, rdir, repoinfo.copy())
+      File "/usr/lib/python2.6/site-packages/tracext/hg/backend.py", line 279, in get_repository
+        self._setup_ui(options.get('hgrc'))
+      File "/usr/lib/python2.6/site-packages/tracext/hg/backend.py", line 228, in _setup_ui
+        self.ui = trac_ui(log=self.log)
+      File "/usr/lib/python2.6/site-packages/tracext/hg/backend.py", line 329, in __init__
+        ui.__init__(self, *args)
+      File "/usr/lib64/python2.6/site-packages/mercurial/ui.py", line 44, in __init__
+        self.readconfig(f, trust=True)
+      File "/usr/lib64/python2.6/site-packages/mercurial/ui.py", line 96, in readconfig
+        if self.plain('alias'):
+    TypeError: plain() takes exactly 1 argument (2 given)
+
+
 Cannot find an implementation of the "WelcomeModule"
 ====================================================
 Trac cannot find some of the registered components. This may be due non-egg installation:

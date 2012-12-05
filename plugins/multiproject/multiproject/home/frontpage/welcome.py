@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
-from pkg_resources import resource_filename #@UnresolvedImport
+from pkg_resources import resource_filename
 
 from genshi.builder import tag
 from trac.wiki.model import WikiPage
@@ -11,7 +11,10 @@ from trac.web.chrome import ITemplateProvider, INavigationContributor
 
 from multiproject.common.projects import Projects
 from multiproject.core.configuration import conf
+from multiproject.core.users import get_userstore
 from multiproject.home.timeline.api import GlobalTimeline
+from multiproject.home.projectlist import FindProjectsModule
+
 
 class WelcomeModule(Component):
     """ Trac component for showing welcome screen for user with most relevant
@@ -53,17 +56,10 @@ class WelcomeModule(Component):
         # Get project count
         data['project_count'] = prjs.project_count()
 
-        store = conf.getUserStore()
-        user = store.getUser(req.authname)
+        user = get_userstore().getUser(req.authname)
         global_timeline = GlobalTimeline()
 
-        anon = store.getUser('anonymous')
-        if anon:
-            data['mostactiveprojects'] = prjs.get_projects_for_rss(anon.id, 0, 5, "MOSTACTIVE")
-            data['newestprojects'] = prjs.get_projects_for_rss(anon.id, 0, 5, "NEWESTFILTERED")
-            data['featuredprojects'] = prjs.get_projects_for_rss(anon.id, 0, 5, "FEATURED")
-
-        data['is_insider'] = user.isProjectBrowsingAllowed()
+        data['show_explore'] = self.env[FindProjectsModule].has_explore_perm(req)
         data['latest_events'] = global_timeline.get_latest_events(req.authname, 5)
 
         # Check if user is allowed to create project

@@ -8,33 +8,31 @@ Macros:
 REST API:
     - Start following: ``/api/project/<pid>/watch?action=watch``
     - Stop following: ``/api/project/<pid>/watch?action=unwatch``
-    - Show status: ``/api/project/<pid>/watch``
 
-      Example output:
-
-        {"is_watching": false, "project_id": 71, "count": 234}
+    After completing the action, page redirects to page defined with ``goto`` argument.
 
 """
 import re
 
 from pkg_resources import resource_filename
-from trac.core import Component, implements
-from trac.wiki.api import parse_args
-from trac.web.api import IRequestHandler
-from trac.wiki.api import IWikiMacroProvider
-from trac.web.chrome import add_script, ITemplateProvider, Chrome, tag, _
 
-from multiproject.core.restful import send_json
+from genshi.filters import Transformer
+from trac.core import Component, implements, TracError
+from trac.util.translation import ngettext
+from trac.wiki.api import parse_args
+from trac.web.api import IRequestHandler, ITemplateStreamFilter
+from trac.wiki.api import IWikiMacroProvider
+from trac.web.chrome import ITemplateProvider, Chrome, tag, _
+
 from multiproject.core.users import get_userstore
 from multiproject.core.watchlist import CQDEWatchlistStore
-from multiproject.common.projects.projects import Projects
-
+from multiproject.common.projects.projects import Project
 
 REQ_REGEXP = re.compile('\/api\/project/(?P<pid>\d+)\/watch')
 
 
 class WatchProjectsModule(Component):
-    implements(IRequestHandler, IWikiMacroProvider, ITemplateProvider)
+    implements(IRequestHandler, IWikiMacroProvider, ITemplateProvider, ITemplateStreamFilter)
 
     # Macros
     macros = {
@@ -61,6 +59,15 @@ Example usage:
         return REQ_REGEXP.match(req.path_info)
 
     def process_request(self, req):
+        """
+        Handles the request
+
+        :param req: Request
+        :return: json
+        """
+        if req.method != 'POST':
+            raise TracError('Invalid request')
+
         req.perm.require('TIMELINE_VIEW')
 
         userstore = get_userstore()
@@ -77,27 +84,16 @@ Example usage:
         user = userstore.getUser(req.authname)
         uid = user.id if user else None
 
-        is_watching = watchstore.is_watching(uid, project_id)
-        watchers = len(watchstore.get_watchers_by_project(project_id))
-
-        # Return status
-        if not action or not uid or req.authname == 'anonymous':
-            data = {
-                'project_id': project_id,
-                'is_watching': is_watching,
-                'count' : watchers
-            }
-            return send_json(req, data)
-
         # Start following
-        elif action == 'watch':
+        if action == 'watch':
             watchstore.watch_project(uid, project_id)
 
         # Stop following
         elif action == 'unwatch':
             watchstore.unwatch_project(uid, project_id)
 
-        return send_json(req, 'ok')
+        goto = req.args.get('goto', req.href(''))
+        return req.redirect(goto)
 
     # IWikiMacroProvider methods
 
@@ -125,13 +121,17 @@ Example usage:
                 args = args[1]
 
         # Read optional project name - fallback to current
-        project_name = self.env.path.rsplit('/', 1)[1]
+        project_name = self.env.project_identifier
         if args and 'project' in args:
             project_name = args.get('project', '').strip()
 
         # Load project id from db
-        papi = Projects()
-        project_id = papi.get_project_id(project_name)
+        project_id = Project.get(env_name=project_name).id
+        watchers, is_watching = self._get_status(req, project_id)
+
+        # If user is already watching, do not show the block
+        if is_watching:
+            return tag.div('')
 
         # Show macro only when user has permission to view timeline
         if name not in self.macros or 'TIMELINE_VIEW' not in req.perm or not project_id:
@@ -154,13 +154,16 @@ Example usage:
         # Return rendered HTML with JS attached to it
         data = {
             'project_id': project_id,
-            'env_name': self.env.path.rsplit('/', 1)[1],
+            'env_name': self.env.project_identifier,
             'project_name': project_name
         }
 
-        # FIXME: Script does not get loaded in all setups. Using script element in template instead
-        #add_script(req, 'multiproject/js/watch.js')
-        return Chrome(self.env).render_template(req, 'multiproject_watch.html', data, fragment=True)
+        chrome = Chrome(self.env)
+        stream = chrome.render_template(req, 'multiproject_watch.html', data, fragment=True)
+        if req.form_token:
+            stream |= chrome._add_form_token(req.form_token)
+
+        return stream
 
     # ITemplateProvider methods
 
@@ -174,3 +177,69 @@ Example usage:
     def get_templates_dirs(self):
         return []
 
+    # ITemplateStreamFilter methods
+
+    def filter_stream(self, req, method, filename, stream, data):
+        """
+        Adds project follower information in project summary block::
+
+            Followers: You and 1 other
+            Followers: You and 10 others
+            Followers: 10
+
+        """
+        # Filter only the summary table wiki macro
+        if filename != 'multiproject_summary.html':
+            return stream
+
+        # Load project and followers info
+        project = Project.get(self.env)
+        watchers, is_watching = self._get_status(req, project.id)
+
+        # By default show only the number
+        status = tag.span(watchers)
+
+        # Show link to user preferences
+        if is_watching:
+            status = tag.a('You', href=req.href('../home/prefs/following'))
+
+            # And others?
+            watchers -= 1
+            if watchers:
+                status += ngettext(" and %(count)s other", " and %(count)s others", watchers, count=watchers)
+
+        # Add following information into project summary block
+        trans = Transformer('//div[@class="summary"]/table').append(
+            tag.tr(
+                tag.th('Followers:'),
+                tag.td(status)
+            )
+        )
+
+        return stream | trans
+
+    # Internal methods
+
+    def _get_status(self, req, project_id):
+        """
+        Returns the watching status as a tuple:
+
+        - Number of followers
+        - True/False whether current user is already following or not
+
+        :param req: Trac Request
+        :return: Status
+        :rtype: tuple
+        """
+        # Load watching info
+        userstore = get_userstore()
+        user = userstore.getUser(req.authname)
+        watchstore = CQDEWatchlistStore()
+        is_watching = False
+
+        # NOTE: Some environments may not have special anonymous/authenticated users, thus user can be None
+        if user:
+            is_watching = watchstore.is_watching(user.id, project_id)
+        watchers = len(watchstore.get_watchers_by_project(project_id))
+
+        return watchers, is_watching

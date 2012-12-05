@@ -1,16 +1,38 @@
 # -*- coding: utf-8 -*-
-from trac.core import Component, implements
+from trac.core import Component, implements, Interface, ExtensionPoint
 from trac.admin.api import IAdminPanelProvider
 
-from multiproject.common.projects import Projects
-from multiproject.core.configuration import conf
-from multiproject.project.summary.news import ProjectNews
+from multiproject.common.wiki.news import ProjectNews
+from multiproject.common.projects import Project
 from multiproject.core.permissions import CQDEUserGroupStore
+
+
+class IAnnouncementAdminListener(Interface):
+    """
+    Extension point interface for components that require notification
+    when announcement visibility settings have been changed.
+    """
+
+    def announcements_hidden(self):
+        """
+        Called when announcements are hidden.
+        """
+        pass
+
+    def announcements_visible(self):
+        """
+        Called when announcements are set visible.
+        """
+        pass
+
 
 class NewsForumAdminPanel(Component):
     """ Trac admin panel component for announcements
     """
     implements(IAdminPanelProvider)
+
+    # Extension points
+    announcement_admin_listeners = ExtensionPoint(IAnnouncementAdminListener)
 
     # IAdminPanelProvider interface requirement
     def get_admin_panels(self, req):
@@ -29,8 +51,7 @@ class NewsForumAdminPanel(Component):
 
         showforum = self.config.getbool('discussion', 'show_news_forum', True)
 
-        projects = Projects()
-        project = projects.get_project(env_name = conf.resolveProjectName(self.env))
+        project = Project.get(self.env)
         groupstore = CQDEUserGroupStore(project.trac_environment_key)
         (public_exists, allowed) = self.get_announce_allowed(groupstore)
 
@@ -39,10 +60,16 @@ class NewsForumAdminPanel(Component):
                 self.config.set('discussion', 'show_news_forum', 'false')
                 self.config.save()
                 showforum = False
+                # Notify listeners
+                for listener in self.announcement_admin_listeners:
+                    listener.announcements_hidden()
             elif 'showforum' in req.args:
                 self.config.set('discussion', 'show_news_forum', 'true')
                 self.config.save()
                 showforum = True
+                # Notify listeners
+                for listener in self.announcement_admin_listeners:
+                    listener.announcements_visible()
             elif 'allow' in req.args:
                 #Allow should add the DISCUSSION_ANNOUNCE_APPEND to the "public contributors" group.
                 groupstore.grant_permission_to_group("Public contributors", "DISCUSSION_ANNOUNCEAPPEND")
@@ -52,9 +79,8 @@ class NewsForumAdminPanel(Component):
                 groupstore.revoke_permission_from_group("Public contributors", "DISCUSSION_ANNOUNCEAPPEND")
                 (public_exists, allowed) = self.get_announce_allowed(groupstore)
             elif 'rename' in req.args:
-                news = ProjectNews(self.env)
+                news = ProjectNews(project.env_name)
                 news.rename_news_forum(req.args.get('forumname'))
-
 
         data = {}
         data['showforum'] = showforum

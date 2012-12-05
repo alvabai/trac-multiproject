@@ -18,6 +18,7 @@ from trac.config import Configuration
 from trac.util.datefmt import to_utimestamp, utc
 
 from multiproject.core.cache.project_cache import ProjectCache
+from multiproject.core.files.files_conf import FilesConfiguration, FilesDownloadConfig
 from multiproject.core.permissions import CQDEUserGroupStore
 from multiproject.core.configuration import conf
 from multiproject.core.util import filesystem
@@ -581,7 +582,7 @@ class CreateDav(Command):
     def __init__(self, project):
         Command.__init__(self)
         self.name = "CreateDav"
-        self.dav_sys_path = project.get_dav_fs_path()
+        self.dav_sys_path = project.dav_fs_path
         conf.log.debug(self.dav_sys_path)
 
     def do(self):
@@ -601,6 +602,54 @@ class CreateDav(Command):
                 return False
         return True
 
+class CreateFilesDownloads(Command):
+    def __init__(self, project):
+
+        # Import this here to avoid circular references
+
+        Command.__init__(self)
+        self.name = "CreateFilesDownloads"
+        self.project = project
+        self.default_directory = FilesConfiguration().default_downloads_directory
+        self.download_config = FilesDownloadConfig(self.project.env_name)
+        self.downloads_dir = filesystem.safe_path(self.download_config.base_path.encode('utf-8'),
+            self.default_directory)
+
+    def do(self):
+        conf.log.warning('CreateFilesDownloads self.files_downloads_sys_path %s'%self.downloads_dir)
+        if not os.path.exists(self.downloads_dir):
+            try:
+                conf.log.warning('CreateFilesDownloads os.makedir %s'%self.downloads_dir)
+                os.makedirs(self.downloads_dir)
+            except Exception:
+                conf.log.exception('Failed to create project files downloads: "%s"'
+                    % self.downloads_dir)
+            if not os.path.exists(self.downloads_dir):
+                conf.log.error("Cannot create files downloads")
+                return False
+        try:
+            self.download_config.downloads_dir = self.default_directory
+            self.download_config.save()
+        except Exception:
+            conf.log.exception("Exception. CreateFilesDownloads save failed.")
+            return False
+
+        return True
+
+    def undo(self):
+        try:
+            self.download_config.delete()
+        except Exception:
+            conf.log.exception("Exception. CreateFilesDownloads delete failed.")
+            return False
+        if os.path.exists(self.downloads_dir):
+            try:
+                filesystem.rmtree(self.downloads_dir)
+            except Exception:
+                conf.log.exception('Failed to remove project files downloads')
+                return False
+
+        return True
 
 class CreateDownloads(Command):
     def __init__(self, project):

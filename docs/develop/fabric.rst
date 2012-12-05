@@ -101,7 +101,7 @@ following plugins::
     multiproject-all-1.0.0/plugins/TracCustomFieldAdmin-0.2.8_r11265-py2.7.egg
     multiproject-all-1.0.0/plugins/TracDownloads-0.3.mppv-py2.7.egg
     multiproject-all-1.0.0/plugins/TracDiscussion-0.8-py2.7.egg
-    multiproject-all-1.0.0/plugins/Trac-0.12.3-py2.7.egg
+    multiproject-all-1.0.0/plugins/Trac-0.12.4-py2.7.egg
     multiproject-all-1.0.0/plugins/TracMercurial-0.12.0.23dev_r9953-py2.7.egg
     multiproject-all-1.0.0/plugins/TracMasterTickets-3.0.2-py2.7.egg
     multiproject-all-1.0.0/plugins/Tracchildtickets-1.0.5-py2.7.egg
@@ -159,7 +159,7 @@ in the installation directory. The eggs can be installed with following commands
 
     fab -H localhost dist.deploy:package="dist/gitosis-0.2.tar.gz"
     fab -H localhost dist.deploy:package="dist/TracMercurial-0.12.0.23dev-r9953.tar.gz"
-    fab -H localhost dist.deploy:package="dist/Trac-0.12.3.tar.gz"
+    fab -H localhost dist.deploy:package="dist/Trac-0.12.4.tar.gz"
     fab -H localhost dist.deploy:package="dist/TracCustomFieldAdmin-0.2.8-r11265.tar.gz"
     fab -H localhost dist.deploy:package="dist/TracGit-0.12.0.5dev.tar.gz"
     fab -H localhost dist.deploy:package="dist/TracXMLRPC-1.1.0-r8688.tar.gz"

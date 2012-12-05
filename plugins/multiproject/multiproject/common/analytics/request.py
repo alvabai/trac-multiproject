@@ -11,7 +11,7 @@ class RequestAnalytics(Component):
     suffix_ignore_list = ['.css', '.js', '.png', '.gif', '.jpg']
 
     def __init__(self):
-        self.env_name = self.env.path.split('/')[-1]
+        self.env_name = self.env.project_identifier
 
     def pre_process_request(self, req, handler):
         # If request is applicable (not in ignore list)

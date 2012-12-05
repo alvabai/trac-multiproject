@@ -1,0 +1,25 @@
+<!--! Template snippet for a standard table header for a dirlist -->
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:py="http://genshi.edgewall.org/"
+    xmlns:xi="http://www.w3.org/2001/XInclude" py:strip="">
+
+<xi:include href="multiproject_files_util.html" />
+
+<tr class="files_entry_head ${can_edit and 'can_edit' or ''}">
+    <th class="first_col"><span py:if="not can_edit">&nbsp;</span>
+        <input py:if="can_edit" type="checkbox" value="check_all" class="file_selector check_all" alt="${_('Select or unselect all')}"/>
+    </th>
+    <th class="filename">
+        <span>Name</span>
+    </th>
+    <th class="change"><span>Date modified</span></th>
+    <th class="type"><span>Type</span></th>
+    <th class="size"><span>Size</span></th>
+    <th class="other ${can_edit and 'with_buttons' or ''}"><py:if test="can_edit"><div class="dir_button_row">
+        ${action_button(None, 'modify_mode', 'open_in_mode', 'Modify', 'modify_mode')}
+        ${action_button(None, 'upload_mode', 'open_in_mode', 'Upload', 'upload_mode')}
+        ${action_button(None, 'add_mode', 'open_in_mode', 'Add folder', 'add_mode')}
+        </div></py:if></th>
+
+</tr>
+</html>

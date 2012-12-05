@@ -5,9 +5,9 @@ Provides components for project team listing and handling.
 from pkg_resources import resource_filename
 from trac.wiki.api import IWikiMacroProvider
 from trac.core import Component, implements
-from trac.web.chrome import ITemplateProvider, tag, Markup, _, Chrome
+from trac.web.chrome import ITemplateProvider, tag, _, Chrome
 
-from multiproject.common.projects.projects import Projects
+from multiproject.common.projects.projects import Project
 from multiproject.core.configuration import conf
 from multiproject.core.permissions import CQDEUserGroupStore
 from multiproject.core.users import get_userstore
@@ -46,21 +46,25 @@ class ProjectTeam(Component):
             )
 
         # Load project info from optional project argument. Defaults to current env
-        project_name = self.env.path.rsplit('/', 1)[1]
-
-        papi = Projects()
-        project = papi.get_project(env_name=project_name)
+        project = Project.get(self.env)
         team, members = self._get_team_info(project)
 
         # Return rendered HTML with JS attached to it
         data = {
             'project_id': project.id,
-            'env_name': self.env.path.rsplit('/', 1)[1],
-            'project_name': project_name,
+            'env_name': self.env.project_identifier,
+            'project_name': self.env.project_identifier,  # TODO: redundant
             'team': team,
+            'members': members
         }
 
-        return Chrome(self.env).render_template(req, 'multiproject_team.html', data, fragment=True)
+        # NOTE: Use fragment to not to recreate chrome (add_script does not work) and run post processing manually
+        chrome = Chrome(self.env)
+        stream = chrome.render_template(req, 'multiproject_team.html', data, fragment=True)
+        if req.form_token:
+            stream |= chrome._add_form_token(req.form_token)
+
+        return stream
 
     # Internal methods
 
@@ -73,7 +77,7 @@ class ProjectTeam(Component):
         :returns: tuple of data: teams, members
         """
         ug = CQDEUserGroupStore(project.trac_environment_key)
-        team = sorted(ug.get_all_user_groups(), key = lambda tmp: tmp[1])
+        team = sorted(ug.get_all_user_groups(), key=lambda tmp: tmp[1])
 
          # TODO: Implement better
 

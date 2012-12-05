@@ -5,16 +5,19 @@ News forum macro for wiki pages, to list project news, or some other project new
 This can be embedded on any wiki page instead of it being hard coded into the
 Project Summary page.
 """
+import os
+
 from pkg_resources import resource_filename
 
+from trac.perm import PermissionCache
 from trac.wiki.api import IWikiMacroProvider, parse_args
 from trac.core import Component, implements, TracError
 from trac.web.chrome import ITemplateProvider, Chrome
+from trac.env import open_environment
 
 from multiproject.core.db import safe_string, safe_int
-from multiproject.core.permissions import CQDEPermissionPolicy
 from multiproject.core.util import to_web_time
-from multiproject.project.summary.news import ProjectNews
+from multiproject.common.wiki.news import ProjectNews
 from multiproject.common.environment import TracEnvironment
 
 
@@ -64,6 +67,7 @@ Will return last 10 news from project "multiproject"
             return None
 
         data = {}
+        req = formatter.req
 
         env_name = None
         count = 0
@@ -78,7 +82,7 @@ Will return last 10 news from project "multiproject"
             count = 5
 
         data['news_title'] = title
-        current_env_name = self.env.path.split('/')[-1]
+        current_env_name = self.env.project_identifier
 
         if not env_name:
             env_name = current_env_name
@@ -95,10 +99,23 @@ Will return last 10 news from project "multiproject"
 
         # Then check the permissions
         if mpp_env:
-            has_permission = CQDEPermissionPolicy().check_permission(
-                mpp_env.environment_id, 'DISCUSSION_VIEW', formatter.req.authname)
+            # Check if project's announcements have been configured as hidden
+            if env_name != current_env_name:
+                env = open_environment(os.path.join(
+                    self.config.get('multiproject', 'sys_projects_root'),
+                    env_name),
+                    use_cache=True
+                )
+            else:
+                env = self.env
 
-            if has_permission:
+            if not env.config.getbool('discussion', 'show_news_forum', True):
+                self.log.debug("Project announcements hidden, not showing with macro")
+                return None
+
+            # Check permission in specified environment
+            permcache = PermissionCache(env, username=req.authname)
+            if 'DISCUSSION_VIEW' in permcache:
                 try:
                     news = ProjectNews(env_name)
                     data['newsitems'] = news.get_project_news(limit=count)
@@ -111,8 +128,6 @@ Will return last 10 news from project "multiproject"
 
         # This function should be Genshi template macro or something
         data['to_web_time'] = to_web_time
-
-        self.log.debug(data)
 
         # Render the macro content with a genshi template. Note that errors are printed on
         # screen with some user friendly texts instead of exceptions (on most common cases

@@ -1,11 +1,13 @@
 from trac.core import Component, implements
 from trac.web.api import IRequestFilter
 
-from multiproject.core.configuration import conf
+from multiproject.core.users import get_userstore
+
 
 class GlobalSessionLocalizer(Component):
-    """ Component for filling up some global session fields
-        if they are not set
+    """
+    Component for filling up some global session fields
+    if they are not set
     """
     implements(IRequestFilter)
 
@@ -32,8 +34,7 @@ class GlobalSessionLocalizer(Component):
     def update_user_data(self, req):
         """ Updates all user data into session
         """
-        users = conf.getUserStore()
-        user = users.getUser(req.authname)
+        user = get_userstore().getUser(req.authname)
 
         req.session['email'] = user.mail
         req.session['name'] = user.getDisplayName()

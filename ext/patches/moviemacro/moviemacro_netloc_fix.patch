@@ -1,0 +1,22 @@
+--- movie/macro.py	2012-09-12 14:44:23.749186216 +0300
++++ movie/macro.py	2012-09-18 09:27:59.146865075 +0300
+@@ -48,16 +48,16 @@
+         return url
+
+     if scheme in ('htdocs', 'chrome'):
+-        return ujoin(base, 'chrome', path)
++        return ujoin(base, 'chrome', netloc, path)
+
+     if scheme in ('source',):
+         return ujoin(base, 'export', path)
+
+     if scheme in ('ticket',):
+-        return ujoin(base, 'raw-attachment/ticket', path)
++        return ujoin(base, 'raw-attachment/ticket', netloc, path)
+
+     if scheme in ('wiki',):
+-        return ujoin(base, 'raw-attachment/wiki', path)
++        return ujoin(base, 'raw-attachment/wiki', netloc, path)
+
+     return url
+

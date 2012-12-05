@@ -6,7 +6,7 @@ from trac.core import Component, implements
 from trac.wiki import IWikiMacroProvider
 from trac.util.html import html
 
-from multiproject.common.projects import Projects
+from multiproject.common.projects import Project
 
 
 class ProjectMacros(Component):
@@ -49,8 +49,8 @@ class ProjectMacros(Component):
         if name not in self.macros:
             return None
 
-        identifier = self.env.path.split('/')[-1]
-        project = Projects().get_project(env_name=identifier)
+        identifier = self.env.project_identifier
+        project = Project.get(self.env)
 
         if project is None:
             return None

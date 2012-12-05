@@ -50,18 +50,3 @@ class ProjectRelationsAdminPanelTestCase(CQDETestCase):
         self.assertIn('home', data)
         self.assertEquals(len(data['child_projects']), 0)
         self.assertEquals(data['parent_project'].env_name, 'publicroject')
-
-    def test_request_when_no_access(self):
-        view = multiproject.project.admin.projectrelations.ProjectForkingAdminPanel(self.cm)
-        conf.use_test_db(True)
-        self.load_fixtures()
-        req = DummyReq("username", "password", "GET", "/trac/cartoons", {})
-        req.permissions = ['VIEW']
-        view.env = DummyEnv(req)
-
-        msg = ""
-        try:
-            page, data = view.render_admin_panel(req, None, None, None) #@UnusedVariable
-        except:
-            msg = "Failed"
-        assert msg == "Failed"

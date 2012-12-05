@@ -1,0 +1,529 @@
+/*** Styles copied from browser.css, for the expanding file browser inside move ***/
+
+/* Styles for the directory entries table
+   (extends the styles for "table.listing") */
+#files table.dirlist { margin-top: 0 }
+#files table.dirlist td.rev, table.dirlist td.age, table.dirlist td.author, table.dirlist td.change {
+    white-space: nowrap;
+    vertical-align: middle;
+}
+#files table.dirlist td.rev {
+    font-family: monospace;
+    letter-spacing: -0.08em;
+    text-align: center;
+}
+#files table.dirlist td.size {
+    white-space: nowrap;
+    text-align: center;
+    vertical-align: middle;
+}
+
+#files table.dirlist td.age {
+    border-width: 0 2px 0 0;
+    border-style: solid;
+}
+
+#files table.dirlist td.name a, table.dirlist td.name span {
+    background-position: 0% 50%;
+    background-repeat: no-repeat;
+    padding-left: 20px;
+}
+#files table.dirlist td.name a.parent { background-image: url(/htdocs/trac/parent.png) }
+#files table.dirlist td.name div { white-space: pre }
+#files table.dirlist tr span.expander {
+    background-image: url(/htdocs/trac/expander_normal.png);
+    cursor: pointer;
+    padding-left: 8px;
+    margin-left: 4px;
+}
+#files table.dirlist tr span.expander:hover {
+    background-image: url(/htdocs/trac/expander_normal_hover.png);
+}
+#files table.dirlist tr.expanded span.expander {
+    background-image: url(/htdocs/trac/expander_open.png);
+    padding-left: 12px;
+    margin-left: 0;
+}
+#files table.dirlist tr.expanded span.expander:hover {
+    background-image: url(/htdocs/trac/expander_open_hover.png);
+}
+#files table.dirlist td.name a.dir { background-image: url(/htdocs/trac/folder.png) }
+#files table.dirlist td.name a.file { background-image: url(/htdocs/trac/file.png); display: block }
+#files table.dirlist td.name a, table.dirlist td.rev a { border-bottom: none }
+
+#files table.dirlist td.description { padding-left: 2em }
+#files table.dirlist td.description > :first-child { margin-top: 0 }
+#files table.dirlist td.description > :last-child { margin-bottom: 0 }
+
+#files table.dirlist td span.loading {
+    background-image: url(/htdocs/trac/loading.gif);
+    font-style: italic
+}
+
+/*** Styles for files tab ***/
+
+#files #header_table {
+    border-top: 2px solid #0AACFD;
+}
+
+/* Styles for web dav mount url */
+
+#files div.mounturl #map_text, #files #header_table #folders_text div {
+    /* from h2 style */
+    margin-top: 12px;
+    margin-bottom: 10px;
+    color: #0AACFD;
+    font-family: NokiaPureTextLight, sans-serif;
+    font-size: 22px;
+    font-weight: normal;
+    letter-spacing: -0.07em;
+}
+
+#files #header_table #folders_text {
+    width: 40%;
+}
+
+#files div.mounturl #copybutton {
+    max-width: 30%;
+}
+
+#files div.mounturl input[type=text] {
+    height: 18px;
+    overflow: hidden;
+    white-space: nowrap;
+    width: 70%;
+}
+
+/* Styles for breadcrumb path BEGIN */
+
+#files .parent_dir_breadcrumb {
+    margin-left: 1em;
+    font-size: 1.2em;
+    margin-bottom: 0;
+    margin-top: 12px;
+}
+
+#files .parent_dir_breadcrumb .separator {
+    background: transparent url('../images/category_list_arrows.png') no-repeat 0 1px;
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+}
+
+/* Styles for breadcrumb path END */
+
+/* Styles for files entries, both in wiki context and in Files tab BEGIN */
+
+.files_entries .files_entry_body .files_entry_body_container {
+    padding: 0 10px 10px;
+}
+
+.files_entries .files_entry_body .files_entry_body_container .mode_area {
+    padding: 10px;
+    background: white;
+    border-radius: 10px;
+}
+
+.files_entries .files_entry_body .node_button_row {
+    text-align: right;
+    padding-right: 15px;
+}
+
+/* Styles for files entries, both in wiki context and in Files tab END */
+
+/* Styles for mode_button BEGIN */
+
+.node_button_row > .mode_button,
+#files .dir_button_row > .mode_button {
+    width: 72px;
+    text-align: center;
+    color: #1f70b9;
+    font-size: 12px;
+    text-decoration: none;
+    padding: 0;
+    line-height: 18px;
+    display: inline-block;
+    border-radius: 10px 10px 0 0;
+}
+.node_button_row > .mode_button {
+    margin-top: 5px;
+}
+#files .dir_button_row > .mode_button {
+    vertical-align: middle;
+}
+#files .dir_button_row > .mode_button:hover,
+.node_button_row > .mode_button:hover {
+    text-decoration: none;
+}
+.node_button_row > .mode_button:hover {
+    color: #395796;
+    background: #cbcbcb;
+}
+#files .files_entries .files_entry_body.action_row .node_button_row > .mode_button:hover {
+    color: white;
+    background: #1f70b9;
+}
+#files .files_entries .files_entry_body.action_row .node_button_row > .mode_button.current_mode_button:hover,
+.node_button_row .mode_button.current_mode_button:hover,
+.node_button_row .mode_button.current_mode_button {
+    background: white;
+    color: #1f70b9;
+}
+
+#files .no_mode .dir_button_row > .mode_button,
+#files .files_entries .files_entry_body.action_row.no_mode .node_button_row > .mode_button {
+    border-radius: 10px;
+}
+
+#files .dir_button_row > .mode_button:hover {
+    color: white;
+    background: #1f5ea4;
+}
+#files .dir_button_row > .mode_button.current_mode_button:hover,
+#files .dir_button_row > .mode_button.current_mode_button {
+    background: #1f70b9;
+    color: white;
+}
+
+#files .dir_button_row > .mode_button .action_icon,
+.node_button_row > .mode_button .action_icon {
+    background: transparent url("../images/files_button_images.png") no-repeat scroll 0 2px;
+    display: inline-block;
+    height: 38px;
+    width: 72px;
+}
+
+.node_button_row .mode_button.download_mode > span.action_icon { background-position: 0 2px; }
+#files .node_button_row .mode_button.edit_mode > span.action_icon { background-position: 0 -52px; }
+#files .node_button_row .mode_button.move_multiple_mode > span.action_icon { background-position: 0 -106px; }
+#files .node_button_row .mode_button.move_mode > span.action_icon { background-position: 0 -106px; }
+#files .node_button_row .mode_button.delete_multiple_mode > span.action_icon { background-position: 0 -160px; }
+#files .node_button_row .mode_button.delete_mode > span.action_icon { background-position: 0 -160px; }
+.node_button_row .mode_button.show_mode > span.action_icon { background-position: 0 -376px; }
+#files .dir_button_row .mode_button.upload_mode > span.action_icon { background-position: 0 -214px; }
+#files .dir_button_row .mode_button.add_mode > span.action_icon { background-position: 0 -268px; }
+#files .dir_button_row .mode_button.modify_mode > span.action_icon { background-position: 0 -322px; }
+
+/* Styles for mode_button END */
+
+#files .files_entries .files_entry_body.edit_mode,
+#files .files_entries .files_entry_body.move_mode,
+#files .files_entries .files_entry_body.show_mode,
+#files .files_entries .files_entry_body.delete_mode {
+    display: block;
+}
+
+.files_entries .files_entry_body .download_count {
+    float: right;
+    font-weight: bold;
+}
+.files_entries .files_entry_body .is_featured {
+    float: right;
+    font-weight: bold;
+    clear: right;
+    background: transparent url("../images/files_featured.png") no-repeat scroll left center;
+    padding-left: 26px;
+}
+
+.files_entries .files_entry_body dl.files_form {
+    width: 70%;
+}
+.files_entries .files_entry_body dl.files_form > dt {
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 13px;
+}
+.files_entries .files_entry_body dl.files_form > dt.error {
+    color: #f10000;
+}
+.files_entries .files_entry_body dl.files_form > dd {
+    margin-bottom: 10px;
+    margin-left: 1em;
+}
+
+#files .files_entries .files_entry_body .mode_area {
+    display: none;
+}
+
+#files .files_entries .files_entry_body .mode_area.current_mode_area {
+    display: block;
+}
+
+.files_entries > .files_entry_head > .filename .node_icon,
+#files .files_heading > .files_entry_head > th,
+.files_entries > .files_entry_head > td > span {
+    font-size: 14px;
+}
+#files .files_heading > .files_entry_head > th,
+.files_entries > .files_entry_head > td {
+    padding: 14px 0 14px 15px;
+    vertical-align: baseline;
+}
+.files_entries > .files_entry_head > .filename {
+    padding: 0 0 0 15px;
+}
+.files_entries > .files_entry_head > .filename > .file_icon,
+.files_entries > .files_entry_head > .filename > span {
+    padding: 14px 0;
+    display: inline-block;
+}
+#files .files_heading > .files_entry_head > th {
+    padding: 14px 0 14px 15px;
+    font-weight: bold;
+    text-align: left;
+}
+
+#files .files_heading > .files_entry_head.can_edit > th {
+    padding-bottom: 0;
+}
+
+.files_entries > .files_entry_head > td {
+    cursor: pointer;
+}
+
+.files_entries .files_entry_body {
+    position: relative;
+    display: none;
+    border-right: 1px #cbcbcb solid;
+    border-bottom: 1px #cbcbcb solid;
+    border-left: 1px #cbcbcb solid;
+    border-radius: 0 0 10px 10px;
+    background: #f1f1f1; /* files entry body */
+}
+
+/* define borders for the head in non-opened state */
+.files_entries > .files_entry_head {
+    background: white; /*item background*/
+}
+.files_entries > .files_entry_head > td {
+    border-top: 1px #cbcbcb solid;
+    border-bottom: 1px #cbcbcb solid;
+    white-space: nowrap;
+}
+
+#files .files_heading > .files_entry_head > th.first_col,
+.files_entries > .files_entry_head > td.first_col {
+    padding-left: 0;
+    padding-right: 0;
+}
+.files_entries > .files_entry_head > td.first_col {
+    border-left: 1px #cbcbcb solid;
+    border-radius: 10px 0 0 10px;
+}
+
+.files_entries > .files_entry_head > td.other {
+    border-right: 1px #cbcbcb solid;
+    border-radius: 0 10px 10px 0;
+    height: 10px;
+    min-width: 26px;
+}
+/* when entry hovers */
+.files_entries .files_entry_body.hovered,
+.files_entries > .files_entry_head:hover > td {
+    border-color: #0aadfe;
+}
+/* when entry is opened */
+.files_entries > .files_entry_head.opened > td {
+    background: #f1f1f1; /* files_entry_head opened */
+    border-bottom: 1px #cbcbcb solid;
+}
+.files_entries > .files_entry_head.opened > td.first_col {
+    border-radius: 10px 0 0 0;
+}
+.files_entries > .files_entry_head.opened > td.other {
+    border-radius: 0 10px 0 0;
+}
+
+.files_entries tr > .td_between {
+    height: 1em;
+}
+
+table.files_table {
+    border-collapse: separate;
+}
+
+/* when entry is checked */
+.files_entries > .files_entry_head.opened:hover > td,
+.files_entries > .files_entry_head.checked > td,
+.files_entries .files_entry_body.checked {
+    border-color: #0aadfe;
+}
+
+
+/* If there are no entries, */
+#files .files_entries > .files_entry_head.no_entries > td {
+    background: #F7F7F7;
+}
+
+#files .parent_dir_breadcrumb > .breadcrumb_item > .node_icon,
+.files_entries > .files_entry_head > .filename .node_icon {
+    display: inline-block;
+    width: 32px;
+    height: 42px;
+    vertical-align: top;
+}
+.files_entries > .files_entry_head > .filename .node_icon {
+    vertical-align: top;
+}
+
+#files .parent_dir_breadcrumb > .breadcrumb_item > .node_icon {
+    vertical-align: middle;
+}
+
+#files .parent_dir_breadcrumb > .breadcrumb_item > .node_icon.icon_folder,
+.files_entries > .files_entry_head > .filename .node_icon.icon_folder {
+    background: transparent url("../images/files_icon_folder.png") no-repeat scroll center center;
+}
+
+.files_entries > .files_entry_head > .filename .node_icon.icon_file {
+    background: transparent url("../images/files_icon_file.png") no-repeat scroll center center;
+}
+
+#files .parent_dir_breadcrumb > .breadcrumb_item > .node_icon.icon_downloads,
+.files_entries > .files_entry_head > .filename .node_icon.icon_downloads {
+    background: transparent url("../images/files_icon_downloads.png") no-repeat scroll center center;
+}
+
+.files_entries > .files_entry_head > .filename .node_icon.icon_featured div {
+    background: transparent url("../images/files_featured.png") no-repeat scroll 12px -3px;
+    height: 20px;
+}
+
+.files_entries > .files_entry_head > .filename .node_icon.icon_error div {
+    background: transparent url("../images/files_error.png") no-repeat scroll right center;
+    height: 20px;
+}
+
+.files_entries > .files_entry_head > .filename .node_icon.icon_missing div {
+    background: transparent url("../images/files_missing.png") no-repeat scroll right center;
+    height: 20px;
+}
+
+#files .files_entries > .files_entry_head.follow_when_clicked .other {
+    /* Not used in wiki context */
+    background: none;
+}
+
+#files .files_heading  > .files_entry_head .other.with_buttons  {
+    width: 230px;
+    text-align: right;
+    padding-left: 0;
+}
+
+/* .action_row */
+#files .files_entries .files_entry_body.action_row {
+    display: none;
+    vertical-align: bottom;
+}
+#files .files_entries .files_entry_body.action_row,
+#files .files_entries > .files_entry_head.action_row td {
+    border-color: #1f70b9;
+    background: #d5f0fd; /*action row bg*/
+}
+#files .files_entries .td_between.action_row,
+#files .files_entries > .files_entry_head.action_row {
+    display: none;
+}
+#files .files_table.no_mode .files_entries tr > .td_between.no_mode {
+    display: table-cell;
+    height: 0.5em;
+}
+#files .files_entries > .files_entry_head.action_row.opened > td {
+    border-bottom: none;
+}
+#files .files_entries > .files_entry_head.action_row {
+    font-weight: bold;
+}
+#files .files_entries .files_entry_body.action_row {
+    border-color: #1f70b9;
+}
+#files .files_entry_body.add_mode .files_entry_body_container,
+#files .files_entry_body.upload_mode .files_entry_body_container,
+#old_downloads .files_entry_body_container.old_download {
+    padding-top: 15px;
+}
+
+/* Open / close image in files entries */
+#files .files_entries > .files_entry_head .other {
+    background-image: url('../images/file_list_arrows.png');
+    background-repeat: no-repeat;
+    background-position: right -44px;
+}
+
+#files .files_entries > .files_entry_head.opened .other {
+    background-position: right 0;
+}
+
+/** Files modify form BEGIN **/
+
+#files table.dirlist td.name a.dir { background-image: url(../images/files_icon_folder_small.png); background-position: 0 0; }
+#files table.dirlist td.name a.file { background-image: url(../images/files_icon_file_small.png); display: block; }
+
+#files table.dirlist > tbody > tr > td {
+    text-align: left;
+}
+
+#files table.dirlist > tbody > tr > td {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+#files table.dirlist tr.selected td.name a.dir {
+    font-weight: bold;
+    background-position: 0 -16px;
+}
+
+#files .files_table .file_selector {
+    margin-left: 20px;
+}
+
+/** Files modify form END **/
+
+/** Files download macros **/
+.files_wiki_macro.files_narrow > .files_entries > .files_entry_head {
+    border-top: 1px #cccccc solid;
+    cursor: pointer;
+    margin: 0;
+    padding: 3px 3px 0 0;
+}
+
+/* If there are no entries */
+.files_wiki_macro.files_narrow p.no_entries {
+    background: none;
+    border: none;
+    padding: 0;
+}
+.files_wiki_macro.files_narrow > .files_entries > .files_entry_head > .filename .node_icon.icon_file {
+    float: left;
+    margin-top: -2px;
+}
+.files_wiki_macro.files_narrow > .files_entries {
+    border-bottom: 1px #cccccc solid;
+}
+.files_wiki_macro.files_narrow > .files_entries > .files_entry_head > .size {
+    float: right;
+}
+.files_wiki_macro.files_narrow > .files_entries > .files_entry_head > .filename {
+    padding: 0;
+}
+
+.files_wiki_macro.files_narrow > .files_entries > .files_entry_head > .filename a {
+    font-weight: bold;
+
+}
+.files_wiki_macro.files_narrow > .files_entries > .files_entry_head > .platform {
+    margin-left: 32px;
+    display: block;
+}
+.files_wiki_macro.files_narrow > .files_entries > .files_entry_head > .created {
+    float: right;
+    clear: right;
+}
+
+.files_wiki_macro .files_entries > .files_entry_head .other {
+    text-align: right;
+    font-weight: bold;
+}
+
+
+/** Files downloads macros END **/

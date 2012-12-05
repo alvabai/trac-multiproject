@@ -10,9 +10,8 @@ time line events in the projects they watch.
 """
 from trac.util.html import plaintext
 
-from multiproject.common.projects import Projects
+from multiproject.common.projects import Project
 from multiproject.core.users import get_userstore
-from multiproject.core.configuration import Configuration
 from multiproject.core.util import to_web_time
 from multiproject.core.watchlist import CQDEWatchlistStore
 from multiproject.common.notifications.email import EmailNotifier
@@ -26,20 +25,19 @@ class WatchlistNotifier(object):
         from multiproject.home.watchlist.watchlist_notifier import WatchlistNotifier
 
         conf = Configuration.instance()
-        module = WatchlistNotifier()
-        module.notify_now(Environment(conf.getEnvironmentSysPath(conf.sys_home_project_name)),
-                          watchlist_type)
+        module = WatchlistNotifier(Environment('/path/to/projectx'))
+        module.notify_now(watchlist_type)
     """
-    def __init__(self):
-        # FIXME: We get env into notify_now(), could just use the environment config
-        # on most occasions.
-        self.conf = Configuration.instance()
+    def __init__(self, env):
+        """
+        :param Environment env: The trac Environment() object.
+        """
+        self.env = env
 
-    def notify_now(self, env, notification_frequency):
+    def notify_now(self, notification_frequency):
         """
         Send notification email to project watchers.
 
-        :param Environment env: The trac Environment() object.
         :param str notification_frequency: The notification frequency, used to fetch
             users which have something on that watchlist.
         """
@@ -52,12 +50,11 @@ class WatchlistNotifier(object):
                 notifylist[w.project_id] = []
             notifylist[w.project_id].append(w.user_id)
 
-        p = Projects()
         userstore = get_userstore()
 
         counter = 0
         for project_id in notifylist.keys():
-            project = p.get_project(project_id)
+            project = Project.get(id=project_id)
 
             # Get all events for this project
             events = self._get_project_events(project, notification_frequency)
@@ -68,23 +65,23 @@ class WatchlistNotifier(object):
                 user = userstore.getUserWhereId(user_id)
                 if user:
                     # filter eventlist by user's permissions
-                    filtered_events = WatchlistEvents().filter_events(events, user, project)
+                    filtered_events = WatchlistEvents(self.env).filter_events(events, user, project)
                     if filtered_events:
                         addresses = [user.mail]
                         message = self._format_message(user, project, filtered_events)
                         title = "Project updated: %s" % project.env_name
-                        mail = EmailNotifier(env, subject=title, data={'body':message})
+                        mail = EmailNotifier(self.env, subject=title, data={'body':message})
                         mail.notify_emails(addresses)
-                        self.conf.log.debug('Sent email notification to: %s' % user)
+                        self.env.log.debug('Sent email notification to: %s' % user)
                         counter += 1
                     else:
                         if notification_frequency != 'immediate':
-                            self.conf.log.debug('No events to sent to %s about %s' % (user, project))
+                            self.env.log.debug('No events to sent to %s about %s' % (user, project))
                 else:
-                    self.conf.log.warning('User %d in notification list was not found in userstore' % user_id)
+                    self.env.log.warning('User %d in notification list was not found in userstore' % user_id)
 
         # Log the results
-        self.conf.log.info('Sent %s watchlist notifications (%s)' % (counter, notification_frequency))
+        self.env.log.info('Sent %s watchlist notifications (%s)' % (counter, notification_frequency))
 
 
     def _get_project_events(self, project, notification_frequency):
@@ -95,7 +92,7 @@ class WatchlistNotifier(object):
             'daily': (1, 0),
             'weekly': (7, 0)
         }
-        return WatchlistEvents().get_project_events(project,
+        return WatchlistEvents(self.env).get_project_events(project,
             days=time[notification_frequency][0],
             minutes=time[notification_frequency][1])
 
@@ -103,6 +100,9 @@ class WatchlistNotifier(object):
         """
         Create the text body for email
         """
+        url_home = self.env.config.get('multiproject', 'url_home').rstrip('/')
+        url_service = self.env.config.get('multiproject', 'url_service').rstrip('/')
+
         # TODO: Move into template
         msg = "Hi %s,\nhere are the latest updates for the project %s that you are following.\n" % (
         user.username, project.project_name)
@@ -112,7 +112,7 @@ class WatchlistNotifier(object):
             description = self._get_event_description(event, context)
             date = to_web_time(event['date'])
             author = event['author']
-            event_url = self.conf.url_service + str(event['render']('url', context))
+            event_url = url_service + str(event['render']('url', context))
 
             msg += "\n%s\n" % event_title
             if description:
@@ -120,7 +120,7 @@ class WatchlistNotifier(object):
             msg += "%s by %s\n" % (date, author)
             msg += "Read more about this at %s\n" % event_url
 
-        prefs = self.conf.url_home + "/prefs/following"
+        prefs = url_home + "/prefs/following"
         msg += "\nYou are receiving this e-mail because you subscribed to this project. "
         msg += "You may edit the frequency or stop following this project at %s.\n" % prefs
         return msg

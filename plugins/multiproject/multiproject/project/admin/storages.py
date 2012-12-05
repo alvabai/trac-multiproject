@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-from pkg_resources import resource_filename #@UnresolvedImport
+from pkg_resources import resource_filename
 
 from trac.core import Component, implements
 from trac.web.chrome import ITemplateProvider
 from trac.admin.api import IAdminPanelProvider
 
-from multiproject.common.projects import Projects
+from multiproject.common.projects import Project
 from multiproject.core.configuration import conf
+
 
 class StoragesAdminPanel(Component):
     """ Trac admin panel component
@@ -26,17 +27,15 @@ class StoragesAdminPanel(Component):
         """
         req.perm.require('TRAC_ADMIN')
 
-        env_name = self.env.path.split('/')[-1]
-        project = Projects().get_project(env_name = env_name)
-        vcs_type = conf.getVersionControlType(env_name) # TODO: deprecate / heavy call!
+        project = Project.get(self.env)
+        vcs_type = conf.getVersionControlType(self.env.project_identifier)  # TODO: deprecate / heavy call!
         vcs_url = project.get_repository_url()
 
-        data = {}
-        data['vcs_name'] = conf.getVersionControlName(vcs_type)
-        data['vcs_type'] = vcs_type
-        data['vcs_url'] = vcs_url
-        data['dav_url'] = project.get_dav_url()
-        data['vcs_cmd'] = 'clone'
+        data = {'vcs_name': conf.getVersionControlName(vcs_type),
+                'vcs_type': vcs_type,
+                'vcs_url': vcs_url,
+                'dav_url': project.get_dav_url(),
+                'vcs_cmd': 'clone'}
 
         if vcs_type == "svn":
             data['vcs_cmd'] = 'checkout'

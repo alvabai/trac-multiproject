@@ -6,9 +6,9 @@ Migration updates passwords of the users which are not local:
   with authentication key other than that of local.
 
 """
+from multiproject.core.authentication import CQDEAuthenticationStore
 from multiproject.core.db import admin_query, cursors, safe_int
 from multiproject.core.migration import MigrateBase, MigrateMgr
-from multiproject.core.permissions import CQDEAuthenticationStore
 
 
 class NonLocalUsersPasswordHashInvalidating(MigrateBase):

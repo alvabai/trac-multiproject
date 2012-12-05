@@ -827,7 +827,7 @@ table.wiki tbody tr.details {
 a.closed:link, a.closed:visited, span.closed { text-decoration: line-through }
 /* Copy ui.css definitions for  ul  also for  ol  */
 ol {
-    margin: 0 0 30px 17px;
+    margin: 0 0 30px 20px;
     color:#555555;
     font-size:12px;
 }

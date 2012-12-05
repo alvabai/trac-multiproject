@@ -6,9 +6,9 @@ This module populates the `project_user_visibility` table of trac admin db.
 This table is used currently only when searching for projects in explore view
 (see note).
 
-If in project X, anonymous user has 'SUMMARY_VIEW' permission, the table
+If in project X, anonymous user has 'PROJECT_VIEW' permission, the table
 `project_user_visibility` will have ([project X id], [anon user id]) row inserted.
-Else, if in project X, user A has 'SUMMARY_VIEW', the table `project_user_visibility`
+Else, if in project X, user A has 'PROJECT_VIEW', the table `project_user_visibility`
 will have row ([project X id], [user A id]) inserted.
 
 This means that if the user A has visibility to the project X, there is either
@@ -46,24 +46,25 @@ from time import time
 
 from multiproject.common.projects import Projects
 from multiproject.core.configuration import conf
-from multiproject.core.permissions import CQDEPermissionPolicy, CQDEPermissionHelper
+from multiproject.core.permissions import CQDEPermissionPolicy, get_permission_id
 from multiproject.core.db import admin_query, admin_transaction, safe_int
+from multiproject.core.users import get_userstore
+from multiproject.core.util.mockenv import MockEnvironment
+
 
 class ProjectUserVisibilityGenerator():
     def __init__(self, verbose=False):
         """
         If verbose = None, be absolutely quiet
         """
-        #init stuff
         self.verbose = verbose
-        self.policy = CQDEPermissionPolicy()
+        self.policy = CQDEPermissionPolicy(MockEnvironment())
         self.papi = Projects()
         self.batch_size = conf.visibility_db_batch_size
-        self.required_permission = 'SUMMARY_VIEW'
+        self.required_permission = 'PROJECT_VIEW'
 
     def get_anonymous_user_id(self):
-        user_store = conf.getUserStore()
-        anon = user_store.getUser('anonymous')
+        anon = get_userstore().getUser('anonymous')
         if anon:
             anon_id = safe_int(anon.id)
         else:
@@ -72,12 +73,16 @@ class ProjectUserVisibilityGenerator():
         return anon_id
 
     def get_public_project_pairs(self, anon_id):
-        permission_helper = CQDEPermissionHelper.instance()
-        perms = self.policy.get_granting_permissions(self.required_permission)
-        # perms == ['SUMMARY_VIEW', 'VIEW', 'MODIFY', 'CREATE', 'DELETE', 'TRAC_ADMIN']
-        perm_ids = [permission_helper.get_permission_id(perm) for perm in perms]
+        """
+        :param anon_id: Anonymous user_id
+        :return: List of tuples (project_id, trac_environment_key)
+        """
+        # TODO: it's not clearly defined when project is public
+        perms = ['PROJECT_VIEW', 'TRAC_ADMIN']
+        perm_ids = [get_permission_id(perm) for perm in perms]
 
-        query = """SELECT DISTINCT p.project_id, p.trac_environment_key FROM projects p
+        query = """SELECT DISTINCT p.project_id, p.trac_environment_key
+                          FROM projects p
                     INNER JOIN `group` g ON g.trac_environment_key = p.trac_environment_key
                     INNER JOIN user_group ON user_group.group_key = g.group_id
                     INNER JOIN group_permission ON group_permission.group_key = g.group_id
@@ -166,7 +171,6 @@ class ProjectUserVisibilityGenerator():
     def user_can_view_project(self, trac_environment_key, username):
         return self.policy.check_permission(trac_environment_key, self.required_permission, username)
 
-
     def clear_visibilities(self):
         query = "TRUNCATE TABLE project_user_visibility"
         with admin_transaction() as cursor:
@@ -179,7 +183,6 @@ class ProjectUserVisibilityGenerator():
                     print e
                 conf.log.exception("Exception. ProjectUserVisibilityGenerator.clear_visibilities "
                                    "failed with query '''%s'''." % query)
-
 
     def batch_insert(self, visibilities):
         query = "INSERT INTO project_user_visibility (project_id, user_id) VALUES "
@@ -196,7 +199,6 @@ class ProjectUserVisibilityGenerator():
                     print query
                     print e
                 conf.log.exception("Exception. ProjectUserVisibilityGenerator.batch_insert '''%s'''." % query)
-
 
     def flush_buffer(self):
         if len(self.buffer) > 0:
@@ -263,6 +265,7 @@ class ProjectUserVisibilityGenerator():
 
         return big_list, trues, falses
 
+
 class User():
     def __init__(self):
         self.user_id = None
@@ -278,6 +281,7 @@ class User():
     def __repr__(self):
         return "<User:" + str(self.user_id) + ":" + str(self.username) + ">"
 
+
 class ProjectUserVisibility():
     def __init__(self, project_id, user_id):
         self.project_id = project_id
@@ -285,6 +289,7 @@ class ProjectUserVisibility():
 
     def __repr__(self):
         return "<ProjectUserVisibility:" + str(self.project_id) + ":" + str(self.user_id) + ">"
+
 
 def main():
     verbose = False

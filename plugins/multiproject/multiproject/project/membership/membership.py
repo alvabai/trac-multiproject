@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
-from pkg_resources import resource_filename #@UnresolvedImport
+from pkg_resources import resource_filename
 
 from trac.perm import IPermissionRequestor
 from trac.core import Component, implements
@@ -8,8 +8,7 @@ from trac.web import IRequestHandler
 from trac.web.chrome import ITemplateProvider
 
 from multiproject.common.membership.api import MembershipApi
-from multiproject.common.projects import Projects
-from multiproject.core.configuration import conf
+from multiproject.common.projects import Project
 from multiproject.core.permissions import CQDEUserGroupStore
 
 
@@ -25,12 +24,12 @@ class MembershipRequestModule(Component):
         return re.match(r'/membership(?:_trac)?(?:/.*)?$', req.path_info)
 
     def process_request(self, req):
-        req.perm.require('ALLOW_REQUEST_MEMBERSHIP')
+        req.perm.require('MEMBERSHIP_REQUEST_CREATE')
         all_members = {}
 
-        project = Projects().get_project(env_name = conf.resolveProjectName(self.env))
+        project = Project.get(self.env)
         ug = CQDEUserGroupStore(project.trac_environment_key)
-        for member, group in ug.get_all_user_groups(): #@UnusedVariable
+        for member, group in ug.get_all_user_groups():
             all_members[member] = 1
 
         if req.authname in all_members.keys():
@@ -50,9 +49,7 @@ class MembershipRequestModule(Component):
                                                     'message':req.args.get('message')}, None
 
     def make_membership_request(self, req):
-        # Get project
-        env_name = conf.resolveProjectName(self.env)
-        project = Projects().get_project(env_name = env_name)
+        project = Project.get(self.env)
 
         # Make a request
         members = MembershipApi(self.env, project)

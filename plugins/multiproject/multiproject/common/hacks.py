@@ -1,20 +1,23 @@
-import trac
+import re
 
+import trac
+from trac.web.chrome import Chrome
+from trac.util.text import obfuscate_email_address
 from genshi.builder import tag
 
 from multiproject.core.configuration import conf
-from trac.web.chrome import Chrome
-from trac.util.text import obfuscate_email_address
-import re
+from multiproject.core.users import get_userstore
 
-def Chrome_format_author_replacement(self, req, author):
-    """ Audit Chrome.format_author method so that we get link to user profile
 
-        Downside: This is a hack that interfere with the way trac renders usernames.
-                  Will have some unwanted behaviour.
+def _chrome_format_author_replacement(self, req, author):
+    """
+    Audit Chrome.format_author method so that we get link to user profile
 
-                  One such known unwanted behaviour is in the ticket view where owner and
-                  reporter links are changed
+    Downside: This is a hack that interfere with the way trac renders usernames.
+              Will have some unwanted behaviour.
+
+              One such known unwanted behaviour is in the ticket view where owner and
+              reporter links are changed
     """
     if not author:
         return ""
@@ -24,7 +27,7 @@ def Chrome_format_author_replacement(self, req, author):
     ok_user = author not in unwanted_users
     username = author
     if not contain_email:
-        user = conf.getUserStore().getUser(author)
+        user = get_userstore().getUser(author)
         if user:
             author = user.getDisplayName()
     elif not Chrome(self.env).show_email_addresses:
@@ -36,4 +39,5 @@ def Chrome_format_author_replacement(self, req, author):
     else:
         return author
 
-trac.web.chrome.Chrome.format_author = Chrome_format_author_replacement
+
+trac.web.chrome.Chrome.format_author = _chrome_format_author_replacement

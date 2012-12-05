@@ -1,11 +1,13 @@
 /* This file contains the javascript specific to multiproject_admin_backup.html template */
-(function($, window, multiproject, undefined) {
+(function($, window, undefined) {
+    var multiproject = window.multiproject;
     $(document).ready(function(){
         // Ask confirmation when button with confirm class is pressed
-        $('input.confirm').click(function(event){
-            // Read msg from alt property and return true / false to run the default action
-            var cbox = multiproject.ui.ConfirmationBox($(this).attr('alt'));
-            return cbox.open();
+        var confirm = $('input.confirm');
+        var cbox = multiproject.ui.ConfirmationBox(confirm.attr('alt'));
+        confirm.click(function(event){
+            // Return true / false to run the default action (NOTE: open can also return undefined)
+            return cbox.open(event) === true;
         });
     });
-})(jQuery, window, multiproject);
+})(jQuery, window);

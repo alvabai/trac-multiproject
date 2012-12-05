@@ -2,6 +2,7 @@
 """
 Module contains some helpful functions.
 """
+import os
 import types
 
 from genshi.filters import HTMLSanitizer
@@ -129,3 +130,14 @@ def sanitize_html(input):
         input = HTML(input)
 
     return str(input | HTMLSanitizer())
+
+
+def format_filename(filename, max_width=None):
+    if not max_width:
+        return filename
+    if len(filename) < max_width:
+        return filename
+    half_supposed = max_width / 2 - 1
+    if half_supposed < 3:
+        half_supposed = 2
+    return '{0}...{1}'.format(filename[:half_supposed], filename[-half_supposed:])

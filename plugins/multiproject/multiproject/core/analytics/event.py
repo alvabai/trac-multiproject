@@ -24,13 +24,9 @@ def _notify_event_occurred(project_identifier, event_type):
     # hour to the future to make absolute sure that event is not missed
     past = now - datetime.timedelta(hours = 2)
 
-    # For webdav events we need to refresh the whole cache
-    file_events = ['file_uploaded', 'file_deleted', 'file_moved']
-    if event_type in file_events:
-        filters = ['webdavevents']
-        past = now - datetime.timedelta(days = 60)
-        gtl.remove_by_filter(project_identifier, filters[0])
-        update = True
+    # Previously, if files events were noticed, the whole cache was updated.
+    # That seemed to be too heavy operation to clear all events when files tab is updated.
+    # Let's just accept, that there might be broken links in global timeline cache.
 
     future = now + datetime.timedelta(hours = 1)
     gtl.refresh_project(project_identifier, past, future, filters, update)

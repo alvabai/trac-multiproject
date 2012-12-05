@@ -2,9 +2,10 @@
 from trac.core import Component, implements, TracError
 from trac.prefs.api import IPreferencePanelProvider
 
-from multiproject.common.projects import Projects
+from multiproject.common.projects import Project
+from multiproject.core.users import get_userstore
 from multiproject.core.watchlist import CQDEWatchlistStore
-from multiproject.core.configuration import conf
+
 
 class WatchlistPreferencePanel(Component):
     """ Preference panel for editing project watchlist
@@ -25,18 +26,18 @@ class WatchlistPreferencePanel(Component):
 
         watchlist = []
         projects = {}
-        user = conf.getUserStore().getUser(req.authname)
+        user = get_userstore().getUser(req.authname)
         w = CQDEWatchlistStore()
         if user:
             watchlist = w.get_projects_by_user(user.id)
-            p = Projects()
+            # TODO: inefficient querying
             for watch in watchlist:
-                projects[watch.project_id] = p.get_project(watch.project_id)
+                projects[watch.project_id] = Project.get(id=watch.project_id)
         return 'multiproject_user_prefs_watchlist.html', { 'watchlist': watchlist, 'projects' : projects,
             'notification_values': w.notifications }
 
     def save_watchlist(self, req):
-        user = conf.getUserStore().getUser(req.authname)
+        user = get_userstore().getUser(req.authname)
         if not user:
             return
 

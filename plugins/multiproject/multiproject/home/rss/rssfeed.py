@@ -24,8 +24,10 @@ from trac.web.chrome import ITemplateProvider
 
 from multiproject.common.projects import Projects
 from multiproject.core.configuration import conf
+from multiproject.core.users import get_userstore
 
 RSS_FEED_MODULE_REGEXP = re.compile(r'/rss/(?:newest|mostactive|featured|projects/.*).xml$')
+
 
 class RSSFeedModule(Component):
     """
@@ -45,35 +47,35 @@ class RSSFeedModule(Component):
         """
         prjs = Projects()
         data = {}
-        store = conf.getUserStore()
-        anon = store.getUser('anonymous')
 
-        data['home'] = striptrail(conf.url_home_path) + "/rss"
-        data['tracurl'] = striptrail(conf.url_home_path)
+        data['home'] = conf.url_home_path.rstrip('/') + "/rss"
+        data['tracurl'] = conf.url_home_path.rstrip('/')
 
         # Having url_service here is probably a good idea. Otherwise RSS readers have no idea
         # where to fetch the relative path /project from.
-        data['projroot'] = striptrail(conf.url_service)
+        data['projroot'] = conf.url_service.rstrip('/')
         data['host'] = conf.domain_name
-        data['url'] = striplead(striptrail(req.path_info))
+        data['url'] = req.path_info.rstrip('/').lstrip('/')
 
         if re.match (r'/rss/mostactive.xml$', req.path_info):
-            if anon:
-                data['projects'] = prjs.get_projects_for_rss(anon.id, 0, 50, "MOSTACTIVE")
+            data['projects'] = prjs.get_projects_for_rss('MOSTACTIVE', limit_count=50)
             data['title'] = 'Most active public projects'
+
         elif re.match (r'/rss/newest.xml$', req.path_info):
-            if anon:
-                data['projects'] = prjs.get_projects_for_rss(anon.id, 0, 50, "NEWESTFILTERED")
+            min_activity = self.config.getint('multiproject-projects', 'min_activity', 0)
+            data['projects'] = prjs.get_projects_for_rss('NEWEST', limit_count=50, limit_activity=min_activity)
             data['title'] = 'Newest public projects'
+
         elif re.match (r'/rss/featured.xml$', req.path_info):
-            if anon:
-                data['projects'] = prjs.get_projects_for_rss(anon.id, 0, 50, "FEATURED")
+            data['projects'] = prjs.get_projects_for_rss('FEATURED', limit_count=50)
             data['title'] = 'Featured projects'
+
         elif re.match(r'/rss/projects/.*.xml', req.path_info):
             username = req.path_info[req.path_info.rfind('/') + 1:-4]
             # username is validated in get_participated_public_projects
             data['projects'] = prjs.get_participated_public_projects(username)
             data['title'] = '%s\'s projects' % username
+
         else:
             data['projects'] = None
 
@@ -88,7 +90,3 @@ class RSSFeedModule(Component):
 
     def get_htdocs_dirs(self):
         return []
-
-# Lambdas for stripping trailing and leading slashes
-striptrail = lambda url: url[:-1] if url.endswith('/') else url
-striplead = lambda url: url[1:] if url.startswith('/') else url

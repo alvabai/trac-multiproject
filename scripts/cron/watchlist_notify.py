@@ -17,7 +17,7 @@ import sys
 
 from trac.env import Environment
 
-from multiproject.core.configuration import Configuration
+from multiproject.core.configuration import conf
 from multiproject.home.watchlist.watchlist_notifier import WatchlistNotifier
 
 
@@ -28,13 +28,12 @@ def main(watchlist_type):
 
     :param str watchlist_type: immediate, daily or weekly notification.
     """
+    env = Environment(conf.getEnvironmentSysPath(conf.sys_home_project_name))
     try:
-        conf = Configuration.instance()
-        module = WatchlistNotifier()
-        module.notify_now(Environment(conf.getEnvironmentSysPath(conf.sys_home_project_name)),
-                          watchlist_type)
+        module = WatchlistNotifier(env)
+        module.notify_now(watchlist_type)
     except Exception, e:
-        conf.log.exception("Failed to send watchlist messages")
+        env.log.exception("Failed to send watchlist messages")
         return str(e)
 
 

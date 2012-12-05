@@ -5,17 +5,12 @@
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:i18n="http://genshi.edgewall.org/i18n"
-
-      py:with="page_size = 30"
       >
-<?python
-import math
-?>
 
     <xi:include href="layout.html" />
-    <xi:include href="pagination.html" />
 
     <head>
+        <script type="text/javascript" src="${href('/chrome/multiproject/js/multiproject.js')}"></script>
         <title>Global timeline</title>
 
         <!-- ! Change height of just this page to one bit higher to always get v-scroll -->
@@ -26,82 +21,8 @@ import math
         </style>
     </head>
 
-    <py:def function="list_events(eventlist)">
-      <py:for each="day, events in groupby(eventlist, key=lambda e: format_date(e.date))">
-        <h2>${day}: ${day == today and _("Today") or day == yesterday and _("Yesterday") or None}</h2>
-        <dl>
-          <py:for each="event in events"
-            py:with="highlight = precision and precisedate and timedelta(0) &lt;= (event.date - precisedate) &lt; precision">
-            <dt class="${classes(event.kind, highlight=highlight)}">
-              <a href="${conf.url_projects_path}/${event.project_identifier}" title="${event.project_name}">${event.project_name}</a>
-            </dt>
-            <dd class="${classes(event.kind, highlight=highlight)}">
-              <py:choose>
-                  <py:when test="event.author"><i18n:msg params="time">
-                    <span class="time">${format_time(event.date, str('%H:%M'))}</span></i18n:msg> <a py:strip="len(str(event.url)) == 0" href="${event.url}">${event.render('title', context)}</a>
-                    by <span class="author">${plaintext(format_author(event.author))}</span>
-                  </py:when>
-                  <py:otherwise>
-                    <span class="time">${format_time(event.date, str('%H:%M'))}</span> <a py:strip="len(str(event.url)) == 0" href="${event.url}">${event.render('title', context)}</a>
-                  </py:otherwise>
-                </py:choose>
-            </dd>
-          </py:for>
-        </dl>
-      </py:for>
-    </py:def>
-
-    <py:def function="paginate(events, position)">
-      <div class="events_pagination" style="float:${position};" py:with="pcount = int(math.ceil(float(len(events)) / page_size))">
-        <py:for each="page in range(1,pcount+1)">
-          <span class="sub_${page} subpage_link${(page == 1 and ' selected') or ''}">${page}</span>
-          <py:if test="page != pcount">|</py:if>
-          <py:if test="page == pcount">&nbsp;</py:if>
-        </py:for>
-      </div>
-      <div class="clearer"></div>
-    </py:def>
-
     <body>
-        <div id="content">
-            <h1 style="padding:0;" id="pageHeader">Global timeline</h1>
-
-            ${paginate(events, 'right')}
-            <div id="global_events_list">
-                <div id="page_${page}" class="event_page${(page == 1 and ' active') or ''}" py:for="page in [1,2,3,4,5]" py:if="len(events[(page-1)*page_size:]) > 0">
-                  <py:with vars="start=(page-1)*page_size; end=(page-1)*page_size+page_size">
-                    ${list_events(events[start:end])}
-                  </py:with>
-                </div>
-            </div>
-            ${paginate(events, 'left')}
-
-        </div>
-
-        <script type="text/javascript">
-          $(document).ready(function() {
-            $('.subpage_link').click(function (){
-              /* No effect for selected page */
-              if($(this).hasClass('selected')) {
-                return;
-              }
-
-              var page_number = $.trim($(this).html());
-
-              /* Clear previous selection */
-              $('.subpage_link').removeClass('selected');
-
-              /* Add this as selected */
-              $('.sub_' + page_number).addClass('selected');
-
-              /* Toggle page (hide previous, show current)*/
-              $('.event_page').removeClass('active');
-              var page = '#page_' + page_number;
-              $(page).addClass('active').ready(function() {
-                    $("html, body").animate({ scrollTop: 0 }, 200);
-              });
-            });
-          });
-        </script>
+        <py:replace value="content"></py:replace>
     </body>
+
 </html>

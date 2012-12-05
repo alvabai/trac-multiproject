@@ -1,0 +1,45 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      py:strip="">
+
+  <div class="resource-box">
+
+    <h2 class="resources-title" py:if="caption">
+      ${caption}
+    </h2>
+
+    <ul py:if="items">
+      <li class="timeline_event rss ${separator}" py:for="item in items">
+        <div class="icon" py:if="icon == 'true' or icon == 'True'"></div>
+        <div>
+          <a href="${item['link']}" title="${item['title']}" py:if="item['title']">
+            <strong>${item['title']}</strong>
+          </a>
+          <div>
+          ${format_datetime(item['dateinfo'], "%d %B %Y")} by
+              <span class="author">
+                <a class="profilebox-link_" href="#">${format_author(item['author'])}</a>
+              </span>
+          </div>
+        </div>
+      </li>
+      <li class="${separator}" py:if="full_link">
+        <a href="${full_link}">See all posts &gt;</a>
+      </li>
+
+    </ul>
+    <ul py:if="not items">
+      <div class="greyBgContainer">
+        <div class="greyBgContent" py:if="not news_error">
+          No blog entries found.
+        </div>
+        <div class="greyBgContent" py:if="news_error">
+          ${news_error}
+        </div>
+      </div>
+    </ul>
+
+  </div>
+
+</html>

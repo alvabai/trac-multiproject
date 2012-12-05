@@ -4,11 +4,14 @@ import re
 from trac.core import Component, implements, TracError
 from trac.web.api import IRequestHandler, RequestDone
 from trac.web.chrome import ITemplateProvider
-from trac.web.chrome import Chrome
+from trac.web.chrome import Chrome, add_script
+from genshi.input import HTML
 
 from multiproject.home.timeline.api import GlobalTimeline
 from multiproject.core.cache.timeline_cache import TimelineCache
+from multiproject.core.configuration import conf
 
+import math
 
 class GlobalTimelineModule(Component):
     implements(IRequestHandler, ITemplateProvider)
@@ -36,14 +39,15 @@ class GlobalTimelineModule(Component):
         # Re-render content if not found in cache
         if not content:
             try:
-                content = self.render_html(req)
-            except Exception, e:
-                self.log.warning('Failed to show timeline: %s' % e)
+                content = self.render_content_html(req)
+                self.cache.set_global_timeline(req.authname, content)
+            except Exception as e:
+                self.log.exception('Failed to show timeline: %s' % e)
                 raise TracError('Failed to show timeline')
 
-        req.send(content, 'text/html')
-        raise RequestDone
+        data = {'content': HTML(content)}
 
+        return 'globaltimeline.html', data, None
 
     def show_rss_timeline(self, req):
         content = self.cache.get_global_timeline(req.authname, rss=True)
@@ -52,8 +56,8 @@ class GlobalTimelineModule(Component):
         if not content:
             try:
                 content = self.render_rss(req)
-            except Exception, e:
-                self.log.warning('Failed to show timeline: %s' % e)
+            except Exception as e:
+                self.log.exception('Failed to show timeline: %s' % e)
                 return 'error.rss', {'msg':str(e)}, 'application/rss+xml'
 
         req.send(content, 'application/rss+xml')
@@ -61,21 +65,22 @@ class GlobalTimelineModule(Component):
 
 
     # Methods for rendering timeline in different formats
-    def render_html(self, req):
+    def render_content_html(self, req):
         """
-        Renders the global timeline in HTML format
+        Renders the global timeline content in HTML format
 
         :param req: Trac request
         :raise: Exception in a case of rendering issues
         :return: Rendered HTML string
         """
-        data = {'events':self._get_latest_events(req)}
+        data = {'events':self._get_latest_events(req),
+                'conf':conf,
+                'math':math}
         chrome = Chrome(self.env)
 
-        output = chrome.render_template(req, 'globaltimeline.html', data)
-        self.cache.set_global_timeline(req.authname, output)
+        output = chrome.render_template(req, 'globaltimelinecontent.html', data, fragment=True)
 
-        return output
+        return output.render()
 
     def render_rss(self, req):
         """
@@ -85,7 +90,8 @@ class GlobalTimelineModule(Component):
         :raise: Exception in a case of rendering issues
         :return: Rendered RSS string
         """
-        data = {'events':self._get_latest_events(req)}
+        data = {'events':self._get_latest_events(req),
+                'conf':conf}
         chrome = Chrome(self.env)
 
         output = chrome.render_template(req, "globaltimeline.rss", data, 'application/rss+xml')

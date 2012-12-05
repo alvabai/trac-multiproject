@@ -46,10 +46,13 @@ class ActivityCalculator(object):
 
                 for row in cursor:
                     # create trac Environment object for current project
-                    tracenviron = open_environment(
-                        self.conf.getEnvironmentSysPath(row[1]), use_cache=True)
-                    events = self._get_timeline_events(tracenviron)
-                    self._update_timeline_events(tracenviron, events, row[0])
+                    try:
+                        tracenviron = open_environment(
+                            self.conf.getEnvironmentSysPath(row[1]), use_cache=True)
+                        events = self._get_timeline_events(tracenviron)
+                        self._update_timeline_events(tracenviron, events, row[0])
+                    except Exception:
+                        self.conf.log.warning('Failed to load project (id: %s) - skipping it' % row[0])
 
             except Exception:
                 self.conf.log.exception("Failed to update project activity")

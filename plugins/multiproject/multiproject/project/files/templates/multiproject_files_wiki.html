@@ -1,0 +1,70 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      py:strip="">
+<div class="files_wiki_macro ${is_narrow and 'files_narrow' or ''}">
+<py:if test="not downloads and no_hide">
+    <h2 py:if="title">${title}</h2>
+    <p class="no_entries" py:if="only_featured">The project doesn't have any featured downloads yet.</p>
+    <p class="no_entries" py:if="not only_featured">The project doesn't have any downloads yet.</p>
+</py:if>
+<py:if test="downloads">
+    <h2 py:if="title">${title}</h2>
+    <xi:include href="multiproject_files_util.html" />
+    <py:if test="is_narrow">
+        <div class="files_entries">
+        <py:for each="file in downloads">
+            <p class="files_entry_head on_click_follow clearfix">
+                <span class="filename"><a title="${_('Download file %(filename)s', filename = file.filename)}"
+                                          href="${req.href.files(downloads_dir, file.download().download_path)}">
+                    <span class="node_icon icon_file">&nbsp;</span>${format_filename(file.filename,22)}</a></span>
+                <span class="size">${pretty_size(file.size)}</span>
+                <span class="created">${format_datetime(file.download().created, "%d %B %Y")}</span>
+                <span class="platform">${file.download().platform}</span>
+            </p>
+        </py:for>
+        </div>
+    </py:if>
+    <py:if test="not is_narrow">
+        <table class="files_table">
+            <tbody class="files_entries">
+            <py:for each="file in downloads">
+            <tr class="files_entry_head needs_init">
+                <td class="first_col"><span>&nbsp;</span></td>
+                <td class="filename">
+                    <div class="node_icon ${file.get_div_class()}">&nbsp;</div>
+                    <span><a class="file_link" title="${_('Download file %(filename)s', filename = file.filename)}"
+                             href="${file.get_href(req)}">
+                        ${format_filename(file.filename,28)}</a></span>
+                </td>
+                <td class="change"><span>${format_datetime(file.download().created, "%d %B %Y")}</span></td>
+                <td class="download_count"><span><!-- !
+                    --><py:if test="file.download().count == 1">${file.download().count} download</py:if><!-- !
+                    --><py:if test="file.download().count != 1">${file.download().count} downloads</py:if><!-- !
+                    --></span></td>
+                <td class="other"><span>&nbsp;</span></td>
+            </tr>
+            <tr>
+                <td colspan="6">
+                    <div class="files_entry_body">
+                        <div class="files_entry_body_container">
+                            <div class="node_button_row">
+                                <span class="mode_button show_mode current_mode_button">
+                                    <span class="action_icon">&nbsp;</span>
+                                    <span class="action_text">${_('Info')}</span>
+                                </span>
+                                ${action_button(file, 'download_mode', 'download', 'Download', 'download')}
+                            </div>
+                            ${details_box(download=file.download(), other_info=[(_("Size"), pretty_size(file.size))])}
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr><td class="td_between" colspan="6"><span>&nbsp;</span></td></tr>
+            </py:for>
+            </tbody>
+        </table>
+    </py:if>
+</py:if>
+</div>
+</html>

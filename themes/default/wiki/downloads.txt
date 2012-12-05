@@ -1,6 +1,4 @@
 
-== Current or featured downloads ==
-[[FeaturedDownloads()]]
+[[FilesDownloads(only_featured=True)]]
 
-== All downloads ==
-[[ListDownloads()]]
+[[FilesDownloads(title=All downloads)]]

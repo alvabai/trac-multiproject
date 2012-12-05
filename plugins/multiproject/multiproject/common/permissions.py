@@ -34,14 +34,14 @@ For developers, use following convention when checking the permissions::
     req.perm.require('USER_REMOVE', Resource('user', id=user.id))
 
 """
-from trac.core import Component, implements
+from trac.core import Component, implements, ExtensionPoint
 from trac.perm import IPermissionStore, IPermissionRequestor, IPermissionPolicy, PermissionCache
 from trac.ticket import Ticket
 
+from multiproject.common.projects import Project
 from multiproject.core.configuration import conf
 from multiproject.core.permissions import CQDEPermissionPolicy, CQDEPermissionStore
 from multiproject.common.environment import TracEnvironment
-from multiproject.common.projects.projects import Projects
 
 
 class GlobalPermissionStore(Component):
@@ -101,64 +101,59 @@ class GlobalPermissionStore(Component):
         """
         :returns: CQDEPermissionStore instance for current env
         """
-        env_name = conf.resolveProjectName(self.env)
-        environment = TracEnvironment.read(env_name)
-        return CQDEPermissionStore(environment.environment_id)
+        return CQDEPermissionStore(env=self.env)
 
 
 class GlobalPermissionPolicy(Component):
     implements(IPermissionPolicy, IPermissionRequestor)
 
-    def __init__(self):
-        self._policy = CQDEPermissionPolicy()
-
     def get_permission_actions(self):
         """ Define some new permissions atoms
         """
-        return ['VERSION_CONTROL', 'VERSION_CONTROL_VIEW', 'WEBDAV', 'WEBDAV_VIEW', 'ATTACHMENT_CREATE',
-                'VIEW', 'MODIFY', 'CREATE', 'DELETE', 'PERMISSION_GRANT', 'PERMISSION_REVOKE',
+        return ['VERSION_CONTROL_VIEW', ('VERSION_CONTROL', ['VERSION_CONTROL_VIEW']),
+                'ATTACHMENT_CREATE',
+                'PERMISSION_GRANT', 'PERMISSION_REVOKE',
                 'USER_CREATE', 'USER_VIEW', 'USER_AUTHOR', 'USER_MODIFY', 'USER_DELETE',
                 ('USER_ADMIN', ['USER_CREATE', 'USER_VIEW', 'USER_MODIFY']),
-                ('PERMISSION_ADMIN', ['PERMISSION_GRANT', 'PERMISSION_REVOKE'])
-        ]
+                ('PERMISSION_ADMIN', ['PERMISSION_GRANT', 'PERMISSION_REVOKE'])]
 
     def check_permission(self, action, username, resource, perm):
         """
         Checks permissions - Actual checking is done on CQDEPermissionPolicy class
         """
-        # self.log.info('Checking perm: can %(username)s do %(action)s for %(resource)s?' % locals())
-
         # FIXME: Dirty hack to screw ILegacyAttachmentPolicy.
         perm_maps = {
             'ATTACHMENT_CREATE': {
-                'ticket':'TICKET_APPEND',
-                'wiki':'WIKI_MODIFY',
-                'milestone':'MILESTONE_MODIFY',
-                'discussion':'DISCUSSION_ATTACH'
+                'ticket': 'TICKET_APPEND',
+                'wiki': 'WIKI_MODIFY',
+                'milestone': 'MILESTONE_MODIFY',
+                'discussion': 'DISCUSSION_ATTACH'
             },
-            'ATTACHMENT_VIEW':{
-                'ticket':'TICKET_VIEW',
-                'wiki':'WIKI_VIEW',
-                'milestone':'MILESTONE_VIEW',
-                'discussion':'DISCUSSION_ATTACH'
+            'ATTACHMENT_VIEW': {
+                'ticket': 'TICKET_VIEW',
+                'wiki': 'WIKI_VIEW',
+                'milestone': 'MILESTONE_VIEW',
+                'discussion': 'DISCUSSION_ATTACH'
             },
             'ATTACHMENT_DELETE': {
-                'ticket':'TICKET_ADMIN',
-                'wiki':'WIKI_DELETE',
-                'milestone':'MILESTONE_DELETE',
-                'discussion':'DISCUSSION_ATTACH'
-            },
+                'ticket': 'TICKET_ADMIN',
+                'wiki': 'WIKI_DELETE',
+                'milestone': 'MILESTONE_DELETE',
+                'discussion': 'DISCUSSION_ATTACH'
+            }
         }
         perm_map = perm_maps.get(action)
         if perm_map and resource and resource.realm == 'attachment':
             action = perm_map.get(resource.parent.realm)
 
+        policy = CQDEPermissionPolicy(self.env)
+
         # Project context check
         if resource and resource.realm == 'project':
             # NOTE: Load project to get environment key required by check_permission
             # NOTE: Internal TracEnvironment cannot be used because env can be home, whereas project id is not
-            project = Projects().get_project(project_id=resource.id)
-            if project and self._policy.check_permission(project.trac_environment_key, action, username):
+            project = Project.get(id=resource.id)
+            if project and policy.check_permission(project.trac_environment_key, action, username):
                 return True
             return False
 
@@ -176,7 +171,7 @@ class GlobalPermissionPolicy(Component):
         environment = TracEnvironment.read(env_name)
 
         # Check permission using global permission policy and storage
-        if not self._policy.check_permission(environment.environment_id, action, username):
+        if not policy.check_permission(environment.environment_id, action, username):
             return False
 
         # Additional, resources based checks
@@ -200,3 +195,4 @@ class GlobalPermissionPolicy(Component):
             return resource_user.id == user.id
 
         return True
+

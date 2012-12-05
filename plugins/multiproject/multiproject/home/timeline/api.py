@@ -10,7 +10,7 @@ from trac.mimeview.api import Context
 from trac.resource import Resource
 from trac.web.href import Href
 
-from multiproject.common.projects import Projects
+from multiproject.common.projects import Project
 from multiproject.core.configuration import conf
 from multiproject.core.stubs.RequestStub import DummyReq
 from multiproject.core.db import admin_query, admin_transaction
@@ -151,7 +151,7 @@ class GlobalTimeline(object):
 
         """
         # Initialize objects
-        project = Projects().get_project(env_name=project_identifier)
+        project = Project.get(env_name=project_identifier)
         if not project:
             conf.log.warning('Project {0} is already removed from system or it cannot be found'.format(project_identifier))
             return
@@ -180,7 +180,7 @@ class GlobalTimeline(object):
 
                 for event in provider.get_timeline_events(req, from_date, to_date, filters):
                     event_data = self._event_data(provider, event)
-                    if event_data['author'] != 'system': # Skip system events
+                    if event_data['author'] != 'trac': # Skip system events
                         events.append(CachedEvent.from_event_data(project, event_data, context, filters[0]))
             except:
                 conf.log.error("Could not read timeline events for %s from %s" % (project_identifier, str(provider)))
@@ -247,11 +247,9 @@ class GlobalTimeline(object):
                 [(698, 'WEBDAV'),
                 (698, 'XML_RPC'),
                 (698, 'VERSION_CONTROL'),
-                (698, 'DELETE'),
                 (700, 'WEBDAV'),
                 (700, 'XML_RPC'),
-                (700, 'VERSION_CONTROL'),
-                (700, 'DELETE')]
+                (700, 'VERSION_CONTROL')]
 
         """
         usernames = "('anonymous')"
@@ -279,14 +277,11 @@ WHERE u.username IN %s
 
     def _filter_for_perm(self, perm):
         # As a shortcut, we do not get filters from project but use this map based on privileges
-        privilege_to_kind = {'WIKI_VIEW': 'wiki', 'DISCUSSION_VIEW': 'discussion', 'FILES_VIEW': 'webdavevents',
-                             'WEBDAV': 'webdavevents', 'WEBDAV_VIEW': 'webdavevents', 'TICKET_VIEW': 'ticket',
-                             'CHANGESET_VIEW': 'changeset', 'DOWNLOADS_VIEW': 'downloads',
+        privilege_to_kind = {'WIKI_VIEW': 'wiki', 'DISCUSSION_VIEW': 'discussion', 'FILES_VIEW': 'files_events',
+                             'FILES_DOWNLOADS_VIEW': 'files_downloads_events', 'FILES_DOWNLOADS_ADMIN': 'files_downloads_events',
+                             'FILES_ADMIN': 'files_events', 'FILES_VIEW': 'files_events', 'TICKET_VIEW': 'ticket',
+                             'CHANGESET_VIEW': 'changeset',
                              'MILESTONE_VIEW': 'milestone'}
-
-        # Give all filters for VIEW or more powerfull
-        if perm in ['VIEW', 'MODIFY', 'CREATE', 'DELETE']:
-            return privilege_to_kind.values()
 
         if perm in privilege_to_kind:
             return [privilege_to_kind[perm]]
@@ -377,6 +372,8 @@ class CachedEvent(object):
         fields['project_id'] = str(project.id)
 
         # Convert rendered Markups, LazyProxies etc. into unicode
+        # If event is files event, the url is not cacheable (might return 404)
+        # TODO: workaround... Just accepting that in this phase.
         fields['url'] = unicode(event['render']('url', context))
         fields['description'] = unicode(event['render']('description', context))
         fields['title'] = unicode(event['render']('title', context))

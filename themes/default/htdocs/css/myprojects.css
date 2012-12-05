@@ -136,7 +136,7 @@
     float:left;
     overflow: hidden;
     white-space: nowrap;
-    width:410px;
+    width:360px;
 }
 .project_list_item .desc a {
     color:#395796;
@@ -149,7 +149,7 @@
     text-align:right;
     position:absolute;
     right:0;
-    top:10px;
+    top:11px;
 }
 .project_list_item .priority {
     text-transform:capitalize;

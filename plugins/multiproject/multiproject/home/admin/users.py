@@ -7,17 +7,13 @@ from trac.perm import PermissionError, PermissionCache
 from trac.resource import Resource
 from trac.web.chrome import add_warning, add_script, add_stylesheet, add_notice, _, tag
 
-from multiproject.common.notifications.email import EmailNotifier
 from multiproject.core.permissions import CQDEOrganizationStore, CQDEUserGroupStore
-from multiproject.core.users import get_userstore
+from multiproject.common.notifications.email import EmailNotifier
+from multiproject.common.projects.projects import Projects
+from multiproject.common.users import OrganizationManager
+from multiproject.core.users import get_userstore, DATEFORMATS
 from multiproject.common.projects import projects
-from multiproject.core.configuration import conf
 
-# Formatting rules for python and javascript: 25/01/12
-DATEFORMATS = {
-    'py':'%m/%d/%y',
-    'js':'mm/dd/y'
-}
 
 class UsersAdminPanel(Component):
     """ AdminPanel component for editing users
@@ -57,13 +53,17 @@ class UsersAdminPanel(Component):
 
         # State
         data['states'] = userstore.USER_STATUS_LABELS
-        # Available organizations
-        data['organizations'] = conf.organizations
+
+        # Available backend organizations
+        # TODO: Add support for listing users based on organization in user REST API
+        orgman = self.env[OrganizationManager]
+        data['organizations'] = [org for org in orgman.get_organizations() if org['type'] == 'backend']
 
         # Add jquery ui for autocomplete
         add_script(req, 'multiproject/js/jquery-ui.js')
         add_script(req, 'multiproject/js/transparency.js')
         add_script(req, 'multiproject/js/multiproject.js')
+        add_script(req, 'multiproject/js/admin_user_list.js')
         add_stylesheet(req, 'multiproject/css/jquery-ui.css')
 
         return 'admin_user_list.html', data
@@ -88,6 +88,7 @@ class UsersAdminPanel(Component):
 
         # Load user who's doing the edit
         changed_by = userstore.getUser(req.authname)
+        papi = Projects()
 
         # Check permissions and redirect to user listing (handy after editing the user)
         req.perm.require('USER_AUTHOR', Resource('user', id=user.id))
@@ -101,6 +102,7 @@ class UsersAdminPanel(Component):
         data['now'] = datetime.utcnow()
         data['expired'] = user.expires and ((user.expires - datetime.utcnow()).days < 0)
         data['states'] = userstore.USER_STATUS_LABELS
+        data['projects'] = papi.get_authored_projects(user)
 
         # Add javascript libraries for datepicker and autocomplete
         add_script(req, 'multiproject/js/jquery-ui.js')
@@ -162,7 +164,7 @@ class UsersAdminPanel(Component):
             org_store = CQDEOrganizationStore.instance()
             # TODO: is this correct?
             # When changing email, reset organizations to which the user belongs in
-            user.organization_keys = org_store.get_organization_keys(user)
+            user.organization_keys = org_store.get_organization_keys(user) or None
 
         # Update password if changed
         password = req.args.get('password')
@@ -181,9 +183,6 @@ class UsersAdminPanel(Component):
 
         user.givenName = req.args.get('first')
         user.mobile = req.args.get('mobile')
-        user.insider = 0
-        if req.args.get('insider'):
-            user.insider = 1
 
         # Set or reset account expiration date
         expiration_str = req.args.get('expires', '')

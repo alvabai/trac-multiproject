@@ -19,14 +19,9 @@ from trac.util.translation import _
 from multiproject.common.projects.archive import ProjectArchive
 from multiproject.core.configuration import conf
 from multiproject.core.db import analytical_query, admin_query, cursors
+from multiproject.core.users import DATEFORMATS
 from multiproject.common.projects import Projects
 
-
-# Formatting rules for python and javascript: 25/01/12
-DATEFORMATS = {
-    'py':'%m/%d/%y',
-    'js':'mm/dd/y'
-}
 
 # Key description mapping for interesting event types
 EVENT_DESCRIPTIONS = {
@@ -70,7 +65,7 @@ class ProjectStatisticsAdminPanel(Component):
         req.perm.require("TRAC_ADMIN")
 
         # Default values
-        perm = 'VIEW'
+        perm = 'PROJECT_VIEW'
         categories = []
         results = []
         resultsby = 'week'
@@ -165,10 +160,10 @@ class ProjectStatisticsAdminPanel(Component):
         # Add resources
         add_script(req, 'multiproject/js/jquery-ui.js')
         add_stylesheet(req, 'multiproject/css/jquery-ui.css')
-
         add_stylesheet(req, 'multiproject/css/statistics.css')
         add_script(req, 'multiproject/js/raphael.js')
         add_script(req, 'multiproject/js/ico.js')
+        add_script(req, 'multiproject/js/admin_analytics_projects.js')
 
         # Set parameters to view
         data = {

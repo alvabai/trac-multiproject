@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-import os, exceptions
+import os
+import exceptions
 from datetime import datetime
 
 from trac.core import Component, implements
@@ -10,6 +11,7 @@ from multiproject.common.projects import Project, Projects
 from multiproject.core.configuration import conf
 from multiproject.core.categories import CQDECategoryStore
 from multiproject.core.exceptions import ProjectValidationException
+from multiproject.core.users import get_userstore
 
 
 class UserRPC(Component):
@@ -39,15 +41,16 @@ class ProjectsRPC(Component):
 
     implements(IXMLRPCHandler)
 
-    def _getfiles(self, req, files, repository, path, rev = None):
+    def _getfiles(self, req, files, repository, path, rev=None):
 
         node = repository.get_node(path, rev)
 
         # Entries metadata
         class entry(object):
             __slots__ = 'name rev kind isdir path content_length'.split()
+
             def __init__(self, node):
-                for f in entry.__slots__: #@UndefinedVariable
+                for f in entry.__slots__:
                     setattr(self, f, getattr(node, f))
 
         entries = [entry(n) for n in node.get_entries()]
@@ -112,13 +115,11 @@ class ProjectsRPC(Component):
         repomgr = RepositoryManager(self.env)
         repository = repomgr.get_repository(None)
         projectname = conf.cleanupProjectName(projectname)
-        project = []
+        parts = []
 
-        projects = Projects()
-        prj = projects.get_project(env_name = projectname)
-
-        if prj:
-            project.append(prj.get_scm_repository_url())
+        project = Project.get(env_name=projectname)
+        if project:
+            parts.append(self.get_scm_repository_url(project.env_name))
         else:
             return []
 
@@ -143,10 +144,10 @@ class ProjectsRPC(Component):
 
             if addfiles:
                 # Append version control files
-                project.append('versioncontrolfiles|' + addfiles)
+                parts.append('versioncontrolfiles|' + addfiles)
         except Exception:
             self.log.exception("ProjectsRPC.openProject failed")
-        return project
+        return parts
 
     def searchProjects(self, req, namelike, categories):
         """ Returns project list, what user owns or have access to
@@ -163,9 +164,8 @@ class ProjectsRPC(Component):
         if categories == '':
             categories = None
 
-        projects = Projects()
-        myprojects = projects.get_projects_with_params(req.authname, "VERSION_CONTROL_VIEW",
-                                                 namelike, categories)
+        myprojects = Projects().get_projects_with_params(req.authname, "VERSION_CONTROL_VIEW",
+                                                         namelike, categories)
 
         projectlist = []
         for project in myprojects:
@@ -196,7 +196,7 @@ class ProjectsRPC(Component):
             e = exceptions.Exception
             raise e("Incorrect project name")
 
-        users = conf.getUserStore()
+        users = get_userstore()
         author = users.getUser(req.authname)
 
         if not author.can_create_project():
@@ -207,13 +207,13 @@ class ProjectsRPC(Component):
             published = datetime.now()
 
         # Create project class
-        project = Project(id = None,
-                           env_name = unicode(projectid),
-                           project_name = projectname,
-                           description = description,
-                           author_id = author.id,
-                           created = None,
-                           published = published)
+        project = Project(id=None,
+                          env_name=unicode(projectid),
+                          project_name=projectname,
+                          description=description,
+                          author_id=author.id,
+                          created=None,
+                          published=published)
 
         if public == "on" or public == "true":
             services['project_visibility'] = 'on'
@@ -226,7 +226,7 @@ class ProjectsRPC(Component):
         # Create project
         try:
             projects.create_project(project, services)
-            return project.get_scm_repository_url()
+            return self.get_scm_repository_url(project.env_name)
         except ProjectValidationException as exc:
             raise Exception(exc.value)
         except:
@@ -237,3 +237,23 @@ class ProjectsRPC(Component):
         """
         prjs = Projects()
         return prjs.getEnabledServices(self.env)
+
+    def get_scm_repository_url(self, env_name):
+        """
+        .. WARNING:: Expensive call due conf.getVersionControlType
+        """
+
+        vcs = conf.getVersionControlType(env_name)
+
+        if vcs == "git":
+            extension = ".git"
+        else:
+            extension = ""
+
+        params = {'domain': conf.domain_name,
+                  'project': env_name,
+                  'scm_type': vcs,
+                  'scheme': conf.default_http_scheme,
+                  'ext': extension}
+
+        return "versioncontrol|%(scm_type)s|%(scheme)s://%(domain)s/%(scm_type)s/%(project)s%(ext)s" % params

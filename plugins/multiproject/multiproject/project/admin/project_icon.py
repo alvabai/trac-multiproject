@@ -2,8 +2,7 @@
 from trac.core import Component, implements
 from trac.admin.api import IAdminPanelProvider
 
-from multiproject.common.projects import Projects
-from multiproject.core.configuration import conf
+from multiproject.common.projects import Project
 from multiproject.core.cache.project_cache import ProjectCache
 
 
@@ -24,9 +23,7 @@ class ProjectIconAdminPanel(Component):
         """
         req.perm.require('TRAC_ADMIN')
 
-        papi = Projects()
-
-        project = papi.get_project(env_name = conf.resolveProjectName(self.env))
+        project = Project.get(self.env)
 
         if req.method == 'POST':
             if 'removeicon' in req.args:
@@ -35,8 +32,7 @@ class ProjectIconAdminPanel(Component):
                 project.createIcon(req.args.get('icon'))
 
             cache = ProjectCache.instance()
-            cache.clearProject(project.id)
-            cache.clearProjectIcon(project.id)
+            cache.clear_project(project)
 
         data = {}
         data['env'] = req.base_path

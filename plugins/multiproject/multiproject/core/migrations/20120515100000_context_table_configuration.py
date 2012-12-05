@@ -84,7 +84,8 @@ class ContextTableConfiguration(MigrateBase):
             SET admin_type = 'main', explore_projects_visibility = 'combined'
             WHERE context_id = {0}
             """.format(int(main_context_id)))
-        if 'Custom' in conf.combined_contexts:
+        # Was: if 'Custom' in conf.combined_contexts, but combined_contexts is now removed
+        if True:
             queries.append("""
             UPDATE contexts
             SET admin_type = 'autocomplete', explore_projects_visibility = 'combined', edit_type = 'add'

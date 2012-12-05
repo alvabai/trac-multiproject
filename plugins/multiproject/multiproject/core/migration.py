@@ -57,11 +57,13 @@ class MigrateDatabase(object):
         :return: False on failure
         """
         with admin_transaction() as cr:
+            current_query = None
             try:
                 for command in commands:
+                    current_query = command
                     cr.execute(command)
             except MySQLdb.IntegrityError:
-                log.exception("Exception. Migration failed with commands '''%s'''." % str(commands))
+                log.exception("Exception. Migration failed with query: %s" % str(current_query))
                 return False
         return True
 
@@ -210,6 +212,10 @@ class MigrateMgr(object):
         """ Downgrades or Upgrades to target migration
         """
         last_migrated = self.last_installed_migration_id()
+        if last_migrated not in self.__migrations:
+            print ("\nError: \nMigration script for the latest "
+                   "migration was not found: \n%s" % last_migrated)
+            return
 
         # Return if no point in migration
         keys = self.__migrations.keys()
@@ -291,11 +297,48 @@ class MigrateMgr(object):
                 log.exception("Failed to remove migration from database")
                 raise
 
-    def commandline_install(self, target_migration):
-        if target_migration:
-            self.migrate_to(target_migration)
+    def update_to(self, target_migration):
+        if target_migration not in self.__migrations:
+            print "The cherry-picked migration was not found"
+        self.migrate_to(target_migration)
 
-        self.show_status()
+    def update_new(self):
+        installed = set(self.list_installed())
+        migrations = self.__migrations.keys()
+        migrations.sort()
+        new_migrations = []
+        new_noticed = False
+        print '\nNEW AND INSTALLED MIGRATIONS'
+        print '---------------------------------------------------------------'
+        last_line = '' # To print also the last installed before the first new one
+        for migration in migrations:
+            if migration in installed:
+                if new_noticed:
+                    print last_line
+                last_line = 'installed : %s' % migration
+            else:
+                new_noticed = True
+                if last_line:
+                    print last_line
+                last_line = 'new       : %s' % migration
+                new_migrations.append(migration)
+        print last_line
+        self.upgrade(new_migrations)
+
+    def cherry_pick(self, target_migration, update=True):
+        installed = set(self.list_installed())
+        if target_migration not in self.__migrations:
+            print "The cherry-picked migration was not found"
+        if update:
+            if target_migration in installed:
+                print "Migration already installed, cannot upgrade: %s"%target_migration
+            else:
+                self.upgrade([target_migration])
+        else:
+            if not target_migration in installed:
+                print "Migration not applied, cannot downgrade: %s"%target_migration
+            else:
+                self.downgrade([target_migration])
 
     def show_status(self):
         installed = set(self.list_installed())

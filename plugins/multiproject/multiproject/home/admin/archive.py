@@ -5,7 +5,7 @@ Module provides the UI for listing archived projects, restoring them or removing
 from trac.core import Component, implements
 from trac.util.translation import _
 from trac.admin.api import IAdminPanelProvider
-from trac.web.chrome import add_notice, add_warning, add_script
+from trac.web.chrome import add_notice, add_warning, add_script, add_stylesheet
 
 from multiproject.common.projects.archive import ProjectArchive
 
@@ -49,6 +49,9 @@ class ProjectArchiveAdmin(Component):
             # After post method, redirect back to listing
             return req.redirect(req.href('/admin/projects/prjarchive'))
 
+        add_script(req, 'multiproject/js/jquery-ui.js')
+        add_stylesheet(req, 'multiproject/css/jquery-ui.css')
         add_script(req, 'multiproject/js/multiproject.js')
         add_script(req, 'multiproject/js/admin_project_archive.js')
+
         return 'multiproject_admin_project_archive.html', {'projects': projects}

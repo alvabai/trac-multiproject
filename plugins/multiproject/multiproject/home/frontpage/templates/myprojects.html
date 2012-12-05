@@ -87,7 +87,7 @@
     </div>
 
     <div class="resource-box my_projects_list" py:if="len(projects) == 0 and len(projects_where_admin) == 0">
-        <h2 class="resources-title"><span>${usernames} projects</span></h2>
+        <h2 class="resources-title">${usernames} projects</h2>
         <ul>
             <li>
                 <xi:include href="${conf.getThemePath()}no_projects_nag.html"><xi:fallback /></xi:include>

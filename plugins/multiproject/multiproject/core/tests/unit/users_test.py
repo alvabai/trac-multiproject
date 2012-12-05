@@ -59,9 +59,9 @@ class MySqlUserStoreTestCase(CQDETestCase):
 
     def setUp(self):
         dbStub.addResult([
-            # id, username, email, mobile, givenname, lastname, icon, pwHash (='password'), insider
+            # id, username, email, mobile, givenname, lastname, icon, pwHash (='password')
             [1, "name", "name@firma.fi", "12345", "Name", "Lastname",
-             None, "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8", 0,0,0]
+             None, "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8"]
         ])
         self._user = multiproject.core.users.User()
         self._user.id = 1
@@ -203,9 +203,9 @@ class LdapUserStoreTestCase(CQDETestCase):
 
     def setUp(self):
         dbStub.addResult([
-            # id, username, email, mobile, givenname, lastname, icon, pwHash (='password'), insider
+            # id, username, email, mobile, givenname, lastname, icon, pwHash (='password')
             [1, "name", "name@firma.fi", "12345", "Name", "Lastname",
-             None, "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8", 0]
+             None, "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8"]
         ])
         self._user = multiproject.core.users.User()
         self._user.id = 1

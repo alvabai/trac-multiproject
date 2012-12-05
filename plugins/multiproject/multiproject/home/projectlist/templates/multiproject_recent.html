@@ -1,0 +1,22 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      py:strip="">
+    <div py:if="recent_projects" class="resource-box">
+        <h2 class="resources-title">
+            <div class="headerRssLink"><a href="${req.href('..', 'home/rss/newest.xml')}"></a></div>
+            Recent projects
+        </h2>
+        <ul class="projectlist">
+            <li py:for="project in recent_projects" class="project_list_item">
+                <img class="icon" src="${req.href('projecticon', environment_name=project.name)}" />
+                <a href="${req.href('..', project.name)}">$project.project_name</a>
+                <span py:if="project.published">Published on ${project.published.strftime("%Y %B %d")}</span>
+                <span py:if="not project.published">Created on ${project.date.strftime("%Y %B %d")}</span>
+            </li>
+            <li>
+                <a class="more" href="${req.href('..', 'home/project/explore')}#tab=recent" shape="rect">More Recent Projects &gt;</a>
+            </li>
+            <li py:if="not recent_projects">No recently published projects, at the moment.</li>
+        </ul>
+    </div>
+</html>

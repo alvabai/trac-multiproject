@@ -1,6 +1,3 @@
-<!DOCTYPE html
-    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/"
@@ -16,7 +13,7 @@
                 </py:for>
             </ul>
         </py:for>
-        <py:if test="req.authname != 'anonymous' and ('PERMISSION_GRANT' not in req.perm) and 'ALLOW_REQUEST_MEMBERSHIP' in req.perm and 'SUMMARY_VIEW' in req.perm" >
+        <py:if test="req.authname != 'anonymous' and ('PERMISSION_GRANT' not in req.perm) and 'MEMBERSHIP_REQUEST_CREATE' in req.perm and 'PROJECT_VIEW' in req.perm" >
             <!-- ! Show membership request for users that have a permission to make request but no other rights -->
             <form method="post" action="${req.href('membership')}">
                 <input type="submit" py:if="req.authname not in members" class="primaryButton" value="Request to join" />

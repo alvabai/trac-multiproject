@@ -8,7 +8,7 @@ from trac.util.translation import _
 
 from genshi.builder import tag
 from genshi import HTML
-from multiproject.core.configuration import conf
+from multiproject.core.users import get_userstore
 
 
 class SourceViewContextNavFilter(Component):
@@ -141,8 +141,7 @@ class SourceViewContextNavFilter(Component):
                            (req.path_info, req.args))
             return
         if data['changeset']:
-            store = conf.getUserStore()
-            data['owner'] = store.getUser(data['changeset'].author)
+            data['owner'] = get_userstore().getUser(data['changeset'].author)
         ctxtnavitems = req.chrome.pop('ctxtnav', [])
         add_ctxtnav(req, _('All sources'), href = req.href.browser())
         add_ctxtnav(req, _('Last change'))

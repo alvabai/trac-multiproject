@@ -8,7 +8,7 @@ class TicketAnalytics(Component):
     implements(ITicketChangeListener)
 
     def __init__(self):
-        self.env_name = self.env.path.split('/')[-1]
+        self.env_name = self.env.project_identifier
 
     def ticket_created(self, ticket):
         event_log = EventLogIO()

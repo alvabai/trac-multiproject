@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Module contains the IconRendered Trac component that returns the project icon
-as a HTTP request response. Component checks for SUMMARY_VIEW permission - otherwise
+as a HTTP request response. Component checks for PROJECT_VIEW permission - otherwise
 returns default icon.
 
 Example queries:
@@ -18,7 +18,7 @@ from trac.core import Component, implements
 from trac.resource import Resource
 from trac.web import IRequestHandler
 
-from multiproject.common.projects import Projects
+from multiproject.common.projects.project import Project
 from multiproject.core.db import admin_query
 from multiproject.core.configuration import conf
 from multiproject.core.cache.project_cache import ProjectCache
@@ -53,26 +53,26 @@ class IconRenderer(Component):
         """
         content = ''
         content_type = 'image/png'
-        environment_name = req.args.get('environment_name')
+        env_name = req.args.get('environment_name')
         project_id = req.args.get('project_id')
 
         # Either env name or numeric id must be given
-        if not any((environment_name, project_id)) or (project_id and not project_id.isdigit()):
+        if not any((env_name, project_id)) or (project_id and not project_id.isdigit()):
             return req.send('Arguments required', status=400)
 
-        # Load project with project id or env name
+        # Try loading project with project_id or_env name, cant use self.env since that's not what was asked
         if not project_id:
-            project_id = Projects().get_project_id(env_name=environment_name)
-
-        # If still no project id
-        if not project_id:
-            return req.send('', status=404)
+            project = Project.get(env_name=env_name)
+            if project:
+                project_id = project.id
+            else:
+                return req.send('', status=404)
 
         # Check permissions: if user has no permission, return default icon
-        if  req.perm.has_permission('SUMMARY_VIEW', Resource('project', id=project_id)):
+        if  req.perm.has_permission('PROJECT_VIEW', Resource('project', id=project_id)):
             icon = self.get_icon(project_id)
         else:
-            self.log.info('User {0} has no SUMMARY_VIEW permission to see project icon: {1}'.format(req.authname, environment_name))
+            self.log.info('User {0} has no PROJECT_VIEW permission to see project icon: {1}'.format(req.authname, env_name))
             icon = self.get_default_icon()
 
         # Split data

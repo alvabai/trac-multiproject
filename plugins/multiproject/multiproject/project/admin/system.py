@@ -4,8 +4,9 @@ from trac.mimeview.api import Context
 from trac.util.translation import _
 from trac.admin.api import IAdminPanelProvider
 from trac.web.api import Href, RequestDone
-from trac.web.chrome import add_warning, add_script
+from trac.web.chrome import add_warning, add_script, add_stylesheet
 
+from multiproject.common.projects import Project
 from multiproject.common.projects import Projects
 from multiproject.common.projects.archive import ProjectArchive
 from multiproject.common.projects.listeners import IProjectChangeListener
@@ -35,8 +36,7 @@ class SystemAdminPanel(Component):
         """
         req.perm.require('TRAC_ADMIN')
 
-        projects = Projects()
-        project = projects.get_project(env_name=conf.resolveProjectName(self.env))
+        project = Project.get(self.env)
 
         if req.method == 'POST':
             thisurl = Href(req.base_path)(req.path_info)
@@ -62,6 +62,7 @@ class SystemAdminPanel(Component):
                     listener.project_archived(project)
 
                 # Do the actual project removal
+                projects = Projects()
                 if projects.remove_project(project):
                     # Notify listeners. The project object still exists, but database does not
                     for listener in self.project_change_listeners:
@@ -74,8 +75,10 @@ class SystemAdminPanel(Component):
                     add_warning(req, 'Could not remove project "%s". Try again later' % project.project_name)
                     return req.redirect(thisurl)
 
+        add_script(req, 'multiproject/js/jquery-ui.js')
         add_script(req, 'multiproject/js/multiproject.js')
         add_script(req, 'multiproject/js/admin_system.js')
+        add_stylesheet(req, 'multiproject/css/jquery-ui.css')
 
         # NOTE: Trac automatically puts 'project' dict in chrome thus it cannot be used
         data = {'multiproject': {

@@ -1,0 +1,24 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude" py:strip="">
+<!-- !  Copied and modifed from Trac dir_entries.html -->
+<py:for each="idx, dir in enumerate(tree_dirs)">
+    <tr class="${idx % 2 and 'even' or 'odd'} ${dir.is_download() and 'download' or ''}">
+        <td class="name">
+            <a class="dir" title="${_('Choose Directory')}" href="${dir.get_href(req)}">${dir.filename}</a>
+        </td>
+        <td class="size">
+        </td>
+    </tr>
+</py:for>
+<py:for each="idx, file in enumerate(tree_files, len(tree_dirs))">
+    <tr class="${idx % 2 and 'even' or 'odd'}">
+        <td class="name">
+            <a class="file" title="${_('View File')}" href="${file.get_href(req)}" target="_blank">${file.filename}</a>
+        </td>
+        <td class="size">
+            <span title="${_('%(size)s bytes', size=file.size)}">${pretty_size(file.size)}</span>
+        </td>
+    </tr>
+</py:for>
+</html>

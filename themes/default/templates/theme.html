@@ -30,7 +30,7 @@ def sane(stri):
   </div>
 
 
-    <div py:def="main_navigation(category)" >
+    <div py:def="main_navigation(category)" id="mainnav">
         <ul py:if="chrome.nav[category]" id="tabbedNavigation" class="clearfix">
             <li py:for="idx, item in  enumerate(chrome.nav[category])"
                 class="${classes(first_last(idx, chrome.nav[category]), selected=item.active, active=item.active)}">${item.label}</li>
@@ -46,12 +46,12 @@ def sane(stri):
         </a>
         <a href="${req.base_path}">${project.name}</a>
     </h1>
-    
+
     <!-- ! Select navigation bar -->
     <div py:if="is_project">
         ${main_navigation('mainnav')}
     </div>
-    
+
     <div id="main">
       <div id="ctxtnav" class="nav" py:if="len(chrome.ctxtnav) > 0" style="position:relative;">
         <div class="module" id="ctxtnavitems">

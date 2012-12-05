@@ -15,7 +15,7 @@ try:
         implements(ITopicChangeListener, IMessageChangeListener)
 
         def __init__(self):
-            self.env_name = self.env.path.split('/')[-1]
+            self.env_name = self.env.project_identifier
 
         # TopicChangeListener
         def topic_created(self, context, topic):

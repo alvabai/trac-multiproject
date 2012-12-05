@@ -7,8 +7,7 @@ from trac.admin.api import IAdminPanelProvider
 from trac.web.chrome import add_notice, add_warning, add_script, add_stylesheet
 from trac.util.translation import _
 
-from multiproject.core.configuration import conf
-from multiproject.common.projects import Projects
+from multiproject.common.projects import Project
 from multiproject.core.categories import CQDECategoryStore, Context
 from multiproject.core.db import safe_int
 
@@ -199,8 +198,7 @@ class CategorizationAdminPanel(Component):
         context_by_id = {}
         all_contexts = self.categ.get_contexts()
         context_id = safe_int(context_id)
-
-        project_key = Projects().get_project_id(env_name = conf.resolveProjectName(self.env))
+        project_key = Project.get(self.env).id
 
         for context in all_contexts:
             context_by_id[context.context_id] = context

@@ -1,0 +1,55 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:py="http://genshi.edgewall.org/" py:strip="True">
+    <div class="summary">
+        <h2 class="resources-title">Project summary</h2>
+        <table class="properties">
+            <tbody>
+                <tr>
+                    <th>Categories:</th>
+                    <td>
+                        <!-- Main categories -->
+                        <py:if test="len(combined_categories) &gt; 1">
+                            <py:for each="category in combined_categories[:-1]">
+                                <a href="${req.href('../home/project/explore') + '#c[]=%s'%category.category_id}">${category.name}</a>,
+                            </py:for>
+                        </py:if>
+                        <py:if test="len(combined_categories) &gt; 0">
+                            <py:with vars="last_category=combined_categories[-1]">
+                                <a href="${req.href('../home/project/explore') + '#c[]=%s'%last_category.category_id}">${last_category.name}</a>
+                            </py:with>
+                        </py:if>
+                        <!-- Category contexts -->
+                    </td>
+                </tr>
+                <py:for each="context_id in context_order">
+                    <tr>
+                    <py:choose>
+                        <py:when test="len(separated_categories_per_context[context_id]) &gt; 0">
+                            <th>${context_by_id[context_id].summary_name}:</th>
+                            <td>
+                            <py:if test="len(separated_categories_per_context[context_id]) &gt; 1">
+                                <py:for each="category in separated_categories_per_context[context_id][:-1]">
+                                    <a href="${req.href('../home/project/explore') + '#c[]=%s'%category.category_id}">${category.name}</a>,
+                                </py:for>
+                            </py:if>
+                            <py:if test="len(separated_categories_per_context[context_id]) &gt; 0">
+                                <py:with vars="last_category=separated_categories_per_context[context_id][-1]">
+                                    <a href="${req.href('../home/project/explore') + '#c[]=%s'%last_category.category_id}">${last_category.name}</a>
+                                </py:with>
+                            </py:if>
+                            </td>
+                        </py:when>
+                    </py:choose>
+                    </tr>
+                </py:for>
+                <tr>
+                    <th>Created:</th>
+                    <td>${to_web_time(_project_.created)}</td>
+                </tr>
+                <tr>
+                    <th>Visibility:</th>
+                    <td>${visibility_label}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</html>

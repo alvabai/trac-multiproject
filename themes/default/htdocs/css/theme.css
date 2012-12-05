@@ -238,6 +238,12 @@ ul[id*="max"] {
    width:65px !important;
 }
 
+input.ui-autocomplete-input {
+    background-image: url("../images/search_bg.png");
+    background-position: right center;
+    background-repeat: no-repeat;
+}
+
 input.loading {
     background: url("/htdocs/theme/images/loading.gif") no-repeat scroll right center transparent;
 }
@@ -282,4 +288,33 @@ div.results table#results tr.project div.legend {
     background: #CCC url(../images/ui-bg_highlight-soft_75_cccccc_1x100.png) 50% 50% repeat-x;
     color: white;
     font-weight: normal;
+}
+
+/* Messages */
+div#messages-dialog a.message-recipient-remove {
+    text-indent: -3000px;
+    background: transparent url('../images/delete_x.png') no-repeat center center;
+    padding-left: 15px;
+    opacity: 0.5;
+}
+
+div#messages-dialog a.message-recipient-remove:hover {
+    opacity: 1;
+}
+
+div#messages-dialog a.message-recipient-remove .remove-text {
+    display: none;
+}
+
+div#messages-dialog a.message-more {
+    display: block;
+    line-height: 20px;
+    margin-right: 20px;
+    margin-left: 20px;
+}
+
+div#messages-dialog a.message-more.loading, div#messages-dialog a.message-more.loading:hover {
+    color: #aaa;
+    text-decoration: none;
+    background: url("../images/loading.gif") no-repeat scroll right center transparent;
 }

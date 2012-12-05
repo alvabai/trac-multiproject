@@ -3,7 +3,7 @@ from datetime import date
 
 from trac.notification import NotificationSystem
 
-from multiproject.common.projects.project import Project
+from multiproject.common.projects import Project
 from multiproject.common.projects.commands import Command
 from multiproject.common.projects.commands import Commander
 from multiproject.common.projects.commands import CreateTracDatabase
@@ -11,8 +11,9 @@ from multiproject.common.projects.commands import ListUpProject
 from multiproject.common.projects.commands import SetPermissions
 from multiproject.core.db import admin_query, safe_string, safe_int
 from multiproject.core.configuration import conf
-from multiproject.core.path import syspath
-from multiproject.core.permissions import CQDEUserGroupStore, CQDEPermissionPolicy
+from multiproject.core.files.files_conf import FilesConfiguration
+from multiproject.core.permissions import CQDEUserGroupStore, get_special_users
+from multiproject.core.users import get_userstore
 
 
 class ProjectArchive(object):
@@ -123,25 +124,21 @@ class ProjectArchive(object):
                 return False
         return True
 
+    # TODO: Too much similar to Project.get_projects_with_params? Combine whole class to Project?
     def get_projects_with_params(self, username, perm, namelike=None, categories=None):
         """
-        Returns a list of archived projects where user have right for "action".
+        :returns: a list of archived projects where user have right for permission (action).
         """
         categories = categories or []
-        userstore = conf.getUserStore()
-        user = userstore.getUser(username)
+        user = get_userstore().getUser(username)
         user_organization = user.organization_keys
-
-        # Get actions
-        policy = CQDEPermissionPolicy()
-        actions = policy.get_granting_permissions(perm)
 
         # Get subjects
         subjects = set([username])
-        subjects.update(policy.get_special_users(username))
+        subjects.update(get_special_users(username))
 
         # Construct comma separated lists for queries
-        actions_str = ','.join("'%s'" % safe_string(action) for action in actions)
+        actions_str = ','.join("'%s'" % safe_string(p) for p in [perm, 'TRAC_ADMIN'])
         subjects_str = ','.join("'%s'" % safe_string(subject) for subject in subjects)
         categories_str = ','.join("'%s'" % safe_string(cat) for cat in categories)
 
@@ -383,7 +380,7 @@ class ArchiveProjectFolder(CloneFolder):
         CloneFolder.__init__(self)
         self.name = "ArchiveProjectFolder"
         self.project = project
-        self.source = self.project.get_trac_fs_path()
+        self.source = self.project.trac_fs_path
 
     def do(self):
         self.destination = self.project.archive_path + "/trac"
@@ -396,7 +393,7 @@ class ArchiveRepository(CloneFolder):
         CloneFolder.__init__(self)
         self.name = "ArchiveRepository"
         self.project = project
-        self.source = self.project.get_vcs_fs_path()
+        self.source = self.project.vcs_fs_path
 
     def do(self):
         self.destination = self.project.archive_path + "/vcs"
@@ -409,7 +406,7 @@ class ArchiveWebDav(CloneFolder):
         CloneFolder.__init__(self)
         self.name = "ArchiveWebDav"
         self.project = project
-        self.source = self.project.get_dav_fs_path()
+        self.source = self.project.dav_fs_path
 
     def do(self):
         self.destination = self.project.archive_path + "/dav"
@@ -490,7 +487,7 @@ class RestoreEnvironment(CloneFolder):
         self.name = "RestoreEnvironment"
         self.project = project
         self.source = self.project.archive_path + "/trac"
-        self.destination = conf.sys_projects_root + "/" + self.project.env_name
+        self.destination = os.path.join(conf.sys_projects_root, self.project.env_name)
 
         if not self.project.env_name:
             raise Exception("Incorrect data")
@@ -502,7 +499,7 @@ class RestoreDav(CloneFolder):
         self.name = "RestoreDav"
         self.project = project
         self.source = self.project.archive_path + "/dav"
-        self.destination = syspath.dav + "/" + self.project.env_name
+        self.destination = os.path.join(FilesConfiguration().sys_dav_root, self.project.env_name)
 
     def do(self):
         if not os.path.exists(self.source):

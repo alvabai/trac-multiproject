@@ -42,17 +42,18 @@ class Command(object):
         self.cmd = cmd
 
 
-    def run(self, use_sudo=True, *args):
+    def run(self, args=None):
         """
         Runs the command with optional arguments.
-        If use_sudo flag is set to True, command runs with sudo rights.
         """
-        if use_sudo:
-            return self.sudo(*args)
-        return api.run('%s %s' % (self.cmd, ' '.join(args)))
+        args = args or []
+        # If list, join them as a string
+        if isinstance(args, list):
+            args = ' '.join(args)
+        return api.run('%s %s' % (self.cmd, args))
 
 
-    def sudo(self, *args):
+    def sudo(self, args=None, user=None):
         """
         Runs sudo command by first reading the password
         from home directory (convention in production environments)
@@ -62,16 +63,19 @@ class Command(object):
             Following methods are equalent:
 
             >>> cmd = Command('uptime')
-            >>> cmd.run(use_sudo=True)
-             12:02:49 up  3:57,  2 users,  load average: 0.64, 0.62, 0.63
             >>> cmd.sudo()
              12:02:50 up  3:57,  2 users,  load average: 0.64, 0.62, 0.63
 
         """
         Auth().authenticate(env)
+        args = args or []
 
-        cmd = '%s %s' % (self.cmd, ' '.join(args))
-        output = api.sudo(cmd)
+        # If list, join them as a string
+        if isinstance(args, list):
+            args = ' '.join(args)
+
+        cmd = '%s %s' % (self.cmd, args)
+        output = api.sudo(cmd, user=user)
 
         return output
 
@@ -112,7 +116,7 @@ class FileManager(object):
 
         if '~' in remote_path:
             with api.settings(api.hide('stdout', 'running')):
-                homepath = run('echo $HOME', use_sudo=use_sudo)
+                homepath = sudo('echo $HOME') if use_sudo else run('echo $HOME')
                 remote_path = remote_path.replace('~', homepath)
 
         found = files.exists(remote_path, use_sudo=use_sudo)
@@ -261,19 +265,25 @@ class RemoteConfigReader(object):
         return confdict[key].strip()
 
 
-def run(command, use_sudo=False):
+def run(command):
     """
     Run run command using Command class - to resemble Fabric run.
+
+    :param str command: Command to run
     """
     cmd = Command(command)
-    return cmd.run(use_sudo=use_sudo)
+    return cmd.run()
 
 
-def sudo(command):
+def sudo(command, user=None):
     """
     Run sudo command using Command class - to resemble Fabric sudo.
+
+    :param str command: Command to run
+    :param str user: Name of sudo user, if not root
     """
-    return run(command, use_sudo=True)
+    cmd = Command(command)
+    return cmd.sudo(user=user)
 
 
 def abort(msg):

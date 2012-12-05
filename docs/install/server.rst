@@ -350,9 +350,9 @@ the MultiProject plugin version control.
 
         .. code-block:: ini
 
-            [multiproject]
-            # Dav root directory. Usually <trac home>/dav
-            sys_dav_root = /var/www/webdav
+            [multiproject-files]
+            # Dav root directory. Usually <trac home>/webdav
+            sys_dav_root = /var/www/trac/webdav
 
     #.  Configure apache to use custom handlers for dav. MultiProject defines this into
         ``/etc/apache2/conf.d/multiproject-access.conf``:
@@ -376,6 +376,7 @@ the MultiProject plugin version control.
             # Allow access for subfolders (overrides the root match rule)
             <LocationMatch "^/dav/.+">
               PythonHeaderParserHandler multiproject.core.auth.mod_python_access.webdav
+              PythonCleanupHandler multiproject.core.auth.mod_python_access.webdav
               PythonOption realm "MultiProject webdav"
               Allow from all
             </LocationMatch>

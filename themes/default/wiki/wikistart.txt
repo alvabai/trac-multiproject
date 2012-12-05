@@ -26,5 +26,4 @@ Here is a list of things you probably want to do when starting a project
   * Project (WebDAV) shared folder: [[ProjectWebDavUrl()]]
   * Downloads: [wiki:Downloads]
 
-== Release downloads ==
-[[FeaturedDownloads()]]
+[[FilesDownloads(only_featured=True, no_hide=True, title=Release downloads)]]

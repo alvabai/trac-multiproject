@@ -14,7 +14,7 @@ try:
         implements(IDownloadListener, IDownloadChangeListener)
 
         def __init__(self):
-            self.env_name = self.env.path.split('/')[-1]
+            self.env_name = self.env.project_identifier
 
         def download_created(self, context, download):
             log = EventLogIO()

@@ -5,6 +5,7 @@ from trac.util.translation import _
 from trac.core import TracError, ExtensionPoint
 from trac.admin.web_ui import BasicsAdminPanel
 
+from multiproject.common.projects import Project
 from multiproject.common.projects import Projects
 from multiproject.common.projects.commands import MakeProjectPublic
 from multiproject.common.projects.listeners import IProjectChangeListener
@@ -32,11 +33,11 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
         userstore = get_userstore()
         user = userstore.getUser(req.authname)
 
-        papi = Projects()
-        project = papi.get_project(env_name = conf.resolveProjectName(self.env))
+        project = Project.get(self.env)
 
         # Update database if form posted
         if req.method == 'POST':
+            papi = Projects()
             if req.args.has_key('makepublic'):
                 if conf.allow_public_projects:
                     self._make_public(req, project)
@@ -57,7 +58,7 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
         data = {
             'user': user,
             'mproject': project,
-            'is_public': project.is_public(),
+            'is_public': project.public,
             'allow_public_projects': conf.allow_public_projects
         }
 

@@ -13,6 +13,7 @@ from multiproject.core.configuration import conf
 from multiproject.core.users import get_userstore
 from multiproject.core.auth.auth import Authentication
 from multiproject.core.ssh_keys import CQDESshKeyStore, SshKey
+from multiproject.common.web.resource import IJSONDataPublisherInterface
 
 
 class SharedSyntaxHighlight(Component):
@@ -67,15 +68,39 @@ class SharedSyntaxHighlight(Component):
         return template, data, content_type
 
 
+class HideGeneralPreferences(Component):
+    """
+    Hides the Trac's General preferences tab in user settings
+    """
+    implements(ITemplateStreamFilter)
+
+    # ITemplateStreamFilter methods
+
+    def filter_stream(self, req, method, filename, stream, data):
+        """
+        Removes Syntax Highlight tab from user preferences view
+        """
+        # Redirect to basic tab
+        if req.path_info == '/prefs':
+            return req.redirect(req.href('/prefs/basic'))
+
+        # Remove General (first) tab from user preferences
+        if req.path_info.startswith('/prefs'):
+            trans = Transformer('.//ul[@id="tabs"]/li[1]').remove()
+            return stream | trans
+
+        return stream
+
+
 class UserImagePreferencePanel(Component):
     """ Preference panel for changing user image
     """
-    implements(IPreferencePanelProvider, ITemplateStreamFilter)
+    implements(IPreferencePanelProvider, ITemplateStreamFilter, IJSONDataPublisherInterface)
 
     def get_preference_panels(self, req):
         """ Give name of the panel
         """
-        user = conf.getUserStore().getUser(req.authname)
+        user = get_userstore().getUser(req.authname)
         has_external_avatar = Authentication().has_external_profile(user)
         if req.authname != 'anonymous' and not has_external_avatar:
             yield ('image', 'Face image')
@@ -111,6 +136,15 @@ class UserImagePreferencePanel(Component):
         if filename == 'multiproject_user_prefs_image.html' and req.path_info.endswith('/prefs/image'):
             return stream | Transformer('//form[@id="userprefs"]').attr('enctype', 'multipart/form-data')
         return stream
+
+    # IJSONDataPublisherInterface methods
+
+    def publish_json_data(self, req):
+        return {
+            'conf': {
+                'dateformat': 'mm/dd/y',
+        }}
+
 
 class UserBasicInfo(Component):
     """ Preference panel for changing user basic information
@@ -243,8 +277,7 @@ class UserSshKeys(Component):
 
         data = {}
         key_store = CQDESshKeyStore.instance()
-        users = conf.getUserStore()
-        user = users.getUser(req.authname)
+        user = get_userstore().getUser(req.authname)
 
         if req.method == 'POST':
             ssh_key = req.args.get('ssh_key')

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from multiproject.common.projects.project import Project
+from multiproject.common.projects import Project
 from multiproject.core.permissions import CQDEUserGroupStore
 from multiproject.core.users import User
 import multiproject.common.projects.commands

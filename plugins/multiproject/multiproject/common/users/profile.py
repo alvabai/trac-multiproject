@@ -134,7 +134,6 @@ class UserProfileBox(Component):
 
         # Project settings for own account
         if user.username == req.authname:
-            actions.append((-50, tag.a(_('View your public profile'), href=homeperm.env.href('user', user.username))))
             actions.append((-40, tag.a(_('View your projects'), href=homeperm.env.href('myprojects'))))
             actions.append((0, tag.a(_('Edit your settings'), href=homeperm.env.href('prefs'))))
         # View other user profile

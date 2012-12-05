@@ -1,0 +1,42 @@
+#!/bin/bash
+# Juggernaut service run by Forever
+# chkconfig: 345 20 80
+# description: Juggernaut service
+# processname: juggernaut
+
+DAEMON_PATH="/usr/lib/node_modules/forever/bin"
+DAEMON=forever
+DAEMONOPTS=""
+
+NAME=juggernaut
+DESC="Juggernaut push service"
+PIDFILE=/var/run/$NAME.pid
+SCRIPTNAME=/etc/init.d/$NAME
+
+case "$1" in
+start)
+	printf "%-50s" "Starting $NAME..."
+	cd $DAEMON_PATH
+        $DAEMON start -p `dirname $PIDFILE` -a -l juggernaut.log --pidfile $PIDFILE /usr/lib/node_modules/juggernaut/server.js
+;;
+status)
+        printf "%-50s" "Checking $NAME..."
+	cd $DAEMON_PATH
+        $DAEMON list
+
+;;
+stop)
+        printf "%-50s" "Stopping $NAME"
+	cd $DAEMON_PATH
+        $DAEMON stopall
+;;
+
+restart)
+  	$0 stop
+  	$0 start
+;;
+
+*)
+        echo "Usage: $0 {status|start|stop|restart}"
+        exit 1
+esac

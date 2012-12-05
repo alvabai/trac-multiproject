@@ -2,11 +2,12 @@
 import base64
 from datetime import datetime
 import urllib, hashlib
+from trac.perm import PermissionSystem
 
-from multiproject.core.permissions import CQDEPermissionPolicy
+from multiproject.common.projects import HomeProject, Project
 from multiproject.core.cache.permission_cache import AuthenticationCache
 from multiproject.core.auth.auth import Authentication
-from multiproject.core.users import User
+from multiproject.core.users import User, get_userstore
 from multiproject.core.configuration import conf
 from multiproject.core.proto import ProtocolManager
 from multiproject.core.util import env_id
@@ -29,6 +30,8 @@ class BasicAccessControl(object):
         self.__auth = Authentication()
         self.parse_user_and_pw()
         self.options = req.get_options()
+        self._environment_key = None
+        self._user = None
 
     def parse_user_and_pw(self):
         self._username = "anonymous"
@@ -89,15 +92,25 @@ class BasicAccessControl(object):
         return is_auth
 
     def has_permission(self):
-        if not self.environment_identifier():
+
+        identifier = self.environment_identifier()
+        if not identifier:
             conf.log.warning("Failed reading identifier")
             return False
 
-        policy = CQDEPermissionPolicy()
-        had = policy.check_permission(self.environment_key,
-            self.required_action,
-            self.username)
-        return had
+        # We need environment for permission check, get it .. albeit ugly
+        # TODO: this probably has performance hit as environment is not loaded with caching!
+        if identifier == conf.sys_home_project_name:
+            env = HomeProject().get_env()
+        else:
+            proj = Project.get(env_name=identifier)
+            env = proj.get_env()
+
+        env.log.debug('basic_access checking has_permission %s for %s' %
+                      (self.required_action, self.username))
+
+        perms = env[PermissionSystem].get_user_permissions(self.username)
+        return perms.get(self.required_action, False)
 
     def is_blocked(self):
         """
@@ -114,8 +127,7 @@ class BasicAccessControl(object):
         if self.username == 'anonymous':
             return False
 
-        userstore = conf.getUserStore()
-        user = userstore.getUser(self.username)
+        user = self.user
 
         if user.expires and user.expires <= datetime.utcnow():
             return True
@@ -142,7 +154,10 @@ class BasicAccessControl(object):
 
     @property
     def environment_key(self):
-        return env_id(self.environment_identifier())
+        if self._environment_key is not None:
+            return self._environment_key
+        self._environment_key = env_id(self.environment_identifier())
+        return self._environment_key
 
     @property
     def plain_pw(self):
@@ -151,6 +166,13 @@ class BasicAccessControl(object):
     @property
     def username(self):
         return self._username
+
+    @property
+    def user(self):
+        if self._user is None:
+            user = get_userstore().getUser(self.username)
+            self._user = user
+        return self._user
 
     # Helper for subclasses
     def parse_identifier_from_uri(self):
@@ -169,9 +191,15 @@ class BasicAccessControl(object):
         :returns: Project identifier or None
         """
         identifier = None
+        # url_projects_path is ``/`` right-stripped
+        base_projects_url = conf.url_projects_path + '/'
 
         # Drop leading slash so we'll have: items[0] == 'dav'
-        uri = self.req.uri[1:] if self.req.uri.startswith('/') else self.req.uri
+        if self.req.uri.startswith(base_projects_url):
+            uri = self.req.uri[len(base_projects_url):]
+        else:
+            # TODO: Why just not return None?
+            uri = self.req.uri
         items = uri.split('/', 3)
         # Strip empty elements
         items = [item for item in items if item]

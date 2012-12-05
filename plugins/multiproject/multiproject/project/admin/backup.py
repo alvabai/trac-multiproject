@@ -10,7 +10,7 @@ User needs to have ``TRAC_ADMIN`` permissions to access the functionality.
 """
 import re
 
-from trac.web.chrome import add_notice, add_warning, Chrome, add_script
+from trac.web.chrome import add_notice, add_warning, Chrome, add_script, add_stylesheet
 from trac.web.href import Href
 from trac.web.api import IRequestHandler
 from trac.admin.api import IAdminPanelProvider
@@ -19,8 +19,10 @@ from trac.core import Component, implements, TracError
 from trac.util.translation import _
 
 from multiproject.common.projects.backup import ProjectBackup
-from multiproject.common.projects.project import Project
+from multiproject.common.projects import Project
 from multiproject.core.configuration import conf
+from multiproject.core.users import get_userstore
+
 
 class BackupRestoreModule(Component):
     """
@@ -53,13 +55,13 @@ class BackupRestoreModule(Component):
         backup_href = Href('%s/admin/general/backup' % req.base_path)
 
         # Load the user based on authname
-        user = conf.getUserStore().getUser(req.authname)
+        user = get_userstore().getUser(req.authname)
 
         # Get the current environment name
         env_name = conf.resolveProjectName(self.env)
 
         # Initiate ProjectBackup, containing the backup/restore implementation
-        prj = Project.get_by_env_name(env_name)
+        prj = Project.get(env_name=env_name)
         pb = ProjectBackup(prj)
         backups = pb.get_backups()
 
@@ -111,6 +113,9 @@ class BackupRestoreModule(Component):
         # Just return the list of existing backups
         Chrome(self.env).add_textarea_grips(req)
 
+
+        add_script(req, 'multiproject/js/jquery-ui.js')
+        add_stylesheet(req, 'multiproject/css/jquery-ui.css')
         add_script(req, 'multiproject/js/multiproject.js')
         add_script(req, 'multiproject/js/admin_backup.js')
 

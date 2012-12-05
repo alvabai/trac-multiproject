@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from pkg_resources import resource_filename #@UnresolvedImport
+from datetime import datetime
 import re
 
 from trac.core import Component, implements
@@ -8,8 +9,8 @@ from trac.web.chrome import ITemplateProvider
 
 from multiproject.common.projects import Projects
 from multiproject.core.configuration import conf
+from multiproject.core.users import get_userstore
 
-from datetime import datetime
 
 class RSSServiceStatisticsModule(Component):
     """ Trac component for creating RSS feeds
@@ -30,16 +31,14 @@ class RSSServiceStatisticsModule(Component):
         """ Create a simple RSS feed based on this structure that shows the number of active projects and members.
             In the future we will add more details.
         """
-
         prjs = Projects()
-        store = conf.getUserStore()
 
         # create a list
         items = []
 
         # append tuples containing items to show
         items.append (('PROJECT_COUNT', 'Project count', prjs.project_count()))
-        items.append (('ACTIVE_MEMBER_COUNT', 'Active member count', store.getMemberCountInProjects()))
+        items.append (('ACTIVE_MEMBER_COUNT', 'Active member count', get_userstore().getMemberCountInProjects()))
 
         pubdate = datetime.now()
 

@@ -45,7 +45,9 @@ def get_context(req):
     :param Request req: The Trac request to get the context from
     :returns: The dict containing multiproject specific data for the request
     """
-    if not hasattr(req, "multiproject"):
+    try:
+        return req.multiproject
+    except AttributeError:
         setattr(req, "multiproject", {})
 
     return req.multiproject

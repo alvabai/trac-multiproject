@@ -15,7 +15,6 @@ class DummyReq(object):
             'lastName': 'User',
             'auth': 'on',
             'local': 'on',
-            'insider': 'on'
         }
 
         class DummyPerm(object):

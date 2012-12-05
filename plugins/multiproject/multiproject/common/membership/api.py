@@ -6,8 +6,8 @@ from trac.notification import NotifyEmail
 from trac.web.chrome import ITemplateProvider
 
 from multiproject.core.permissions import CQDEPermissionStore
-from multiproject.core.configuration import conf
 from multiproject.core.db import admin_query, admin_transaction, safe_string
+from multiproject.core.users import get_userstore
 
 
 class MembershipApi(object):
@@ -29,10 +29,10 @@ class MembershipApi(object):
                 cursor.execute(query, self.project.id)
                 return [row[0] for row in cursor]
             except:
-                conf.log.exception("Exception. MembershipApi.get_membership_requests query failed. '''%s'''" % query)
+                self.env.log.exception("Exception. MembershipApi.get_membership_requests query failed. '''%s'''" % query)
 
     def request_membership(self, authname, message):
-        users = conf.getUserStore()
+        users = get_userstore()
         user = users.getUser(authname)
 
         with admin_transaction() as cursor:
@@ -40,7 +40,7 @@ class MembershipApi(object):
             try:
                 cursor.execute(query, (self.project.id, user.id))
             except:
-                conf.log.exception("Exception. MembershipApi.request_membership query failed. '''%s'''" % query)
+                self.env.log.exception("Exception. MembershipApi.request_membership query failed. '''%s'''" % query)
 
         req_notifier = MembershipRequestedNotifier(self.env, self.project, message, authname)
         req_notifier.notify_admins()
@@ -63,8 +63,7 @@ class MembershipApi(object):
         notifier.notify_declined()
 
     def _remove_membership_req(self, username):
-        users = conf.getUserStore()
-        user = users.getUser(username)
+        user = get_userstore().getUser(username)
 
         if not user:
             raise TracError('User cannot be found with name: "%s"' % username)
@@ -77,7 +76,7 @@ class MembershipApi(object):
             try:
                 cursor.execute(query, (self.project.id, user.id))
             except:
-                conf.log.exception("Exception. MembershipApi._remove_membership_req query failed. '''%s'''" % query)
+                self.env.log.exception("Exception. MembershipApi._remove_membership_req query failed. '''%s'''" % query)
 
 
 class MemberShipEmailTemplateProvider(Component):
@@ -100,13 +99,14 @@ class MembershipRequestedNotifier(NotifyEmail):
         NotifyEmail.__init__(self, env)
 
         self.from_email = env.config.get('notification', 'smtp_from')
-        add_auth_url = project.get_url() + "admin/permissions/groups"
+        add_auth_url = project.get_url() + "admin/general/permissions"
         self.project = project
+        self.env = env
 
-        self.data = {'project_name':project.project_name,
-                     'message':message,
-                     'authname':authname,
-                     'add_auth_url':add_auth_url}
+        self.data = {'project_name': project.project_name,
+                     'message': message,
+                     'authname': authname,
+                     'add_auth_url': add_auth_url}
 
     def notify_admins(self):
         self.notify(None, "Request membership")
@@ -116,10 +116,8 @@ class MembershipRequestedNotifier(NotifyEmail):
         """
         cc = []
         to = []
-        permissions = CQDEPermissionStore(self.project.trac_environment_key)
-        admins = permissions.get_users_with_permissions(['TRAC_ADMIN'])
-
         # Wrap and escape admins in quotes
+        admins = CQDEPermissionStore(env=self.env).get_users_with_permissions(['TRAC_ADMIN'])
         recipients = ", ".join(["'%s'" % safe_string(admin) for admin in admins])
 
         # Query for admin email addresses
@@ -129,7 +127,7 @@ class MembershipRequestedNotifier(NotifyEmail):
                 cursor.execute(query)
                 to = [row[0] for row in cursor]
             except:
-                conf.log.exception("Exception. MembershipApi.get_recipients query failed. '''%s'''" % query)
+                self.env.log.exception("Exception. MembershipApi.get_recipients query failed. '''%s'''" % query)
 
         return to, cc
 
@@ -141,12 +139,8 @@ class MembershipRequestHandledNotifier(NotifyEmail):
 
     def __init__(self, env, project, authname):
         NotifyEmail.__init__(self, env)
-
         self.from_email = env.config.get('notification', 'smtp_from')
-
-        users = conf.getUserStore()
-        self.user = users.getUser(authname)
-
+        self.user = get_userstore().getUser(authname)
         self.data = {'_project_':project}
 
     def notify_accepted(self):

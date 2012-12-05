@@ -37,6 +37,7 @@ Subversion:
 """
 import tempfile
 import re
+import os
 from subprocess import Popen, PIPE
 
 from trac.core import Component, implements, TracError
@@ -48,7 +49,7 @@ from trac.web.href import Href
 from trac.util.translation import _
 from trac.util.html import plaintext
 
-from multiproject.common.projects.project import Project
+from multiproject.common.projects import Project
 from multiproject.core.configuration import conf
 
 
@@ -152,7 +153,7 @@ class ArchiveSourceModule(Component):
         env_name = conf.resolveProjectName(self.env)
         repo_type = self.env.config.get('trac', 'repository_type')
         repo_dir = conf.getEnvironmentVcsPath(env_name)
-        project = Project.get_by_env_name(env_name)
+        project = Project.get(env_name=env_name)
 
         if repo_type not in conf.supported_scm_systems:
             raise TracError('Non-supported VCS type')
@@ -191,16 +192,27 @@ class ArchiveSourceModule(Component):
             self.env.log.exception('Repository dump failed: %s' % err)
             raise TracError('Repository archive failed - please try again later')
 
+        finally:
+            # Ensure the temp file gets removed even on errors
+            if os.path.exists(tempfd.name):
+                os.remove(tempfd.name)
+
         # Create HTTP response by reading the archive into it
-        req.send_response(200)
-        req.send_header('Content-Type', self.formats[format]['mime'])
-        inline = '%s-%s.%s' % (project.env_name, revision, self.formats[format]['ext'])
-        req.send_header('Content-Disposition', content_disposition('inline', inline))
-        content = tempfd.read()
-        req.send_header("Content-Length", len(content))
-        req.end_headers()
-        req.write(content)
-        tempfd.close()
+        try:
+            req.send_response(200)
+            req.send_header('Content-Type', self.formats[format]['mime'])
+            inline = '%s-%s.%s' % (project.env_name, revision, self.formats[format]['ext'])
+            req.send_header('Content-Disposition', content_disposition('inline', inline))
+            content = tempfd.read()
+            req.send_header("Content-Length", len(content))
+            req.end_headers()
+            req.write(content)
+            tempfd.close()
+
+        # Ensure the temp file gets removed
+        finally:
+            if os.path.exists(tempfd.name):
+                os.remove(tempfd.name)
 
         raise RequestDone
 
@@ -220,8 +232,10 @@ class ArchiveSourceModule(Component):
             raise ValueError('Unsupported archive format %s' % format)
         if prefix is None:
             prefix = revision
+
+        git = self.env.config.get('git', 'git_bin', 'git')
         # NOTE: For consistency, use prefix to create path structure (because Mercurial always wants to set prefix)
-        cmd = ['git', 'archive', '--prefix', prefix + '/', '--output', archpath, '--format', format, revision]
+        cmd = [git, 'archive', '--prefix', prefix + '/', '--output', archpath, '--format', format, revision]
         self.env.log.info('Dumping git repository: %s (from %s)' % (cmd, srcdir))
         popen = Popen(cmd, cwd=srcdir, stdout=PIPE, stderr=PIPE, close_fds=True)
         stdout, stderr = popen.communicate()

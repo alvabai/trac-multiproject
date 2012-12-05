@@ -3,18 +3,20 @@
 Module implements the DAO objects for Project and specialized HomeProject
 """
 import tempfile
+import os
 import re
 
 from trac.core import TracError
+from trac.env import open_environment
 import Image
 
 from multiproject.core.cache.project_cache import ProjectCache
 from multiproject.core.configuration import conf
 from multiproject.core.db import admin_query, admin_transaction, safe_string, safe_int
+from multiproject.core.files.files_conf import FilesConfiguration
 from multiproject.core.users import User, get_userstore
 from multiproject.core.exceptions import ProjectValidationException
-from multiproject.core.path import syspath
-from multiproject.core.permissions import CQDEPermissionStore, CQDEUserGroupStore
+from multiproject.core.permissions import CQDEUserGroupStore, CQDEPermissionStore
 
 
 class Project(object):
@@ -55,6 +57,7 @@ class Project(object):
         # Private attributes for properties
         self._parent_project = None
         self._author = None
+        self.description = description
 
         # NOTE: id is None when new project is created
         self.id = int(id) if id else None
@@ -71,69 +74,101 @@ class Project(object):
         self.updated = updated
         self.published = published
         self.discforum = discforum
-        self.description = description
         self.icon_id = icon_id
         self.icon_type = ""
         self.icon_size = 0
 
-    def __str__(self):
-        """
-        Returns short but descriptive information about the project
-        """
-        # Read object attributes and properties
-        pros = self.__dict__
-        pros.update({'project_name': self.project_name})
-        return '<Project %(id)s: %(project_name)s(%(env_name)s)>' % pros
-
     @staticmethod
-    def get_by_env_name(name):
+    def get(env=None, id=None, env_name=None, use_cache=True):
         """
-        :return: Project object based on given environment name
-        :raises: TracError if project was not found from the db
+        Factory method for getting Project instance by some known value.
+        Always prefer `env` if possible as it should be most available and easiest.
+
+        :param env: Preferred method. Instantiate by Trac Environment.
+        :param id: Instantiate by project id.
+        :param env_name: Instantiate by env_name.
+        :param use_cache: Whether to use internal project cache.
+        :return: Project class instance.
+        :raises: TracError if asked unknown project with `env_name` (legacy)
         """
-        if name == conf.sys_home_project_name:
-            # TODO: eventually we want to have home project in projects table ...
-            raise NotImplementedError('home project not supported')
+        args = [id, env_name, env]
+        if len(args) - args.count(None) != 1:
+            raise ValueError('Invalid number of arguments (env=%s, id=%s, env_name=%s)' % (env, id, env_name))
 
-        query = ("SELECT project_id, project_name, description, author, created, updated, "
-                 "published, parent_id, icon_id, trac_environment_key "
-                 "FROM projects WHERE environment_name = %s")
-
-        with admin_query() as cursor:
+        if env_name:
+            project = Project._get_project(env_name=env_name, use_cache=False)
+            # To comply with previous functionality, raise TracError
+            if not project:
+                raise TracError('Trac environment cannot be found')
+            return project
+        elif id:
+            return Project._get_project(project_id=id, use_cache=use_cache)
+        else:  # env
             try:
-                cursor.execute(query, name)
-                row = cursor.fetchone()
-
-                if not row:
-                    raise TracError('Trac environment %s cannot be found' % name)
-
-                # Map row values into object and parameters
-                return Project(
-                    id=row[0],
-                    env_name=name,
-                    project_name=row[1],
-                    description=row[2],
-                    author_id=row[3],
-                    created=row[4],
-                    updated=row[5],
-                    published=row[6],
-                    parent_id=row[7],
-                    icon_id=row[8],
-                    trac_environment_key=row[9],
-                )
-
-            except:
-                conf.log.exception("Exception occurred while running query: '''%s'''" % query)
-                raise
+                env_name = env.project_identifier
+            except AttributeError:
+                env_name = env.path.split('/')[-1]
+            return Project._get_project(env_name=env_name, use_cache=use_cache)
 
     @staticmethod
-    def get_by_env(env):
-        """
-        :param env: Trac Environment
-        :return: Project object based on given environment or None
-        :raises: TracError if project was not found from the db
-        """
-        return Project.get_by_env_name(env.path.split('/')[-1])
+    def _get_project(project_id=None, env_name=None, use_cache=True):
+        by_env = False
+        if env_name:
+            if env_name == conf.sys_home_project_name:
+                # TODO: eventually we want to have home project in projects table ...
+                raise NotImplementedError('home project not supported')
+            by_env = True
+            param = env_name
+        elif project_id:
+            if not project_id:
+                return None
+            param = project_id
+        else:
+            return None
+
+        cache = ProjectCache.instance()
+        # Try cache
+        if use_cache:
+            if by_env:
+                project = cache.get_project_by_env_name(env_name)
+            else:
+                project = cache.getProject(project_id)
+            if project:
+                return project
+
+        query = ("SELECT project_id, environment_name, project_name, description, author, created, updated, "
+                 "published, parent_id, icon_id, trac_environment_key "
+                 "FROM projects WHERE {0} = %s".format('environment_name' if by_env else 'project_id'))
+
+        try:
+            with admin_query() as cursor:
+                cursor.execute(query, param)
+                row = cursor.fetchone()
+                if not row:
+                    return None
+                project = Project(
+                    id=row[0],
+                    env_name=row[1],
+                    project_name=row[2],
+                    description=row[3],
+                    author_id=row[4],
+                    created=row[5],
+                    updated=row[6],
+                    published=row[7],
+                    parent_id=row[8],
+                    icon_id=row[9],
+                    trac_environment_key=row[10],
+                )
+            if use_cache:
+                if by_env:
+                    cache.set_project_by_env_name(env_name, project)
+                else:
+                    cache.setProject(project)
+
+            return project
+        except Exception as e:
+            conf.log.exception("Exception occurred while running query: '''%s'''" % query)
+            return None
 
     @property
     def project_name(self):
@@ -185,12 +220,9 @@ class Project(object):
         """
         if self._parent_project:
             return self._parent_project
-
-        from multiproject.common.projects.projects import Projects
-
-        papi = Projects()
-        self._parent_project = papi.get_project(project_id=self.parent_id)
-
+        if self.parent_id is None:
+            return None
+        self._parent_project = Project.get(id=self.parent_id)
         return self._parent_project
 
     @parent_project.setter
@@ -228,10 +260,34 @@ class Project(object):
 
         # Clear the project cache
         cache = ProjectCache.instance()
-        cache.clearProject(self.id)
+        cache.clear_project(self)
 
         conf.log.info('Saved project {0} changes into database'.format(self))
 
+    def get_env(self):
+        """
+        Returns Trac environment for the project in question
+        Example usage::
+
+            from trac.perm import PermissionCache
+            from multiproject.common.projects import Project
+
+            project = Project.get(id=123)
+
+            # Check permission from project env
+            prjperm = PermissionCache(project.get_env(), req.authname)
+            prjperm.require('ACTION')
+
+        .. NOTE::
+
+            For special home project, one can request the env directly
+            from the HomeProject class::
+
+                from multiproject.common.projects import HomeProject
+                homeenv = HomeProject().get_env()
+
+        """
+        return open_environment(os.path.join(conf.sys_projects_root, self.env_name), use_cache=True)
 
     def get_repository_url(self, relative=False):
         # TODO: Find way to fix this
@@ -249,14 +305,15 @@ class Project(object):
             return "%(scheme)s://%(domain)s/%(path)s/%(project)s/" % params
 
     def get_dav_url(self, relative=False):
-        params = {'domain': conf.domain_name,
-                  'project': self.env_name,
-                  'path': conf.url_dav_path,
-                  'scheme': conf.default_http_scheme}
+        path = '/'.join([conf.url_projects_path,
+                         FilesConfiguration().url_dav_path,
+                         self.env_name, ''])
         if relative:
-            return "%(path)s/%(project)s/" % params
-        else:
-            return "%(scheme)s://%(domain)s%(path)s/%(project)s/" % params
+            return path
+        params = {'domain': conf.domain_name,
+                  'scheme': conf.default_http_scheme,
+                  'path': path}
+        return "%(scheme)s://%(domain)s%(path)s" % params
 
     def get_url(self, relative=False):
         prj_path = conf.url_projects_path
@@ -273,36 +330,6 @@ class Project(object):
             return "%(path)s/%(project)s/" % params
         else:
             return "%(scheme)s://%(domain)s%(path)s/%(project)s/" % params
-
-    def get_scm_repository_url(self):
-        # TODO: Find way to fix this
-        """
-        WARNING: Expensive call due conf.getVersionControlType
-        """
-
-        vcs = conf.getVersionControlType(self.env_name)
-
-        if vcs == "git":
-            extension = ".git"
-        else:
-            extension = ""
-
-        params = {'domain': conf.domain_name,
-                  'project': self.env_name,
-                  'scm_type': vcs,
-                  'scheme': conf.default_http_scheme,
-                  'ext': extension}
-
-        return "versioncontrol|%(scm_type)s|%(scheme)s://%(domain)s/%(scm_type)s/%(project)s%(ext)s" % params
-
-    def set_description(self, description):
-        # DEPRECATED, field is immutable
-        self.description = description
-
-    def get_description(self):
-        """ Get description that is written into project trac.ini
-        """
-        return self.description
 
     def get_team(self):
         """ Returns a list of those users that have rights to project
@@ -338,7 +365,8 @@ class Project(object):
 
         return False
 
-    def is_public(self):
+    @property
+    def public(self):
         """
         Check the project visibility
 
@@ -347,31 +375,19 @@ class Project(object):
         groupstore = CQDEUserGroupStore(self.trac_environment_key)
         return groupstore.is_public_project()
 
-    def get_administrators(self):
-        return CQDEPermissionStore(self.trac_environment_key).get_users_with_permissions('TRAC_ADMIN')
-
-    def get_team_email_addesses(self):
+    def get_team_email_addresses(self):
         users = []
         for user in self.get_team():
             users.append(user.username)
-        api = conf.getUserStore()
-        return api.get_emails(users)
+        return get_userstore().get_emails(users)
 
-    def get_admin_email_addesses(self):
-        api = conf.getUserStore()
-        return api.get_emails(self.get_administrators())
-
-    def get_system_admin_email_addesses(self):
-        home = HomeProject()
-        return home.get_admin_email_addesses()
-
-    def get_author_email_address(self):
-        return self.author.mail
+    def get_admin_email_addresses(self):
+        admins = CQDEPermissionStore(self.trac_environment_key).get_users_with_permissions(['TRAC_ADMIN'])
+        return get_userstore().get_emails(admins)
 
     def get_email_addess(self, user):
         username = [user]
-        api = conf.getUserStore()
-        return api.get_emails(username)
+        return get_userstore().get_emails(username)
 
     def validate(self):
         """ Validates data given from web form
@@ -401,7 +417,7 @@ class Project(object):
                                'home',
 
                                'svn', # scm names are not allowed
-                               'dav',
+                               FilesConfiguration().url_dav_path,
                                'git',
                                'bazaar',
                                'bzr',
@@ -439,14 +455,17 @@ class Project(object):
             raise ProjectValidationException(
                 "The name field may only contain the following characters: a-Z, 0-9, '.', ',', ' ', '-', '_', ?', '!', '&', ':', (), [] and {}")
 
-    def get_trac_fs_path(self):
-        return "%s/%s" % (syspath.projects, self.env_name)
+    @property
+    def trac_fs_path(self):
+        return os.path.join(conf.sys_projects_root, self.env_name)
 
-    def get_vcs_fs_path(self):
-        return "%s/%s" % (syspath.repositories, self.env_name)
+    @property
+    def vcs_fs_path(self):
+        return os.path.join(conf.sys_vcs_root, self.env_name)
 
-    def get_dav_fs_path(self):
-        return "%s/%s" % (syspath.dav, self.env_name)
+    @property
+    def dav_fs_path(self):
+        return os.path.join(FilesConfiguration().sys_dav_root, self.env_name)
 
     def get_child_projects(self):
         """ Returns projects that have repository of this project
@@ -461,15 +480,10 @@ class Project(object):
     def refresh(self):
         """ Reads all project data from database back
         """
-        from multiproject.common.projects import Projects
-        api = Projects()
-
-        project = None
-
         if self.id:
-            project = api.get_project(self.id)
+            project = Project.get(id=self.id)
         else:
-            project = api.get_project(env_name=self.env_name)
+            project = Project.get(env_name=self.env_name)
 
         if project is None:
             conf.log.warning('Project cannot be found')
@@ -611,45 +625,51 @@ class Project(object):
                 conf.log.exception("Failed to create project icon")
                 raise
 
+    def __str__(self):
+        """
+        Returns short but descriptive information about the project
+        """
+        # Read object attributes and properties
+        pros = self.__dict__
+        pros.update({'project_name': self.project_name})
+        return '<Project %(id)s: %(project_name)s(%(env_name)s)>' % pros
+
 
 class HomeProject(object):
     """
     Internal
     """
-    def get_users_with_permission(self, permission = None):
-        usernames = []
-        if permission:
-            query = ("SELECT DISTINCT username FROM `%s`.permission WHERE action='%s'" %
-                     (conf.sys_home_project_name, safe_string(permission)))
-        else:
-            query = "SELECT DISTINCT username FROM `%s`.permission" % conf.sys_home_project_name
+    def get_users_with_permission(self, permission=None):
+        raise NotImplementedError('Getting permission')
 
-        with admin_query() as cursor:
-            try:
-                cursor.execute(query)
-                for row in cursor:
-                    usernames.append(row[0])
-            except:
-                conf.log.exception("Exception. HomeProject.get_users_with_permission query failed. '''%s'''" % query)
-
-        return usernames
-
-    def get_team_email_addesses(self):
-        api = conf.getUserStore()
+    def get_team_email_addresses(self):
         recipients = self.get_users_with_permission()
-        return api.get_emails(recipients)
+        return get_userstore().get_emails(recipients)
 
-    def get_admin_email_addesses(self):
-        api = conf.getUserStore()
-        return api.get_emails(self.get_users_with_permission('TRAC_ADMIN'))
-
-    def get_system_admin_email_addesses(self):
-        return self.get_admin_email_addesses()
+    def get_admin_email_addresses(self):
+        return get_userstore().get_emails(self.get_users_with_permission('TRAC_ADMIN'))
 
     def get_email_addess(self, user):
         username = [ user ]
-        api = conf.getUserStore()
-        return api.get_emails(username)
+        return get_userstore().get_emails(username)
+
+    def get_env(self):
+        """
+        Returns Trac environment for home project.
+        Example usage::
+
+            from trac.env import open_environment
+            from trac.perm import PermissionCache
+            from multiproject.common.projects import HomeProject
+
+            home = HomeProject().get_env()
+
+            # Check permission from home env
+            homeperm = PermissionCache(home, req.authname)
+            homeperm.require('ACTION')
+
+        """
+        return open_environment(os.path.join(conf.sys_projects_root, conf.sys_home_project_name), use_cache=True)
 
 
 class ProjectSizeTemplate(object):

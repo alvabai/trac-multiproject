@@ -1,7 +1,12 @@
+# -*- coding: utf-8 -*-
+
+# TODO: Remove this script, and replace with trac-admin command
+
 import sys
 import time
 
 from trac.env import Environment
+from multiproject.common import Project
 
 from multiproject.core.configuration import conf
 from multiproject.common.notifications.email import EmailNotifier
@@ -68,7 +73,7 @@ def main():
                 header = line
 
     mailNotifier = EmailNotifier(Environment(conf.getEnvironmentSysPath(env_name)),
-            None, message)
+            header, message)
 
     print "header: '%s'" % header
     print "message:\n---\n'%s'\n---\n" % message
@@ -85,10 +90,11 @@ def main():
             if from_batch <= counter and (total_batch_count == -1 or total_batch_count > sent_batch_count):
                 print "sending batch %s, from %s to %s, emails: %s" % (counter, index+1, index+len(chunk), chunk)
                 if not debug_only:
-                    mailNotifier.notify_users(header, chunk)
+                    mailNotifier.notify(chunk)
                 time.sleep(from_sleep)
                 sent_batch_count += 1
             index += 5
+
 
 if __name__ == '__main__':
     main()

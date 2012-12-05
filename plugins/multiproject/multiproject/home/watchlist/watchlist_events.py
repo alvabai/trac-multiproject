@@ -15,6 +15,8 @@ class WatchlistEvents(object):
     given project and time range (since until current timestamp)
 
     """
+    def __init__(self, env):
+        self.env = env
 
     def get_project_events(self, project, days, minutes):
         """ List all events in project that happened in a given time span.
@@ -47,7 +49,7 @@ class WatchlistEvents(object):
         """ Filter event list based on user's permissions
         """
         filtered_events = []
-        policy = CQDEPermissionPolicy()
+        policy = CQDEPermissionPolicy(self.env)
         permission_map = {
             'newticket': 'TICKET_VIEW',
             'closedticket': 'TICKET_VIEW',

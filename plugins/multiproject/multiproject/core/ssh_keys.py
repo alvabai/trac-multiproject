@@ -8,6 +8,7 @@ import MySQLdb
 from multiproject.core.configuration import conf
 from multiproject.core.exceptions import SingletonExistsException
 from multiproject.core.db import admin_query, admin_transaction
+from multiproject.core.users import get_userstore
 
 
 class CQDESshKeyStore(object):
@@ -226,7 +227,7 @@ class CQDESshKeyStore(object):
             return 0
 
         count = 0
-        users = conf.getUserStore()
+        users = get_userstore()
 
         for key in keys:
             user = users.getUserWhereId(key.user_id)
