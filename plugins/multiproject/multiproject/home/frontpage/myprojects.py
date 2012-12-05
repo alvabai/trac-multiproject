@@ -242,17 +242,16 @@ class MyProjectsModule(Component):
                 try:
                     cursor.execute(query)
                     for row in cursor:
-                        posts.append({'env_name': prj.env_name,
-                                      'project_name': prj.project_name,
-                                      'project_id': str(prj.id),
-                                      'project_icon_name': prj.icon_name,
-                                      'id': row[0],
-                                      'forum_id': row[1],
-                                      'topic_id': row[2],
-                                      'time': to_datetime(row[3]),
-                                      'subject': unicode((row[4] != '') and row[4] or '<no subject>'),
-                                      'body': unicode(row[5]),
-                                      'type': (row[2] == 0) and 'NEWTOPIC' or 'POST'})
+                        posts.append({
+                            'project': prj,
+                            'id': row[0],
+                            'forum_id': row[1],
+                            'topic_id': row[2],
+                            'time': to_datetime(row[3]),
+                            'subject': unicode((row[4] != '') and row[4] or '<no subject>'),
+                            'body': unicode(row[5]),
+                            'type': (row[2] == 0) and 'NEWTOPIC' or 'POST'
+                        })
                 except:
                     self.log.exception(
                         "MyProjectsModule._get_posts query failed for project %s with query: '''%s'''" %
