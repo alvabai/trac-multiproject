@@ -101,6 +101,45 @@ class MultiListOption(MultiOption):
         return super(MultiListOption, cls).get_options(section, prefix, default, option_cls or ListOption)
 
 
+class DimensionOption(Option):
+    """
+    Custom configuration option type for dimensions like: 64x64 (width x height).
+    Example configured and parsed values:
+
+    - 120x60 => {width: 120, height: 60}
+    - 120,60 => {width: 120, height: 60}
+    - 45 => {width: 45, height: 45}
+
+    """
+    def accessor(self, section, name, default):
+        """
+        :returns: dimension dict like {width: 123, height: 234}
+        """
+        value = section.get(name, default)
+        return self._parse_dimension(value)
+
+    def _parse_dimension(self, value):
+        width = height = None
+        try:
+            # Values separated with x
+            if 'x' in value:
+                width, height = map(int, value.split('x'))
+
+            # Values separeted with comma
+            elif ',' in value:
+                width, height = map(int, value.split(','))
+
+            # Only one value given => square
+            elif value.isdigit():
+                width, height = int(value), int(value)
+
+        except ValueError:
+            raise ValueError('Invalid option value: %s' % value)
+
+
+        return {'width': width, 'height': height}
+
+
 class Configuration(object):
     """
     .. WARNING:: Avoid using!

@@ -236,6 +236,17 @@ class Project(object):
         self._parent_project = project
         self.parent_id = project.id
 
+    @property
+    def icon_url(self):
+        """
+        Returns the URL path to project icon, or default if not set
+        :return: Path of the icon URL
+        """
+        icon_default_url = conf.get('multiproject-projects', 'icon_default_url', '')
+
+        return icon_default_url
+
+
     def save(self):
         """
         Saves the changes set to properties into database

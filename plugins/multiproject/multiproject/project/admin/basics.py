@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+import os
+from hashlib import md5
+
+import Image, ImageFile
+from trac.config import Option
 from trac.perm import PermissionCache
 from trac.web.chrome import Chrome, add_notice, add_warning, add_script, add_stylesheet, tag
 from trac.util.translation import _
@@ -10,7 +15,7 @@ from multiproject.common.projects import Projects
 from multiproject.common.projects.commands import MakeProjectPublic
 from multiproject.common.projects.listeners import IProjectChangeListener
 from multiproject.core.permissions import CQDEUserGroupStore
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import conf, DimensionOption
 from multiproject.core.users import get_userstore
 
 
@@ -22,6 +27,13 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
     """
     # Extension points
     project_change_listeners = ExtensionPoint(IProjectChangeListener)
+    icon_dir = Option('multiproject-projects', 'icon_dir', default='', doc='Directory where to place project icon')
+    icon_size = DimensionOption('multiproject-projects', 'icon_size', default='64x64', doc='Icon size, separated with comma or x')
+    content_types = {
+        'image/png': 'png',
+        'image/jpeg': 'jpeg',
+        'image/jpg': 'jpeg',
+    }
 
     def render_admin_panel(self, req, cat, page, path_info):
         """ Overrides BasicsAdminPanel rendering function.
@@ -35,9 +47,13 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
 
         project = Project.get(self.env)
 
+        self.log.info(self.icon_size)
+
         # Update database if form posted
         if req.method == 'POST':
             papi = Projects()
+
+            # Set public pressed
             if req.args.has_key('makepublic'):
                 if conf.allow_public_projects:
                     self._make_public(req, project)
@@ -45,10 +61,24 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
                 else:
                     raise TracError("Public projects are disabled", "Error!")
 
+            # Set private pressed
             if req.args.has_key('makeprivate'):
                 self._make_private(req, project)
                 papi.remove_public_project_visibility(project.id)
 
+            # Remove icon if requested
+            if 'delicon' in req.args:
+                project.icon_name = None
+
+            # Update icon if set
+            if not isinstance(req.args.get('icon', ''), basestring):
+                icon_name = self._set_icon(req, project)
+                if icon_name:
+                    project.icon_name = icon_name
+                else:
+                    add_warning(req, 'Failed to set the project icon')
+
+            # Save changes
             if req.args.has_key('apply'):
                 self._apply_changes(req, project)
 
@@ -57,6 +87,7 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
 
         data = {
             'user': user,
+            'icon_size': self.icon_size,
             'mproject': project,
             'is_public': project.public,
             'allow_public_projects': conf.allow_public_projects
@@ -98,6 +129,39 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
             ))
         else:
             add_warning(req, "Failed to unpublish project")
+
+    def _set_icon(self, req, project):
+        """
+        Stores the icon set in request into filesystem with format: <pid>-<contentmd5>.<format>
+        """
+        icon = req.args.get('icon')
+
+        icon_data = icon.value
+        icon_format = icon.type
+        icon_size = self.icon_size
+
+        hash = md5()
+        hash.update(icon_data)
+        icon_name = '%d-%s.%s' % (project.id, hash.hexdigest(), self.content_types[icon_format])
+        icon_path = os.path.join(self.icon_dir, icon_name) if self.icon_dir else os.path.join(self.env.path, 'htdocs', icon_name)
+
+        # Resize and save the image
+        with open(icon_path, 'w+b') as fd:
+            p = ImageFile.Parser()
+            p.feed(icon_data)
+
+            try:
+                img = p.close()
+                img.thumbnail((icon_size['width'], icon_size['height']), Image.ANTIALIAS)
+                img.save(icon_path)
+                self.log.info('Saved project icon to %s' % icon_path)
+
+            except IOError, err:
+                self.log.error('Failed to save project icon: %s' % icon_path)
+                return None
+
+        return icon_name
+
 
     def _apply_changes(self, req, project):
         """
