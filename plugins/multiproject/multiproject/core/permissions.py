@@ -237,7 +237,6 @@ class CQDEUserGroupStore(object):
     # TODO: used only in project.py and summary.py - remove!
     def is_public_project(self):
         """
-
         .. WARNING:: Use :class:`~multiproject.common.projects.project.Project` instead!
 
         Function checks if the project defined in ``self.trac_environment_key``
@@ -266,21 +265,20 @@ class CQDEUserGroupStore(object):
         return len(missing_perms) == 0
 
     def get_groups(self):
-        """ Returns a list of group names in the trac environment
         """
-        groups = []
+        :returns: a list of group names in the trac environment
+        :raises DatabaseError: Query failure
+        """
         with admin_query() as cursor:
-            try:
-                cursor.callproc("get_groups", [self.trac_environment_key])
-                for row in cursor:
-                    groups.append(row[0])
-            except:
-                conf.log.exception("Exception. get_groups(%s) procedure failed." % str(self.trac_environment_key))
+            cursor.callproc("get_groups", [self.trac_environment_key])
+            groups = []
+            for row in cursor:
+                groups.append(row[0])
+            return groups
 
-        return groups
-
-    def can_revoke_trac_admin(self, group_name):
-        """ Checks that it is ok to remove TRAC_ADMIN permission from group
+    def _can_revoke_trac_admin(self, group_name):
+        """
+        :returns: True if is ok to remove (TRAC_ADMIN permission from) group. False otherwise.
         """
         gp = self.get_all_group_permissions()
         gp = [(group, perm) for group, perm in gp if not (group == group_name and perm == 'TRAC_ADMIN')]
@@ -290,29 +288,18 @@ class CQDEUserGroupStore(object):
         except InvalidPermissionsState:
             return False
 
-    # TODO: only one use in "admin/permissions.py"
-    def can_grant_permission_to_group(self, group_name, permission_name):
-        """ If anonymous is in a group, there are limitations of
-            what permissions can be added
-        """
-        gp = self.get_all_group_permissions() + [(group_name, permission_name)]
-        try:
-            self.is_valid_group_members(group_permissions=gp)
-            return True
-        except InvalidPermissionsState:
-            return False
-
-    # TODO: only used in "admin/permissions.py"
     def is_valid_group_members(self, group_permissions=None, user_groups=None):
         """
-        Check whether the requested users and groups state is allowed or not
+        Check whether the requested users and groups state is allowed or not.
 
         Group members state is given in parameters. Any parameter can be left
         out and then the current state is used for that parameter.
 
-        :param list group_permissions: List of tuples (group, privilege)
+        :param list group_permissions: List of tuples (group, privilege).
+            If not given values from database are used.
         :param list user_groups: List of tuples (username, groupname)
-        :raises: InvalidPermissionsState with user friendly error message in a case of error
+            If not given values from database are used.
+        :raises InvalidPermissionsState: With user friendly error message in a case of error.
         """
         group_permissions = group_permissions or self.get_all_group_permissions()
         user_groups = user_groups or self.get_all_user_groups()
@@ -333,11 +320,9 @@ class CQDEUserGroupStore(object):
                     is_are = "are"
                     if len(items) == 1:
                         is_are = "is"
-                        items = items[0]
-
-                    raise InvalidPermissionsState(
-                        "%s %s not allowed for anonymous. Anonymous would get this from %s." % (
-                            str(items), is_are, group))
+                    raise InvalidPermissionsState("%s %s not allowed for anonymous. "
+                                                  "Anonymous would get this from %s."
+                                                  % (', '.join(items), is_are, group))
 
         # 2. Check that there's always someone having TRAC_ADMIN privilege
         users_with_admin = set([])
@@ -351,8 +336,18 @@ class CQDEUserGroupStore(object):
 
     def _group_tuples(self, tuples):
         """
-        Groups tuples by items in both ways
-        Works only with two item tuples
+        .. NOTE:: Deprecate. Use list comprehensions instead of this when possible!
+
+        Groups tuples by items in both ways. Works only with two item tuples.
+
+        Example::
+            data = (('name', 'ABC'), ('name', 'DEF'), ('foo', 'ABC'), ('foo', 'DEF'))
+
+        Will return dictionaries::
+            {'name': set(['ABC', 'DEF']),
+             'foo': set(['ABC', 'DEF']}
+
+            {'ABC': set['name', 'foo'}
         """
         ab = {}
         ba = {}
@@ -368,45 +363,37 @@ class CQDEUserGroupStore(object):
     def get_all_user_groups(self):
         """
         :returns: List of tuples (username, group)
+        :raises DatabaseError: Query failure
         """
         envkey = self.trac_environment_key
         user_groups = self._cache.get_user_groups(envkey)
         if user_groups is not None:
             return user_groups
 
-        user_groups = []
-
         with admin_query() as cursor:
-            try:
-                cursor.callproc("get_all_user_groups", [envkey])
-                for row in cursor:
-                    # Tuple: (username, groupname)
-                    user_groups.append((row[0], row[1]))
-                self._cache.set_user_groups(envkey, user_groups)
-            except:
-                conf.log.exception("Exception. get_all_user_groups(%s) procedure failed." % str(envkey))
-
-        return user_groups
+            cursor.callproc("get_all_user_groups", [envkey])
+            user_groups = []
+            for row in cursor:
+                # Tuple: (username, groupname)
+                user_groups.append((row[0], row[1]))
+            self._cache.set_user_groups(envkey, user_groups)
+            return user_groups
 
     def get_all_organization_groups(self):
         """
         :returns: a list of tuples (organization_name, group_name)
+        :raises DatabaseError: Query failure
         """
         org_groups = self._cache.get_organization_groups(self.trac_environment_key)
         if org_groups is not None:
             return org_groups
 
         org_groups = []
-
         with admin_query() as cursor:
-            try:
-                cursor.callproc("get_all_organization_groups", [self.trac_environment_key])
-                for row in cursor:
-                    org_groups.append((row[0], row[1]))
-                self._cache.set_organization_groups(self.trac_environment_key, org_groups)
-            except:
-                conf.log.exception(
-                    "Exception. get_all_organization_groups(%s) procedure failed." % str(self.trac_environment_key))
+            cursor.callproc("get_all_organization_groups", [self.trac_environment_key])
+            for row in cursor:
+                org_groups.append((row[0], row[1]))
+            self._cache.set_organization_groups(self.trac_environment_key, org_groups)
 
         return org_groups
 
@@ -414,6 +401,7 @@ class CQDEUserGroupStore(object):
         """
         :returns: list of tuples (group name, permission) in this environment
         :rtype: list
+        :raises DatabaseError: Query failure
         """
         group_perms = self._cache.get_group_perms(self.trac_environment_key)
         if group_perms is not None:
@@ -421,35 +409,38 @@ class CQDEUserGroupStore(object):
 
         group_perms = []
         with admin_query() as cursor:
-            try:
-                cursor.callproc("get_all_group_permissions", [self.trac_environment_key])
-                for row in cursor:
-                    group_perms.append((row[0], row[1]))
-                self._cache.set_group_perms(self.trac_environment_key, group_perms)
-            except:
-                conf.log.exception(
-                    "Exception. get_all_group_permissions(%s) procedure failed." % str(self.trac_environment_key))
+            cursor.callproc("get_all_group_permissions", [self.trac_environment_key])
+            for row in cursor:
+                group_perms.append((row[0], row[1]))
+            self._cache.set_group_perms(self.trac_environment_key, group_perms)
 
         return group_perms
 
     def create_group(self, group_name):
+        """
+        :param str group_name: Group name
+        :raises DatabaseError: Query failure
+        """
         # Clear trac environment group cache
         self._cache.clear_user_groups(self.trac_environment_key)
         self._cache.clear_organization_groups(self.trac_environment_key)
         self._cache.clear_group_perms(self.trac_environment_key)
 
         group_name = group_name.encode('utf-8')
-        return _call_proc_with_success("create_group", [group_name, self.trac_environment_key])
+
+        with admin_query() as cursor:
+            cursor.callproc("create_group", [group_name, self.trac_environment_key])
 
     def remove_group(self, group_name):
         """
         Removes group.
         Updates the published time of the project accordingly.
 
-        :return: False if not allowed or failed
+        :raises InvalidPermissionsState: If cannot remove group
+        :raises DatabaseError: Query failure
         """
-        if not self.can_revoke_trac_admin(group_name):
-            return False
+        if not self._can_revoke_trac_admin(group_name):
+            raise InvalidPermissionsState('Someone in the project must be left with TRAC_ADMIN permission')
 
         group_name = group_name.encode('utf-8')
         group_id = self.get_group_id(group_name)
@@ -460,10 +451,10 @@ class CQDEUserGroupStore(object):
         self._cache.clear_group_perms(self.trac_environment_key)
         self._cache.clear_group_id(group_name, self.trac_environment_key)
 
-        result = _call_proc_with_success("remove_group", [group_id])
+        with admin_query() as cursor:
+            cursor.callproc("remove_group", [group_id])
 
         self._update_published_time()
-        return result
 
     def add_user_to_group(self, user_name, group_name):
         """
@@ -473,6 +464,7 @@ class CQDEUserGroupStore(object):
         :param str user_name: User name
         :param str group_name: Group name
         :raises InvalidPermissionsState: If cannot add user
+        :raises DatabaseError: Query failure
         """
         # Test if we can add the user
         ug = self.get_all_user_groups() + [(user_name, group_name)]
@@ -500,8 +492,8 @@ class CQDEUserGroupStore(object):
 
         self._cache.clear_user_groups(self.trac_environment_key)
 
-        if not _call_proc_with_success("add_user_to_group", [user.id, group_id]):
-            raise Exception('add_user_to_group procedure failed')
+        with admin_query() as cursor:
+            cursor.callproc("add_user_to_group", [user.id, group_id])
 
         self._update_published_time()
 
@@ -512,35 +504,28 @@ class CQDEUserGroupStore(object):
 
         :param str user_name: User name
         :param str group_name: Group name
-        :returns: False if failed or not allowed
+        :raises InvalidPermissionState: User cannot be removed
+        :raises DatabaseError: Query failure
+        :raises ValueError: User not found
         """
-
-        def allowed(group_name, user_name):
-            """Checks that it is ok to remove user from group"""
-            ug = self.get_all_user_groups()
-            ug = [(user, group) for user, group in ug if not (user == user_name and group == group_name)]
-            try:
-                self.is_valid_group_members(user_groups=ug)
-                return True
-            except InvalidPermissionsState:
-                return False
-
-        if not allowed(group_name, user_name):
-            return False
-
         user = get_userstore().getUser(user_name)
         if not user:
-            return False
+            raise ValueError('User not found')
+
+        # TODO: just check that there's TRAC_ADMIN left?
+        # Checks that it is ok to remove user from group
+        ug = self.get_all_user_groups()
+        ug = [(user, group) for user, group in ug if not (user == user_name and group == group_name)]
+        self.is_valid_group_members(user_groups=ug)
 
         group_name = group_name.encode('utf-8')
         group_id = self.get_group_id(group_name)
         self._cache.clear_user_groups(self.trac_environment_key)
 
-        result = _call_proc_with_success("remove_user_from_group",
-            [user.id, group_id])
+        with admin_query() as cursor:
+            cursor.callproc("remove_user_from_group", [user.id, group_id])
 
         self._update_published_time()
-        return result
 
     def add_organization_to_group(self, organization_name, group_name):
         """
@@ -548,8 +533,8 @@ class CQDEUserGroupStore(object):
 
         :param str organization_name: Name of organization
         :param str group_name: Name of group to be added
-        :raises: ValueError if organization already exists in the group
-        :raises: Exception on failure to add
+        :raises ValueError: Organization already exists in the group
+        :raises DatabaseError: Query failure
         """
         if organization_name in [org[0] for org in self.get_all_organization_groups() if org[1] == group_name]:
             raise ValueError('Organization %s already exists' % organization_name)
@@ -565,28 +550,38 @@ class CQDEUserGroupStore(object):
 
         self._cache.clear_organization_groups(self.trac_environment_key)
 
-        if not _call_proc_with_success("add_organization_to_group",
-            [organization_id, group_id]):
-            raise Exception('Procedure add_organization_to_group failed')
+        with admin_query() as cursor:
+            cursor.callproc("add_organization_to_group", [organization_id, group_id])
 
     def remove_organization_from_group(self, organization_name, group_name):
+        """
+        :param str organization_name: Organization name
+        :param str group_name: Group name
+        :raises DatabaseError: Query failure
+        """
         organization_id = self._organizations.get_organization_id(organization_name)
         group_name = group_name.encode('utf-8')
         group_id = self.get_group_id(group_name)
 
         self._cache.clear_organization_groups(self.trac_environment_key)
 
-        return _call_proc_with_success("remove_organization_from_group",
-            [organization_id, group_id])
+        with admin_query() as cursor:
+            cursor.callproc("remove_organization_from_group", [organization_id, group_id])
 
     def grant_permission_to_group(self, group_name, permission_name):
         """
         Grants permission to group.
         Updates the published time of the project accordingly.
+
         :param str group_name: Group name, will be created if does not exists
-        :param str permission_name: Perm name, will be created if does not eixts
-        :return: True if succeeded
+        :param str permission_name: Perm name, will be created if does not exists
+        :raises InvalidPermissionState: Permission can not be granted
+        :raises DatabaseError: Query failure
         """
+        # check that this is valid change
+        gp = self.get_all_group_permissions() + [(group_name, permission_name)]
+        self.is_valid_group_members(group_permissions=gp)
+
         permission_id = get_permission_id(permission_name)
 
         # Create group if it doesn't exist
@@ -598,12 +593,10 @@ class CQDEUserGroupStore(object):
 
         self._cache.clear_group_perms(self.trac_environment_key)
 
-        result = _call_proc_with_success("grant_permission_to_group",
-            [group_id, permission_id])
+        with admin_query() as cursor:
+            cursor.callproc("grant_permission_to_group", [group_id, permission_id])
 
         self._update_published_time()
-
-        return result
 
     def revoke_permission_from_group(self, group_name, permission_name):
         """
@@ -612,11 +605,12 @@ class CQDEUserGroupStore(object):
 
         :param str group_name: Group name
         :param str permission_name: Permission name
-        :return: False if not allowed or failed
+        :raises InvalidPermissionsState: If trying to remove last TRAC_ADMIN
+        :raises DatabaseError: Query failure
         """
         if permission_name == 'TRAC_ADMIN':
-            if not self.can_revoke_trac_admin(group_name):
-                return False
+            if not self._can_revoke_trac_admin(group_name):
+                raise InvalidPermissionsState('Project must have someone with TRAC_ADMIN permission.')
 
         permission_id = get_permission_id(permission_name)
         group_name = group_name.encode('utf-8')
@@ -624,12 +618,10 @@ class CQDEUserGroupStore(object):
 
         self._cache.clear_group_perms(self.trac_environment_key)
 
-        result = _call_proc_with_success("revoke_permission_from_group",
-            [group_id, permission_id])
+        with admin_query() as cursor:
+            cursor.callproc("revoke_permission_from_group", [group_id, permission_id])
 
         self._update_published_time()
-
-        return result
 
     def get_group_id(self, group_name):
         """
@@ -642,15 +634,11 @@ class CQDEUserGroupStore(object):
             return gid
 
         with admin_query() as cursor:
-            try:
-                cursor.callproc("get_group_id", [group_name, self.trac_environment_key])
-                row = cursor.fetchone()
-                if row:
-                    gid = row[0]
-                    self._cache.set_group_id(group_name, self.trac_environment_key, gid)
-            except:
-                params = (str(group_name), str(self.trac_environment_key))
-                conf.log.exception("Exception. get_group_id(%s, %s) procedure failed." % params)
+            cursor.callproc("get_group_id", [group_name, self.trac_environment_key])
+            row = cursor.fetchone()
+            if row:
+                gid = row[0]
+                self._cache.set_group_id(group_name, self.trac_environment_key, gid)
 
         return gid
 
@@ -660,7 +648,7 @@ class CQDEUserGroupStore(object):
 
         :param str ldapgroup_name: LDAP group name
         :param str group_name: Trac permission group name
-        :return: False if failed
+        :raises DatabaseError: Query failure
         """
         # Create ldap group if it doesn't exist
         ldapgroup_name = ldapgroup_name.encode('utf-8')
@@ -680,13 +668,8 @@ class CQDEUserGroupStore(object):
 
         self._cache.clear_trac_environment_ldap_groups(self.trac_environment_key)
 
-        result = _call_proc_with_success("add_ldapgroup_to_group",
-            [ldapgroup_id, group_id])
-        if not result:
-            conf.log.error("LDAP: Adding LDAP group %s to group %s failed. (ldap group %s, group %s)" %
-                           (ldapgroup_id, group_id, ldapgroup_name, group_name))
-
-        return result
+        with admin_query() as cursor:
+            cursor.callproc("add_ldapgroup_to_group", [ldapgroup_id, group_id])
 
     def remove_ldapgroup_from_group(self, ldapgroup_name, group_name):
         """
@@ -694,7 +677,7 @@ class CQDEUserGroupStore(object):
 
         :param str ldapgroup_name: LDAP group name
         :param str group_name: Trac permission group name
-        :return: False if failed
+        :raises DatabaseError: Query failure
         """
         ldapgroup_id = self._ldapgroups.get_ldapgroup_id(ldapgroup_name)
         group_name = group_name.encode('utf-8')
@@ -702,13 +685,14 @@ class CQDEUserGroupStore(object):
 
         self._cache.clear_trac_environment_ldap_groups(self.trac_environment_key)
 
-        return _call_proc_with_success("remove_ldapgroup_from_group",
-            [ldapgroup_id, group_id])
+        with admin_query() as cursor:
+            cursor.callproc("remove_ldapgroup_from_group", [ldapgroup_id, group_id])
 
     # TODO: rename
     def get_all_trac_environment_ldap_groups(self):
         """
         :return: list of tuples (ldapgroup, group)
+        :raises DatabaseError: Query failure
         """
         ldapgroups = self._cache.get_trac_environment_ldap_groups(self.trac_environment_key)
         if ldapgroups is not None:
@@ -716,14 +700,10 @@ class CQDEUserGroupStore(object):
 
         ldapgroups = []
         with admin_query() as cursor:
-            try:
-                cursor.callproc("get_all_ldap_groups_by_trac_environment_key", [self.trac_environment_key])
-                for row in cursor:
-                    ldapgroups.append((row[0], row[1]))
-                self._cache.set_trac_environment_ldap_groups(self.trac_environment_key, ldapgroups)
-            except:
-                conf.log.exception("Exception. get_all_ldap_groups_by_trac_environment_key(%s) procedure failed." %
-                                   str(self.trac_environment_key))
+            cursor.callproc("get_all_ldap_groups_by_trac_environment_key", [self.trac_environment_key])
+            for row in cursor:
+                ldapgroups.append((row[0], row[1]))
+            self._cache.set_trac_environment_ldap_groups(self.trac_environment_key, ldapgroups)
 
         return ldapgroups
 
