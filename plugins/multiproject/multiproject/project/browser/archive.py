@@ -42,8 +42,9 @@ from subprocess import Popen, PIPE
 
 from trac.core import Component, implements, TracError
 from trac.util import content_disposition
+from trac.versioncontrol import NoSuchChangeset
 from trac.versioncontrol.api import RepositoryManager
-from trac.web.api import IRequestFilter, IRequestHandler, RequestDone
+from trac.web.api import HTTPNotFound, IRequestFilter, IRequestHandler, RequestDone
 from trac.web.chrome import add_link
 from trac.web.href import Href
 from trac.util.translation import _
@@ -141,9 +142,9 @@ class ArchiveSourceModule(Component):
 
         # Validate if given revision really exists
         try:
-            repo.get_changeset(rev=revision)
-        except Exception:
-            raise TracError('No such changeset')
+            revision = repo.normalize_rev(revision)
+        except NoSuchChangeset:
+            raise HTTPNotFound('No such changeset')
 
         # Validate format
         if format not in self.formats:
