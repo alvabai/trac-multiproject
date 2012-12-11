@@ -8,7 +8,7 @@ import Image, ImageFile
 
 from multiproject.core.db import admin_query, cursors, admin_transaction
 from multiproject.core.migration import MigrateBase, MigrateMgr
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import DimensionOption, conf
 
 
 class ProjectIcons2FS(MigrateBase):
@@ -26,6 +26,13 @@ class ProjectIcons2FS(MigrateBase):
             'image/jpeg': 'jpeg',
             'image/jpg': 'jpeg',
         }
+
+        # Parse option value using custom Trac option:
+        value = conf.get('multiproject-projects', 'icon_size', '64x64')
+        self.icon_size = DimensionOption(section=None, name=None)._parse_dimension(value)
+
+        icon_width = 64
+        icon_height = 64
 
     def upgrade(self):
         """
@@ -140,6 +147,9 @@ class ProjectIcons2FS(MigrateBase):
         return False
 
     def _save_image(self, data, path):
+        # Read and parse the given icon size
+        icon_width = self.icon_size['width']
+        icon_height = self.icon_size['height']
 
         # Create image from data
         with open(path, 'w+b') as fd:
@@ -148,8 +158,12 @@ class ProjectIcons2FS(MigrateBase):
 
             try:
                 img = p.close()
-                img.thumbnail((64, 64), Image.ANTIALIAS)
+                # Resize images if needed, and force them to specified size
+                img.thumbnail((icon_width, icon_height), Image.ANTIALIAS)
+                img = img.convert("RGBA")
+                img = img.transform((icon_width, icon_height), Image.EXTENT, (0, 0, icon_width, icon_height))
                 img.save(path)
+
             except IOError, err:
                 self.printerr('Failed to create image %s, skipping it (%s)' % (path, err))
 

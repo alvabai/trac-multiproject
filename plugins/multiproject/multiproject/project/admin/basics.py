@@ -28,7 +28,7 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
     # Extension points
     project_change_listeners = ExtensionPoint(IProjectChangeListener)
     icon_dir = Option('multiproject-projects', 'icon_dir', default='', doc='Directory where to place project icon')
-    icon_size = DimensionOption('multiproject-projects', 'icon_size', default='64x64', doc='Icon size, separated with comma or x')
+    icon_size = DimensionOption('multiproject-projects', 'icon_size', default='64x64', doc='Icon size, separated with comma or x. Example: 64x64')
     content_types = {
         'image/png': 'png',
         'image/jpeg': 'jpeg',
@@ -54,7 +54,7 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
             papi = Projects()
 
             # Set public pressed
-            if req.args.has_key('makepublic'):
+            if 'makepublic' in req.args:
                 if conf.allow_public_projects:
                     self._make_public(req, project)
                     papi.add_public_project_visibility(project.id)
@@ -62,12 +62,12 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
                     raise TracError("Public projects are disabled", "Error!")
 
             # Set private pressed
-            if req.args.has_key('makeprivate'):
+            if 'makeprivate' in req.args:
                 self._make_private(req, project)
                 papi.remove_public_project_visibility(project.id)
 
             # Remove icon if requested
-            if 'delicon' in req.args:
+            if 'reset' in req.args:
                 project.icon_name = None
 
             # Update icon if set
@@ -79,7 +79,7 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
                     add_warning(req, 'Failed to set the project icon')
 
             # Save changes
-            if req.args.has_key('apply'):
+            if 'apply' in req.args:
                 self._apply_changes(req, project)
 
             # Reload page
@@ -144,18 +144,21 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
         hash.update(icon_data)
         icon_name = '%d-%s.%s' % (project.id, hash.hexdigest(), self.content_types[icon_format])
         icon_path = os.path.join(self.icon_dir, icon_name) if self.icon_dir else os.path.join(self.env.path, 'htdocs', icon_name)
+        icon_width, icon_height = icon_size['width'], icon_size['height']
 
         # Resize and save the image
         with open(icon_path, 'w+b') as fd:
             p = ImageFile.Parser()
             p.feed(icon_data)
+            img = p.close()
 
             try:
-                img = p.close()
-                img.thumbnail((icon_size['width'], icon_size['height']), Image.ANTIALIAS)
+                # Resize first by keeping the ratio, then convert to have alpha channel and then for to given size
+                img.thumbnail((icon_width, icon_height), Image.ANTIALIAS)
+                img = img.convert("RGBA")
+                img = img.transform((icon_width, icon_height), Image.EXTENT, (0, 0, icon_width, icon_height))
                 img.save(icon_path)
                 self.log.info('Saved project icon to %s' % icon_path)
-
             except IOError, err:
                 self.log.error('Failed to save project icon: %s' % icon_path)
                 return None
@@ -200,6 +203,7 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
 
             # Save information into config
             for option in ('name', 'descr'):
+                self.log.info('OPTION: %s' % option)
                 self.config.set('project', option, req.args.get(option))
             self.config.save()
 
