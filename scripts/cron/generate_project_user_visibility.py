@@ -109,9 +109,9 @@ class ProjectUserVisibilityGenerator():
 
     def get_private_project_pairs(self, public_id_pairs = None):
         query = "SELECT project_id, trac_environment_key FROM projects "
-        public_project_ids = [pair[0] for pair in public_id_pairs]
 
-        if public_project_ids:
+        if public_id_pairs:
+            public_project_ids = [pair[0] for pair in public_id_pairs]
             # TODO: What if there are really many public projects?
             pub_projs = ','.join(str(id) for id in public_project_ids)
             query += "WHERE projects.project_id NOT IN (%s)" % pub_projs
