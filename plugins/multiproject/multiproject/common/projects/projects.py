@@ -723,8 +723,7 @@ class Projects(object):
 
         return self.queryProjectObjects(query)
 
-    def search(self, keywords, category_ids, username='anonymous', order_by='newest', sub_page=1, limit=5,
-               icon_data=False, all_categories=None):
+    def search(self, keywords, category_ids, username='anonymous', order_by='newest', sub_page=1, limit=5, all_categories=None):
         """
         Search for projects with fulltext and categories for explore projects.
 
@@ -737,28 +736,6 @@ class Projects(object):
         """
         if not all_categories:
             all_categories = CQDECategoryStore().get_all_categories()
-
-        icon_size = 0
-        icon_type = ''
-
-        # this is needed only for generating rss feed on explore projects
-        '''
-        if icon_data:
-            sql = ("SELECT IFNULL(LENGTH(icon_data),0), IFNULL (content_type, 'image/png') FROM "
-                   "project_icon WHERE icon_id = %s" % safe_int(conf.default_icon_id))
-
-            row = []
-            with admin_query() as cursor:
-                try:
-                    cursor.execute(sql)
-                    row = cursor.fetchone()
-                except:
-                    conf.log.exception("Failed to fetch default project icon")
-
-            if row:
-                icon_size = str(row[0])
-                icon_type = row[1]
-        '''
 
         limit = safe_int(limit)
         limit_attr = {'limit_start': (int(sub_page) - 1) * limit, 'limit': limit}
@@ -875,16 +852,16 @@ class Projects(object):
         {order_by}
         {limit}
         """
-        # The count_query doesn't have left_join_icon, order_by, and limit parts.
+        # The count_query doesn't have order_by, and limit parts.
         # Here, if we would form query_template so that it already contained the parts
         # common to both query and count_query, i.e., where_str, join_str, wher_str),
         # there would be possibility to put ' {anything} ' or ' %(anything)s ' into where_str.
         # Thus, safer to do the formatting once for all in both cases.
         query = query_template.format(join_str=join_str, where_str=where_str,
-                select_clause=select_columns,order_by=order_by_str,
+                select_clause=select_columns, order_by=order_by_str,
                 limit= "LIMIT %(limit_start)d, %(limit)d " % limit_attr)
         count_query = query_template.format(join_str=join_str, where_str=where_str,
-            select_clause = select_count, left_join_icon = '', order_by = '', limit = '')
+            select_clause = select_count, order_by = '', limit = '')
 
         conf.log.debug("Explore projects search query: %s",query)
         conf.log.debug("Explore projects search count_query: %s",count_query)
@@ -1142,10 +1119,6 @@ class Projects(object):
             trac_environment_key=project_data[10],
         )
 
-        if len(project_data) >= 14:
-            prj.icon_type = project_data[14]
-            prj.icon_size = project_data[13]
-            conf.log.debug("type set")
         return prj
 
     def getEnabledServices(self, environment):
