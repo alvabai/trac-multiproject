@@ -171,8 +171,9 @@ class ProjectUserVisibilityGenerator():
     def user_can_view_project(self, trac_environment_key, username):
         return self.policy.check_permission(trac_environment_key, self.required_permission, username)
 
-    def clear_visibilities(self):
-        query = "TRUNCATE TABLE project_user_visibility"
+    def clear_project_visibilities(self, project_id):
+        query = "DELETE FROM project_user_visibility where project_id = %d" % project_id
+
         with admin_transaction() as cursor:
             try:
                 cursor.execute(query)
@@ -204,6 +205,22 @@ class ProjectUserVisibilityGenerator():
         if len(self.buffer) > 0:
             self.batch_insert(self.buffer)
             self.buffer = []
+
+    def insert_visibilities(self, buffer):
+        project_visibilities = []
+        project_id = buffer[0].project_id
+        for visibility in buffer:
+            if project_id == visibility.project_id:
+                project_visibilities.append(visibility)
+            else:
+                self.clear_project_visibilities(project_visibilities[0].project_id)
+                self.buffered_insert(project_visibilities)
+                project_visibilities = [visibility]
+                project_id = visibility.project_id
+
+        if project_visibilities:
+            self.clear_project_visibilities(project_visibilities[0].project_id)
+            self.buffered_insert(project_visibilities)
 
     def buffered_insert(self, buffer):
         while len(buffer) >= self.batch_size:
@@ -335,8 +352,7 @@ def main():
     last = time()
     if verbose:
         print "DB inserting started"
-    generator.clear_visibilities()
-    generator.buffered_insert(visibilities)
+    generator.insert_visibilities(visibilities)
     if verbose:
         print "DB inserting completed, took ", (time() - last), "seconds"
         print "---- statistics ----"
