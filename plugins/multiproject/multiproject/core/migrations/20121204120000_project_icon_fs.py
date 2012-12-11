@@ -1,5 +1,15 @@
 # -*- coding: utf-8 -*-
 """
+Migrates project icons from project database table into filesystem where they
+can be served much faster than from application.
+
+The migration script dumps the file into directory defined in configuration::
+
+    [multiproject-projects]
+    icon_dir = /var/www/trac/icons
+
+If directory is not defined, the script dumps the files under each project
+htdocs directory.
 
 """
 import os
@@ -26,13 +36,10 @@ class ProjectIcons2FS(MigrateBase):
             'image/jpeg': 'jpeg',
             'image/jpg': 'jpeg',
         }
-
-        # Parse option value using custom Trac option:
+        # Parse option value using custom Trac option: DimensionOption
         value = conf.get('multiproject-projects', 'icon_size', '64x64')
-        self.icon_size = DimensionOption(section=None, name=None)._parse_dimension(value)
-
-        icon_width = 64
-        icon_height = 64
+        # TODO: Find proper way to read config values outside of component
+        self.icon_size = DimensionOption(section='multiproject-projects', name='icon_size')._parse_dimension(value)
 
     def upgrade(self):
         """

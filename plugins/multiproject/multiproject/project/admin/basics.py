@@ -3,12 +3,15 @@ import os
 from hashlib import md5
 
 import Image, ImageFile
+from trac.core import implements
 from trac.config import Option
 from trac.perm import PermissionCache
+from trac.web import IRequestFilter
 from trac.web.chrome import Chrome, add_notice, add_warning, add_script, add_stylesheet, tag
 from trac.util.translation import _
 from trac.core import TracError, ExtensionPoint
 from trac.admin.web_ui import BasicsAdminPanel
+from trac.admin.api import IAdminPanelProvider
 
 from multiproject.common.projects import Project
 from multiproject.common.projects import Projects
@@ -25,6 +28,8 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
     projects table will be refreshed when user changes basic project
     information
     """
+    implements(IRequestFilter, IAdminPanelProvider)
+
     # Extension points
     project_change_listeners = ExtensionPoint(IProjectChangeListener)
     icon_dir = Option('multiproject-projects', 'icon_dir', default='', doc='Directory where to place project icon')
@@ -35,6 +40,27 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
         'image/jpg': 'jpeg',
     }
 
+    # IRequestFilter methods
+
+    def pre_process_request(self, req, handler):
+        """
+        Process request to add some data in request
+        """
+        return handler
+
+    def post_process_request(self, req, template, data, content_type):
+        """
+        Provide ``icon_size`` config option available on all templates
+        """
+        if data:
+            data.update({
+                'icon_size': self.icon_size
+            })
+
+        return template, data, content_type
+
+    # IAdminPanelProvider methods
+
     def render_admin_panel(self, req, cat, page, path_info):
         """ Overrides BasicsAdminPanel rendering function.
 
@@ -44,10 +70,7 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
         req.perm.require('TRAC_ADMIN')
         userstore = get_userstore()
         user = userstore.getUser(req.authname)
-
         project = Project.get(self.env)
-
-        self.log.info(self.icon_size)
 
         # Update database if form posted
         if req.method == 'POST':
