@@ -172,11 +172,11 @@ class ProjectUserVisibilityGenerator():
         return self.policy.check_permission(trac_environment_key, self.required_permission, username)
 
     def clear_project_visibilities(self, project_id):
-        query = "DELETE FROM project_user_visibility where project_id = %d" % project_id
+        query = "DELETE FROM project_user_visibility where project_id = %s"
 
         with admin_transaction() as cursor:
             try:
-                cursor.execute(query)
+                cursor.execute(query, project_id)
             except Exception as e:
                 if self.verbose is not None:
                     print "Exception. In method clear_visibilities, the following query failed."
@@ -189,11 +189,12 @@ class ProjectUserVisibilityGenerator():
         query = "INSERT INTO project_user_visibility (project_id, user_id) VALUES "
 
         for visibility in visibilities:
-            query += "(%d,%d)," % (visibility.project_id, visibility.user_id)
+            query += ",".join(["(%d,%d)" % (safe_int(visibility.project_id),
+                                            safe_int(visibility.user_id))])
 
         with admin_transaction() as cursor:
             try:
-                cursor.execute(query[:-1])
+                cursor.execute(query)
             except Exception as e:
                 if self.verbose is not None:
                     print "Exception. In method batch_insert, the following query failed."
