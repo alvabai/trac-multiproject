@@ -29,7 +29,7 @@ SUDO="sudo"
 WEBSRV_USER=www-data
 WEBSRV_GROUP=www-data
 ENV_PTH="/etc/trac/env.sh"
-EXTENSIONS="TracMultiProject TracDiscussion TracDownloads"
+EXTENSIONS="TracMultiProject TracDiscussion"
 
 for par in $* ; do
     case $par in

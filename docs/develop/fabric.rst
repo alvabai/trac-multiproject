@@ -99,7 +99,6 @@ following plugins::
     multiproject-all-1.0.0/plugins/gitosis-0.2-py2.7.egg
     multiproject-all-1.0.0/plugins/TracXMLRPC-1.1.0_r8688-py2.7.egg
     multiproject-all-1.0.0/plugins/TracCustomFieldAdmin-0.2.8_r11265-py2.7.egg
-    multiproject-all-1.0.0/plugins/TracDownloads-0.3.mppv-py2.7.egg
     multiproject-all-1.0.0/plugins/TracDiscussion-0.8-py2.7.egg
     multiproject-all-1.0.0/plugins/Trac-0.12.4-py2.7.egg
     multiproject-all-1.0.0/plugins/TracMercurial-0.12.0.23dev_r9953-py2.7.egg
@@ -149,7 +148,6 @@ Typical example of this directory is something of the sorts::
             BatchModify.egg/
             TracMultiProject.egg/
             TracDiscussion.egg/
-            TracDownloads.egg/
         scripts/
         theme/
     current -> 20120117134959/
