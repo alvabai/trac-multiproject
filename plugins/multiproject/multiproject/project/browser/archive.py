@@ -81,7 +81,8 @@ class ArchiveSourceModule(Component):
         :returns: Handler, modified or not
         """
         # Add link only in /browser or /browser/?rev= pages
-        if self.browser_regx.match(req.path_info) and 'BROWSER_VIEW' in req.perm:
+        if (self.browser_regx.match(req.path_info)
+            and 'BROWSER_VIEW' in req.perm and 'FILE_VIEW' in req.perm):
             # Get default repository and its type
             rm = RepositoryManager(self.env)
             repo = rm.get_repository('')
@@ -125,6 +126,7 @@ class ArchiveSourceModule(Component):
         :raises: TracError in case of failure
         """
         req.perm.require('BROWSER_VIEW')
+        req.perm.require('FILE_VIEW')
 
         # Get default repository and its type
         rm = RepositoryManager(self.env)

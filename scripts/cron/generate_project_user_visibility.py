@@ -109,9 +109,9 @@ class ProjectUserVisibilityGenerator():
 
     def get_private_project_pairs(self, public_id_pairs = None):
         query = "SELECT project_id, trac_environment_key FROM projects "
-        public_project_ids = [pair[0] for pair in public_id_pairs]
 
-        if public_project_ids:
+        if public_id_pairs:
+            public_project_ids = [pair[0] for pair in public_id_pairs]
             # TODO: What if there are really many public projects?
             pub_projs = ','.join(str(id) for id in public_project_ids)
             query += "WHERE projects.project_id NOT IN (%s)" % pub_projs
@@ -171,11 +171,12 @@ class ProjectUserVisibilityGenerator():
     def user_can_view_project(self, trac_environment_key, username):
         return self.policy.check_permission(trac_environment_key, self.required_permission, username)
 
-    def clear_visibilities(self):
-        query = "TRUNCATE TABLE project_user_visibility"
+    def clear_project_visibilities(self, project_id):
+        query = "DELETE FROM project_user_visibility WHERE project_id = %s"
+
         with admin_transaction() as cursor:
             try:
-                cursor.execute(query)
+                cursor.execute(query, project_id)
             except Exception as e:
                 if self.verbose is not None:
                     print "Exception. In method clear_visibilities, the following query failed."
@@ -187,12 +188,13 @@ class ProjectUserVisibilityGenerator():
     def batch_insert(self, visibilities):
         query = "INSERT INTO project_user_visibility (project_id, user_id) VALUES "
 
-        for visibility in visibilities:
-            query += "(%d,%d)," % (visibility.project_id, visibility.user_id)
+        query += ",".join(["(%d,%d)" % (safe_int(visibility.project_id),
+                                        safe_int(visibility.user_id))
+                           for visibility in visibilities])
 
         with admin_transaction() as cursor:
             try:
-                cursor.execute(query[:-1])
+                cursor.execute(query)
             except Exception as e:
                 if self.verbose is not None:
                     print "Exception. In method batch_insert, the following query failed."
@@ -204,6 +206,22 @@ class ProjectUserVisibilityGenerator():
         if len(self.buffer) > 0:
             self.batch_insert(self.buffer)
             self.buffer = []
+
+    def insert_visibilities(self, buffer):
+        project_visibilities = []
+        project_id = buffer[0].project_id
+        for visibility in buffer:
+            if project_id == visibility.project_id:
+                project_visibilities.append(visibility)
+            else:
+                self.clear_project_visibilities(project_visibilities[0].project_id)
+                self.buffered_insert(project_visibilities)
+                project_visibilities = [visibility]
+                project_id = visibility.project_id
+
+        if project_visibilities:
+            self.clear_project_visibilities(project_visibilities[0].project_id)
+            self.buffered_insert(project_visibilities)
 
     def buffered_insert(self, buffer):
         while len(buffer) >= self.batch_size:
@@ -335,8 +353,7 @@ def main():
     last = time()
     if verbose:
         print "DB inserting started"
-    generator.clear_visibilities()
-    generator.buffered_insert(visibilities)
+    generator.insert_visibilities(visibilities)
     if verbose:
         print "DB inserting completed, took ", (time() - last), "seconds"
         print "---- statistics ----"
