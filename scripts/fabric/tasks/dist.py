@@ -249,7 +249,8 @@ def buildext(patch='true'):
     """
     ext_resources = [
         TarResource('trac', 'http://ftp.edgewall.com/pub/trac/Trac-0.12.4.tar.gz'),
-        TarResource('trac-mastertickets', 'https://github.com/coderanger/trac-mastertickets/tarball/master'),
+        TarResource('trac-mastertickets',
+            'https://github.com/coderanger/trac-mastertickets/tarball/af6c1df92629a7dd9cc8cfeb21d0aeef6bb013a3'),
         TarResource('gitosis', 'https://github.com/tv42/gitosis/tarball/dedb3dc63f413ed6eeba8082b7e93ad136b16d0d'),
         TarResource('trac-git', 'https://github.com/hvr/trac-git-plugin/tarball/master'),
         SVNResource('trac-genshi', 'http://svn.edgewall.org/repos/genshi/branches/stable/0.6.x -r 1135'),
