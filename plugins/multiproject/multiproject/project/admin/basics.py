@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import os
+from StringIO import StringIO
 from hashlib import md5
 
-import Image, ImageFile
+import Image
 from trac.core import implements
 from trac.config import Option
 from trac.perm import PermissionCache
@@ -168,19 +169,16 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
         icon_format = icon.type
         icon_size = self.icon_size
 
-        hash = md5()
-        hash.update(icon_data)
-        icon_name = '%d-%s.%s' % (project.id, hash.hexdigest(), self.content_types[icon_format])
+        md5hash = md5()
+        md5hash.update(icon_data)
+        icon_name = '%d-%s.%s' % (project.id, md5hash.hexdigest(), self.content_types[icon_format])
         icon_path = os.path.join(self.icon_dir, icon_name) if self.icon_dir else os.path.join(self.env.path, 'htdocs', icon_name)
         icon_width, icon_height = icon_size['width'], icon_size['height']
 
         # Resize and save the image
         with open(icon_path, 'w+b') as fd:
-            p = ImageFile.Parser()
-            p.feed(icon_data)
-            img = p.close()
-
             try:
+                img = Image.open(StringIO(icon_data))
                 # Resize first by keeping the ratio, then convert to have alpha channel and then for to given size
                 img.thumbnail((icon_width, icon_height), Image.ANTIALIAS)
                 img = img.convert("RGBA")

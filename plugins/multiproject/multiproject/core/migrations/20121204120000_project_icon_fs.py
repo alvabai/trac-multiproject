@@ -14,7 +14,8 @@ htdocs directory.
 """
 import os
 from hashlib import md5
-import Image, ImageFile
+from StringIO import StringIO
+import Image
 
 from multiproject.core.db import admin_query, cursors, admin_transaction
 from multiproject.core.migration import MigrateBase, MigrateMgr
@@ -170,11 +171,8 @@ class ProjectIcons2FS(MigrateBase):
 
         # Create image from data
         with open(path, 'w+b') as fd:
-            p = ImageFile.Parser()
-            p.feed(data)
-
             try:
-                img = p.close()
+                img = Image.open(StringIO(data))
                 # Resize images if needed, and force them to specified size
                 img.thumbnail((icon_width, icon_height), Image.ANTIALIAS)
                 img = img.convert("RGBA")
