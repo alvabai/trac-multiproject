@@ -91,17 +91,22 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
 
             # Remove icon if requested
             if 'reset' in req.args:
+                # NOTE: Icon is removed from filesystem already at this point
+                self._unset_icon(req, project)
                 project.icon_name = None
 
             # Update icon if set
             if not isinstance(req.args.get('icon', ''), basestring):
                 icon_name = self._set_icon(req, project)
                 if icon_name:
+                    # If image is changed
+                    if icon_name != project.icon_name:
+                        self._unset_icon(req, project)
                     project.icon_name = icon_name
                 else:
                     add_warning(req, 'Failed to set the project icon')
 
-            # Save changes
+            # Save changes in database
             if 'apply' in req.args:
                 self._apply_changes(req, project)
 
@@ -188,6 +193,24 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
 
         return icon_name
 
+    def _unset_icon(self, req, project):
+        """
+        Remove the icon both from filesystem (but not from project class)
+        """
+        if not project.icon_name:
+            self.log.warning('Project does not have an icon')
+            return
+
+        # Try removing the file
+        icon_path = os.path.join(self.icon_dir, project.icon_name) if self.icon_dir else os.path.join(self.env.path, 'htdocs', icon_name)
+        if os.path.exists(icon_path):
+            try:
+                os.unlink(icon_path)
+                self.log.info('Deleted project icon %s from filesystem' % icon_path)
+            except EnvironmentError:
+                self.log.error('Failed to delete the project icon: %s' % icon_path)
+
+        return
 
     def _apply_changes(self, req, project):
         """

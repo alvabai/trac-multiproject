@@ -80,36 +80,35 @@ class ProjectIcons2FS(MigrateBase):
         FROM projects AS p
         LEFT JOIN project_icon AS i ON i.icon_id = p.icon_id
         LEFT JOIN trac_environment AS te ON te.environment_id = p.trac_environment_key
+        WHERE i.icon_id IS NOT NULL
         '''
         project_icons = {}
 
         with admin_query(cursors.DictCursor) as cursor:
             cursor.execute(sql_projects)
             for row in cursor.fetchall():
-                # If icon is set
-                if row['icon_id'] is not None:
+                try:
+                    hash = md5()
+                    hash.update(row['icon_data'])
+                    image_name = '%s-%s.%s' % (row['id'], hash.hexdigest(), self.content_types[row['content_type']])
+                    image_path = os.path.join(self.projects_dir, row['identifier'], 'htdocs', image_name)
+
+                    # Use custom icon dir if set
+                    if self.icon_dir:
+                        image_path = os.path.join(self.icon_dir, image_name)
+
                     try:
-                        hash = md5()
-                        hash.update(row['icon_data'])
-                        image_name = '%s-%s.%s' % (row['id'], hash.hexdigest(), self.content_types[row['content_type']])
-                        image_path = os.path.join(self.projects_dir, row['identifier'], 'htdocs', image_name)
-
-                        # Use custom icon dir if set
-                        if self.icon_dir:
-                            image_path = os.path.join(self.icon_dir, image_name)
-
-                        try:
-                            self._save_image(row['icon_data'], image_path)
-                        except IOError, err:
-                            self.printerr('Failed to save image: %s. Please fix before continue' % err)
-                            return
-
-                        self.printout('Save project image: %s' % image_path)
-                        project_icons[row['id']] = image_name
-
-                    except KeyError:
-                        self.printerr('Unsupported image format: %s. Please fix before continue' % row['content_type'])
+                        self._save_image(row['icon_data'], image_path)
+                    except IOError, err:
+                        self.printerr('Failed to save image: %s. Please fix before continue' % err)
                         return
+
+                    self.printout('Save project image: %s' % image_path)
+                    project_icons[row['id']] = image_name
+
+                except KeyError:
+                    self.printerr('Unsupported image format: %s. Please fix before continue' % row['content_type'])
+                    return
 
         # Remove / add columns
         self.printok('Found %d projects with icons' % len(project_icons), 'NOTE')
@@ -182,8 +181,8 @@ class ProjectIcons2FS(MigrateBase):
                 img = img.transform((icon_width, icon_height), Image.EXTENT, (0, 0, icon_width, icon_height))
                 img.save(path)
 
-            except IOError, err:
-                self.printerr('Failed to create image %s, skipping it (%s)' % (path, err))
+            except Exception, err:
+                raise IOError('Failed to create image %s, skipping it (%s)' % (path, err))
 
 
 MigrateMgr.instance().add(ProjectIcons2FS())
