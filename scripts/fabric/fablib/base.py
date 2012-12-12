@@ -228,7 +228,7 @@ class GitResource(Resource):
 
         """
         temp_dir = tempfile.mkdtemp()
-        cmd = 'git clone -q %s %s' % (self.url, temp_dir)
+        cmd = 'git clone --depth 1 -q %s %s' % (self.url, temp_dir)
         if auth:
             logger.warning('Authentication is not supported - trying to clone repository without')
 
