@@ -259,7 +259,6 @@ def buildext(patch='true'):
         SVNResource('trac-customfieldadmin', 'http://trac-hacks.org/svn/customfieldadminplugin/0.11 -r 11265'),
         GitResource('batchmodify', 'https://projects.developer.nokia.com/git/batchmodify'),
         GitResource('childtickets', 'https://projects.developer.nokia.com/git/childtickets'),
-        GitResource('tracdownloads', 'https://projects.developer.nokia.com/git/tracdownloads'),
         GitResource('tracdiscussion', 'https://projects.developer.nokia.com/git/tracdiscussion'),
     ]
 
