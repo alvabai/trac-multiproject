@@ -226,7 +226,6 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
 
             # Save information into config
             for option in ('name', 'descr'):
-                self.log.info('OPTION: %s' % option)
                 self.config.set('project', option, req.args.get(option))
             self.config.save()
 
