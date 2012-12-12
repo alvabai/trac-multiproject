@@ -172,7 +172,7 @@ class ProjectUserVisibilityGenerator():
         return self.policy.check_permission(trac_environment_key, self.required_permission, username)
 
     def clear_project_visibilities(self, project_id):
-        query = "DELETE FROM project_user_visibility where project_id = %s"
+        query = "DELETE FROM project_user_visibility WHERE project_id = %s"
 
         with admin_transaction() as cursor:
             try:
@@ -188,9 +188,9 @@ class ProjectUserVisibilityGenerator():
     def batch_insert(self, visibilities):
         query = "INSERT INTO project_user_visibility (project_id, user_id) VALUES "
 
-        for visibility in visibilities:
-            query += ",".join(["(%d,%d)" % (safe_int(visibility.project_id),
-                                            safe_int(visibility.user_id))])
+        query += ",".join(["(%d,%d)" % (safe_int(visibility.project_id),
+                                        safe_int(visibility.user_id))
+                           for visibility in visibilities])
 
         with admin_transaction() as cursor:
             try:
