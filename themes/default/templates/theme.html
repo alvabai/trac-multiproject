@@ -7,7 +7,6 @@
       py:strip="">
 
 <?python
-from multiproject.core.configuration import conf
 from genshi.filters import HTMLSanitizer
 from genshi.input import HTML
 
@@ -41,8 +40,8 @@ def sane(stri):
   <py:match path="body" once="true" buffer="false"><body>
 
     <h1 class="project_heading" py:if="is_project">
-        <a href="${req.base_path}">
-            <img src="${mproject.icon_url}" id="projecticon" alt="" height="${icon_size.height}" width="${icon_size.width}"/>
+        <a href="${req.base_path}" py:if="mproject">
+            <img src="${mproject.icon_url}" id="projecticon" alt="" height="${icon_size.height}" width="${icon_size.width}" />
         </a>
         <a href="${req.base_path}">${project.name}</a>
     </h1>

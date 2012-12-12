@@ -72,6 +72,9 @@ class CommonResourceModule(Component):
         """
         Puts global ``mproject`` variable into data
         """
+        # Ensure the mproject is set
+        data = data or {'mproject': None}
+
         if self.config.get('multiproject', 'sys_home_project_name', 'home') != self.env.path.split('/')[-1] and data:
             project = Project.get(self.env)
             data.update({'mproject': project})

@@ -400,7 +400,6 @@ class Configuration(object):
             # If user avatar is in external location this configuration variable can be used. username will be added to the end.
             'external_avatar_url': '',
 
-            'default_icon_id': '1',
             'anonymous_desc_string': 'Anonymous users are casual visitors that either do not have a login or have decided not to login. Anonymous users will have rights to browser, but not of any interaction.'
             ,
             'authenticated_desc_string': 'Authenticated users are those that have logged in with their credentials. By default authenticated users are allowed to contribute to a project by joining the discussion boards and opening tickets. Unless changed by the project administrators authenticated users that are not members of a project will not be allowed to perform many actions such as committing updates to the server or editing Wiki pages.'
@@ -489,7 +488,6 @@ class Configuration(object):
             'theme_htdocs_location',
             'notifications_file',
             'user_profile_url',
-            'default_icon_id',
             'anonymous_desc_string',
             'authenticated_desc_string',
             'gitosis_repo_path',

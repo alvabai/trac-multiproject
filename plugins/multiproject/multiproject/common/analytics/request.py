@@ -6,7 +6,7 @@ from multiproject.core.analytics.event import EventLogIO
 class RequestAnalytics(Component):
     implements(IRequestFilter)
 
-    ignore_list = ['/health', '/usericon', '/projecticon']
+    ignore_list = ['/health', '/usericon']
     prefix_ignore_list = ['/chrome', '/res/']
     suffix_ignore_list = ['.css', '.js', '.png', '.gif', '.jpg']
 

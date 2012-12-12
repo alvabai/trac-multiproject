@@ -13,7 +13,7 @@ class HomePermissionFilter(Component):
         # Do not require login for health check or login page
         if self._starts_with_one(req.path_info, self.exclude_paths):
             return handler
-        if conf.allow_anonymous_frontpage and req.path_info in ["", "/", "/projecticon"]:
+        if conf.allow_anonymous_frontpage and req.path_info in ["", "/"]:
             return handler
 
         req.perm.require('WELCOME_VIEW')
