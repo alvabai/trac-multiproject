@@ -48,14 +48,25 @@ class ProjectIcons2FS(MigrateBase):
         if self.applied():
             return True
 
-        if self.icon_dir and not os.path.exists(self.icon_dir):
-            os.makedirs(self.icon_dir)
+        if self.icon_dir:
+            # Create if not existing
+            if not os.path.exists(self.icon_dir):
+                try:
+                    os.makedirs(self.icon_dir)
+                except EnvironmentError:
+                    self.printerr('Failed to create directory %s, giving up' % self.icon_dir)
+                    return
+
+            # Check writable
+            if not os.access(self.icon_dir, os.W_OK):
+                self.printerr('Cannot write to directory %s, giving up' % self.icon_dir)
+                return
 
         # Load default icon
-        default_icon_path = ''
         sql_default_icon = 'SELECT icon_data, content_type FROM project_icon WHERE icon_id = %s'
         with admin_query(cursors.DictCursor) as cursor:
-            cursor.execute(sql_default_icon, conf.default_icon_id or 0)
+            default_icon_id = conf.get('multiproject', 'default_icon_id', '0')
+            cursor.execute(sql_default_icon, int(default_icon_id))
             row = cursor.fetchone()
             if row:
                 image_path = os.path.join(self.icon_dir or '/tmp', 'project_default_icon.%s' % self.content_types[row['content_type']])
