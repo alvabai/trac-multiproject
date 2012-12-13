@@ -39,6 +39,7 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
         'image/png': 'png',
         'image/jpeg': 'jpeg',
         'image/jpg': 'jpeg',
+        'image/tiff': 'tiff',
     }
 
     # IRequestFilter methods
@@ -168,6 +169,9 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
         icon_data = icon.value
         icon_format = icon.type
         icon_size = self.icon_size
+
+        if icon_format not in self.content_types:
+            raise TracError('Unsupported image format')
 
         md5hash = md5()
         md5hash.update(icon_data)
