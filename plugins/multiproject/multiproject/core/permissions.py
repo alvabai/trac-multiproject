@@ -341,9 +341,11 @@ class CQDEUserGroupStore(object):
         Groups tuples by items in both ways. Works only with two item tuples.
 
         Example::
+
             data = (('name', 'ABC'), ('name', 'DEF'), ('foo', 'ABC'), ('foo', 'DEF'))
 
         Will return dictionaries::
+
             {'name': set(['ABC', 'DEF']),
              'foo': set(['ABC', 'DEF']}
 

@@ -196,7 +196,6 @@ class PermissionsAdminPanel(Component):
         # Get/check if user exists
         auth = Authentication()
         username = auth.get_trac_username(username)
-        self.log.debug('adding username: %s' % username)
 
         # check if already exists
         if username in [e[0] for e in group_store.get_all_user_groups() if e[1] == group]:
