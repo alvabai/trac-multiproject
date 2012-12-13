@@ -84,13 +84,13 @@ With fabric, building is just a simple task::
     fab dist.build:ext="true"
 
 The results of the build will be available in the ``dist/`` directory, in requested package formats.
-The task supports more build formats, possiblity to build the documentation and download and patch the
+The task supports more build formats, possibility to build the documentation and download and patch the
 external dependencies relevant to MultiProject plugin. For more information about these options see
-``fab -d dist.build``. If doing first install, the option ``ext="true"`` is a must, to include external
+``fab -d dist.build``. If doing first install, the option ``ext="all"`` is a must, to include external
 plugins in the installation process.
 
 Content of the package contains the MultiProject code, theme, configurations, scripts and
-following plugins::
+following plugins. If ext is 'true' instead of 'all', only the last three are included.::
 
     multiproject-all-1.0.0/plugins/Genshi-0.6.1dev_r1135-py2.7.egg
     multiproject-all-1.0.0/plugins/BatchModify-0.8.0_trac0.12-py2.7.egg

@@ -16,7 +16,7 @@ Building MultiProject
 Fabric_ is being used for automate both local and remote tasks. Thus, it is also used for building
 MultiProject package. In short, MultiProject package is built with command::
 
-    fab dist.build:ext=true,compress=true,version="a.b.c"
+    fab dist.build:ext=all,compress=true,version="a.b.c"
 
 To see all options and complete documentation for the task, run::
 
