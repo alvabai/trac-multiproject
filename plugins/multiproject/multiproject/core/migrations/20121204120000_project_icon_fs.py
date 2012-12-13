@@ -36,6 +36,7 @@ class ProjectIcons2FS(MigrateBase):
             'image/png': 'png',
             'image/jpeg': 'jpeg',
             'image/jpg': 'jpeg',
+            'image/gif': 'gif',
         }
         # Parse option value using custom Trac option: DimensionOption
         value = conf.get('multiproject-projects', 'icon_size', '64x64')
@@ -70,7 +71,7 @@ class ProjectIcons2FS(MigrateBase):
             cursor.execute(sql_default_icon, int(default_icon_id))
             row = cursor.fetchone()
             if row:
-                image_path = os.path.join(self.icon_dir or '/tmp', 'project_default_icon.%s' % self.content_types[row['content_type']])
+                image_path = os.path.join(self.icon_dir or '/tmp', 'default.%s' % self.content_types[row['content_type']])
                 self._save_image(row['icon_data'], image_path)
                 self.printout('Saved default image: %s' % image_path)
                 self.printwarn('Set icon_default_url = <url> in configuration', 'TODO')

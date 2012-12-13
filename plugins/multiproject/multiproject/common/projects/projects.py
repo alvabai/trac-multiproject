@@ -671,12 +671,7 @@ class Projects(object):
 
             query = '''
             SELECT
-                p.environment_name AS name,
-                p.description AS description,
-                p.created AS date,
-                p.published AS published,
-                p.project_name,
-                p.icon_name,
+                p.*,
                 (pa.ticket_changes + pa.wiki_changes + pa.scm_changes + pa.discussion_changes + pa.attachment_changes)
                  - IF((DATEDIFF(NOW(), p.created)) <= %f, ((%f/IFNULL(DATEDIFF(NOW(), p.created),1)*4*%f) + (%f/IFNULL(DATEDIFF(NOW(), p.created),1)*2*%f)), 0) AS changes
             FROM `group` AS g
@@ -692,13 +687,7 @@ class Projects(object):
         # List most active (ticket/wiki/scm/attachment/discussion changes) projects
         elif query_type == 'MOSTACTIVE':
             query = '''
-            SELECT
-                projects.environment_name AS name,
-                projects.description AS
-                description,
-                projects.created AS date,
-                projects.project_name,
-                projects.icon_name
+            SELECT projects.*
             FROM `group`
             INNER JOIN projects ON group.trac_environment_key = projects.trac_environment_key
             INNER JOIN project_activity ON project_activity.project_key = projects.project_id
