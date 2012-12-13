@@ -12,24 +12,30 @@ from multiproject.core.decorators import deprecated
 log = logging.getLogger('migration')
 
 
-def printer(msg, title=None, flag='plain'):
+def printer(msg, title=None, flag='note'):
     """
     Simple console print. Example usage::
 
+        # Create functions with defaults
+        printout = lambda msg, title=None: printer(msg, title)
         printok = lambda msg, title=None: printer(msg, title, 'success')
         printerr = lambda msg, title=None: printer(msg, title, 'error')
-        self.printok = lambda msg, title=None: printer(msg, title, 'success')
 
+        printout('FYI')
         printerr('Uh-oh')
         printerr('Uh-oh', 'FAIL')
         printok('Looking good')
+        printok('Looking good', 'Custom title')
+
+        # Using directly
+        printer('Hello world', title='Welcome!', flag='note')
 
     :param str msg: Message to show
     :param str title: Optional title to set/highlight
     :param str flag: Message flag that
     """
     templates = {
-        'plain': "{0}: {1}",
+        'note': "{0}: {1}",
         'success': "\033[32m{0}\033[0m: {1}",
         'warning': "\033[44m{0}\033[0m: {1}",
         'error': "\033[31m{0}\033[0m: {1}",
@@ -55,25 +61,6 @@ class MigrateBase(object):
 
     def applied(self):
         return
-
-    def _print(self, msg, title=None, flag=''):
-        """
-        Simple console print. Example usage::
-
-            printerr('Uh-oh')
-            printerr('Uh-oh', 'FAIL')
-            printok('Looking good')
-
-        :param str msg: Message to show
-        :param str title: Optional title to set/highlight
-        :param str flag: Message flag that
-        """
-        templates = {
-            'success': "\033[32m{0}\033[0m: {1}",
-            'warning': "\033[44m{0}\033[0m: {1}",
-            'error': "\033[31m{0}\033[0m: {1}",
-        }
-        print templates.get(flag, '{0}{1}').format(title or flag.upper(), msg)
 
 
 class MigrateConfigure(object):
