@@ -2068,6 +2068,104 @@
         });
     };
 
+    /**
+     * jQuery plugin: SiteAdminBox
+     * Shows the site admin links
+     *
+     * @param opts
+     * @return {*}
+     * @constructor
+     */
+    $.fn.SiteAdminBox = function(opts) {
+        var self = this;
+        var placeholder = '<div class="siteadminbox"><div class="wrapper loading"><div class="info-wrapper"></div></div></div>';
+        var defaults = {
+            events: {
+                click: 'toggleSiteAdminBox'
+            },
+            placeholder: placeholder
+        };
+        var options = $.extend(defaults, (opts || {}));
+        var box = $(options.placeholder);
+
+        // Close box and remove changes
+        self.closeSiteAdminBox = function(self, box, clicked){
+            box.remove();
+            $('div.siteadminbox').remove();
+        };
+
+        // Rendering profile box and bind actions to it
+        self.openSiteAdminBox = function(self, box, clicked) {
+            // If box is already visible, skip this
+
+            // FIXME: :visible sometimes returns false even if it is visible => additional length check
+            if (box.is(':visible') || $('div.siteadminbox').length !== 0) {
+                return true;
+            }
+
+            // Load ready-rendered profile box and show it once done
+            box.load(multiproject.req.base_path + '/siteadmin/list', function(){
+                // Bind action for elements match with div.close
+                box.find('div.close').click(function(event){
+                    return self.closeSiteAdminBox(self, box, clicked);
+                });
+            });
+
+            // Create box html to body and position it next to element
+            box.html($(placeholder).find('.wrapper'));
+            box.appendTo('body');
+            box.css('left', clicked.offset().left).css('top', clicked.offset().top + clicked.height());
+        };
+
+        // Callback for bound events
+        self.toggleSiteAdminBox = function(self, box, clicked){
+            // Close if visible
+            // FIXME: :visible sometimes returns false even if it is visible => additional length check
+            if (box.is(':visible') || $('div.siteadminbox').length !== 0) {
+                self.closeSiteAdminBox(self, box, clicked);
+            }
+            // Show if missing
+            else {
+                self.openSiteAdminBox(self, box, clicked);
+            }
+        };
+
+        // Bind global closing actions: click outside or press ESC
+        $(document).bind('click keydown', function(event){
+            if (event.type === 'click') {
+                self.closeSiteAdminBox(self, box, this);
+                return true;
+            }
+            else if (event.type === 'keydown' && event.keyCode === 27) {
+                self.closeSiteAdminBox(self, box, this);
+            }
+            return true;
+        });
+
+        // Return jQuery chain-ability
+        return this.each(function(){
+            var clicked = $(this);
+
+            // Bind all the provided events to action
+            $.each(options.events, function(eventName, callBack){
+                clicked.unbind(eventName);
+                clicked.bind(eventName, function(event){
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    // Ensure the event is available
+                    self.event = event;
+
+                    if (typeof(callBack) === 'string') {
+                        self[callBack](self, box, clicked);
+                    }
+                    else {
+                        callBack(self, box, clicked);
+                    }
+                });
+            });
+        });
+    };
 })(jQuery, window);
 
 // Add string trim to IE7

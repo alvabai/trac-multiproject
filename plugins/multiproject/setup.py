@@ -6,6 +6,7 @@ import multiproject
 # name can be any name.  This name will be used to create .egg file.
 # name that is used in packages is the one that is used in the trac.ini file.
 # use package name as entry_points
+
 setup(
     name='TracMultiProject',
     version=multiproject.__version__,
@@ -44,6 +45,7 @@ setup(
         'multiproject.common.pagination': ['templates/*.html'],
         'multiproject.common.wiki': ['templates/*.html'],
         'multiproject.common.featured': ['templates/*.html'],
+        'multiproject.common.siteadmin': ['templates/*.html', 'htdocs/js/*.js', 'htdocs/css/*.css'],
         'multiproject.home.admin': ['templates/*.html','templates/*.txt', 'htdocs/js/*.js', 'htdocs/css/*.css'],
         'multiproject.home.frontpage': ['templates/*.html'],
         'multiproject.home.projectlist': ['templates/*.html', 'templates/*.rss', 'htdocs/js/*.js'],
