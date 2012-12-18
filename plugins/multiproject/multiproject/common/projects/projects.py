@@ -336,7 +336,7 @@ class Projects(object):
             else:
                 query += "LIMIT %d" % safe_int(limit)
 
-        projects = self.__queryProjectsWithDescr(query)
+        projects = self.queryProjectObjects(query)
         return projects
 
     def update_featured_projects(self, projects):
@@ -516,7 +516,7 @@ class Projects(object):
         # We need projects where _both_ anonymous and the specified user exist
         query = """
         SELECT projects.environment_name AS name, projects.description AS description, projects.created AS date,
-          '%(user_name)s' AS author, projects.project_name, projects.icon_id
+          '%(user_name)s' AS author, projects.project_name, projects.icon_name
         FROM projects
         INNER JOIN `group` ON group.trac_environment_key = projects.trac_environment_key
         INNER JOIN user_group ON user_group.group_key = group.group_id
@@ -652,7 +652,6 @@ class Projects(object):
         limit_start = safe_int(limit_start) if limit_start else 0
         limit_count = safe_int(limit_count) if limit_count else 50
         limit_activity = safe_int(limit_activity) if limit_activity else 0
-        default_icon_id = safe_int(conf.default_icon_id)
 
         # Get projects created lately, having some activity in them if activity_limit is set
         if query_type  == 'NEWEST':
@@ -672,70 +671,48 @@ class Projects(object):
 
             query = '''
             SELECT
-                p.environment_name AS name,
-                p.description AS description,
-                p.created AS date,
-                p.published AS published,
-                p.project_name,
-                pi.content_type AS icon_type,
-                length(pi.icon_data) AS icon_size,
+                p.*,
                 (pa.ticket_changes + pa.wiki_changes + pa.scm_changes + pa.discussion_changes + pa.attachment_changes)
                  - IF((DATEDIFF(NOW(), p.created)) <= %f, ((%f/IFNULL(DATEDIFF(NOW(), p.created),1)*4*%f) + (%f/IFNULL(DATEDIFF(NOW(), p.created),1)*2*%f)), 0) AS changes
             FROM `group` AS g
             INNER JOIN user_group AS ug ON ug.group_key = g.group_id
             INNER JOIN projects AS p ON g.trac_environment_key = p.trac_environment_key
-            LEFT JOIN project_icon AS pi ON IFNULL(p.icon_id, %d) = pi.icon_id
             INNER JOIN project_activity AS pa ON pa.project_key = p.project_id
             WHERE ug.user_key = %d
             GROUP BY g.trac_environment_key
             HAVING changes >= %d AND published
             ORDER BY p.published DESC, p.created DESC LIMIT %d, %d
-            ''' % (daterange, daterange, wiki_factor, daterange, discussion_factor, default_icon_id, user_id, limit_activity, limit_start, limit_count)
+            ''' % (daterange, daterange, wiki_factor, daterange, discussion_factor, user_id, limit_activity, limit_start, limit_count)
 
         # List most active (ticket/wiki/scm/attachment/discussion changes) projects
         elif query_type == 'MOSTACTIVE':
             query = '''
-            SELECT
-                projects.environment_name AS name,
-                projects.description AS
-                description,
-                projects.created AS date,
-                projects.project_name,
-                project_icon.content_type AS icon_type,
-                length(project_icon.icon_data) AS icon_size
+            SELECT projects.*
             FROM `group`
             INNER JOIN projects ON group.trac_environment_key = projects.trac_environment_key
             INNER JOIN project_activity ON project_activity.project_key = projects.project_id
             INNER JOIN user_group ON user_group.group_key = group.group_id
-            LEFT JOIN project_icon ON IFNULL(projects.icon_id, %d) = project_icon.icon_id
             WHERE user_group.user_key = %d
             GROUP BY group.trac_environment_key
             ORDER BY (ticket_changes+wiki_changes+scm_changes+attachment_changes+discussion_changes) DESC LIMIT %d, %d
-            ''' % (default_icon_id, user_id, limit_start, limit_count)
+            ''' % (user_id, limit_start, limit_count)
 
         # List featured projects
         elif query_type == 'FEATURED':
             query = '''
-            SELECT
-                projects.environment_name AS name,projects.description AS description,
-                projects.created AS date,
-                projects.project_name,
-                project_icon.content_type AS icon_type,
-                length(project_icon.icon_data) AS icon_size
+            SELECT projects.*
             FROM project_selected
             INNER JOIN projects ON project_selected.project_id = projects.project_id
-            LEFT JOIN project_icon ON IFNULL(projects.icon_id, %d) = project_icon.icon_id
             ORDER BY project_selected.value LIMIT %d, %d
-            ''' % (default_icon_id, limit_start, limit_count)
+            ''' % (limit_start, limit_count)
 
         else:
             conf.log.warning('Requested projects with non-macthing query: %s' % query_type)
             return []
 
-        return self.__queryProjectsWithDescr(query)
+        return self.queryProjectObjects(query)
 
-    def search(self, keywords, category_ids, username='anonymous', order_by='newest', sub_page=1, limit=5,
-               icon_data=False, all_categories=None):
+    def search(self, keywords, category_ids, username='anonymous', order_by='newest', sub_page=1, limit=5, all_categories=None):
         """
         Search for projects with fulltext and categories for explore projects.
 
@@ -748,26 +725,6 @@ class Projects(object):
         """
         if not all_categories:
             all_categories = CQDECategoryStore().get_all_categories()
-
-        icon_size = 0
-        icon_type = ''
-
-        # this is needed only for generating rss feed on explore projects
-        if icon_data:
-            sql = ("SELECT IFNULL(LENGTH(icon_data),0), IFNULL (content_type, 'image/png') FROM "
-                   "project_icon WHERE icon_id = %s" % safe_int(conf.default_icon_id))
-
-            row = []
-            with admin_query() as cursor:
-                try:
-                    cursor.execute(sql)
-                    row = cursor.fetchone()
-                except:
-                    conf.log.exception("Failed to fetch default project icon")
-
-            if row:
-                icon_size = str(row[0])
-                icon_type = row[1]
 
         limit = safe_int(limit)
         limit_attr = {'limit_start': (int(sub_page) - 1) * limit, 'limit': limit}
@@ -785,11 +742,10 @@ class Projects(object):
 
         select_columns = """
         DISTINCT p.project_id, p.project_name, p.environment_name, p.description,
-        p.author, p.created, p.updated, p.published, p.parent_id, p.icon_id,
-        p.trac_environment_key, p.icon_id,
-        IFNULL(length(pi.icon_data), 0) AS icon_size, IFNULL(pi.content_type, '') AS icon_type,
+        p.author, p.created, p.updated, p.published, p.parent_id, p.icon_name,
+        p.trac_environment_key,
         {activity_statement} AS a
-        """.format(icon_size=str(icon_size),icon_type=icon_type, activity_statement=activity_statement)
+        """.format(activity_statement=activity_statement)
 
         select_count = """COUNT(DISTINCT p.project_id)"""
 
@@ -873,8 +829,6 @@ class Projects(object):
         elif order_by == "recent":
             order_by_str = " ORDER BY IFNULL(p.published, p.created) DESC "
 
-        left_join_icon = "LEFT JOIN project_icon AS pi ON pi.icon_id = p.icon_id "
-
         # Note: If project_activity is not calculated, the project will not be shown here!
         query_template = """
         SELECT {select_clause}
@@ -882,23 +836,21 @@ class Projects(object):
         INNER JOIN projects AS p ON p.project_id = v.project_id
         INNER JOIN user AS u ON u.user_id = v.user_id
         INNER JOIN project_activity AS pa ON pa.project_key = p.project_id
-        {left_join_icon}
         {join_str}
         WHERE {where_str}
         {order_by}
         {limit}
         """
-        # The count_query doesn't have left_join_icon, order_by, and limit parts.
+        # The count_query doesn't have order_by, and limit parts.
         # Here, if we would form query_template so that it already contained the parts
         # common to both query and count_query, i.e., where_str, join_str, wher_str),
         # there would be possibility to put ' {anything} ' or ' %(anything)s ' into where_str.
         # Thus, safer to do the formatting once for all in both cases.
         query = query_template.format(join_str=join_str, where_str=where_str,
-                select_clause=select_columns,left_join_icon=left_join_icon,
-                order_by=order_by_str,
+                select_clause=select_columns, order_by=order_by_str,
                 limit= "LIMIT %(limit_start)d, %(limit)d " % limit_attr)
         count_query = query_template.format(join_str=join_str, where_str=where_str,
-            select_clause = select_count, left_join_icon = '', order_by = '', limit = '')
+            select_clause = select_count, order_by = '', limit = '')
 
         conf.log.debug("Explore projects search query: %s",query)
         conf.log.debug("Explore projects search count_query: %s",count_query)
@@ -927,7 +879,7 @@ class Projects(object):
         limit_attr = {'limit_start': (safe_int(sub_page) - 1) * limit, 'limit': limit}
 
         select = "SELECT DISTINCT p.project_id,p.project_name,p.environment_name,p.description,"\
-                 "p.author,p.created,p.updated,p.published,p.parent_id,p.icon_id FROM "\
+                 "p.author,p.created,p.updated,p.published,p.parent_id,p.icon_name FROM "\
                  "(SELECT DISTINCT * , CONCAT(project_name COLLATE utf8_general_ci,environment_name, description) as f FROM projects) AS p "
 
         wheres = []
@@ -1066,7 +1018,7 @@ class Projects(object):
                                      'date': project[5],
                                      'updated': project[6],
                                      'published': project[7],
-                                     'icon_id': project[9]
+                                     'icon_name': project[9]
                     })
             except:
                 conf.log.exception("Project query failed: {0}".format(project_query))
@@ -1152,14 +1104,10 @@ class Projects(object):
             updated=project_data[6],
             published=project_data[7],
             parent_id=project_data[8],
-            icon_id=project_data[9],
+            icon_name=project_data[9],
             trac_environment_key=project_data[10],
         )
 
-        if len(project_data) >= 14:
-            prj.icon_type = project_data[14]
-            prj.icon_size = project_data[13]
-            conf.log.debug("type set")
         return prj
 
     def getEnabledServices(self, environment):

@@ -101,6 +101,45 @@ class MultiListOption(MultiOption):
         return super(MultiListOption, cls).get_options(section, prefix, default, option_cls or ListOption)
 
 
+class DimensionOption(Option):
+    """
+    Custom configuration option type for dimensions like: 64x64 (width x height).
+    Example configured and parsed values:
+
+    - 120x60 => {width: 120, height: 60}
+    - 120,60 => {width: 120, height: 60}
+    - 45 => {width: 45, height: 45}
+
+    """
+    def accessor(self, section, name, default):
+        """
+        :returns: dimension dict like {width: 123, height: 234}
+        """
+        value = section.get(name, default)
+        return self._parse_dimension(value)
+
+    def _parse_dimension(self, value):
+        width = height = None
+        try:
+            # Values separated with x
+            if 'x' in value:
+                width, height = map(int, value.split('x'))
+
+            # Values separeted with comma
+            elif ',' in value:
+                width, height = map(int, value.split(','))
+
+            # Only one value given => square
+            elif value.isdigit():
+                width, height = int(value), int(value)
+
+        except ValueError:
+            raise ValueError('Invalid option value: %s' % value)
+
+
+        return {'width': width, 'height': height}
+
+
 class Configuration(object):
     """
     .. WARNING:: Avoid using!
@@ -361,7 +400,6 @@ class Configuration(object):
             # If user avatar is in external location this configuration variable can be used. username will be added to the end.
             'external_avatar_url': '',
 
-            'default_icon_id': '1',
             'anonymous_desc_string': 'Anonymous users are casual visitors that either do not have a login or have decided not to login. Anonymous users will have rights to browser, but not of any interaction.'
             ,
             'authenticated_desc_string': 'Authenticated users are those that have logged in with their credentials. By default authenticated users are allowed to contribute to a project by joining the discussion boards and opening tickets. Unless changed by the project administrators authenticated users that are not members of a project will not be allowed to perform many actions such as committing updates to the server or editing Wiki pages.'
@@ -450,7 +488,6 @@ class Configuration(object):
             'theme_htdocs_location',
             'notifications_file',
             'user_profile_url',
-            'default_icon_id',
             'anonymous_desc_string',
             'authenticated_desc_string',
             'gitosis_repo_path',
@@ -575,6 +612,18 @@ class Configuration(object):
             .replace('%(project)s', 'N/A')
 
         self.log = logger_factory(logtype, logfile, level, 'multiproject', format)
+
+    def get(self, section, option, default=None):
+        """
+        Return configuration value with provided section name and key
+        :param str section: Section name
+        :param str option: Config key
+        :param default: Default value if key cannot be found
+        :return: Configuration value or default
+        """
+        if not self.config_parser.has_option(section, option):
+            return default
+        return self.config_parser.get(section, option)
 
     def f_default_projects(self, value):
         self.default_projects = self._list(value)

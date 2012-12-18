@@ -8,8 +8,10 @@
         </h2>
         <ul class="projectlist">
             <li py:for="project in active_projects" class="project_list_item">
-                <img class="icon" src="${req.href('projecticon', environment_name=project.name)}" />
-                <a href="${req.href('..', project.name)}">$project.project_name</a>
+                <a href="${req.href('..', project.env_name)}">
+                    <img class="icon" src="${project.icon_url}" />
+                </a>
+                <a href="${req.href('..', project.env_name)}">$project.project_name</a>
             </li>
             <li>
                 <a class="more" href="${req.href('..', 'home/project/explore')}#tab=active" shape="rect">More Active Projects &gt;</a>

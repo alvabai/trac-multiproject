@@ -14,9 +14,22 @@
 <h2>Basic Settings</h2>
 
 <div id="content">
-    <form class="mod" id="modbasic" method="post" action="">
+    <form class="mod" enctype="multipart/form-data" id="modbasic" method="post" action="">
         <fieldset>
             <table class="content">
+                <tr>
+                    <td class="label"></td>
+                    <td class="content">
+                        <label for="icon"><img src="${mproject.icon_url}" height="${icon_size.height}" width="${icon_size.width}" /></label>
+                        <input id="icon" type="file" name="icon" value="" />
+                        <input id="reset" type="checkbox" name="reset" /><label for="reset">Reset to default icon</label>
+                        <p class="desc">
+                        Project icon shown as a project identifier in project page and listings.
+                        Provided icon will be resized to ${icon_size.width}x${icon_size.height}<br/>
+                        <strong>Note:</strong> Everyone can see the project icon despite given the permissions.
+                        </p>
+                    </td>
+                </tr>
                 <tr>
                     <td class="label"><label for="projectname">Name:</label></td>
                     <td class="content">

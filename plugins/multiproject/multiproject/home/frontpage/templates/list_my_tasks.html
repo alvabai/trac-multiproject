@@ -9,7 +9,7 @@
 <py:def function="list_my_tasks(tasks)">
 
     <li class="project_list_item" py:for="project,url,summary,description,priority,time in tasks[:5]">
-        <div class="logo"><img src="${conf.theme_htdocs_location}/${conf.getThemePath()}images/d/Projects-icon.png" /></div>
+        <div class="logo"><img src="${project.icon_url}" /></div>
         <div class="desc">
             <div><a href="${url.rsplit('/', 2)[0]}" title="Go to project ${project.project_name}">${project.project_name}</a></div>
             <div><a href="${url}" title="Go to ticket ${summary} in ${project.project_name}"><strong>${summary[:50]}<py:if test="len(summary) > 50">...</py:if></strong></a></div>

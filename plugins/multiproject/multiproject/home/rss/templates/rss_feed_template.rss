@@ -20,7 +20,7 @@
       <pubDate>${project.date}</pubDate>
       <description>$project.description</description>
       <guid>$project.name</guid>
-      <enclosure url="${projroot}/$project.name/projecticon?environment_name=$project.name" length="$project.icon_size" type="$project.icon_type" />
+      <enclosure url="${req.abs_href('../', project.icon_url)}" />
       <category>Project</category>
     </item>
  </channel>

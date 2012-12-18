@@ -15,3 +15,4 @@ from multiproject.common.staticfiles import GlobalStaticRequestFiles
 from multiproject.common.hacks import *
 from multiproject.common.xmlrpc import *
 from multiproject.common.permissions import GlobalPermissionPolicy, GlobalPermissionStore
+from multiproject.common import siteadmin

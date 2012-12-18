@@ -1,7 +1,11 @@
 $(document).ready(function() {
 
     $('form.add_member input[name="member"]').each(function(index) {
-        var userfield = new multiproject.ui.UserField($(this), {minLength: 2, limit: 5});
+        var userfield = new multiproject.ui.UserField($(this), {
+            minLength: 2,
+            limit: 5,
+            status: ['inactive', 'active']
+        });
         userfield.render();
     });
 

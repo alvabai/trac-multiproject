@@ -73,40 +73,6 @@ class ProjectCache(object):
         self.mc.delete(key_by_env_name)
         key_by_id = self.__project_key(project.id)
         self.mc.delete(key_by_id)
-        self.clearProjectIcon(project.id)
-
-    # Caching project icons
-    def getProjectIcon(self, project_id):
-        """ returns (content, content_type) tuple or None
-        """
-        key = self.__project_icon_key(project_id)
-        return self.mc.get(key)
-
-    def setProjectIcon(self, project_id, icon):
-        """ icon parameter needs to be (content, content_type) tuple
-        """
-        key = self.__project_icon_key(project_id)
-        self.mc.set(key, icon, self.PROJECT_CACHE_TIME)
-
-    def clearProjectIcon(self, project_id):
-        key = self.__project_icon_key(project_id)
-        self.mc.delete(key)
-
-    def getDefaultProjectIcon(self):
-        """ returns (content, content_type) tuple or None
-        """
-        key = self.__default_project_icon_key()
-        return self.mc.get(key)
-
-    def setDefaultProjectIcon(self, icon):
-        """ icon parameter needs to be (content, content_type) tuple
-        """
-        key = self.__default_project_icon_key()
-        self.mc.set(key, icon, self.PROJECT_CACHE_TIME)
-
-    def clearDefaultProjectIcon(self):
-        key = self.__default_project_icon_key()
-        self.mc.delete(key)
 
     # Caching project counts / category for user
     def get_project_counts_per_category(self, username):
@@ -133,13 +99,6 @@ class ProjectCache(object):
     def __project_by_env_key(self, identifier):
         key = 'project_by_env:' + identifier
         return key.encode('utf-8')
-
-    def __project_icon_key(self, id):
-        key = "project_icon:" + str(id)
-        return key.encode('utf-8')
-
-    def __default_project_icon_key(self):
-        return "default_prj_icon".encode('utf-8')
 
     def __get_project_counts_per_category_key(self, username):
         key = "prj_counts:" + base64.b64encode(username.encode('utf-8'))

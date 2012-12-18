@@ -69,7 +69,7 @@ class FindProjectsModule(Component):
         numresults = int(numresults)
 
         # Fetch projects based on tab
-        projects, activities, project_count = Projects().search(filter, category_id_list, req.authname, tab, sub_page, numresults, icon_data = rss)
+        projects, activities, project_count = Projects().search(filter, category_id_list, req.authname, tab, sub_page, numresults)
 
         # Activity css classes for activity meters
         activity_classes = self.activities_to_classes(activities)

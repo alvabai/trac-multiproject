@@ -2,13 +2,12 @@
 """
 Module implements the DAO objects for Project and specialized HomeProject
 """
-import tempfile
 import os
 import re
 
+from trac.web import Href
 from trac.core import TracError
 from trac.env import open_environment
-import Image
 
 from multiproject.core.cache.project_cache import ProjectCache
 from multiproject.core.configuration import conf
@@ -45,14 +44,14 @@ class Project(object):
         'updated': 'updated',
         'published': 'published',
         'parent_id': 'parent_id',
-        'icon_id': 'icon_id',
+        'icon_name': 'icon_name',
         'trac_environment_key': 'trac_environment_key',
     }
     FIELD_COUNT = len(FIELDS)
 
     def __init__(self, id, env_name, project_name, description, author_id, created, trac_environment_key=None,
                  updated=None, published=None, parent_id=None,
-                 discforum=False, icon_id=None):
+                 discforum=False, icon_name=None):
 
         # Private attributes for properties
         self._parent_project = None
@@ -74,9 +73,7 @@ class Project(object):
         self.updated = updated
         self.published = published
         self.discforum = discforum
-        self.icon_id = icon_id
-        self.icon_type = ""
-        self.icon_size = 0
+        self.icon_name = icon_name
 
     @staticmethod
     def get(env=None, id=None, env_name=None, use_cache=True):
@@ -137,7 +134,7 @@ class Project(object):
                 return project
 
         query = ("SELECT project_id, environment_name, project_name, description, author, created, updated, "
-                 "published, parent_id, icon_id, trac_environment_key "
+                 "published, parent_id, icon_name, trac_environment_key "
                  "FROM projects WHERE {0} = %s".format('environment_name' if by_env else 'project_id'))
 
         try:
@@ -156,7 +153,7 @@ class Project(object):
                     updated=row[6],
                     published=row[7],
                     parent_id=row[8],
-                    icon_id=row[9],
+                    icon_name=row[9],
                     trac_environment_key=row[10],
                 )
             if use_cache:
@@ -235,6 +232,21 @@ class Project(object):
         assert isinstance(project, User), 'Author needs to be set and User instance'
         self._parent_project = project
         self.parent_id = project.id
+
+    @property
+    def icon_url(self):
+        """
+        Returns the URL path to project icon, or default if not set
+        :return: Path of the icon URL
+        """
+        # Load default icon URL from configuration
+        icon_url = conf.get('multiproject-projects', 'icon_default_url', '')
+
+        # If project has icon set, show it instead
+        if self.icon_name:
+            icon_url = Href(conf.get('multiproject-projects', 'icon_url', ''))(self.icon_name)
+
+        return icon_url
 
     def save(self):
         """
@@ -497,7 +509,7 @@ class Project(object):
         self.created = project.created
         self.parent_id = project.parent_id
         self.discforum = project.discforum
-        self.icon_id = project.icon_id
+        self.icon_name = project.icon_name
         self.trac_environment_key = project.trac_environment_key
 
         if project.parent_project:
@@ -562,68 +574,6 @@ class Project(object):
             total += row[1]
 
         return total, closed
-
-    def createIcon(self, icon):
-        """
-        Creates icon for user based on icon sent on create form
-        """
-        if icon is None:
-            with admin_transaction() as cursor:
-                if self.icon_id is not None:
-                    cursor.execute("DELETE FROM project_icon WHERE icon_id = %s", (self.icon_id,))
-
-                cursor.execute("UPDATE projects SET icon_id = NULL WHERE project_id = %s", (self.id,))
-                self.icon_id = None
-            return
-
-        if isinstance(icon, unicode) or not icon.filename:
-            conf.log.warning('Missing image')
-            return
-
-        content_type = icon.type
-        rs_image_value = None
-
-        # Always resize image to 64x64
-        with tempfile.NamedTemporaryFile() as tmp_orgimg:
-            tmp_orgimg.write(icon.value)
-            # Reel back to beginning after write
-            tmp_orgimg.seek(0)
-            img = Image.open(tmp_orgimg)
-            img.thumbnail((64, 64), Image.ANTIALIAS)
-
-            # NOTE: Is there a way to read file without saving it first?
-            with tempfile.NamedTemporaryFile() as tmp_modimg:
-                img.save(tmp_modimg, "PNG")
-                tmp_modimg.seek(0)
-                rs_image_value = tmp_modimg.read()
-
-        # Write image to database
-        with admin_transaction() as cursor:
-            try:
-                # delete old icon from project_icon
-                if self.icon_id is not None:
-                    cursor.execute("DELETE FROM project_icon WHERE icon_id = %s", (self.icon_id,))
-                    # insert new icon into project_icon
-
-                # refactoring needed
-                if rs_image_value:
-                    query = "INSERT INTO project_icon VALUES(NULL, %s, %s)"
-                    cursor.execute(query, (rs_image_value, content_type))
-                else:
-                    query = "INSERT INTO project_icon VALUES(NULL, %s, %s)"
-                    cursor.execute(query, (icon.value, content_type))
-
-                # Resolve last inserted icon id
-                cursor.execute("SELECT last_insert_id() FROM project_icon")
-                row = cursor.fetchone()
-                # If nonzero is returned, row was successfully added.
-                self.icon = row[0]
-                # update project to correct icon_id
-                query = "UPDATE projects SET icon_id = %s WHERE project_id = %s"
-                cursor.execute(query, (row[0], self.id))
-            except:
-                conf.log.exception("Failed to create project icon")
-                raise
 
     def __str__(self):
         """

@@ -6,10 +6,6 @@
       xmlns:py="http://genshi.edgewall.org/"
       py:strip="True">
 
-<?python
-from multiproject.core.configuration import conf
-?>
-
 <py:def function="list_projects_in_find(projects)">
     <py:choose>
         <!-- ! When projects -->
@@ -17,12 +13,9 @@ from multiproject.core.configuration import conf
             <div class="project_item">
 
                 <div class="project_title">
-                    <py:choose>
-                        <img py:when="project.icon_id" src="${req.base_path}/projecticon?environment_name=${project.env_name}" class="project_icon" />
-                        <img py:otherwise="" src="${conf.theme_htdocs_location}/images/large_project_ico.png" class="project_icon" />
-                    </py:choose>
+                    <img src="${project.icon_url}" class="project_icon" />
                     <div class="project_main_details">
-                        <h3><a href="${conf.url_projects_path}/${project.env_name}" title="Go to project ${project.project_name}">${project.project_name}</a></h3>
+                        <h3><a href="${req.href('../', project.env_name)}" title="Go to project ${project.project_name}">${project.project_name}</a></h3>
                         <div class="project_activity_line">
                             <div class="project_activity">Activity: <span class="activity_meter ${activity_classes[project.id]}"> </span></div>
                             <py:with vars="n = project_watchers[project.id]">

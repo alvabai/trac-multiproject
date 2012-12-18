@@ -117,6 +117,7 @@ class User(object):
         """ Creates icon for user based on icon sent on create form
             TODO: This should be on MySQLUserStore
         """
+        # FIXME: Move user icon into filesystem for better performance, similar to project icon
         self.icon = None
         if isinstance(icon, unicode) or not icon.filename:
             return

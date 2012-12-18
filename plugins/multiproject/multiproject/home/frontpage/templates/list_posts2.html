@@ -11,18 +11,11 @@
 
     <li class="project_list_item" py:for="post in posts[:10]">
         <div class="logo">
-            <py:choose>
-                <py:when test="post.project_icon_id">
-                    <img src="${baseurl}/home/projecticon?environment_name=${post.env_name}" />
-                </py:when>
-                <py:otherwise test="">
-                    <img src="${conf.theme_htdocs_location}/${conf.getThemePath()}images/d/Projects-icon.png" />
-                </py:otherwise>
-            </py:choose>
+            <img src="${post.project.icon_url}" />
         </div>
 
         <div class="desc">
-            <a href="${baseurl}/${post.env_name}" title="Go to project ${post.project_name}"><strong>${post.project_name}</strong></a>
+            <a href="${baseurl}/${post.project.env_name}" title="Go to project ${post.project.project_name}"><strong>${post.project.project_name}</strong></a>
             <py:choose>
                 <div py:when="post.type == 'NEWTOPIC'">
                     <a href="${baseurl}/${post.env_name}/discussion/topic/${post.id}" title="Go to topic ${post.subject}">

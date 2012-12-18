@@ -12,11 +12,46 @@ from multiproject.core.decorators import deprecated
 log = logging.getLogger('migration')
 
 
+def printer(msg, title=None, flag='note'):
+    """
+    Simple console print. Example usage::
+
+        # Create functions with defaults
+        printout = lambda msg, title=None: printer(msg, title)
+        printok = lambda msg, title=None: printer(msg, title, 'success')
+        printerr = lambda msg, title=None: printer(msg, title, 'error')
+
+        printout('FYI')
+        printerr('Uh-oh')
+        printerr('Uh-oh', 'FAIL')
+        printok('Looking good')
+        printok('Looking good', 'Custom title')
+
+        # Using directly
+        printer('Hello world', title='Welcome!', flag='note')
+
+    :param str msg: Message to show
+    :param str title: Optional title to set/highlight
+    :param str flag: Message flag that
+    """
+    templates = {
+        'note': "{0}: {1}",
+        'success': "\033[32m{0}\033[0m: {1}",
+        'warning': "\033[44m{0}\033[0m: {1}",
+        'error': "\033[31m{0}\033[0m: {1}",
+    }
+    print templates.get(flag, '{0}{1}').format(title or flag.upper(), msg)
+
+
 class MigrateBase(object):
     def __init__(self):
         self.id = ""
         self.description = ""
         self.manager = MigrateMgr.instance()
+        self.printout = lambda msg, title=None: printer(msg, title)
+        self.printerr = lambda msg, title=None: printer(msg, title, 'error')
+        self.printwarn = lambda msg, title=None: printer(msg, title, 'warning')
+        self.printok = lambda msg, title=None: printer(msg, title, 'success')
 
     def upgrade(self):
         return
@@ -117,6 +152,11 @@ class MigrateMgr(object):
     def __init__(self):
         if MigrateMgr.__instance:
             raise SingletonExistsException('Singleton Error')
+
+        self.printout = lambda msg, title=None: printer(msg, title)
+        self.printerr = lambda msg, title=None: printer(msg, title, 'error')
+        self.printwarn = lambda msg, title=None: printer(msg, title, 'warning')
+        self.printok = lambda msg, title=None: printer(msg, title, 'success')
         self.__migrations = {}
 
     @staticmethod
@@ -213,8 +253,7 @@ class MigrateMgr(object):
         """
         last_migrated = self.last_installed_migration_id()
         if last_migrated not in self.__migrations:
-            print ("\nError: \nMigration script for the latest "
-                   "migration was not found: \n%s" % last_migrated)
+            self.printerr("Migration %s not found!" % last_migrated)
             return
 
         # Return if no point in migration
@@ -234,7 +273,7 @@ class MigrateMgr(object):
                 try:
                     needed_ids.remove(last_migrated)
                 except:
-                    print "Migration %s not found!" % str(last_migrated)
+                    self.printerr("Migration %s not found!" % last_migrated)
             self.upgrade(needed_ids)
         else:
             needed_ids.reverse()
@@ -246,15 +285,15 @@ class MigrateMgr(object):
         """
         success_ids = []
         for id in migration_ids:
-            print "Upgrading   " + id
+            self.printwarn(id, 'UPGRADING')
             self.__migrations[id].upgrade()
 
             if self.__migrations[id].applied():
                 self.report_upgrade(id)
                 success_ids.append(id)
-                print "            Done"
+                self.printok('Upgrade completed')
             else:
-                print "            \033[31mFailed\033[0m"
+                self.printerr('Upgrade failed')
                 break
         return success_ids
 
@@ -263,15 +302,15 @@ class MigrateMgr(object):
         """
         success_ids = []
         for id in migration_ids:
-            print "Downgrading " + id
+            self.printwarn(id, 'DOWNGRADING')
             self.__migrations[id].downgrade()
 
             if not self.__migrations[id].applied():
                 self.report_downgrade(id)
                 success_ids.append(id)
-                print "            Done"
+                self.printok('Downgrade completed')
             else:
-                print "            \033[31mFailed\033[0m"
+                self.printerr('Downgrade failed')
                 break
         return success_ids
 
@@ -310,33 +349,27 @@ class MigrateMgr(object):
         new_noticed = False
         print '\nNEW AND INSTALLED MIGRATIONS'
         print '---------------------------------------------------------------'
-        last_line = '' # To print also the last installed before the first new one
         for migration in migrations:
             if migration in installed:
                 if new_noticed:
-                    print last_line
-                last_line = 'installed : %s' % migration
+                    self.printwarn(migration, 'INSTALLED')
             else:
                 new_noticed = True
-                if last_line:
-                    print last_line
-                last_line = 'new       : %s' % migration
                 new_migrations.append(migration)
-        print last_line
         self.upgrade(new_migrations)
 
     def cherry_pick(self, target_migration, update=True):
         installed = set(self.list_installed())
         if target_migration not in self.__migrations:
-            print "The cherry-picked migration was not found"
+            self.printerr("The cherry-picked migration was not found")
         if update:
             if target_migration in installed:
-                print "Migration already installed, cannot upgrade: %s"%target_migration
+                self.printerr("Migration already installed, cannot upgrade: %s" % target_migration)
             else:
                 self.upgrade([target_migration])
         else:
             if not target_migration in installed:
-                print "Migration not applied, cannot downgrade: %s"%target_migration
+                self.printerr("Migration not applied, cannot downgrade: %s" % target_migration)
             else:
                 self.downgrade([target_migration])
 
@@ -349,6 +382,6 @@ class MigrateMgr(object):
         migrations.sort()
         for migration in migrations:
             if migration in installed:
-                print 'installed : %s' % migration
+                self.printok(migration, 'INSTALLED')
             else:
-                print 'new       : %s' % migration
+                self.printwarn(migration, 'NEW      ')

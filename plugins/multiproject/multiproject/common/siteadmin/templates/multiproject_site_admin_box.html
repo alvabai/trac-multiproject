@@ -1,0 +1,28 @@
+<!DOCTYPE html
+        PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:i18n="http://genshi.edgewall.org/i18n">
+<div class="wrapper">
+    <div>
+        <div class="siteadmin-wrapper" py:if="user_create">
+            <div class="admin-link">
+                <a href="/home/admin/users/create_local">Create User</a>
+            </div>
+        </div>
+        <div class="siteadmin-wrapper" py:if="user_author">
+            <div class="admin-link">
+                <a href="/home/admin/users/manage">Manage Users</a>
+            </div>
+        </div>
+        <div class="siteadmin-wrapper last">
+            <div class="admin-link">
+                <a href="/home/admin">Home Admin Page</a>
+            </div>
+        </div>
+
+    </div>
+</div>
+</html>
