@@ -37,9 +37,13 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
     icon_size = DimensionOption('multiproject-projects', 'icon_size', default='64x64', doc='Icon size, separated with comma or x. Example: 64x64')
     content_types = {
         'image/png': 'png',
+        'image/x-png': 'png',
+        'image/bmp': 'bmp',
+        'image/tiff': 'tiff',
+        'image/pjpeg': 'jpeg',
         'image/jpeg': 'jpeg',
         'image/jpg': 'jpeg',
-        'image/tiff': 'tiff',
+        'image/gif': 'gif',
     }
 
     # IRequestFilter methods
@@ -171,7 +175,7 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
         icon_size = self.icon_size
 
         if icon_format not in self.content_types:
-            raise TracError('Unsupported image format')
+            raise TracError('Unsupported image format: %s' % icon_format)
 
         md5hash = md5()
         md5hash.update(icon_data)
@@ -183,14 +187,26 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
         with open(icon_path, 'w+b') as fd:
             try:
                 img = Image.open(StringIO(icon_data))
-                # Resize first by keeping the ratio, then convert to have alpha channel and then for to given size
-                img.thumbnail((icon_width, icon_height), Image.ANTIALIAS)
-                img = img.convert("RGBA")
-                img = img.transform((icon_width, icon_height), Image.EXTENT, (0, 0, icon_width, icon_height))
-                img.save(icon_path)
+
+                # Load the image right away so that we can access the image bands
+                img.load()
+                bands = img.split()
+
+                # Prevent IOError: cannot write mode RGBA as BMP
+                if len(bands) == 3:
+                    r, g, b = bands
+                    img = Image.merge("RGB", (r, g, b))
+                    img.save(icon_path)
+                else:
+                    # Resize first by keeping the ratio, then convert to have alpha channel and then for to given size
+                    img.thumbnail((icon_width, icon_height), Image.ANTIALIAS)
+                    img = img.convert("RGBA")
+                    img = img.transform((icon_width, icon_height), Image.EXTENT, (0, 0, icon_width, icon_height))
+                    img.save(icon_path)
+
                 self.log.info('Saved project icon to %s' % icon_path)
             except IOError, err:
-                self.log.error('Failed to save project icon: %s' % icon_path)
+                self.log.exception('Failed to save project icon: %s (%s)' % (icon_path, err))
                 return None
 
         return icon_name

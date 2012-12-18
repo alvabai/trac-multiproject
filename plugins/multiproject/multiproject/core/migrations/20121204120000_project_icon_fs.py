@@ -34,9 +34,17 @@ class ProjectIcons2FS(MigrateBase):
         self.projects_dir = conf.get('multiproject', 'sys_projects_root')
         self.content_types = {
             'image/png': 'png',
+            'image/x-png': 'png',
+            'image/bmp': 'bmp',
+            'image/tiff': 'tiff',
+            'image/pjpeg': 'jpeg',
             'image/jpeg': 'jpeg',
             'image/jpg': 'jpeg',
             'image/gif': 'gif',
+            'image/xml+svg': 'svg',
+            'image/svg+xml': 'svg',
+            'image/x-icon': 'ico',
+            'application/octet-stream': 'ext'
         }
         # Parse option value using custom Trac option: DimensionOption
         value = conf.get('multiproject-projects', 'icon_size', '64x64')
@@ -101,11 +109,17 @@ class ProjectIcons2FS(MigrateBase):
 
                     try:
                         self._save_image(row['icon_data'], image_path)
+                        self.printout('Save project image: %s' % image_path)
                     except IOError, err:
-                        self.printerr('Failed to save image: %s. Please fix before continue' % err)
-                        return
+                        self.printwarn('Failed to save image: %s. Dumping the file as is: %s' % (err, image_path))
 
-                    self.printout('Save project image: %s' % image_path)
+                        with open(image_path, 'w+b') as fd:
+                            try:
+                                fd.write(row['icon_data'])
+                            except IOError:
+                                self.printerr('Failed to write the file: %s. Please fix before continue' % image_path)
+                                return
+
                     project_icons[row['id']] = image_name
 
                 except KeyError:
@@ -174,11 +188,22 @@ class ProjectIcons2FS(MigrateBase):
         with open(path, 'w+b') as fd:
             try:
                 img = Image.open(StringIO(data))
-                # Resize images if needed, and force them to specified size
-                img.thumbnail((icon_width, icon_height), Image.ANTIALIAS)
-                img = img.convert("RGBA")
-                img = img.transform((icon_width, icon_height), Image.EXTENT, (0, 0, icon_width, icon_height))
-                img.save(path)
+
+                # Load the image right away so that we can access the image bands
+                img.load()
+                bands = img.split()
+
+                # Prevent IOError: cannot write mode RGBA as BMP
+                if len(bands) == 3:
+                    r, g, b = bands
+                    img = Image.merge("RGB", (r, g, b))
+                    img.save(path)
+                else:
+                    # Resize first by keeping the ratio, then convert to have alpha channel and then for to given size
+                    img.thumbnail((icon_width, icon_height), Image.ANTIALIAS)
+                    img = img.convert("RGBA")
+                    img = img.transform((icon_width, icon_height), Image.EXTENT, (0, 0, icon_width, icon_height))
+                    img.save(path)
 
             except Exception, err:
                 raise IOError('Failed to create image %s, skipping it (%s)' % (path, err))
