@@ -89,6 +89,8 @@ class PermissionsAdminPanel(Component):
         else:
             membership_requests = set()
 
+        permissions = set(perm_sys.get_actions())
+
         # check if project if current configuration and permission state is in such state that
         # permission editions are likely fail
         invalid_state = None
@@ -104,7 +106,7 @@ class PermissionsAdminPanel(Component):
         return 'permissions.html', {
             'perm_data': self._perm_data(group_store, perm_sys),
             'theme_htdocs_location': self.env.config.get('multiproject', 'theme_htdocs_location', '/htdocs/theme'),
-            'permissions': sorted(perm_sys.get_actions()),
+            'permissions': sorted(permissions),
             'organizations': sorted([org.name for org in org_store.get_organizations()]),
             'use_organizations': self.config.getbool('multiproject-users', 'use_organizations', False),
             'use_ldap': self.config.getbool('multiproject', 'ldap_groups_enabled', False),
