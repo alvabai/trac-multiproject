@@ -93,7 +93,7 @@ function removeMember(element) {
     var type = li.find('input[name="type"]').val();
     var token = li.find('input[name="__FORM_TOKEN"]').val();
     var content = { member: member, group: group, __FORM_TOKEN: token,
-        action: 'remove_member', ajax: 'true', type: type };
+        action: 'remove_member', type: type };
 
     $(element).removeClass('remove_member');
     $(element).addClass('loading');
@@ -103,19 +103,22 @@ function removeMember(element) {
         data: content,
         type: 'POST',
         success: function(response) {
-            if (response == 'SUCCESS') {
-                li.fadeOut('fast', function() { li.remove() } );
-            } else {
-                $(element).removeClass('loading');
-                $(element).addClass('remove_member');
-                alert('Sorry, failed to remove the member due server error!')
+            if (typeof response != 'object') {
+                alert('ERROR: Invalid server response, expected JSON');
+                return;
             }
-        },
-        error: function(data){
-            // TODO: DRY
+            li.fadeOut('fast', function() { li.remove() } );
             $(element).removeClass('loading');
             $(element).addClass('remove_member');
-            alert('Sorry, failed to remove the member due server error!')
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            $(element).removeClass('loading');
+            $(element).addClass('remove_member');
+            if (textStatus == 'error' && errorThrown == 'Forbidden') {
+                alert(jqXHR.responseText);
+            } else {
+                alert('Unexpected server or communication error. Try again later.');
+            }
         }
     });
 }
@@ -127,7 +130,8 @@ function removePermission(element) {
     var permission = li.find('input[name="permission"]').val();
     var group = li.find('input[name="group"]').val();
     var token = li.find('input[name="__FORM_TOKEN"]').val();
-    var content = { permission: permission, group: group, __FORM_TOKEN: token, action: 'remove_permission', ajax: 'true' };
+    var content = { permission: permission, group: group, __FORM_TOKEN: token,
+        action: 'remove_permission'};
 
     $(element).removeClass('remove_permission');
     $(element).addClass('loading');
@@ -136,36 +140,40 @@ function removePermission(element) {
         url: document.URL,
         data: content,
         type: 'POST',
-        success: function(data) {
-            if (data['result'] == 'SUCCESS') {
-                if (data['removed'].length == 0) {
-                    // no permission was really removed, it's still given implicitly
-                    $(element).removeClass('loading');
-                    $(element).addClass('remove_permission');
-                    alert('NOTE: The removed permission is still given implictly through another higher permission.');
-                    window.location.href=window.location.href;
-                }
-                for (var i = 0; i < data['removed'].length; i++) {
-                    var removed = data['removed'][i];
-                    ul.find("li:contains('" + removed + "')").fadeOut('fast', function() { $(this).remove() } );
-                }
-                // update implicit count
-                var a = ul.parent().find('a');
-                if (data['remaining'] == 0) {
-                    a.fadeOut('fast');
-                } else {
-                    a.text(a.text().replace(/[\d\.]+/g, data['remaining']));
-                }
-            } else {
+        success: function(response) {
+            if (typeof response != 'object') {
+                alert('ERROR: Invalid server response, expected JSON');
+                return;
+            }
+
+            if (response['removed'].length == 0) {
+                // no permission was really removed, it's still given implicitly
                 $(element).removeClass('loading');
                 $(element).addClass('remove_permission');
-                alert('Invalid server response!');
+                alert('NOTE: The removed permission is still given implictly through another higher permission.');
+                window.location.href=window.location.href;
             }
+            for (var i = 0; i < response['removed'].length; i++) {
+                var removed = response['removed'][i];
+                ul.find("li:contains('" + removed + "')").fadeOut('fast', function() { $(this).remove() } );
+            }
+            // update implicit count
+            var a = ul.parent().find('a');
+            if (response['remaining'] == 0) {
+                a.fadeOut('fast');
+            } else {
+                a.text(a.text().replace(/[\d\.]+/g, response['remaining']));
+            }
+
         },
-        error: function(data){
+        error: function(jqXHR, textStatus, errorThrown) {
             $(element).removeClass('loading');
             $(element).addClass('remove_permission');
-            alert('Permission could not be removed!');
+            if (textStatus == 'error' && errorThrown == 'Forbidden') {
+                alert(jqXHR.responseText);
+            } else {
+                alert('Unexpected server or communication error. Try again later.');
+            }
         }
     });
 

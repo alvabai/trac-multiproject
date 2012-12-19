@@ -13,7 +13,7 @@ from multiproject.core.restful import send_json
 from multiproject.common.membership.api import MembershipApi
 from multiproject.common.projects import Project
 from multiproject.core.configuration import Configuration
-from multiproject.core.permissions import CQDEUserGroupStore, CQDEOrganizationStore
+from multiproject.core.permissions import CQDEUserGroupStore, CQDEOrganizationStore, InvalidPermissionsState
 
 
 class PermissionsAdminPanel(Component):
@@ -91,6 +91,18 @@ class PermissionsAdminPanel(Component):
 
         permissions = set(perm_sys.get_actions())
 
+        # check if project if current configuration and permission state is in such state that
+        # permission editions are likely fail
+        invalid_state = None
+        try:
+            group_store.is_valid_group_members()
+        except InvalidPermissionsState, e:
+            add_warning(req, _('Application permission configuration conflicts with project permissions. '
+                               'Before you can fully edit permissions or users you will need to either remove '
+                               'offending permissions or set correct application configuration. Page reload'
+                               'is required to update this warning.'))
+            add_warning(req, e.message)
+
         return 'permissions.html', {
             'perm_data': self._perm_data(group_store, perm_sys),
             'theme_htdocs_location': self.env.config.get('multiproject', 'theme_htdocs_location', '/htdocs/theme'),
@@ -98,7 +110,8 @@ class PermissionsAdminPanel(Component):
             'organizations': sorted([org.name for org in org_store.get_organizations()]),
             'use_organizations': self.config.getbool('multiproject-users', 'use_organizations', False),
             'use_ldap': self.config.getbool('multiproject', 'ldap_groups_enabled', False),
-            'membership_requests': membership_requests
+            'membership_requests': membership_requests,
+            'invalid_state': invalid_state
         }
 
     def _perm_data(self, group_store, perm_sys):
@@ -167,6 +180,12 @@ class PermissionsAdminPanel(Component):
         return perm_data
 
     def _add_user(self, req, group_store, membership, username=None):
+        """
+        :param req: Request
+        :param group_store: CQDEUserGroupStore
+        :param membership: Membership API
+        :param username: Override username from the request
+        """
         req.perm.require('PERMISSION_GRANT')
 
         if username is None:
@@ -178,7 +197,7 @@ class PermissionsAdminPanel(Component):
 
         # Get/check if user exists
         auth = Authentication()
-        trac_username = auth.get_trac_username(username)
+        username = auth.get_trac_username(username)
 
         # check if already exists
         if username in [e[0] for e in group_store.get_all_user_groups() if e[1] == group]:
@@ -186,7 +205,7 @@ class PermissionsAdminPanel(Component):
             return
 
         # User does not yet exists in multiproject database => retrieve and create user from authentication backend(s)
-        if not trac_username:
+        if not username:
             # Create user using authentication backends and sync functionality
             if not auth.sync_user(username):
                 # Show warning with possibility to create a local user - if user has enough permissions.
@@ -195,35 +214,33 @@ class PermissionsAdminPanel(Component):
 
                 if 'USER_CREATE' in home_perm:
                     link = Href(self.conf.url_home_path)('admin/users/create_local',
-                            {'goto': req.abs_href(req.path_info)})
+                                                         {'goto': req.abs_href(req.path_info)})
                     create_link = Markup('<a href="%s">%s</a>' % (link, _('create a local user?')))
                     add_warning(req, _('User "%(username)s" can not be found. Check name or ',
-                        username=username) + create_link)
+                                username=username) + create_link)
                 else:
                     add_warning(req, _('User "%(username)s" can not be found. Please check the name.',
-                        username=username))
+                                username=username))
                 return
 
             add_notice(req, _('Added user %s to service' % username))
             # Now, retrieve the username again
-            trac_username = auth.get_trac_username(username)
+            username = auth.get_trac_username(username)
 
-        # If adding user in group it means that membership is accepted
-        if trac_username in membership.get_membership_requests():
-            membership.accept_membership(trac_username)
-            add_notice(req, _('Membership request has been accepted for %(who)s.', who=trac_username))
+        # when adding to normal project, accept possible membership requests
+        if membership is not None:
+            # If adding user in group it means that membership is accepted
+            if username in membership.get_membership_requests():
+                membership.accept_membership(username)
+                add_notice(req, _('Membership request has been accepted for %(who)s.', who=username))
 
-        if not group_store.can_add_user_to_group(trac_username, group):
-            add_warning(req, _("Can't add anonymous to that group. Group "
-                               "contains permissions that are not allowed for anonymous."))
-            return
-
-        if group_store.add_user_to_group(trac_username, group):
+        try:
+            group_store.add_user_to_group(username, group)
             add_notice(req, _('User %(who)s has been added to group %(where)s.',
-                who=trac_username, where=group))
-        else:
-            add_warning(req, _('User %(who)s cannot be added to group %(where)s.',
-                who=trac_username, where=group))
+                       who=username, where=group))
+        except InvalidPermissionsState, e:
+            add_warning(req, _('User %(who)s cannot be added to group %(where)s. %(reason)s',
+                        who=username, where=group, reason=e.message))
 
     def _add_perm_to_group(self, req, group_store, perm_sys):
         req.perm.require('PERMISSION_GRANT')
@@ -250,19 +267,16 @@ class PermissionsAdminPanel(Component):
                     permission=permission, group=group))
                 return
 
-        if not group_store.can_grant_permission_to_group(group, permission):
-            add_warning(req, _("Can't give that permission for anonymous."))
-            return
-
         # TODO: this was in original ui implementation, but why?
         req.perm.require(permission)
 
-        if group_store.grant_permission_to_group(group, permission):
+        try:
+            group_store.grant_permission_to_group(group, permission)
             add_notice(req, _('The group %(where)s has been granted the permission %(what)s.',
-                where=group, what=permission))
-        else:
-            add_warning(req, _('The permission %(what)s cannot be granted to group %(where)s.',
-                what=permission, where=group))
+                       where=group, what=permission))
+        except InvalidPermissionsState, e:
+            add_warning(req, _('The permission %(what)s cannot be granted to group %(where)s. %(reason)s',
+                        what=permission, where=group, reason=e.message))
 
     def _remove_group(self, req, group_store):
         req.perm.require('PERMISSION_REVOKE')
@@ -282,53 +296,26 @@ class PermissionsAdminPanel(Component):
         member = req.args.get('member')
         member_type = req.args.get('type')
         group = req.args.get('group')
-        ajax = req.args.get('ajax')
 
         if not member or not group or member_type not in self.MEMBER_TYPES:
             raise TracError('Invalid arguments')
 
         if member_type in ('user', 'login_status'):
-            if group_store.remove_user_from_group(member, group):
-                if ajax == 'true':
-                    req.send('SUCCESS', content_type='text/html', status=200)
-                    return
-                add_notice(req, _('User %(who)s has been removed from group %(where)s.',
-                    who=member, where=group))
-            else:
-                if ajax == 'true':
-                    req.send('FAIL', content_type='text/html', status=200)
-                    return
-                else:
-                    add_warning(req, _('User %(who)s cannot be removed from group %(where)s.',
-                        who=member, where=group))
+            try:
+                group_store.remove_user_from_group(member, group)
+                send_json(req, {})
+            except InvalidPermissionsState, e:
+                req.send(e.message, content_type='text/plain', status=403)
+            except ValueError, e:
+                req.send(e.message, content_type='text/plain', status=403)
 
         elif member_type == 'organization':
-            if group_store.remove_organization_from_group(member, group):
-                if ajax == 'true':
-                    req.send('SUCCESS', content_type='text/html', status=200)
-                    return
-                add_notice(req, _('Organization %(who)s has been removed from group %(where)s.',
-                    who=member, where=group))
-            else:
-                if ajax == 'true':
-                    req.send('FAIL', content_type='text/html', status=200)
-                    return
-                add_warning(req, _('Organization %(who)s cannot be removed from group %(where)s.',
-                    who=member, where=group))
+            group_store.remove_organization_from_group(member, group)
+            req.send('SUCCESS', content_type='text/html', status=200)
 
         elif member_type == 'ldap':
-            if group_store.remove_ldapgroup_from_group(member, group):
-                if ajax == 'true':
-                    req.send('SUCCESS', content_type='text/html', status=200)
-                    return
-                add_notice(req, _('LDAP group %(who)s has been removed from group %(where)s.',
-                    who=member, where=group))
-            else:
-                if ajax == 'true':
-                    req.send('FAIL', content_type='text/html', status=200)
-                    return
-                add_warning(req, _('LDAP group %(who)s cannot be removed from group %(where)s.',
-                    who=member, where=group))
+            group_store.remove_ldapgroup_from_group(member, group)
+            req.send('SUCCESS', content_type='text/html', status=200)
 
     def _remove_permission(self, req, group_store, perm_sys):
         req.perm.require('PERMISSION_REVOKE')
@@ -336,7 +323,7 @@ class PermissionsAdminPanel(Component):
         group = req.args['group']
         permission = req.args['permission']
 
-        def get_perms():
+        def group_perms():
             res = []
             for permission, enabled in perm_sys.get_user_permissions(group).iteritems():
                 if not enabled:
@@ -344,27 +331,16 @@ class PermissionsAdminPanel(Component):
                 res.append(permission)
             return res
 
-        before = get_perms()
-
-        if group_store.revoke_permission_from_group(group, permission):
-            removed = set(before) - set(get_perms())
-            if req.args.get('ajax') == 'true':
-                remaining = self._perm_data(group_store, perm_sys)[group]['implicit_count']
-                send_json(req, {'result': 'SUCCESS',
-                                'removed': list(removed),
-                                'remaining': remaining})
-                return
-            else:
-                add_notice(req, _('The permission %(what)s has been revoked from %(where)s.',
-                    what=permission, where=group))
-        else:
-            if req.args.get('ajax') == 'true':
-                send_json(req, {'result': 'FAIL'}, status=500)
-                req.send('SUCCESS', content_type='text/html', status=200)
-                return
-            else:
-                add_warning(req, _('The permission %(what)s cannot be revoked from %(where)s.',
-                    what=permission, where=group))
+        try:
+            before = group_perms()
+            group_store.revoke_permission_from_group(group, permission)
+            removed = set(before) - set(group_perms())
+            remaining = self._perm_data(group_store, perm_sys)[group]['implicit_count']
+            send_json(req, {'result': 'SUCCESS',
+                            'removed': list(removed),
+                            'remaining': remaining})
+        except InvalidPermissionsState, e:
+            req.send(e.message, content_type='text/plain', status=403)
 
     def _create_group(self, req, group_store, perm_sys):
         req.perm.require('PERMISSION_GRANT')
@@ -389,12 +365,11 @@ class PermissionsAdminPanel(Component):
         for perm in group_perms:
             if perm not in valid_perms:
                 raise TracError('Invalid permission %s' % perm)
-            if not group_store.can_grant_permission_to_group(group_name, perm):
-                add_warning(req, "Can't give that permission for anonymous.")
-                continue
-            if not group_store.grant_permission_to_group(group_name, perm):
-                add_warning(req, _('Unable to add permission %(perm)s to group %(group)s',
-                    perm=perm, group=group_name))
+            try:
+                group_store.grant_permission_to_group(group_name, perm)
+            except InvalidPermissionsState, e:
+                add_warning(req, _('Unable to add permission %(perm)s to group %(group)s. %(reason)s',
+                            perm=perm, group=group_name, reason=e.message))
 
     def _add_organization(self, req, group_store):
         req.perm.require('PERMISSION_GRANT')
@@ -405,10 +380,10 @@ class PermissionsAdminPanel(Component):
         try:
             group_store.add_organization_to_group(organization, group_name)
             add_notice(req, _('Organization %(organization)s added to group %(group)s',
-                group=group_name, organization=organization))
+                       group=group_name, organization=organization))
         except ValueError:
             add_warning(req, _('Organization %(organization)s already exists in group %(group)s',
-                group=group_name, organization=organization))
+                        group=group_name, organization=organization))
 
     def _add_ldap_group(self, req, group_store):
         req.perm.require('PERMISSION_GRANT')
@@ -417,7 +392,7 @@ class PermissionsAdminPanel(Component):
         ldap_group_name = req.args.get('ldap_group', '').strip()
         ldap_group_name = ldap_group_name.upper()
 
-        if re.search(r'[^\_A-Z0-9]', ldap_group_name): # allowed characters
+        if re.search(r'[^\_A-Z0-9]', ldap_group_name):  # allowed characters
             add_warning(req, 'LDAP group name can contain only alphanumeric characters and underline.')
             return
 
@@ -426,12 +401,9 @@ class PermissionsAdminPanel(Component):
                                'but you have not specified all the required parameters.'))
             return
 
-        if group_store.add_ldapgroup_to_group(ldap_group_name, group_name):
-            add_notice(req, _('LDAP group %(who)s has been added to group %(where)s.',
-                who=ldap_group_name, where=group_name))
-        else:
-            add_warning(req, _('LDAP group %(who)s cannot be added to group %(where)s.',
-                who=ldap_group_name, where=group_name))
+        group_store.add_ldapgroup_to_group(ldap_group_name, group_name)
+        add_notice(req, _('LDAP group %(who)s has been added to group %(where)s.',
+                   who=ldap_group_name, where=group_name))
 
     def _decline_membership(self, req, membership):
         username = req.args.get('applicant')
