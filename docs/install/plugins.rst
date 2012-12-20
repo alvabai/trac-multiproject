@@ -125,7 +125,7 @@ Installation
 
             sudo cp -a scripts/cron/* /var/www/trac/scripts
 
-        Modify cron jobs if needed (``sudo -u www-data crontab -e``)::
+        Modify cron jobs if needed (``sudo crontab -u www-data -e``)::
 
             # Generate global timeline event data from project specific timeline events
             0 * * * * python /var/www/trac/scripts/rss_generator.py
@@ -249,13 +249,17 @@ Trac mastertickets is a plugin that allows users to make tickets block other tic
 drawing of dependencies between tickets, if graphviz has been installed. Together with childtickets,
 it offers quite good possibility of doing dependant tickets. MultiProject plugin uses the master version:
 
-#.  Install plugin::
+#.  Install plugin (directory name depends on current revision)::
 
         wget --no-check-certificate -O trac-mastertickets.tar.gz https://github.com/coderanger/trac-mastertickets/tarball/master
         tar -xzf trac-mastertickets.tar.gz
         cd coderanger-trac-mastertickets-43a7537
         sudo python setup.py install
         cd -
+
+#. Install graphviz if not installed already::
+
+        sudo apt-get install graphviz
 
 #.  Configure plugin and set custom fields in ``/etc/trac/project.ini``:
 

@@ -11,6 +11,7 @@ Authors
 =======
 Following authors have greatly affected on project (in alphabetical order):
 
+- Aleksi Hänninen
 - Ari Rusakko
 - Juha Mustonen
 - Kalle Kivistö
@@ -22,6 +23,7 @@ Following authors have greatly affected on project (in alphabetical order):
 - Pasi Hirvonen
 - Petri Ketonen
 - Piia Ruokonen
+- Timo Ojala
 - Tomi Näränen
 - Tuomas Puranen
 

@@ -69,26 +69,30 @@ the features are to be enabled.
 
     Genshi is the base for Trac's HTML generation system. MultiProject depends on a 0.6.x version::
 
-        sudo pip install http://svn.edgewall.org/repos/genshi/branches/stable/0.6.x/
+        sudo easy_install http://svn.edgewall.org/repos/genshi/branches/stable/0.6.x/
 
 #.  Patch and install Trac:
 
     Trac is patched somewhat by MultiProject, to allow childtickets a better integration, amongst other things.
     To patch, build and install Trac::
 
-        wget http://ftp.edgewall.com/pub/trac/Trac-0.12.1.tar.gz
-        tar -xzf Trac-0.12.1.tar.gz
-        cd Trac-0.12.1/
+        wget http://ftp.edgewall.com/pub/trac/Trac-0.12.3.tar.gz
+        tar -xzf Trac-0.12.3.tar.gz
+        cd Trac-0.12.3/
         patch -p0 --ignore-whitespace < ../ext/patches/trac/*.patch
         sudo python setup.py install
         cd -
+
+    If patching with the * wildcard doesn't work, patch the files one by one.
 
 #.  Install MultiProject:
 
     Install MultiProject plugin already at this point, as it is being widely used by the tools and configurations
     used below::
 
-        sudo easy_install -Z TracMultiProject*.egg
+        cd plugins/multiproject
+        sudo python setup.py install
+        cd -
 
 #.  Install and enable Apache modules:
 
@@ -146,7 +150,7 @@ are configuration files for used services like Apache, MySQL etc.
 
 #.  Copy default configuration from MultiProject package::
 
-        sudo cp etc/trac/* /var/www/config/
+        sudo cp etc/trac/* /var/www/trac/config/
 
 
 .. _install-server-db:
@@ -168,14 +172,14 @@ Follow the steps to create databases:
 #.  Secure MySQL server
 
     - Run ``/usr/bin/mysql_secure_installation`` to set sane defaults for the MySQL server
-    - Listen only required addresses by setting in ``/etc/my.cnf``::
+    - Listen only required addresses by setting in ``/etc/mysql/my.cnf``::
 
         [mysqld]
         bind-address=127.0.0.1
 
     - Restart MySQL server::
 
-        /etc/init.d/mysqld restart
+        sudo service mysql restart
 
 #.  Create database user specific for the service. This user is used accessing both administrative databases as well
     as all the project databases::
@@ -197,7 +201,7 @@ Follow the steps to create databases:
     starting point. The empty database dump is in the source repository: ``etc/templates/empty_database.sql``.
     This can be installed with::
 
-        mysql -u root -p < etc/mysql/empty_database.sql
+        mysql -u root -p < etc/templates/mysql/empty_database.sql
 
     .. warning::
 
@@ -228,7 +232,9 @@ Follow the steps to create databases:
 
     To migrate to latest version, provide the latest migration name as a parameter::
 
-        python update.py --update=20120210150000_project_events
+        python ./scripts/update.py --update-new
+
+    If some migration doesn't work, try running it again.
 
     .. tip::
 
@@ -253,9 +259,9 @@ the MultiProject plugin version control.
 
 #.  **Copy default configuration** files from package and link them::
 
-        cp etc/httpd/conf.d/* /var/www/trac/config/
-        ln -s /var/www/trac/config/multiproject.conf /etc/apache2/conf.d/multiproject.conf
-        ln -s /var/www/trac/config/multiproject-access.conf /etc/apache2/conf.d/multiproject-access.conf
+        sudo cp etc/templates/httpd/conf.d/* /var/www/trac/config/
+        sudo ln -s /var/www/trac/config/multiproject.conf /etc/apache2/conf.d/multiproject.conf
+        sudo ln -s /var/www/trac/config/multiproject-access.conf /etc/apache2/conf.d/multiproject-access.conf
 
 #.  Set :envvar:`HOME` variable in Apache startup script ``/etc/init.d/apache2``::
 
@@ -272,10 +278,10 @@ the MultiProject plugin version control.
     #.  Create certificate (or use existing one)::
 
             sudo make-ssl-cert /usr/share/ssl-cert/ssleay.cnf \
-            /var/trac/config/your-certificate.key
+            /var/www/trac/config/your-certificate.key
 
             sudo openssl req -new -key /var/trac/config/your-certificate.key \
-            -out /var/trac/config/your-certificate.csr
+            -out /var/www/trac/config/your-certificate.csr
 
         .. tip::
 
@@ -293,7 +299,7 @@ the MultiProject plugin version control.
             -signkey /var/www/trac/config/your-certificate.key \
             -out /var/www/trac/config/your-certificate.crt
 
-    #.  Modify Apache configuration as follows (replace ``localhost`` with correct domain name and certificate key):
+    #.  Modify Apache configuration (/etc/apache2/conf.d/multiproject.conf) as follows (replace ``localhost`` with correct domain name and certificate key):
 
         .. code-block:: apache
 
@@ -344,6 +350,7 @@ the MultiProject plugin version control.
 
             sudo a2enmod dav
             sudo a2enmod dav_fs
+            sudo a2enmod headers
             sudo service apache2 restart
 
     #.  Configure WebDAV root to match the environment setup:
@@ -385,12 +392,7 @@ the MultiProject plugin version control.
 
         If the installation is publicly accessible, HTML rendering must be disallowed to prevent
         potential CSRF abuse.
-
-        .. code-block:: bash
-
-            sudo a2enmod headers
-
-        Include following rule with in WebDAV directory definition.
+        Include following rule with in WebDAV directory definition (/etc/apache2/conf.d/multiproject.conf).
 
         .. code-block:: apache
 
@@ -429,3 +431,13 @@ actual projects. This special project is referred with the name ``home``
 
 
 If no errors are shown, go head and continue to :ref:`next chapter <install-plugin>`.
+
+If there are errors, try setting permissions::
+
+    sudo chown www-data:www-data /var/www/trac -R
+
+If you get error about Mercurial, try installing it::
+
+    sudo apt-get install mercurial
+
+and restarting apache.
