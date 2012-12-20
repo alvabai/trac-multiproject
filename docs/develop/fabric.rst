@@ -84,13 +84,13 @@ With fabric, building is just a simple task::
     fab dist.build:ext="true"
 
 The results of the build will be available in the ``dist/`` directory, in requested package formats.
-The task supports more build formats, possiblity to build the documentation and download and patch the
+The task supports more build formats, possibility to build the documentation and download and patch the
 external dependencies relevant to MultiProject plugin. For more information about these options see
-``fab -d dist.build``. If doing first install, the option ``ext="true"`` is a must, to include external
+``fab -d dist.build``. If doing first install, the option ``ext="all"`` is a must, to include external
 plugins in the installation process.
 
 Content of the package contains the MultiProject code, theme, configurations, scripts and
-following plugins::
+following plugins. If ext is 'true' instead of 'all', only the last three are included.::
 
     multiproject-all-1.0.0/plugins/Genshi-0.6.1dev_r1135-py2.7.egg
     multiproject-all-1.0.0/plugins/BatchModify-0.8.0_trac0.12-py2.7.egg
@@ -99,7 +99,6 @@ following plugins::
     multiproject-all-1.0.0/plugins/gitosis-0.2-py2.7.egg
     multiproject-all-1.0.0/plugins/TracXMLRPC-1.1.0_r8688-py2.7.egg
     multiproject-all-1.0.0/plugins/TracCustomFieldAdmin-0.2.8_r11265-py2.7.egg
-    multiproject-all-1.0.0/plugins/TracDownloads-0.3.mppv-py2.7.egg
     multiproject-all-1.0.0/plugins/TracDiscussion-0.8-py2.7.egg
     multiproject-all-1.0.0/plugins/Trac-0.12.4-py2.7.egg
     multiproject-all-1.0.0/plugins/TracMercurial-0.12.0.23dev_r9953-py2.7.egg
@@ -149,7 +148,6 @@ Typical example of this directory is something of the sorts::
             BatchModify.egg/
             TracMultiProject.egg/
             TracDiscussion.egg/
-            TracDownloads.egg/
         scripts/
         theme/
     current -> 20120117134959/

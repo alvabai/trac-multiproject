@@ -138,7 +138,7 @@ email domain.
 
         trac-admin /var/www/trac/projects/home mp user update org
 
-.. _import_old_files:
+.. _import-old-files:
 
 Migrating to Files Downloads
 ============================
@@ -189,7 +189,7 @@ tasks needed to be done.
     :class:`multiproject.project.files.wiki.ProjectDownloadsWiki` component overrides
     the TracDownloads links and
     :class:`multiproject.project.files.downloadsglue.DownloadsGlue`
-    overrides the TracDownloads macros. Thus, it should be disabled::
+    overrides the TracDownloads macros. Thus, it should be disabled, if it is installed::
 
         [components]
         tracdownloads.* = disabled

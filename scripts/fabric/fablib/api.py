@@ -22,7 +22,8 @@ from fabric.api import local
 from fablib.base import PROJECT_DIR, BUILD_DIR, SRC_DIRS, DIST_DIR, PLUGIN_DIRS, PKG_NAME
 from fablib.base import Resource, TarResource, GitResource, SVNResource, TemplateResource, HTMLResourceParser
 from fablib.base import get_files, get_bool_str, get_inc_version, set_version_in_file
-from fablib.base import logger, config, annotate_from_sshconfig, build_join, dist_join, join, rel_join, split_package_name
+from fablib.base import logger, config, annotate_from_sshconfig, build_join
+from fablib.base import dist_join, join, rel_join, split_package_name, get_ext_path
 from fablib.utils import Service, Apache, exists, get, sudo, put, run, abort
 
 

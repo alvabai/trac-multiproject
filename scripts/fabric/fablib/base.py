@@ -134,6 +134,10 @@ class Resource(object):
 
         return output
 
+    def __str__(self):
+        return "Fabric {0}, resource id: {1}, fetched from {2}".format(
+            self.__class__.__name__, self.name, self.url)
+
 
 class TarResource(Resource):
     """
@@ -228,7 +232,7 @@ class GitResource(Resource):
 
         """
         temp_dir = tempfile.mkdtemp()
-        cmd = 'git clone --depth 1 -q %s %s' % (self.url, temp_dir)
+        cmd = 'git clone -q %s %s' % (self.url, temp_dir)
         if auth:
             logger.warning('Authentication is not supported - trying to clone repository without')
 
@@ -432,6 +436,7 @@ class Config(object):
             'mc_hosts': '',
             'tmp_dir': '/tmp',
             'log_level': 'info',
+            'ext_path_template': 'ext/plugins/{ext_name}',
         }
 
 class HTMLResourceParser(HTMLParser):
@@ -675,6 +680,17 @@ def split_package_name(packagename):
         extension = ''
 
     return match.group('name'), version, extension
+
+
+def get_ext_path(ext_name):
+    ext_path_template = config.get('ext_path_template')
+    try:
+        # Raise exception if {ext_name} was not found
+        ext_path_template.index('{ext_name}')
+        return rel_join(ext_path_template.format(ext_name=ext_name))
+    except ValueError:
+        # We assume that the template is the root of the ext dir
+        return rel_join(ext_path_template, ext_name)
 
 
 # Define handy and required global parameters

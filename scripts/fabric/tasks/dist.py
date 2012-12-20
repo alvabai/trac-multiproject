@@ -15,13 +15,36 @@ from fablib.api import PROJECT_DIR, BUILD_DIR, PLUGIN_DIRS, DIST_DIR, PKG_NAME, 
 from fablib.api import build_join, dist_join, get_files, get_bool_str, set_version_in_file, join, rel_join
 from fablib.api import TarResource, SVNResource, GitResource, TemplateResource, HTMLResourceParser
 from fablib.api import exists, run, sudo, put, abort, logger, config, split_package_name
+from fablib.api import get_ext_path
 from fablib.utils import Apache
 
 
+ext_resources = [
+    # External plugins
+    TarResource('trac', 'http://ftp.edgewall.com/pub/trac/Trac-0.12.4.tar.gz'),
+    TarResource('trac-mastertickets',
+        'https://github.com/coderanger/trac-mastertickets/tarball/af6c1df92629a7dd9cc8cfeb21d0aeef6bb013a3'),
+    TarResource('gitosis', 'https://github.com/tv42/gitosis/tarball/dedb3dc63f413ed6eeba8082b7e93ad136b16d0d'),
+    TarResource('trac-git', 'https://github.com/hvr/trac-git-plugin/tarball/master'),
+    SVNResource('trac-genshi', 'http://svn.edgewall.org/repos/genshi/branches/stable/0.6.x -r 1135'),
+    SVNResource('trac-mercurial', 'http://svn.edgewall.com/repos/trac/plugins/0.12/mercurial-plugin -r 10108'),
+    SVNResource('trac-xmlrpc', 'http://trac-hacks.org/svn/xmlrpcplugin/trunk -r 8869'),
+    SVNResource('trac-customfieldadmin', 'http://trac-hacks.org/svn/customfieldadminplugin/0.11 -r 11265'),
+    # Own forks of plugins
+    GitResource('batchmodify', 'https://projects.developer.nokia.com/git/batchmodify'),
+    GitResource('childtickets', 'https://projects.developer.nokia.com/git/childtickets'),
+    GitResource('tracdiscussion', 'https://projects.developer.nokia.com/git/tracdiscussion'),
+    ]
+
+
 @task
-def clean():
+def clean(ext='false'):
     """
-    Clean up the generated files and temp dirs
+    Clean up the generated files and temp dirs.
+    :param ext:
+        Cleanup even the external, downloaded packages. Default is 'false'.
+        This should be only needed when the resource has been changed,
+        thus a complete rebuild is needed.
     """
     # Clean dist dir
     shutil.rmtree(DIST_DIR, ignore_errors=True)
@@ -31,9 +54,15 @@ def clean():
     for plugin_dir in PLUGIN_DIRS:
         shutil.rmtree(os.path.join(PROJECT_DIR, plugin_dir, 'dist'), ignore_errors=True)
 
+    if get_bool_str(ext):
+        for res in ext_resources:
+            res_path = get_ext_path(res.name)
+            shutil.rmtree(res_path, ignore_errors=True)
+
 
 @task
-def build(release='false', compress='false', docs='', pkgs='tar', version='', ext='false'):
+def build(release='false', compress='false', docs='', pkgs='tar', version='', ext='true',
+          extbranch='master'):
     """
     Create distributable packages. Builds eggs and tar.gz compressed packages, based on
     parameters. Also capable of downloading and patching external dependencies.
@@ -50,7 +79,10 @@ def build(release='false', compress='false', docs='', pkgs='tar', version='', ex
         Version number to set for whole package. Default '' -> take the version from VERSION.txt
         (or default to 1.0.0)
     :param ext:
-        Build and include external modules into big package. Default is 'false'
+        Build and include external modules into big package. Default is 'false'.
+        If ext is 'all', builds also other than own forks (GitResources).
+    :param extbranch:
+        Defines from which branch the fork packages are to be built from.
 
     Examples::
 
@@ -155,11 +187,12 @@ def build(release='false', compress='false', docs='', pkgs='tar', version='', ex
                 local('python setup.py bdist_egg')
                 local('python setup.py sdist')
 
-    # Optionally build external modules as well
-    # Retrieve and build external modules and copy the artifacts into plugins
+    # Build external plugins as well, optionally even non-fork plugins
+    # Retrieve and build external plugins and copy the artifacts into plugins folder.
     # NOTE: Next egg copying will put them into correct place, no need to rerun the file copy
-    if get_bool_str(ext):
-        buildext()
+    allext = 'true' if ext.lower() == 'all' else 'false'
+    if get_bool_str(ext) or allext:
+        buildext(allext=allext,branch=extbranch)
         for egg in get_files(build_join('ext'), '*.egg', recursive=True):
             shutil.copy(egg, pkg_join('plugins', os.path.basename(egg)))
 
@@ -234,10 +267,17 @@ def build(release='false', compress='false', docs='', pkgs='tar', version='', ex
 
 
 @task
-def buildext(patch='true'):
+def buildext(allext='false',patch='true',branch='master'):
     """
     Build and optionally patch the 3rd party modules and libraries.
     The outcome (tar.gz/egg) files are placed in dist directory
+
+    :param allext:
+        Download also non-GitResources. Default is 'false'.
+    :param patch:
+        Patch those plugins having patches, currently, trac and gitosis.
+    :param branch:
+        For GitResources, selects the branch to be used. Default is 'master'.
 
     .. NOTE::
 
@@ -247,34 +287,72 @@ def buildext(patch='true'):
             fab dist.build:ext=true
 
     """
-    ext_resources = [
-        TarResource('trac', 'http://ftp.edgewall.com/pub/trac/Trac-0.12.4.tar.gz'),
-        TarResource('trac-mastertickets', 'https://github.com/coderanger/trac-mastertickets/tarball/master'),
-        TarResource('gitosis', 'https://github.com/tv42/gitosis/tarball/dedb3dc63f413ed6eeba8082b7e93ad136b16d0d'),
-        TarResource('trac-git', 'https://github.com/hvr/trac-git-plugin/tarball/master'),
-        SVNResource('trac-genshi', 'http://svn.edgewall.org/repos/genshi/branches/stable/0.6.x -r 1135'),
-        SVNResource('trac-mercurial', 'http://svn.edgewall.com/repos/trac/plugins/0.12/mercurial-plugin -r 10108'),
-        SVNResource('trac-xmlrpc', 'http://trac-hacks.org/svn/xmlrpcplugin/trunk -r 8869'),
-        SVNResource('trac-customfieldadmin', 'http://trac-hacks.org/svn/customfieldadminplugin/0.11 -r 11265'),
-        GitResource('batchmodify', 'https://projects.developer.nokia.com/git/batchmodify'),
-        GitResource('childtickets', 'https://projects.developer.nokia.com/git/childtickets'),
-        GitResource('tracdownloads', 'https://projects.developer.nokia.com/git/tracdownloads'),
-        GitResource('tracdiscussion', 'https://projects.developer.nokia.com/git/tracdiscussion'),
-    ]
-
+    allext = get_bool_str(allext)
     # Construct and create building directory for external resources
     extbuild = build_join('ext')
     shutil.rmtree(extbuild, ignore_errors=True)
     os.makedirs(extbuild)
 
+    for res in ext_resources:
+        res_path = get_ext_path(res.name)
+        is_git = isinstance(res, GitResource)
+        if not is_git and not allext:
+            continue
+        logger.info('Starting to download / fetch resource %s' % res.name)
+
+        must_retrieve = False
+        resource_id_file = join(res_path, '.fabric_resource_id.txt')
+        res_lines = [line.strip() for line in str(res).split(',')]
+        res_lines.append('# This is a file used by fabric dist.buildext command.')
+        if not os.path.exists(res_path):
+            must_retrieve = True
+        else:
+            # Check folder contents.
+            # If the fetch identifier is missing, it is assumed to be the correct one.
+            if os.path.exists(resource_id_file):
+                prev_lines = [line.strip() for line in open(resource_id_file, 'r')]
+                if res_lines != prev_lines:
+                    logger.warning('Resource %s has been changed, retrieving it.' % res.name)
+                    logger.info('Previous resource: %s' % prev_lines)
+                    logger.info('Current resource:  %s' % res_lines)
+                    must_retrieve = True
+            if not get_files(os.path.abspath(res_path), 'setup.py', recursive=True):
+                must_retrieve = True
+        if must_retrieve:
+            shutil.rmtree(res_path, ignore_errors=True)
+            os.makedirs(res_path)
+            res.retrieve(res_path)
+            outfile = open(resource_id_file, 'w')
+            outfile.writelines([line + '\n' for line in res_lines])
+            outfile.close()
+        else:
+            logger.warning('Resource %s was already retrieved.' % res.name)
+
+        if is_git:
+            # The GitResources are always updated
+            if not os.path.exists(join(res_path, '.git')):
+                raise Exception('GitResource in %s is invalid. Run `fab dist.clean:ext=true`' % res_path)
+            with lcd(res_path):
+                local('git fetch')
+
+        # Else, we assume that the resource has been already retrieved
+        # Copy the files into ext build dir
+        ext_build_dir = join(extbuild, res.name)
+        shutil.copytree(res_path, ext_build_dir)
+        if isinstance(res, GitResource):
+            with lcd(ext_build_dir):
+                logger.info('For %s, git checkout %s' % (res.name, branch))
+                local('git checkout %s' % branch)
+                local('git merge origin/%s' % branch)
+
+    # Now the plugin files are inside 'build/ext/', and we can continue
+
     # Work in build directory
     with lcd(extbuild):
         # Retreive resource and place them to build directory
-        for res in ext_resources:
-            res.retrieve(join(extbuild, res.name))
 
         # Apply patches
-        if get_bool_str(patch):
+        if get_bool_str(patch) and allext:
 
             # Patch Trac
             logger.info('Patching Trac...')

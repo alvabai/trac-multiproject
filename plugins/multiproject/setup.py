@@ -74,7 +74,6 @@ setup(
         'git': ['TracGit >= 0.12.0'],
         'mastertickets': ['TracMasterTickets >= 3.0'],
         'batchmodify': ['BatchModify >= 0.8.0'],
-        'downloads': ['TracDownloads >= 0.3'],
         'discussion': ['TracDiscussion >= 0.8'],
         'wysiwyg': ['TracWysiwyg >= 0.12.0'],
         'redis': ['redis >= 2.4.0']

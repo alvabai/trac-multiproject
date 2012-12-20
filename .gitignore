@@ -15,11 +15,13 @@ cqde*.tar.gz
 install.tar.gz
 .*.swp
 release/
-TracNokiaTheme-minimized
 
 .subversion
 .idea
 fabfile.ini
+# By default, fabric task dist.buildext
+# uses ext/plugins to store the external plugins downloaded
+ext/plugins
 
 # Tests
 tests/webtests/chromedriver.log

@@ -209,6 +209,12 @@ TracDownloads is a plugin that provides a discussion forum for the project.
 This plugin has also gone through some changes and security fixes to suite better into the
 needs of MultiProject, so a fork is hosted separately.
 
+.. note::
+
+    Currently, the TracDownloads functionality is replaced with the
+    Files Downloads feature (see :ref:`import-old-files`), and you
+    should disable the TracDownloads plugin or not install it at all.
+
 #.  Install plugin::
 
         git clone https://projects.developer.nokia.com/git/tracdownloads.git
