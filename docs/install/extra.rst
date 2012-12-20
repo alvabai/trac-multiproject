@@ -811,7 +811,7 @@ supports this, but to integrate it into MultiProject and trac authentication sys
 
         To configure Gitosis, you do not edit files directly on the server.
         Instead, Gitosis provides a Git repository which contains the configuration.
-        To update this configuration, you clone, commit, and push to ``gitosis-admin `` just as you would any other repository.
+        To update this configuration, you clone, commit, and push to ``gitosis-admin`` just as you would any other repository.
 
     #.  Create SSH keys for root (for administrating)::
 
