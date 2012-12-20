@@ -206,6 +206,7 @@ class PermissionsAdminPanel(Component):
 
         # User does not yet exists in multiproject database => retrieve and create user from authentication backend(s)
         if not username:
+            username = req.args.get('member')
             # Create user using authentication backends and sync functionality
             if not auth.sync_user(username):
                 # Show warning with possibility to create a local user - if user has enough permissions.
