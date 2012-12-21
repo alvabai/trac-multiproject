@@ -120,6 +120,7 @@ rst_epilog = """
 .. _RabbitMQ: http://www.rabbitmq.com/
 .. _SNMP: http://www.net-snmp.org/
 .. _Nagios: http://nagios.org/
+.. _Sphinx: http://sphinx-doc.org/
 """
 
 # -- Options for HTML output ---------------------------------------------------

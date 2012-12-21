@@ -7,9 +7,33 @@ This chapter describes how to get started with the MultiProject development.
 
 .. note::
 
-   For running the service, only Linux is currently support. Therefore, if developing
-   under Windows, run the service in virtual environment and mount the sources in local
-   drive.
+    For running the service, only Linux is currently support. Therefore, if developing
+    under Windows, run the service in virtual environment and mount the sources in local
+    drive.
+
+Setting up the development environment is not much different from the
+:ref:`setting up the production <install-server>`. One notable difference is the installation of the
+developed modules::
+
+    # Use this: Create link so source code
+    python setup.py develop
+
+    # Do **not** use this
+    python setup.py install
+
+Also, to make Apache reload sources on every request set following in ``apache2.conf``::
+
+        <IfModule mpm_prefork_module>
+            StartServers          5
+            MinSpareServers       5
+            MaxSpareServers      10
+            MaxClients          150
+            # For production
+            #MaxRequestsPerChild   100
+            # For development
+            MaxRequestsPerChild   1
+        </IfModule>
+
 
 .. contents::
    :local:
@@ -40,47 +64,97 @@ Following tools and libraries are needed for the development.
 .. _develop-source:
 .. _get-source:
 
-Getting the sources
-===================
-MultiProject is hosted in https://projects.developer.nokia.com, in a git repository. If the source
-has already been cloned via git, then this information might be reduntant. However,
-the latest source code can be obtained by::
-
-    git clone https://projects.developer.nokia.com/git/multiproject.git MultiProjectPlugin
-
-Branch used for development is called ``develop``. So if latest, however potentially unstable, version
-of the software is required, checkout the development branch::
-
-    cd MultiProjectPlugin
-    git checkout develop
-    cd -
-
-
 Building
 ========
-Assumption in these steps is that sources have been fetched for MultiProject plugin. See :ref:`develop-source`.
-Starting point before doing any of the installation is in the directory where the cloned MultiProject plugin
-resides, each step begins by doing a cd into that directory. These steps will also install all eggs into system
-wide dist-, or site-packages directory. On newer ubuntu releases the place for eggs will be
-``/usr/local/lib/python2.7/dist-packages``.
+All the commands are run using the Fabric_ script.
 
+#.  Create base directory for the projects::
 
-#.  Clean up old build results
+        mkdir ~/projects
 
-    Focusing on cleaning the results from any previous builds. Often a good idea to do before trying to do new
-    installation::
+#.  Retrieve sources::
 
-        sudo rm -rf trac-genshi
-        sudo rm -rf Trac-0.12.1*
-        sudo rm -rf coderanger-trac-mastertickets*
-        sudo rm trac-mastertickets.tar.gz
-        sudo rm -rf trac-xmlrpc
-        sudo rm -rf trac-customfieldadmin
-        sudo rm trac-git.tar.gz
-        sudo rm -rf hvr-trac-git-plugin-*
-        sudo rm gitosis.tar.gz
-        sudo rm -rf gitosis
+        cd ~/projects
+        git clone https://collab.nokia.com/git/CQDE.git cqde
+        git clone https://projects.developer.nokia.com/git/multiproject.git multiproject
 
+    .. tip::
+
+        You can use ``.netrc`` file to store HTTP authentication information::
+
+            machine collab.nokia.com
+                login myaccount
+                password mypassword
+
+            machine projects.developer.nokia.com
+                login myssoaccount
+                password mypassword
+
+#.  Retrieve external components (needed only if developed)::
+
+        git clone https://projects.developer.nokia.com/git/tracdiscussion.git tracdiscussion
+        git clone https://projects.developer.nokia.com/git/childtickets.git childtickets
+        git clone https://projects.developer.nokia.com/git/batchmodify.git batchmodify
+
+#.  Fetch, patch and build packages::
+
+        cd multiproject
+        fab dist.build:ext=all
+
+    This will build ``MultiProject``, fetch dependencies and built them as well. Outcome will be
+    place in ``dist`` -directory
+
+    .. tip::
+
+        For more instructions for ``fab dist.build`` run::
+
+            fab -d dist.build
+
+#.  Install non-developed packages::
+
+        cd dist
+        easy_install -Z BatchModify-*.egg
+        easy_install -Z Genshi-*.egg
+        pip install gitosis-*.tar.gz
+        easy_install -Z Trac-*.egg
+        easy_install -Z Tracchildtickets-*.egg
+        easy_install -Z TracCustomFieldAdmin-*.egg
+        easy_install -Z TracDiscussion-*.egg
+        easy_install -Z TracGit-*.egg
+        easy_install -Z TracMasterTickets-*.egg
+        easy_install -Z TracMercurial-*.egg
+        easy_install -Z TracXMLRPC-*.egg
+
+#.  Install from sources::
+
+        cd ~/projects/multiproject/plugins/multiproject
+        python setup.py develop
+
+        cd ~/projects/cqde/nokia/plugins/dnc
+        python setup.py develop
+
+        cd ~/projects/cqde/nokia/plugins/nokia
+        python setup.py develop
+
+#.  Setup and configure server
+
+    Follow the starting from :ref:`install-server-dir`
+
+.. _develop-doc:
+
+Building documentation
+======================
+The project documentation is written using Sphinx_ maintained in version control,
+under ``docs`` directory. Build documentation with command::
+
+    fab dist.builddoc
+
+.. tip::
+
+    When you're writing the documentation, you can use ``autobuild`` that builds
+    the documentation whenever the files are changed::
+
+        fab dist.autobuild
 
 
 .. _repository-contents:
