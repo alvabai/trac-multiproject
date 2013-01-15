@@ -314,15 +314,16 @@ class CQDEUserGroupStore(object):
         anon_forbidden = set(conf.anon_forbidden_actions)
         if 'anonymous' in ug:
             for group in ug['anonymous']:
-                privileges = anon_forbidden & gp[group]
-                if privileges:
-                    items = tuple(privileges)
-                    is_are = "are"
-                    if len(items) == 1:
-                        is_are = "is"
-                    raise InvalidPermissionsState("%s %s not allowed for anonymous. "
-                                                  "Anonymous would get this from %s."
-                                                  % (', '.join(items), is_are, group))
+                if group in gp:
+                    privileges = anon_forbidden & gp[group]
+                    if privileges:
+                        items = tuple(privileges)
+                        is_are = "are"
+                        if len(items) == 1:
+                            is_are = "is"
+                        raise InvalidPermissionsState("%s %s not allowed for anonymous. "
+                                                      "Anonymous would get this from %s."
+                                                      % (', '.join(items), is_are, group))
 
         # 2. Check that there's always someone having TRAC_ADMIN privilege
         users_with_admin = set([])
@@ -412,8 +413,7 @@ class CQDEUserGroupStore(object):
         group_perms = []
         with admin_query() as cursor:
             cursor.callproc("get_all_group_permissions", [self.trac_environment_key])
-            for row in cursor:
-                group_perms.append((row[0], row[1]))
+            group_perms = [(row[0], row[1]) for row in cursor if row[1]]
             self._cache.set_group_perms(self.trac_environment_key, group_perms)
 
         return group_perms
@@ -458,19 +458,21 @@ class CQDEUserGroupStore(object):
 
         self._update_published_time()
 
-    def add_user_to_group(self, user_name, group_name):
+    def add_user_to_group(self, user_name, group_name, validate=True):
         """
         Adds user to group.
         Updates the published time of the project accordingly.
 
         :param str user_name: User name
         :param str group_name: Group name
+        :param bool validate: Validate the permission group has no too much or little permissions
         :raises InvalidPermissionsState: If cannot add user
         :raises DatabaseError: Query failure
         """
         # Test if we can add the user
         ug = self.get_all_user_groups() + [(user_name, group_name)]
-        self.is_valid_group_members(user_groups=ug)
+        if validate:
+            self.is_valid_group_members(user_groups=ug)
 
         userstore = get_userstore()
         user = userstore.getUser(user_name)
@@ -489,6 +491,7 @@ class CQDEUserGroupStore(object):
         group_name = group_name.encode('utf-8')
         group_id = self.get_group_id(group_name)
         if group_id is None:
+            conf.log.info('Creating permission group: %s' % group_name)
             self.create_group(group_name)
             group_id = self.get_group_id(group_name)
 
