@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
+from trac.perm import PermissionSystem
+
 from multiproject.core.cache.memcached import memcached
 from multiproject.core.configuration import conf
 from multiproject.core.cache.permission_cache import GroupPermissionCache
 from multiproject.core.exceptions import SingletonExistsException
-from multiproject.core.db import admin_query, admin_transaction, safe_int
+from multiproject.core.db import admin_query, admin_transaction, safe_int, MySQLdb
 from multiproject.core.users import get_userstore
-from trac.perm import PermissionSystem
 
 
 def _call_proc_with_success(name, args):
@@ -318,9 +319,7 @@ class CQDEUserGroupStore(object):
                     privileges = anon_forbidden & gp[group]
                     if privileges:
                         items = tuple(privileges)
-                        is_are = "are"
-                        if len(items) == 1:
-                            is_are = "is"
+                        is_are = "is" if len(items) == 1 else "are"
                         raise InvalidPermissionsState("%s %s not allowed for anonymous. "
                                                       "Anonymous would get this from %s."
                                                       % (', '.join(items), is_are, group))
@@ -498,7 +497,11 @@ class CQDEUserGroupStore(object):
         self._cache.clear_user_groups(self.trac_environment_key)
 
         with admin_query() as cursor:
-            cursor.callproc("add_user_to_group", [user.id, group_id])
+            try:
+                cursor.callproc("add_user_to_group", [user.id, group_id])
+            # User already exists in the group
+            except MySQLdb.IntegrityError:
+                conf.log.warning('User %s already exists in group: %s' % (user_name, group_name))
 
         self._update_published_time()
 
@@ -599,7 +602,11 @@ class CQDEUserGroupStore(object):
         self._cache.clear_group_perms(self.trac_environment_key)
 
         with admin_query() as cursor:
-            cursor.callproc("grant_permission_to_group", [group_id, permission_id])
+            try:
+                cursor.callproc("grant_permission_to_group", [group_id, permission_id])
+            # User already exists in the group
+            except MySQLdb.IntegrityError:
+                conf.log.warning('Group %s already has permission: %s' % (group_name, permission_name))
 
         self._update_published_time()
 

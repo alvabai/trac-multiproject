@@ -515,7 +515,7 @@ class SetPermissions(Command):
             if conf.private_auth_group:
                 auth_group_name, auth_priv = conf.private_auth_group
                 # Do not validate group permissions on creation
-                store.add_user_to_group('authenticated', auth_group_name, validate=False)
+                store.add_user_to_group('authenticated', auth_group_name)
                 for priv in auth_priv:
                     store.grant_permission_to_group(auth_group_name, priv)
         except Exception:
@@ -542,15 +542,13 @@ class MakeProjectPublic(Command):
         try:
             # Create anon group and give permissions
             anon_group_name, anon_priv = conf.public_anon_group
-            # Do not validate group permissions on creation
-            store.add_user_to_group('anonymous', anon_group_name, validate=False)
+            store.add_user_to_group('anonymous', anon_group_name)
             for priv in anon_priv:
                 store.grant_permission_to_group(anon_group_name, priv)
 
             # Create auth group and give permissions
             auth_group_name, auth_priv = conf.public_auth_group
-            # Do not validate group permissions on creation
-            store.add_user_to_group('authenticated', auth_group_name, validate=False)
+            store.add_user_to_group('authenticated', auth_group_name)
             for priv in auth_priv:
                 store.grant_permission_to_group(auth_group_name, priv)
 
