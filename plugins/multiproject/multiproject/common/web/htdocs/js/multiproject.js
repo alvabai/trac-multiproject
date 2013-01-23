@@ -2175,3 +2175,26 @@ String.prototype.rpad=function(length, pad){
     return (this + new Array(length + 1).join(pad)).slice(0, length);
 };
 
+//Frontend check for project creation
+
+$(".create_project_form").live("submit", function(){
+    var check = true;
+
+    if($('#prj_long_name').val().length < 2 || $.trim($('#prj_long_name').val()) == ""){
+        check = false;
+        alert("Project name must be 2 characters long");
+    }
+    else if(!$('#prj_short_name').val().match(/^[a-zA-Z0-9_-]*$/)){
+        check = false;
+        alert("Identifier should not contain scandic chars or spaces");
+    }
+    else if($('#prj_short_name').val().length < 2 || $.trim($('#prj_short_name').val()) == ""){
+        check = false;
+        alert("Identifier must be 2 characters long");
+    }
+    else if($('#prj_description').val().length < 8 || $.trim($('#prj_description').val()) == ""){
+        check = false;
+        alert("Project description must be 8 characters long");
+    }
+    return check;
+});
