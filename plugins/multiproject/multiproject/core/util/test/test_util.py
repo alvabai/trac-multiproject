@@ -1,11 +1,11 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # coding: utf-8
 
 import unittest
 
 # TODO kludge: move path setting to a runner script
-import sys
-sys.path.append('../../..')
+#import sys
+#sys.path.append('../../..')
 
 import util
 from util import sanitize_html
