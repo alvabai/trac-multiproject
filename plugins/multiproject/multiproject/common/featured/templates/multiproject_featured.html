@@ -7,7 +7,7 @@
             Featured projects
         </h2>
         <ul class="projectlist">
-            <li py:for="project in featured_projects" class="single_line">
+            <li py:for="project in featured_projects" class="timeline_event wiki">
                 <img class="icon" src="${project.icon_url}" />
                 <a href="${req.href('..', project.name)}">${project.project_name}</a>
             </li>
