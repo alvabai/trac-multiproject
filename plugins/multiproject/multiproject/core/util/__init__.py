@@ -1,2 +1,2 @@
-from multiproject.core.util.ldaphelper import *
-from multiproject.core.util.util import *
+from ldaphelper import *
+from util.util import *
