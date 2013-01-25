@@ -521,21 +521,13 @@ class CQDEUserGroupStore(object):
         user = userstore.getUser(user_name)
 
         if not user:
-            from multiproject.core.auth.auth import Authentication
-
-            auth = Authentication()
-            auth.sync_user(user_name)
-            user = userstore.getUser(user_name)
-
-        if not user:
             raise InvalidPermissionsState('Unknown user %s' % user_name)
 
         # Get the group
         group_name = group_name.encode('utf-8')
         group_id = self.get_group_id(group_name)
         if group_id is None:
-            #self.create_group(group_name)
-            group_id = self.get_group_id(group_name)
+            conf.log.exception("Group %s doesn't exists'" % group_name)
 
         self._cache.clear_user_groups(self.trac_environment_key)
 
