@@ -8,8 +8,8 @@
         </h2>
         <ul class="projectlist">
             <li py:for="project in featured_projects" class="timeline_event wiki">
-                <img class="icon" src="${project.icon_url}" />
-                <a href="${req.href('..', project.name)}">${project.project_name}</a>
+                <a href="${req.href('..', project.env_name)}"><img class="icon" src="${project.icon_url}" /></a>
+                <a href="${req.href('..', project.env_name)}">${project.project_name}</a>
             </li>
             <li py:if="not featured_projects">No project highlights, at the moment.</li>
             <li class="last"></li>
