@@ -6,7 +6,7 @@ from trac.core import Component, implements
 from trac.admin.api import IAdminPanelProvider
 
 from multiproject.common.projects import Projects
-
+from multiproject.core.configuration import conf
 
 class FeaturedProjectsAdminPanel(Component):
     implements(IAdminPanelProvider)
@@ -32,10 +32,9 @@ class FeaturedProjectsAdminPanel(Component):
         if req.method == 'POST':
             if req.args.get('searchprojects'):
                 selected = papi.get_featured_projects()
-
                 projectids = []
                 for project in selected:
-                    projectid = project['project_id']
+                    projectid = project.id
                     projectids.append(projectid)
 
                 rawsearch = papi.search_project(req.args.get('pattern'), None, 1, 50)

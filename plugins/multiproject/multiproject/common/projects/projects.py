@@ -342,6 +342,7 @@ class Projects(object):
     def update_featured_projects(self, projects):
         """ update featured projects
         """
+
         with admin_transaction() as cursor:
             try:
                 # First cleanup selected projects
@@ -1106,6 +1107,7 @@ class Projects(object):
             parent_id=project_data[8],
             icon_name=project_data[9],
             trac_environment_key=project_data[10],
+            priority=project_data[11]
         )
 
         return prj

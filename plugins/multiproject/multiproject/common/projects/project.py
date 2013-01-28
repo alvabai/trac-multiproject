@@ -46,12 +46,13 @@ class Project(object):
         'parent_id': 'parent_id',
         'icon_name': 'icon_name',
         'trac_environment_key': 'trac_environment_key',
+        'priority': 'priority',
     }
     FIELD_COUNT = len(FIELDS)
 
     def __init__(self, id, env_name, project_name, description, author_id, created, trac_environment_key=None,
                  updated=None, published=None, parent_id=None,
-                 discforum=False, icon_name=None):
+                 discforum=False, icon_name=None, priority=None):
 
         # Private attributes for properties
         self._parent_project = None
@@ -74,6 +75,7 @@ class Project(object):
         self.published = published
         self.discforum = discforum
         self.icon_name = icon_name
+        self.priority = priority
 
     @staticmethod
     def get(env=None, id=None, env_name=None, use_cache=True):
