@@ -9,6 +9,8 @@ from core.dbTest import *
 
 class ProjectsStub(object):
 
+    projects_list = None
+
     @staticmethod
     def sqlToProject(project_data, parent_data=None):
         author = None
@@ -110,11 +112,27 @@ class ProjectsStub(object):
                             None,
                             "12"]
             projects.append(ProjectsStub.sqlToProject(project_data))
-
-        return projects
+        if self.projects_list is not None:
+            return self.projects_list
+        else:
+            return projects
 
     def search_project(self, keywords, category_ids, sub_page=1, limit=5):
         if keywords == "project":
-            return {"project_id": 1, "priority": None}
+            return [
+                {"project_id": 1, "priority": None},
+                {"project_id": 2, "priority": None}
+            ]
         else:
             return None
+
+    def update_featured_projects(self, projects):
+        check = True
+        if projects is None:
+            check = False
+        else:
+            self.projects_list = projects
+            for project in projects:
+                if project is None:
+                    check = False
+        return check

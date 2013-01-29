@@ -24,5 +24,53 @@ class TestProjectsModule(unittest.TestCase):
 
     def test_search_projects_with_keyword_project_should_return_dictionary(self):
         projects_group = ProjectsStub()
-        project = projects_group.search_project("project", 1)
-        self.assertEqual(1, project["project_id"])
+        projects = projects_group.search_project("project", 1)
+        i = 1
+        for project in projects:
+            self.assertEqual(i, project["project_id"])
+            i += 1
+
+    def test_update_feature_projects_with_project_list_should_return_true(self):
+        projects_group = ProjectsStub()
+        project_data = [[3,
+                         "Project3",
+                         None,
+                         None,
+                         "4",
+                         None,
+                         None,
+                         None,
+                         None,
+                         None,
+                         None,
+                         "12"],
+                        [4,
+                         "Project4",
+                         None,
+                         None,
+                         "4",
+                         None,
+                         None,
+                         None,
+                         None,
+                         None,
+                         None,
+                         "15"],
+                        [5,
+                         "Project5",
+                         None,
+                         None,
+                         "4",
+                         None,
+                         None,
+                         None,
+                         None,
+                         None,
+                         None,
+                         "12"]
+        ]
+        self.assertTrue(projects_group.update_featured_projects(project_data))
+
+    def test_update_featured_projects_without_list_should_return_false(self):
+        projects_group = ProjectsStub()
+        self.assertFalse(projects_group.update_featured_projects(None))
