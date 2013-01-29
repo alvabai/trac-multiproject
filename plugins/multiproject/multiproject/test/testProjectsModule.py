@@ -22,12 +22,12 @@ class TestProjectsModule(unittest.TestCase):
         self.assertEqual("Project3", projects[0].project_name)
         self.assertEqual("Project5", projects[1].project_name)
 
-    def test_search_projects_with_keyword_project_should_return_dictionary(self):
+    def test_search_projects_with_keyword_project_should_return_list(self):
         projects_group = ProjectsStub()
         projects = projects_group.search_project("project", 1)
         i = 1
         for project in projects:
-            self.assertEqual(i, project["project_id"])
+            self.assertEqual(i, project.id)
             i += 1
 
     def test_update_feature_projects_with_project_list_should_return_true(self):

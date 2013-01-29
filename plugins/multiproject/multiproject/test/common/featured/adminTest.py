@@ -27,18 +27,18 @@ class FeaturedProjectsAdminPanel(object):
 
         if req.method == 'POST':
             if req.args.get('searchprojects'):
-                print("Jee jee testi2")
                 selected = papi.get_featured_projects()
                 projectids = []
                 for project in selected:
                     projectid = project.id
                     projectids.append(projectid)
+
                 rawsearch = papi.search_project(req.args.get("pattern"), None, 1, 50)
 
                 for project in rawsearch:
-                    if not project['project_id'] in projectids:
-                        project['priority'] = None
-                        selected += tuple([project])
+                    if not project.id in projectids:
+                        project.priority = None
+                        selected.append(project)
 
             elif req.args.get('update'):
                 selection = req.args.get('projects')

@@ -120,8 +120,30 @@ class ProjectsStub(object):
     def search_project(self, keywords, category_ids, sub_page=1, limit=5):
         if keywords == "project":
             return [
-                {"project_id": 1, "priority": None},
-                {"project_id": 2, "priority": None}
+                self.sqlToProject([1,
+                 "Project1",
+                 None,
+                 None,
+                 "4",
+                 None,
+                 None,
+                 None,
+                 None,
+                 None,
+                 None,
+                 "12"]),
+                self.sqlToProject([2,
+                 "Home",
+                 None,
+                 None,
+                 "4",
+                 None,
+                 None,
+                 None,
+                 None,
+                 None,
+                 None,
+                 "12"])
             ]
         else:
             return None
