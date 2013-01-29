@@ -912,7 +912,7 @@ class Projects(object):
         attr_str = " ORDER BY IFNULL(p.published, p.created) DESC LIMIT %(limit_start)d, %(limit)d" % limit_attr
         query = select + join_str + where_str + attr_str
 
-        return self.__queryProjectsWithDescr(query)
+        return self.queryProjectObjects(query)
 
     def add_public_project_visibility(self, project_id):
         # check if anonymous user exists
@@ -1091,10 +1091,17 @@ class Projects(object):
     def sqlToProject(project_data, parent_data=None):
         author = None
         parent = None
+        project_trac_environment_key = None
+        project_priority = None
+
 
         if parent_data:
             parent = Projects.sqlToProject(parent_data)
 
+        if len(project_data) == 12:
+            project_trac_environment_key = project_data[10]
+            project_priority = project_data[11]
+        
         prj = Project(
             id=project_data[0],
             project_name=project_data[1],
@@ -1106,8 +1113,8 @@ class Projects(object):
             published=project_data[7],
             parent_id=project_data[8],
             icon_name=project_data[9],
-            trac_environment_key=project_data[10],
-            priority=project_data[11]
+            trac_environment_key=project_trac_environment_key,
+            priority=project_priority
         )
 
         return prj

@@ -40,9 +40,9 @@ class FeaturedProjectsAdminPanel(Component):
                 rawsearch = papi.search_project(req.args.get('pattern'), None, 1, 50)
 
                 for project in rawsearch:
-                    if not project['project_id'] in projectids:
-                        project['priority'] = None
-                        selected += tuple([project])
+                    if not project.id in projectids:
+                        project.priority = None
+                        selected.append(project)
 
             elif req.args.get('update'):
                 selection = req.args.get('projects')
