@@ -1,2 +1,2 @@
 #!/bin/sh
-python -m discover -v -s multiproject/core/util
+nosetests -v multiproject/core/util/test

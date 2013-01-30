@@ -1,2 +1,2 @@
 #!/bin/sh
-PYTHONPATH=../.. python -m discover -v -s util
+nosetests util/test -v
