@@ -2,16 +2,12 @@
 """
 Module contains the admin interface for featured projects
 """
-from trac.core import Component, implements
-from trac.admin.api import IAdminPanelProvider
+#from trac.admin.api import IAdminPanelProvider
 
-from multiproject.common.projects import Projects
-from multiproject.core.configuration import conf
+from common.projects.projectsTest import ProjectsStub
 
-class FeaturedProjectsAdminPanel(Component):
-    implements(IAdminPanelProvider)
-
-    # IAdminPanelProvider methods
+class FeaturedProjectsAdminPanel(object):
+    #implements(IAdminPanelProvider)
 
     def get_admin_panels(self, req):
         """
@@ -20,13 +16,13 @@ class FeaturedProjectsAdminPanel(Component):
         if 'TRAC_ADMIN' in req.perm:
             yield ('projects', 'Projects', "featured", 'Featured')
 
-    def render_admin_panel(self, req, cat, page, path_info):
+    def render_admin_panel(self, req, cat=None, page=None, path_info=None):
         """
         Renders updates admin panel page
         """
         req.perm.require('TRAC_ADMIN')
 
-        papi = Projects()
+        papi = ProjectsStub()
         selected = []
 
         if req.method == 'POST':
@@ -37,7 +33,7 @@ class FeaturedProjectsAdminPanel(Component):
                     projectid = project.id
                     projectids.append(projectid)
 
-                rawsearch = papi.search_project(req.args.get('pattern'), None, 1, 50)
+                rawsearch = papi.search_project(req.args.get("pattern"), None, 1, 50)
 
                 for project in rawsearch:
                     if not project.id in projectids:
@@ -46,6 +42,7 @@ class FeaturedProjectsAdminPanel(Component):
 
             elif req.args.get('update'):
                 selection = req.args.get('projects')
+                #Return contents of selection if non empty or [][]
                 selection = isinstance(selection, list) and selection or [selection]
                 projects = []
 
@@ -63,4 +60,5 @@ class FeaturedProjectsAdminPanel(Component):
             'selected': selected,
             'maxvalue': 20
         }
-        return 'multiproject_featured_admin.html', data
+        #return 'multiproject_featured_admin.html', data
+        return data

@@ -516,23 +516,23 @@ class CQDEUserGroupStore(object):
         :raises DatabaseError: Query failure
         :raises ValueError: User not found
         """
-        user = get_userstore().getUser(user_name)
+
+        userstore = get_userstore()
+        user = userstore.getUser(user_name)
+
         if not user:
-            raise ValueError('User not found')
+            raise InvalidPermissionsState('Unknown user %s' % user_name)
 
-        # TODO: just check that there's TRAC_ADMIN left?
-        # Checks that it is ok to remove user from group
-        ug = self.get_all_user_groups()
-        ug = [(user, group) for user, group in ug if not (user == user_name and group == group_name)]
-        self.is_valid_group_members(user_groups=ug)
-
+        # Get the group
         group_name = group_name.encode('utf-8')
         group_id = self.get_group_id(group_name)
+        if group_id is None:
+            conf.log.exception("Group %s doesn't exists'" % group_name)
+
         self._cache.clear_user_groups(self.trac_environment_key)
 
         with admin_query() as cursor:
             cursor.callproc("remove_user_from_group", [user.id, group_id])
-
         self._update_published_time()
 
     def add_organization_to_group(self, organization_name, group_name):
