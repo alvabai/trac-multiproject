@@ -2,10 +2,17 @@
 # coding: utf-8
 
 import unittest
+import sys, os
 
-# TODO kludge: move path setting to a runner script
-#import sys
-#sys.path.append('../../..')
+# add parent dir to sys.path
+sys.path.append(
+    os.path.normpath(
+        os.path.join(
+            os.path.abspath(os.path.dirname(__file__)),
+            ".."
+        )
+    )
+)
 
 import util
 from util import sanitize_html

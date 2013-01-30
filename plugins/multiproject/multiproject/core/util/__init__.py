@@ -1,2 +1,2 @@
 from ldaphelper import *
-from util.util import *
+from util import *
