@@ -377,15 +377,7 @@ class Project(object):
                 conf.log.exception("Exception. Project.is_admin query failed. '''%s'''" % query)
                 raise
 
-        return False
-
-    @property
-    def public(self):
-        """
-            Returns projects visibility True : False
-        """
-        return self.public
-    
+        return False    
 
     def get_team_email_addresses(self):
         users = []

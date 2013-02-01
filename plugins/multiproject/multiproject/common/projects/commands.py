@@ -538,7 +538,7 @@ class MakeProjectPublic(Command):
 
     def do(self):
         visibility = True
-        published = datetime.now(utc)
+        published = datetime.now()
         store = CQDEUserGroupStore(self.project.trac_environment_key)
 
         try:
