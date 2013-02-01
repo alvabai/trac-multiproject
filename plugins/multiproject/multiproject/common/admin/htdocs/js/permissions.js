@@ -23,7 +23,7 @@ $(document).ready(function() {
         var perm_group = li.find('input[name="group"]').val();
         var permission = li.find('input[name="permission"]').val();
         if (perm_group === "Public viewers" && permission === "PROJECT_VIEW") {
-          var nbox = multiproject.ui.NotifyBox("You are not allowed to remove "+"'"+permission+"'"+" permission for "+perm_group);
+          var nbox = multiproject.ui.NotifyBox("Removal of "+"'"+permission+"'"+" permission"+ "is not allowed for public projects.");
           nbox.open();
         }else{
           var cbox = multiproject.ui.ConfirmationBox("Are you sure you want to remove the permission?");
