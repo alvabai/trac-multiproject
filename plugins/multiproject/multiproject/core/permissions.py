@@ -235,36 +235,6 @@ class CQDEUserGroupStore(object):
         self._ldapgroups = CQDELdapGroupStore.instance()
         self.trac_environment_key = trac_environment_key
 
-    # TODO: used only in project.py and summary.py - remove!
-    def is_public_project(self):
-        """
-        .. WARNING:: Use :class:`~multiproject.common.projects.project.Project` instead!
-
-        Function checks if the project defined in ``self.trac_environment_key``
-        is considered public. This is True if anonymous user group has permissions
-        defined in configuration. Example::
-
-          public_anon_group = Public viewers:PROJECT_SUMMARY_VIEW,VERSION_CONTROL_VIEW
-
-        Otherwise the project is private and function will return False.
-        """
-        # Read the public group permissions from config (key returns tuple: (groupname, list of permissions))
-        required_group_perms = conf.public_anon_group[1]
-
-        permissions = []
-        with admin_query() as cursor:
-            cursor.callproc("get_project_public_permissions", [self.trac_environment_key])
-            permissions = cursor.fetchall()
-
-        public_group_perms = [pgp[0] for pgp in permissions]
-
-        # Iterate required permission and ensure all of the are found. Generated list contains the missing
-        # permissions and thus the outcome is: True=public, False=private
-        missing_perms = [rgp for rgp in required_group_perms if rgp not in public_group_perms]
-
-        # All the required 'public project' permissions were found => Public project
-        return len(missing_perms) == 0
-
     def get_groups(self):
         """
         :returns: a list of group names in the trac environment
@@ -435,7 +405,6 @@ class CQDEUserGroupStore(object):
     def remove_group(self, group_name):
         """
         Removes group.
-        Updates the published time of the project accordingly.
 
         :raises InvalidPermissionsState: If cannot remove group
         :raises DatabaseError: Query failure
@@ -455,12 +424,9 @@ class CQDEUserGroupStore(object):
         with admin_query() as cursor:
             cursor.callproc("remove_group", [group_id])
 
-        self._update_published_time()
-
     def add_user_to_group(self, user_name, group_name, validate=True):
         """
         Adds user to group.
-        Updates the published time of the project accordingly.
 
         :param str user_name: User name
         :param str group_name: Group name
@@ -503,12 +469,9 @@ class CQDEUserGroupStore(object):
             except MySQLdb.IntegrityError:
                 conf.log.warning('User %s already exists in group: %s' % (user_name, group_name))
 
-        self._update_published_time()
-
     def remove_user_from_group(self, user_name, group_name):
         """
         Removes user from group.
-        Updates the published time of the project accordingly.
 
         :param str user_name: User name
         :param str group_name: Group name
@@ -533,7 +496,6 @@ class CQDEUserGroupStore(object):
 
         with admin_query() as cursor:
             cursor.callproc("remove_user_from_group", [user.id, group_id])
-        self._update_published_time()
 
     def add_organization_to_group(self, organization_name, group_name):
         """
@@ -579,7 +541,6 @@ class CQDEUserGroupStore(object):
     def grant_permission_to_group(self, group_name, permission_name):
         """
         Grants permission to group.
-        Updates the published time of the project accordingly.
 
         :param str group_name: Group name, will be created if does not exists
         :param str permission_name: Perm name, will be created if does not exists
@@ -608,12 +569,9 @@ class CQDEUserGroupStore(object):
             except MySQLdb.IntegrityError:
                 conf.log.warning('Group %s already has permission: %s' % (group_name, permission_name))
 
-        self._update_published_time()
-
     def revoke_permission_from_group(self, group_name, permission_name):
         """
         Revokes permission from group.
-        Updates the published time of the project accordingly.
 
         :param str group_name: Group name
         :param str permission_name: Permission name
@@ -632,8 +590,6 @@ class CQDEUserGroupStore(object):
 
         with admin_query() as cursor:
             cursor.callproc("revoke_permission_from_group", [group_id, permission_id])
-
-        self._update_published_time()
 
     def get_group_id(self, group_name):
         """
@@ -719,25 +675,17 @@ class CQDEUserGroupStore(object):
 
         return ldapgroups
 
-    def _update_published_time(self):
+    def update_project_visibility(self, visibility, published='NULL'):
         """
-        Updates NULL published date, if needed.
-        Sets it to NULL, if project is not published,
-        and to current timestamp, if it is published and published was NULL.
+        Sets public attribute of project to true : false 
         """
-        # TODO: remove circular references from Project class and move this method to there
-
-        if not self.is_public_project():
-            query = "UPDATE projects SET `published` = NULL WHERE trac_environment_key = %s"
-        else:
-            query = ("UPDATE projects SET `published` = now() "
-                     "WHERE trac_environment_key = %s AND published IS NULL")
+        query = "UPDATE projects SET public = %s, published = %s WHERE trac_environment_key = %s"
 
         with admin_transaction() as cursor:
             try:
-                cursor.execute(query, self.trac_environment_key)
+                cursor.execute(query, (visibility, published, self.trac_environment_key))
             except Exception as e:
-                conf.log.exception("Exception. Failed updating project publish data with query '''%s'''" % query)
+                conf.log.exception("Exception. Failed updating project visibility with query '''%s'''" % query)
                 raise
 
 

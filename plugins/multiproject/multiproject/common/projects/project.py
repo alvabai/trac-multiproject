@@ -45,14 +45,12 @@ class Project(object):
         'published': 'published',
         'parent_id': 'parent_id',
         'icon_name': 'icon_name',
-        'trac_environment_key': 'trac_environment_key',
-        'priority': 'priority',
+        'trac_environment_key': 'trac_environment_key'
     }
     FIELD_COUNT = len(FIELDS)
 
     def __init__(self, id, env_name, project_name, description, author_id, created, trac_environment_key=None,
-                 updated=None, published=None, parent_id=None,
-                 discforum=False, icon_name=None, priority=None):
+                 updated=None, published=None, parent_id=None, discforum=False, icon_name=None, priority=None, public=False):
 
         # Private attributes for properties
         self._parent_project = None
@@ -72,9 +70,10 @@ class Project(object):
         self.trac_environment_key = trac_environment_key
 
         self.updated = updated
-        self.published = published
         self.discforum = discforum
         self.icon_name = icon_name
+        self.published = published
+        self.public = public
         self.priority = priority
 
     @staticmethod
@@ -136,7 +135,7 @@ class Project(object):
                 return project
 
         query = ("SELECT project_id, environment_name, project_name, description, author, created, updated, "
-                 "published, parent_id, icon_name, trac_environment_key "
+                 "published, parent_id, icon_name, trac_environment_key, public "
                  "FROM projects WHERE {0} = %s".format('environment_name' if by_env else 'project_id'))
 
         try:
@@ -157,6 +156,7 @@ class Project(object):
                     parent_id=row[8],
                     icon_name=row[9],
                     trac_environment_key=row[10],
+                    public=row[11]
                 )
             if use_cache:
                 if by_env:
@@ -382,12 +382,10 @@ class Project(object):
     @property
     def public(self):
         """
-        Check the project visibility
-
-        :returns: True if project is considered public (wide permissions), otherwise False
+            Returns projects visibility True : False
         """
-        groupstore = CQDEUserGroupStore(self.trac_environment_key)
-        return groupstore.is_public_project()
+        return self.public
+    
 
     def get_team_email_addresses(self):
         users = []
@@ -506,6 +504,7 @@ class Project(object):
         self.id = project.id
         self.env_name = project.env_name
         self.project_name = project.project_name
+        self.public = project.public
         self.description = project.description
         self.author_id = project.author_id
         self.created = project.created

@@ -1,5 +1,5 @@
-from multiproject.common import env
-from multiproject.common import help
+import env
+import help
 from multiproject.common import membership
 from multiproject.common import projects
 from multiproject.common import users

@@ -4,8 +4,8 @@ from genshi.core import Markup
 from trac.perm import PermissionSystem, PermissionCache
 from trac.util.translation import _
 from trac.admin.api import IAdminPanelProvider
-from trac.core import Component, implements, TracError
-from trac.web.chrome import add_script, add_notice, add_stylesheet, add_warning
+from trac.core import Component, implements, TracError, ExtensionPoint
+from trac.web.chrome import add_script, add_notice, add_stylesheet, add_warning, tag
 from trac.web.href import Href
 
 from multiproject.core.auth.auth import Authentication
@@ -15,9 +15,19 @@ from multiproject.common.projects import Project
 from multiproject.core.configuration import Configuration
 from multiproject.core.permissions import CQDEUserGroupStore, CQDEOrganizationStore, InvalidPermissionsState
 
+#
+from multiproject.common.projects import Projects
+from multiproject.common.projects.commands import MakeProjectPublic
+from multiproject.common.projects.listeners import IProjectChangeListener
+from multiproject.core.configuration import conf, DimensionOption
+from multiproject.core.users import get_userstore
+
 
 class PermissionsAdminPanel(Component):
     implements(IAdminPanelProvider)
+    
+    # Extension points
+    project_change_listeners = ExtensionPoint(IProjectChangeListener)
 
     # list in order in which they should be listed in the UI
     MEMBER_TYPES = ('login_status', 'user', 'organization', 'ldap')
@@ -39,6 +49,7 @@ class PermissionsAdminPanel(Component):
 
         is_normal_project = self.env.project_identifier != \
                             self.env.config.get('multiproject', 'sys_home_project_name')
+        project = Project.get(self.env) #
 
         # API instances
         perm_sys = PermissionSystem(self.env)
@@ -80,6 +91,17 @@ class PermissionsAdminPanel(Component):
                 self._add_organization(req, group_store)
             elif action == 'decline_membership':
                 self._decline_membership(req, membership)
+            elif 'makepublic' in req.args:
+                project_api = Projects()
+                if conf.allow_public_projects:
+                    self._make_public(req, project)
+                    project_api.add_public_project_visibility(project.id)
+                else:
+                    raise TracError("Public projects are disabled", "Error!")
+            elif 'makeprivate' in req.args:
+                project_api = Projects()
+                self._make_private(req, project)
+                project_api.remove_public_project_visibility(project.id)
             else:
                 raise TracError('Unknown action %s' % action)
 
@@ -111,7 +133,9 @@ class PermissionsAdminPanel(Component):
             'use_organizations': self.config.getbool('multiproject-users', 'use_organizations', False),
             'use_ldap': self.config.getbool('multiproject', 'ldap_groups_enabled', False),
             'membership_requests': membership_requests,
-            'invalid_state': invalid_state
+            'invalid_state': invalid_state,
+            'is_public': project.public,
+            'allow_public_projects': conf.allow_public_projects
         }
 
     def _perm_data(self, group_store, perm_sys):
@@ -415,3 +439,31 @@ class PermissionsAdminPanel(Component):
 
         membership.decline_membership(username)
         add_notice(req, _('Membership request has been declined for %(who)s.', who=username))
+
+    def _make_public(self, req, project):
+        cmd = MakeProjectPublic(project)
+        if cmd.do():
+            # Notify listeners
+            for listener in self.project_change_listeners:
+                listener.project_set_public(project)
+            # Notify user
+            add_notice(req, tag(
+                _("Project published: "),
+                tag.a(_('public groups added'), href=req.href('admin/general/permissions'))
+            ))
+        else:
+            add_warning(req, "Failed to publish project")
+
+    def _make_private(self, req, project):
+        cmd = MakeProjectPublic(project)
+        if cmd.undo():
+            # Notify listeners
+            for listener in self.project_change_listeners:
+                listener.project_set_private(project)
+            # Notify user
+            add_notice(req, tag(
+                _("Unpublished project: "),
+                tag.a(_('public groups removed'), href=req.href('admin/general/permissions'))
+            ))
+        else:
+            add_warning(req, "Failed to unpublish project")

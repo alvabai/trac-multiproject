@@ -10,14 +10,12 @@ from trac.perm import PermissionCache
 from trac.web import IRequestFilter
 from trac.web.chrome import Chrome, add_notice, add_warning, add_script, add_stylesheet, tag
 from trac.util.translation import _
-from trac.core import TracError, ExtensionPoint
+from trac.core import TracError
 from trac.admin.web_ui import BasicsAdminPanel
 from trac.admin.api import IAdminPanelProvider
 
 from multiproject.common.projects import Project
 from multiproject.common.projects import Projects
-from multiproject.common.projects.commands import MakeProjectPublic
-from multiproject.common.projects.listeners import IProjectChangeListener
 from multiproject.core.permissions import CQDEUserGroupStore
 from multiproject.core.configuration import conf, DimensionOption
 from multiproject.core.users import get_userstore
@@ -32,7 +30,6 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
     implements(IRequestFilter, IAdminPanelProvider)
 
     # Extension points
-    project_change_listeners = ExtensionPoint(IProjectChangeListener)
     icon_dir = Option('multiproject-projects', 'icon_dir', default='', doc='Directory where to place project icon')
     icon_size = DimensionOption('multiproject-projects', 'icon_size', default='64x64', doc='Icon size, separated with comma or x. Example: 64x64')
     content_types = {
@@ -80,21 +77,6 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
 
         # Update database if form posted
         if req.method == 'POST':
-            papi = Projects()
-
-            # Set public pressed
-            if 'makepublic' in req.args:
-                if conf.allow_public_projects:
-                    self._make_public(req, project)
-                    papi.add_public_project_visibility(project.id)
-                else:
-                    raise TracError("Public projects are disabled", "Error!")
-
-            # Set private pressed
-            if 'makeprivate' in req.args:
-                self._make_private(req, project)
-                papi.remove_public_project_visibility(project.id)
-
             # Remove icon if requested
             if 'reset' in req.args:
                 # NOTE: Icon is removed from filesystem already at this point
@@ -123,8 +105,7 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
             'user': user,
             'icon_size': self.icon_size,
             'mproject': project,
-            'is_public': project.public,
-            'allow_public_projects': conf.allow_public_projects
+            'allow_public_projects': conf.allow_public_projects            
         }
 
         # Add javascript libraries for datepicker and autocomplete
@@ -135,34 +116,6 @@ class BasicsAdminPanelInterceptor(BasicsAdminPanel):
 
         Chrome(self.env).add_textarea_grips(req)
         return 'admin_basics_replacement.html', data
-
-    def _make_public(self, req, project):
-        cmd = MakeProjectPublic(project)
-        if cmd.do():
-            # Notify listeners
-            for listener in self.project_change_listeners:
-                listener.project_set_public(project)
-            # Notify user
-            add_notice(req, tag(
-                _("Project published: "),
-                tag.a(_('public groups added'), href=req.href('admin/general/permissions'))
-            ))
-        else:
-            add_warning(req, "Failed to publish project")
-
-    def _make_private(self, req, project):
-        cmd = MakeProjectPublic(project)
-        if cmd.undo():
-            # Notify listeners
-            for listener in self.project_change_listeners:
-                listener.project_set_private(project)
-            # Notify user
-            add_notice(req, tag(
-                _("Unpublished project: "),
-                tag.a(_('public groups removed'), href=req.href('admin/general/permissions'))
-            ))
-        else:
-            add_warning(req, "Failed to unpublish project")
 
     def _set_icon(self, req, project):
         """

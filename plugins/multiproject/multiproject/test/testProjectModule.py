@@ -15,3 +15,15 @@ class TestProjectModule(unittest.TestCase):
         project = ProjectStub(678, 678, "project2", "home project", 4, "2011-10-28-12:17:41", "home")
         self.assertNotEqual("project1", project.project_name)
         self.assertEqual(678, project.id)
+        
+    def test_create_project_with_name_as_project1_and_public_true_and_should_return_public_project1(self):
+        project = ProjectStub(677, 677, "project1", "home project", 4, "2011-10-28-12:17:41", "home", True)
+        self.assertEquals("project1", project.project_name)
+        self.assertEquals(677, project.id)
+        self.assertEquals(True, project.public)
+    
+    def test_create_project_with_name_as_project1_and_public_false_and_should_return_non_public_project1(self):
+        project = ProjectStub(677, 677, "project1", "home project", 4, "2011-10-28-12:17:41", "home", False)
+        self.assertEquals("project1", project.project_name)
+        self.assertEquals(677, project.id)
+        self.assertEquals(False, project.public)

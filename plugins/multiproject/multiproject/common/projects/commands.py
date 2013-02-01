@@ -537,6 +537,8 @@ class MakeProjectPublic(Command):
         self.name = "MakeProjectPublic"
 
     def do(self):
+        visibility = True
+        published = datetime.now(utc)
         store = CQDEUserGroupStore(self.project.trac_environment_key)
 
         try:
@@ -552,6 +554,9 @@ class MakeProjectPublic(Command):
             for priv in auth_priv:
                 store.grant_permission_to_group(auth_group_name, priv)
 
+            #set project visibility#public = True
+            store.update_project_visibility(visibility,str(published))
+
             # Clear project cache
             pc = ProjectCache.instance()
             pc.clearProject(self.project.id)
@@ -562,6 +567,7 @@ class MakeProjectPublic(Command):
         return True
 
     def undo(self):
+        visibility = False # make public false
         store = CQDEUserGroupStore(self.project.trac_environment_key)
 
         try:
@@ -570,6 +576,9 @@ class MakeProjectPublic(Command):
 
             store.remove_group(anon_group_name)
             store.remove_group(auth_group_name)
+
+            #set project visibility#public = False
+            store.update_project_visibility(visibility)
 
             # Clear project cache
             pc = ProjectCache.instance()

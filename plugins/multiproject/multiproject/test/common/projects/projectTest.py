@@ -12,12 +12,11 @@ class ProjectStub(object):
         'published': 'published',
         'parent_id': 'parent_id',
         'icon_name': 'icon_name',
-        'trac_environment_key': 'trac_environment_key',
-        'priority': 'priority',
-        }
+        'trac_environment_key': 'trac_environment_key'
+    }
     FIELD_COUNT = len(FIELDS)
 
-    def __init__(self, id, env_name, project_name, description, author_id, created, trac_environment_key=None,
+    def __init__(self, id, env_name, project_name, description, author_id, created, trac_environment_key=None, public=False,
                  updated=None, published=None, parent_id=None,
                  discforum=False, icon_name=None, priority=None):
 
@@ -43,9 +42,16 @@ class ProjectStub(object):
         self.discforum = discforum
         self.icon_name = icon_name
         self.priority = priority
+        self.public = public
 
     def project_name(self):
         """
         Property for getting project name
         """
         return self._name.decode('utf-8')
+    
+    def project(self):
+        """
+            Returns projects visibility True : False
+        """
+        return self.public

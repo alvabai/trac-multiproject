@@ -183,7 +183,7 @@ class ProjectsRPC(Component):
         prjs = Projects()
         return prjs.project_environment_exists(short_name)
 
-    def createProject(self, req, projectid, projectname, description, public, serviceslist):
+    def createProject(self, req, projectid, projectname, description, project_visibility, serviceslist):
         """ Request to create a new project
         """
         services = {}
@@ -201,9 +201,11 @@ class ProjectsRPC(Component):
 
         if not author.can_create_project():
             raise Exception("You are not allowed to create projects")
-
+        
+        public = False
         published = None
-        if public == "on" or public == "true":
+        if project_visibility == "on" or project_visibility == "true":
+            public = True
             published = datetime.now()
 
         # Create project class
@@ -213,9 +215,10 @@ class ProjectsRPC(Component):
                           description=description,
                           author_id=author.id,
                           created=None,
+                          public=public,
                           published=published)
 
-        if public == "on" or public == "true":
+        if project_visibility == "on" or project_visibility == "true":
             services['project_visibility'] = 'on'
         else:
             services['project_visibility'] = 'off'
