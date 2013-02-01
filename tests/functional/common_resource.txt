@@ -20,3 +20,18 @@ Login
     Input Password  password  ${VALID_PASSWD} 
     Click Button  Login
     Location Should Be  ${WELCOME_PAGE}
+
+
+Create new project  [Arguments]  ${projname}
+    Login
+    Click Link  Create new project >
+    Location Should Be  ${WELCOME_PAGE}/project/new
+    Title should be  Create a New Project – home
+    Input text  prj_long_name  ${projname}
+    Input text  prj_description  This is a dummy test project
+    Click button  submit_create_form
+    Title should be  ${projname} – ${projname}
+
+
+
+

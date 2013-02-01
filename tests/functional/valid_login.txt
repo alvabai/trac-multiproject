@@ -6,13 +6,7 @@ Resource       common_resource.txt
 
 *** Test Cases ***
 
-Create new project
-    Login
-    Click Link  Create new project >
-    Location Should Be  ${WELCOME_PAGE}/project/new
-    Title should be  Create a New project – home
-
-
-
+Change public project to private
+    Create new project    test_project1
 
 # vim:sw=4
