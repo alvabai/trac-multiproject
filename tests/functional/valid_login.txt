@@ -3,10 +3,21 @@
 Documentation  A test suite testing login.
 Resource       common_resource.txt
 
+*** Variables ***
+${proj_name}  test_project5
 
 *** Test Cases ***
 
 Change public project to private
-    Create new project    test_project1
+    Create new project    ${proj_name}
+    Click link  Admin
+    Click link  Permissions
+    Click element  makeprivate
+    Page should contain  Project is currently : private
+    Click link  Projects Home
+    Click link  All public projects >
+    Page should not contain  ${proj_name}
+    Click link  My Projects
+    Page should contain  ${proj_name}
 
 # vim:sw=4
