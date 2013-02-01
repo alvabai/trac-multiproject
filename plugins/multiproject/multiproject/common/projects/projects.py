@@ -61,7 +61,7 @@ class Projects(object):
         commandlist.append(commands.ListUpProject(project))
         commandlist.append(commands.SetPermissions(project))
 
-        if project.published:
+        if project.public:
             commandlist.append(commands.MakeProjectPublic(project))
 
         commandlist.append(commands.CreateDav(project))

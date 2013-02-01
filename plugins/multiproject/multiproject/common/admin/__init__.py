@@ -1,3 +1,3 @@
-from multiproject.common.admin.admintemplateprovider import HomeAdminTemplateProvider
-from multiproject.common.admin.categories import CategoriesJSONRequestHandler
-from multiproject.common.admin.permissions import PermissionsAdminPanel
+from admintemplateprovider import HomeAdminTemplateProvider
+from categories import CategoriesJSONRequestHandler
+from permissions import PermissionsAdminPanel

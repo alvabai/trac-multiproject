@@ -18,11 +18,19 @@ $(document).ready(function() {
     });
 
     $('input.remove_permission').click(function(event) {
-        var cbox = multiproject.ui.ConfirmationBox("Are you sure you want to remove the permission?");
         var self = this;
-        cbox.open(event, function() {
+        var li = $(self).closest('li');
+        var perm_group = li.find('input[name="group"]').val();
+        var permission = li.find('input[name="permission"]').val();
+        if (perm_group === "Public viewers") {
+          var nbox = multiproject.ui.NotifyBox("You are not allowed to remove "+"'"+permission+"'"+" permission for "+perm_group);
+          nbox.open();
+        }else{
+          var cbox = multiproject.ui.ConfirmationBox("Are you sure you want to remove the permission?");
+          cbox.open(event, function() {
             removePermission($(self));
-        });
+          });
+       }
     });
 
     $('input.remove_group').click(function(event) {

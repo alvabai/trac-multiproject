@@ -126,10 +126,12 @@ class ProjectListModule(Component):
 
         identifier = req.args.get('prj_short_name')
         name = req.args.get('prj_long_name')
-        public = 'prj_is_public' in req.args
+        project_visibility = 'prj_is_public' in req.args
 
+        public = False
         published = None
-        if public:
+        if project_visibility:
+            public = True
             published = datetime.now()
 
         # Create project object
@@ -140,6 +142,7 @@ class ProjectListModule(Component):
             description = req.args.get('prj_description'),
             author_id = author.id,
             created = None, # Use default which is now()
+            public = public,
             published = published
         )
 
