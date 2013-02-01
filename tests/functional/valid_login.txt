@@ -1,0 +1,18 @@
+*** Settings ***
+
+Documentation  A test suite testing login.
+Resource       common_resource.txt
+
+
+*** Test Cases ***
+
+Create new project
+    Login
+    Click Link  Create new project >
+    Location Should Be  ${WELCOME_PAGE}/project/new
+    Title should be  Create a New project – home
+
+
+
+
+# vim:sw=4

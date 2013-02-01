@@ -1,0 +1,22 @@
+*** Settings ***
+Library  Selenium2Library
+
+*** Variables ***
+${SERVER}     localhost:8000
+${BROWSER}    firefox
+${LOGIN_URL}  http://${SERVER}
+${WELCOME_PAGE}  http://localhost:8000/home
+${VALID_USER}    tracadmin
+${VALID_PASSWD}  tracadmin
+
+
+
+*** Keywords ***
+
+Login
+    Open Browser  ${LOGIN_URL}  ${BROWSER}
+    Title Should be  Welcome – home  # en-dash, not a normal one :-/
+    Input Text  username  ${VALID_USER} 
+    Input Password  password  ${VALID_PASSWD} 
+    Click Button  Login
+    Location Should Be  ${WELCOME_PAGE}
