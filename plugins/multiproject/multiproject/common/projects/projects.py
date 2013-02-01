@@ -329,7 +329,7 @@ class Projects(object):
         query = ("SELECT projects.*, project_selected.value AS priority FROM project_selected "
                  "INNER JOIN projects ON  project_selected.project_id = projects.project_id "
                  "ORDER BY priority ")
-
+        conf.log.exception("Query when getting featured projects: %s" % query)
         if limit:
             if count:
                 query += "LIMIT %d,%d" % (safe_int(limit), safe_int(count))
@@ -360,7 +360,7 @@ class Projects(object):
                         lines.append(line % (safe_string(project), safe_int(value)))
 
                     query += ",".join(lines)
-
+                    conf.log.exception(query);
                     cursor.execute(query)
             except:
                 conf.log.exception("Update featured project transaction failed %s" % query)
@@ -1094,13 +1094,11 @@ class Projects(object):
         project_trac_environment_key = None
         project_priority = None
 
-
         if parent_data:
             parent = Projects.sqlToProject(parent_data)
-
-        if len(project_data) == 12:
+        if len(project_data) == 13:
             project_trac_environment_key = project_data[10]
-            project_priority = project_data[11]
+            project_priority = project_data[12]
         
         prj = Project(
             id=project_data[0],
