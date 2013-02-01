@@ -46,10 +46,10 @@ class PermissionsAdminPanel(Component):
         add_script(req, 'multiproject/js/permissions.js')
         add_stylesheet(req, 'multiproject/css/jquery-ui.css')
         add_stylesheet(req, 'multiproject/css/permissions.css')
-
+        
+        project = Project.get(self.env) #
         is_normal_project = self.env.project_identifier != \
                             self.env.config.get('multiproject', 'sys_home_project_name')
-        project = Project.get(self.env) #
 
         # API instances
         perm_sys = PermissionSystem(self.env)
@@ -96,12 +96,16 @@ class PermissionsAdminPanel(Component):
                 if conf.allow_public_projects:
                     self._make_public(req, project)
                     project_api.add_public_project_visibility(project.id)
+                    # Reload page
+                    return req.redirect(req.href(req.path_info))
                 else:
                     raise TracError("Public projects are disabled", "Error!")
             elif 'makeprivate' in req.args:
                 project_api = Projects()
                 self._make_private(req, project)
                 project_api.remove_public_project_visibility(project.id)
+                # Reload page
+                return req.redirect(req.href(req.path_info))
             else:
                 raise TracError('Unknown action %s' % action)
 
@@ -448,8 +452,7 @@ class PermissionsAdminPanel(Component):
                 listener.project_set_public(project)
             # Notify user
             add_notice(req, tag(
-                _("Project published: "),
-                tag.a(_('public groups added'), href=req.href('admin/general/permissions'))
+                _("Project published: "), _('public groups added')
             ))
         else:
             add_warning(req, "Failed to publish project")
@@ -462,8 +465,7 @@ class PermissionsAdminPanel(Component):
                 listener.project_set_private(project)
             # Notify user
             add_notice(req, tag(
-                _("Unpublished project: "),
-                tag.a(_('public groups removed'), href=req.href('admin/general/permissions'))
+                _("Unpublished project: "), _('public groups removed')
             ))
         else:
             add_warning(req, "Failed to unpublish project")
