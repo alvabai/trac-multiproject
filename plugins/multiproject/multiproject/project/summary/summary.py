@@ -155,8 +155,7 @@ Example usage:
          context_order, languages) = self._get_project_categories(project)
 
         # Get project visibility: public or private
-        ug = CQDEUserGroupStore(project.trac_environment_key)
-        visibility = _('Public') if ug.is_public_project() else _('Private')
+        visibility = _('Public') if project.public else _('Private')
 
         # Return rendered HTML with JS attached to it
         data = {

@@ -1,8 +1,23 @@
 # -*- coding: utf-8 -*-
 
+
+import sys, os
+
+# add parent dir to sys.path
+sys.path.append(
+    os.path.normpath(
+        os.path.join(
+            os.path.abspath(os.path.dirname(__file__)),
+            ".."
+        )
+    )
+)
+
+print "hi \n".join(sys.path)
 import unittest2 as unittest
 
 from core.permissionTest import *
+from common.admin.permissions import *
 
 class TestPermission(unittest.TestCase):
     def setUp(self):
@@ -18,7 +33,7 @@ class TestPermission(unittest.TestCase):
         check_val = user_group_store.remove_user_from_group("tero.test", "project2")
         self.assertFalse(check_val)
 
-    def test_remove_use_with_mikko_mallikas_as_username_and_project3_as_group_name_should_return_false(self):
+    def test_remove_user_with_mikko_mallikas_as_username_and_project3_as_group_name_should_return_false(self):
         user_group_store = CQDEUserGroupStoreStub()
         check_val = user_group_store.remove_user_from_group("mikko.mallikas", "project3")
         self.assertFalse(check_val)

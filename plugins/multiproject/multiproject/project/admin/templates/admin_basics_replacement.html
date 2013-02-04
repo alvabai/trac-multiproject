@@ -81,31 +81,6 @@
         </fieldset>
     </form>
 </div>
-
-<py:choose>
-    <py:when test="allow_public_projects">
-        <h2>Project visibility</h2>
-        <p>Project is currently : <strong>${'public' if is_public else 'private'}</strong></p>
-        <p>
-            The difference between private and public project are the permissions:
-            If your project is public (and we really hope you will keep it public)
-            anyone can see your project, discussions, tickets etc. You can
-            <a href="${href('admin/general/permissions')}">fine tune permissions at group administration page</a>
-        </p>
-        <form action="" method="post">
-            <fieldset>
-                <div class="buttons">
-                    <input type="submit" class="visibility_btn" name="makepublic"
-                           value="Make public" py:if="not is_public"
-                           title="Creates user groups so that all authenticated users can contribute and anonymous view." />
-                    <input type="submit" class="visibility_btn" name="makeprivate"
-                           value="Make private" py:if="is_public"
-                           title="Removes public groups that have been created in here or when project was created."/>
-                </div>
-            </fieldset>
-        </form>
-    </py:when>
-</py:choose>
 </body>
 
 </html>
