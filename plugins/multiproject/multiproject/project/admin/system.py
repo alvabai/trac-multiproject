@@ -69,7 +69,7 @@ class SystemAdminPanel(Component):
                         listener.project_deleted(project)
 
                     # NOTE: We no longer have project tables/session etc available
-                    self.redirect_home(req)
+                    req.redirect("../home/myprojects")
 
                 else:
                     add_warning(req, 'Could not remove project "%s". Try again later' % project.project_name)
