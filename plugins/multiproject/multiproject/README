@@ -1,0 +1,7 @@
+Folder structure maps to enabling/disabling packages.
+
+home:     features which are enabled for home environment
+projects: features which are enabled for each project
+core:     generic classes, not part of Trac
+common:   features which are enabled for both home and project
+
