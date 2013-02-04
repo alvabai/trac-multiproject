@@ -1,6 +1,6 @@
 *** Settings ***
 
-Documentation  A test suite testing login.
+Documentation  Tests related for changing project visibility
 Resource       common_resource.txt
 
 *** Variables ***
