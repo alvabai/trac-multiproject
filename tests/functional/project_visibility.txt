@@ -23,8 +23,8 @@ Change public project to private
     [Teardown]     Remove project  ${proj_name}
 
 Project removal
-    [Setup]  Login
-    Remove project  ${proj_name}
+    [Setup]  Create new project  foo_bar
+    Remove project  foo_bar
 
 
 # vim:sw=4
