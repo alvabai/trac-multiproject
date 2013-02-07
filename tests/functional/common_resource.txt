@@ -32,6 +32,12 @@ Create new project  [Arguments]  ${projname}
     Click button  submit_create_form
     Title should be  ${projname} – ${projname}
 
+Remove project
+    [Arguments]  ${proj_name}
+    Go to        ${SERVER}/${proj_name}/admin/general/system
+    Click element   name=remove
+    Click button   Confirm
 
 
 
+# vim:sw=4:ts=4

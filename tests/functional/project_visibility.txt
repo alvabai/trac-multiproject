@@ -2,9 +2,10 @@
 
 Documentation  Tests related for changing project visibility
 Resource       common_resource.txt
+# Test Teardown  Remove project
 
 *** Variables ***
-${proj_name}  test_project5
+${proj_name}  test_project6
 
 *** Test Cases ***
 
@@ -12,12 +13,18 @@ Change public project to private
     Create new project    ${proj_name}
     Click link  Admin
     Click link  Permissions
-    Click element  makeprivate
+    Click element  name=makeprivate
     Page should contain  Project is currently : private
     Click link  Projects Home
     Click link  All public projects >
     Page should not contain  ${proj_name}
     Click link  My Projects
     Page should contain  ${proj_name}
+    [Teardown]     Remove project  ${proj_name}
+
+Project removal
+    [Setup]  Login
+    Remove project  ${proj_name}
+
 
 # vim:sw=4
