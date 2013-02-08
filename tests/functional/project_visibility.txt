@@ -1,5 +1,4 @@
 *** Settings ***
-
 Documentation  Tests related for changing project visibility
 Resource       common_resource.txt
 # Test Teardown  Remove project
@@ -9,7 +8,11 @@ ${proj_name}  test_project6
 
 *** Test Cases ***
 
+Login should work
+    Login
+
 Change public project to private
+    Set Selenium Implicit Wait  1
     Create new project    ${proj_name}
     Click link  Admin
     Click link  Permissions
@@ -27,4 +30,4 @@ Project removal
     Remove project  foo_bar
 
 
-# vim:sw=4
+# vim:sw=4:ts=4

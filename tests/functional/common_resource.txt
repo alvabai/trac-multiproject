@@ -2,10 +2,10 @@
 Library  Selenium2Library
 
 *** Variables ***
-${SERVER}     localhost:8000
+${SERVER}     localhost:8080
 ${BROWSER}    firefox
 ${LOGIN_URL}  http://${SERVER}
-${WELCOME_PAGE}  http://localhost:8000/home
+${WELCOME_PAGE}  http://localhost:8080/home
 ${VALID_USER}    tracadmin
 ${VALID_PASSWD}  tracadmin
 
@@ -15,9 +15,11 @@ ${VALID_PASSWD}  tracadmin
 
 Login
     Open Browser  ${LOGIN_URL}  ${BROWSER}
+    Maximize Browser Window
+    Click link  Log in
     Title Should be  Welcome – home  # en-dash, not a normal one :-/
-    Input Text  username  ${VALID_USER} 
-    Input Password  password  ${VALID_PASSWD} 
+    Input Text  name=username  ${VALID_USER} 
+    Input Password  name=password  ${VALID_PASSWD} 
     Click Button  Login
     Location Should Be  ${WELCOME_PAGE}
 
@@ -29,7 +31,7 @@ Create new project  [Arguments]  ${projname}
     Title should be  Create a New Project – home
     Input text  prj_long_name  ${projname}
     Input text  prj_description  This is a dummy test project
-    Click button  submit_create_form
+    Click button  id=submit_create_form
     Title should be  ${projname} – ${projname}
 
 Remove project
@@ -37,6 +39,7 @@ Remove project
     Go to        ${SERVER}/${proj_name}/admin/general/system
     Click element   name=remove
     Click button   Confirm
+    Close Browser
 
 
 
