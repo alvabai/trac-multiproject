@@ -408,7 +408,6 @@ class GlobalLoginModule(Component):
 
             # Remove cached cookie
             self.cookie.remove(sql_safe_cookie_value)
-
             # Create cookie by setting expiration to past
             self._set_outcookie(req, cookie='', expires=(datetime.utcnow() - timedelta(10000)))
 

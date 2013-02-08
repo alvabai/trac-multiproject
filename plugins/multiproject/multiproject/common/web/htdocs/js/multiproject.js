@@ -2206,3 +2206,7 @@ $('#prj_long_name').live("keyup", function(){
     prj_name = $.trim(prj_name.toLowerCase().replace(new RegExp(" ", "g"), "_").replace(new RegExp("ä", "g"), "a").replace(new RegExp("å", "g"), "a").replace(new RegExp("ö", "g"), "o"));
     $('#prj_short_name').val(prj_name);
 });
+
+$("#signOut").live("click", function(){
+    $.removeCookie('trac_form_token', { path: '/home' });
+});
