@@ -1,11 +1,12 @@
 *** Settings ***
-Library  Selenium2Library
+Library         Selenium2Library  0  1    # Set explicit wait to 0 and implicit wait to 1 sec
+
 
 *** Variables ***
 ${SERVER}     localhost:8080
 ${BROWSER}    firefox
-${LOGIN_URL}  http://${SERVER}
-${WELCOME_PAGE}  http://localhost:8080/home
+${LOGIN_URL}  http://${SERVER}/home/user
+${WELCOME_PAGE}  http://${SERVER}/home
 ${VALID_USER}    tracadmin
 ${VALID_PASSWD}  tracadmin
 
@@ -13,19 +14,26 @@ ${VALID_PASSWD}  tracadmin
 
 *** Keywords ***
 
-Login
+Open Browser to Login Page
     Open Browser  ${LOGIN_URL}  ${BROWSER}
     Maximize Browser Window
-    Click link  Log in
+
+Go to Welcome Page
+    Go to  ${WELCOME_PAGE}
+    Title should be  multiproject – home
+
+Login
+    [Documentation]  Login when login page is already opened
+    [Arguments]   ${username}=${VALID_USER}  ${password}=${VALID_PASSWD}
+    Open Browser to Login Page
     Title Should be  Welcome – home  # en-dash, not a normal one :-/
-    Input Text  name=username  ${VALID_USER} 
-    Input Password  name=password  ${VALID_PASSWD} 
+    Input Text  name=username  ${username} 
+    Input Password  name=password  ${password} 
     Click Button  Login
     Location Should Be  ${WELCOME_PAGE}
 
 
 Create new project  [Arguments]  ${projname}
-    Login
     Click Link  Create new project >
     Location Should Be  ${WELCOME_PAGE}/project/new
     Title should be  Create a New Project – home
@@ -39,7 +47,7 @@ Remove project
     Go to        ${SERVER}/${proj_name}/admin/general/system
     Click element   name=remove
     Click button   Confirm
-    Close Browser
+    #Close Browser
 
 
 
