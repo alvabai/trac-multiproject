@@ -3,7 +3,8 @@ Library         Selenium2Library  0  1    # Set explicit wait to 0 and implicit 
 
 
 *** Variables ***
-${SERVER}     localhost:8080
+${PORT}       8080
+${SERVER}     localhost:${8080}
 ${BROWSER}    firefox
 ${LOGIN_URL}  http://${SERVER}/home/user
 ${WELCOME_PAGE}  http://${SERVER}/home
