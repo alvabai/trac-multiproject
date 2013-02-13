@@ -21,7 +21,7 @@ class ProjectNews(object):
         self.news_forum_name = conf.news_forum_name
         self.env_name = db.safe_string(env_name)
 
-    def get_project_news(self, limit=0):
+    def get_project_news(self, limit=0, f_name=None):
         """
         Return all news for a project. The data is in form of a list of dicts, containing subject,
         author, time for news post, body of the news, number of comments to the news and an
@@ -31,6 +31,16 @@ class ProjectNews(object):
         :returns: The project news, if any
         """
         news = []
+        forum_name = self.news_forum_name
+
+        # Check the first available forum
+        if f_name is not None:
+            if self.get_news_forum_by_name(f_name) is not None:
+                forum_name = f_name
+            else:
+                forum_name = self.get_news_forum_by_name(None, True)
+        elif self.get_news_forum_by_name(self.news_forum_name) is None:
+            forum_name = self.get_news_forum_by_name(None, True)
 
         if not limit:
             query = '''
@@ -57,7 +67,7 @@ class ProjectNews(object):
 
         with db.admin_query() as cursor:
             try:
-                cursor.execute(query, (self.news_forum_name,))
+                cursor.execute(query, (forum_name,))
                 for row in cursor:
                     news.append({'subject': row[0],
                                  'author': row[1],
@@ -86,9 +96,38 @@ class ProjectNews(object):
                 self.log.exception("SQL query failed: %s" % query)
                 raise
 
+    def get_news_forum_by_name(self, name, first=False):
+        """
+        Get the forum name for news forum. News forum name is defined in method params. If parameter 
+        'first' is true, get the first forum name if available
+
+        :returns: The database name for news forum or None
+        """
+
+        forum_name = None
+
+        if first is False:
+            query = "SELECT name FROM `%s`.forum WHERE name = '%s'" % (self.env_name, name)
+        else:
+            query = "SELECT name FROM `%s`.forum ORDER BY id ASC LIMIT 1" % self.env_name   
+
+        self.log.exception("SQL query failed: %s" % query)
+        with db.admin_query() as cursor:
+            try:
+                cursor.execute(query)
+                row = cursor.fetchone()
+                if row:
+                    forum_name = row[0]
+            except Exception:
+                self.log.exception("SQL query failed: %s" % query)
+                raise
+
+        return forum_name
+
+
     def get_news_forum_id(self):
         """
-        Get the database id for news forum. News forum name is defined in config.
+        Get the forum id for news forum. News forum name is defined in config.
 
         :returns: The database id for news forum
         """
