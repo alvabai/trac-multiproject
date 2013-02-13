@@ -1,4 +1,5 @@
 *** Settings ***
+
 Documentation  Tests related for changing project visibility
 Resource       common_resource.txt
 Suite setup  Login
