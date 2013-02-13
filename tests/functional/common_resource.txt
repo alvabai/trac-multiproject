@@ -48,7 +48,6 @@ Remove project
     Go to        ${SERVER}/${proj_name}/admin/general/system
     Click element   name=remove
     Click button   Confirm
-    #Close Browser
 
 
 
