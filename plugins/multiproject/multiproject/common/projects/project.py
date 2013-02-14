@@ -112,9 +112,6 @@ class Project(object):
     def _get_project(project_id=None, env_name=None, use_cache=True):
         by_env = False
         if env_name:
-            if env_name == conf.sys_home_project_name:
-                # TODO: eventually we want to have home project in projects table ...
-                raise NotImplementedError('home project not supported')
             by_env = True
             param = env_name
         elif project_id:

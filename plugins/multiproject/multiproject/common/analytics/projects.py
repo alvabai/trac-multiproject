@@ -23,7 +23,8 @@ class ProjectAnalytics(Component):
         self._log_event(project, 'project_archived')
 
     def project_deleted(self, project):
-        self._log_event(project, 'project_deleted')
+        #self._log_event(project, 'project_deleted')
+        pass
 
     def _log_event(self, project, eventname):
         """
