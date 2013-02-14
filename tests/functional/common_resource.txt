@@ -1,6 +1,5 @@
 *** Settings ***
 Library         Selenium2Library  0  1    # Set explicit wait to 0 and implicit wait to 1 sec
-Test Timeout  1 minute
 
 
 *** Variables ***
