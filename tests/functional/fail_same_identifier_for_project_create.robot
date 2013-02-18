@@ -7,9 +7,8 @@ Test Setup  Go to Welcome Page
 Suite Teardown  Close Browser
 
 *** Variables ***
-${proj_name}  test_project1
-${proj_name}  test_project1
-${failed_to_create}  A project with '''${proj_name}''' as identifier already exists.
+${proj_name}  duplicate_project
+${failed_to_create}  This project already exists! Change identifier
 
 *** Test Cases ***
 

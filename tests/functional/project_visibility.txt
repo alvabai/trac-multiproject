@@ -14,6 +14,7 @@ ${proj_name}  test_project6
 Change public project to private
     #Login  tracadmin  tracadmin
     Create new project    ${proj_name}
+    Title should be  ${projname} – ${projname}
     Click link  Admin
     Click link  Permissions
     Click element  name=makeprivate
@@ -25,9 +26,10 @@ Change public project to private
     Page should contain  ${proj_name}
     [Teardown]     Remove project  ${proj_name}
 
-Project removal
-    Create new project  foo_bar
-    Remove project  foo_bar
+Remove project
+    Create new project  ${projname}
+    Title should be  ${projname} – ${projname}
+    Remove project  ${projname}
 
 
 # vim:sw=4:ts=4
