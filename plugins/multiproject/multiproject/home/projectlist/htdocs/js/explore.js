@@ -312,21 +312,23 @@ function update_search_box(arguments) {
 
 function put_category_into_search_box(cat_id) {
     //console.log('put_category_into_search_box', cat_id);
-    var cat_name = $('#cat_' + cat_id + '_top').add('#cat_' + cat_id).find('label:first').text();
-    if ($('#sbcat_'+cat_id).length > 0) {
-        // already there!
-        return;
+    if($.isNumeric(cat_id)){
+        var cat_name = $('#cat_' + cat_id + '_top').add('#cat_' + cat_id).find('label:first').text();
+        if ($('#sbcat_'+cat_id).length > 0) {
+            // already there!
+            return;
+        }
+        var cat_list = $('#category_attribs ul.word_box_list');
+        cat_list.append('<li id="sbcat_'+cat_id+'" class="sb_category"><span>'+cat_name+'</span> <input type="button" value=" " class="delete_button delete_categories" /></li>');
+        // delete_button delete_categories
+        cat_list.find('#sbcat_'+cat_id+' .delete_categories').click(function () {
+            var cat_id = $(this).parents('li').attr('id').split('_')[1];
+            unselect_category(cat_id, true);
+            selected_sub_page = 1;
+            update_url();
+        });
+        $('#category_attribs').addClass('with_categories');
     }
-    var cat_list = $('#category_attribs ul.word_box_list');
-    cat_list.append('<li id="sbcat_'+cat_id+'" class="sb_category"><span>'+cat_name+'</span> <input type="button" value=" " class="delete_button delete_categories" /></li>');
-    // delete_button delete_categories
-    cat_list.find('#sbcat_'+cat_id+' .delete_categories').click(function () {
-        var cat_id = $(this).parents('li').attr('id').split('_')[1];
-        unselect_category(cat_id, true);
-        selected_sub_page = 1;
-        update_url();
-    });
-    $('#category_attribs').addClass('with_categories');
 }
 
 function remove_category_from_search_box(cat_id) {
