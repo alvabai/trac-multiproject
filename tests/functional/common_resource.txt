@@ -1,13 +1,13 @@
 *** Settings ***
-Library         Selenium2Library  0  1    # Set explicit wait to 0 and implicit wait to 1 sec
+Library         Selenium2Library  0  4    # Set explicit wait to 0 and implicit wait to 1 sec
 
 
 *** Variables ***
-${PORT}       8080
+${PORT}       4433
 ${SERVER}     localhost:${PORT}
-${BROWSER}    firefox
-${LOGIN_URL}  http://${SERVER}/home/user
-${WELCOME_PAGE}  http://${SERVER}/home
+${BROWSER}    firefox 
+${LOGIN_URL}  https://${SERVER}/home/user
+${WELCOME_PAGE}  https://${SERVER}/home
 ${VALID_USER}    tracadmin
 ${VALID_PASSWD}  tracadmin
 
