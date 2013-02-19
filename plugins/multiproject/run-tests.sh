@@ -1,2 +1,3 @@
 #!/bin/sh
-nosetests -v multiproject/core/util/test
+nosetests -v multiproject/core/util/test \
+multiproject/test
