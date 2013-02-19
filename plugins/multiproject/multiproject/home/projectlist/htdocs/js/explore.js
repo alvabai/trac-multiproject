@@ -314,6 +314,10 @@ function put_category_into_search_box(cat_id) {
     //console.log('put_category_into_search_box', cat_id);
     if($.isNumeric(cat_id)){
         var cat_name = $('#cat_' + cat_id + '_top').add('#cat_' + cat_id).find('label:first').text();
+        a
+        if (cat_name == ""){
+            return;
+        }
         if ($('#sbcat_'+cat_id).length > 0) {
             // already there!
             return;
