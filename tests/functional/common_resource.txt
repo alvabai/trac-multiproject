@@ -1,0 +1,55 @@
+*** Settings ***
+Library         Selenium2Library  0  1    # Set explicit wait to 0 and implicit wait to 1 sec
+
+
+*** Variables ***
+${PORT}       8080
+${SERVER}     localhost:${PORT}
+${BROWSER}    firefox
+${LOGIN_URL}  http://${SERVER}/home/user
+${WELCOME_PAGE}  http://${SERVER}/home
+${VALID_USER}    tracadmin
+${VALID_PASSWD}  tracadmin
+
+
+
+*** Keywords ***
+
+Open Browser to Login Page
+    Open Browser  ${LOGIN_URL}  ${BROWSER}
+    Maximize Browser Window
+
+Go to Welcome Page
+    Go to  ${WELCOME_PAGE}
+    Title should be  multiproject – home
+
+Login
+    [Documentation]  Login when login page is already opened
+    [Arguments]   ${username}=${VALID_USER}  ${password}=${VALID_PASSWD}
+    Open Browser to Login Page
+    Title Should be  Welcome – home  # en-dash, not a normal one :-/
+    Input Text  name=username  ${username} 
+    Input Password  name=password  ${password} 
+    Click Button  Login
+    Location Should Be  ${WELCOME_PAGE}
+
+
+Create new project  [Arguments]  ${projname}
+    [Documentation]  Attempt to create a new project, without verification of the result.
+    Click Link  Create new project >
+    Location Should Be  ${WELCOME_PAGE}/project/new
+    Title should be  Create a New Project – home
+    Input text  prj_long_name  ${projname}
+    Input text  prj_description  This is a dummy test project
+    Click button  id=submit_create_form
+
+Remove project
+    [Arguments]  ${proj_name}
+    Go to        ${SERVER}/${proj_name}/admin/general/system
+    Click element   name=remove
+    Click button   Confirm
+    #Close Browser
+
+
+
+# vim:sw=4:ts=4

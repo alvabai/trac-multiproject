@@ -36,7 +36,6 @@ class Projects(object):
         # Check if project exists
         if self.project_environment_exists(project.env_name):
             raise ProjectValidationException("This project already exists! Change identifier.")
-
         # Check version control type
         if services['vcs_type'] not in conf.supported_scm_systems:
             raise ProjectValidationException("Unsupported source control management system.")

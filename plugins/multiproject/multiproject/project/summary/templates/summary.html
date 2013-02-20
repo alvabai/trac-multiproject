@@ -47,6 +47,10 @@
             </py:when>
         </div>
 
+        <div class="resource-box" id="project-annoucements">
+            ${wiki_to_html(context, '[[Announcements(count=3)]]')}
+        </div>
+
         <div py:if="'TIMELINE_VIEW' in req.perm" class="resource-box">
             <h2 class="resources-title">5 latest activities</h2>
 
@@ -63,10 +67,6 @@
                     <a class="more" href="${req.href('timeline')}" shape="rect">See the complete timeline &gt;</a>
                 </li>
             </ul>
-        </div>
-
-        <div class="resource-box" id="project-annoucements">
-            ${wiki_to_html(context, '[[Announcements(count=5,title="5 latest announcements")]]')}
         </div>
 
     </div>

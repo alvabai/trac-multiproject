@@ -29,3 +29,6 @@ tests/webtests/tests.ini
 tests/perf/smoke-test.xml*
 tests/perf/smoke-bench.xml*
 tests/perf/MultiprojectTestCase.conf
+tests/functional/log.html
+tests/functional/output.xml
+tests/functional/report.html

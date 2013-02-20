@@ -47,7 +47,7 @@ board. Take note that permission checks are still in place.
 
 Arguments:
 
-* title - Title for the section to show. Defaults to "Latest Announcements".
+* title - Title for the section to show. Defaults to "Latest announcements".
 * count - The amount of news to list. Defaults to 5.
 * project - The project to list the news from. Defaults to current project.
 
@@ -63,6 +63,7 @@ Will return last 10 news from project "multiproject"
         Expand the macro. We will accept a parameter to point us to another project
         if necessary.
         """
+
         if name != 'Announcements':
             return None
 
@@ -73,6 +74,7 @@ Will return last 10 news from project "multiproject"
         count = 0
         title = None
         env = None
+
 
         # Parse settings for the macro
         env_name, count, title = self._parse_args(args, content)
@@ -118,7 +120,7 @@ Will return last 10 news from project "multiproject"
             if 'DISCUSSION_VIEW' in permcache:
                 try:
                     news = ProjectNews(env_name)
-                    data['newsitems'] = news.get_project_news(limit=count)
+                    data['newsitems'] = news.get_project_news(limit=count,f_name="Announcements")
                     data['news_forum_id'] = news.get_news_forum_id()
                 except Exception, e:
                     self.log.exception("Failed to read project {0} news.".format(env_name))
@@ -160,7 +162,7 @@ Will return last 10 news from project "multiproject"
         """
         env_name = ''
         count = 0
-        title = 'Latest Announcements'
+        title = 'Latest announcements'
 
         if args is None:
             args = parse_args(content)
