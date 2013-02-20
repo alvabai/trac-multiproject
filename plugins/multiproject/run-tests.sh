@@ -1,2 +1,3 @@
 #!/bin/sh
-nosetests -v multiproject/core/util/test
+nosetests -v --with-xunit --xunit-file=../../nosetests.xml multiproject/core/util/test \
+multiproject/test

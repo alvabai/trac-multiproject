@@ -1,5 +1,6 @@
 *** Settings ***
-Library         Selenium2Library  0  4    # Set explicit wait to 0 and implicit wait to 1 sec
+
+Library         Selenium2Library  0  2    # Set explicit wait to 0 and implicit wait to 1 sec
 
 
 *** Variables ***
@@ -46,6 +47,7 @@ Create new project  [Arguments]  ${projname}
 Remove project
     [Arguments]  ${proj_name}
     Go to        ${SERVER}/${proj_name}/admin/general/system
+    Page should contain  Want to remove project from service?
     Click element   name=remove
     Click button   Confirm
     #Close Browser

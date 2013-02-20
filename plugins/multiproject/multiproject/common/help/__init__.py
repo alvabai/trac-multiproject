@@ -1,1 +1,1 @@
-from multiproject.common.help.help import HelpModule
+from help import HelpModule

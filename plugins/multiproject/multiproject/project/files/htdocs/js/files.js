@@ -456,16 +456,30 @@ $(document).ready(function () {
         return;
     }
 
-    var version = swfobject.getFlashPlayerVersion();
-    if (version.major != 0)
-    {
-        ZeroClipboard.setMoviePath('/htdocs/theme/flash/ZeroClipboard.swf');
-        var clip = new ZeroClipboard.Client();
-        clip.setText( $("#map_address").val() );
-        clip.glue('copybutton');
-    } else
-    {
-        copyButton.addClass('disabledbutton');
-    }
+    var clip = new ZeroClipboard($("#copybutton"), {
+      moviePath: "/htdocs/theme/flash/ZeroClipboard.swf"
+    });
+
+    clip.on('load', function (client) {
+      //console.log("Flash movie loaded and ready.");
+      //console.log("Load repoaddress value: "+$("#map_address").val());
+      clip.setText($("#map_address").val());
+    });
+
+    $("#repoaddress").on("load", function(){
+      clip.setText($(this).text());
+    });
+
+    $("#repoaddress").on("change", function(){
+      clip.setText($(this).text());
+    });
+
+    clip.on('noflash', function (client) {
+      $("#protocol_selection").hide();
+    });
+
+    clip.on('complete', function (client, args) {
+      //console.log("Copied text to clipboard: " + args.text );
+    });
 });
 })(window);

@@ -4,20 +4,21 @@
 import sys, os
 
 # add parent dir to sys.path
-sys.path.append(
-    os.path.normpath(
-        os.path.join(
-            os.path.abspath(os.path.dirname(__file__)),
-            ".."
-        )
-    )
-)
+add_dirs=["..", "../.."]
+for dir in add_dirs:
+  sys.path.append(
+      os.path.normpath(
+          os.path.join(
+              os.path.abspath(os.path.dirname(__file__)),
+              dir
+          )
+      )
+  )
 
 print "hi \n".join(sys.path)
 import unittest2 as unittest
 
 from core.permissionTest import *
-from common.admin.permissions import *
 
 class TestPermission(unittest.TestCase):
     def setUp(self):
