@@ -49,22 +49,34 @@
           if($('#clipbutton').length == 0) {
               return;
           }
+          var clip = new ZeroClipboard($("#clipbutton"), {
+              moviePath: "/htdocs/theme/flash/ZeroClipboard.swf"
+            });
 
-          var version = swfobject.getFlashPlayerVersion();
-          if (version.major != 0)
-          {
-            function update_text(client) {
-                client.setText($("#repoaddress").text());
-            }
-            ZeroClipboard.setMoviePath('/htdocs/theme/flash/ZeroClipboard.swf');
-            var clip = new ZeroClipboard.Client();
-            clip.setText($("#repoaddress").text());
-            clip.glue('clipbutton');
-            clip.addEventListener('onMouseOver', update_text);
-          } else
-          {
-            document.getElementById("clipbutton").setAttribute("class", "disabledbutton");
-          }
+            clip.on('load', function (client) {
+              console.log("Flash movie loaded and ready.");
+              console.log("Load repoaddress value: "+$("#repoaddress").text());
+              clip.setText($("#repoaddress").text());
+            });
+
+            $("#repoaddress").on("load", function(){
+              console.log("Load repoaddress value: "+$(this).text());
+              clip.setText($(this).text());
+            });
+
+            $("#repoaddress").on("change", function(){
+              console.log("Change repoaddress value: "+$(this).text());
+              clip.setText($(this).text());
+            });
+
+            clip.on('noflash', function (client) {
+              $("#protocol_selection").hide();
+              console.log("Your browser has no flash.");
+            });
+
+            clip.on('complete', function (client, args) {
+              console.log("Copied text to clipboard: " + args.text );
+            });
 
           $('.proto_btn').click(function () {
             var id = $(this).attr('id');
@@ -91,7 +103,6 @@
         </py:choose>
     </div>
     <div id="content" class="browser">
-
       <py:if test="dir or file">
 
       <div id="protocol_selection">
