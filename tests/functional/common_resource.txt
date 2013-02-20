@@ -2,27 +2,28 @@
 
 Library         Selenium2Library  0  2    # Set explicit wait to 0 and implicit wait to 1 sec
 
-
 *** Variables ***
+
 ${PORT}       4433
 ${SERVER}     localhost:${PORT}
 ${BROWSER}    firefox 
 ${LOGIN_URL}  https://${SERVER}/home/user
+${BASE_URL}  https://${SERVER}/
 ${WELCOME_PAGE}  https://${SERVER}/home
+${EXPLORE_PAGE}  https://${SERVER}/home/project/explore
 ${VALID_USER}    tracadmin
 ${VALID_PASSWD}  tracadmin
-
 
 
 *** Keywords ***
 
 Open Browser to Login Page
-    Open Browser  ${LOGIN_URL}  ${BROWSER}
+    Open Browser  ${LOGIN_URL}  ${BROWSER}  ff_profile_dir=/Users/maximd/Library/Application Support/Firefox/Profiles/yju0j4fe.Robot
     Maximize Browser Window
 
 Go to Welcome Page
     Go to  ${WELCOME_PAGE}
-    Title should be  multiproject – home
+    Title Should be  multiproject – home
 
 Login
     [Documentation]  Login when login page is already opened
