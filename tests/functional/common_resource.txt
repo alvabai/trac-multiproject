@@ -1,13 +1,14 @@
 *** Settings ***
-Library         Selenium2Library  0  1    # Set explicit wait to 0 and implicit wait to 1 sec
+Library         Selenium2Library  0  2    # Set explicit wait to 0 and implicit wait to 1 sec
 
 
 *** Variables ***
-${PORT}       8080
-${SERVER}     localhost:${PORT}
-${BROWSER}    firefox
-${LOGIN_URL}  http://${SERVER}/home/user
-${WELCOME_PAGE}  http://${SERVER}/home
+${PORT}          4433
+${PROTOCOL}      https
+${SERVER}        ${PROTOCOL}://localhost:${PORT}
+${BROWSER}       firefox
+${LOGIN_URL}     ${SERVER}/home/user
+${WELCOME_PAGE}  ${SERVER}/home
 ${VALID_USER}    tracadmin
 ${VALID_PASSWD}  tracadmin
 
@@ -46,6 +47,7 @@ Create new project  [Arguments]  ${projname}
 Remove project
     [Arguments]  ${proj_name}
     Go to        ${SERVER}/${proj_name}/admin/general/system
+    Page should contain  Want to remove project from service?
     Click element   name=remove
     Click button   Confirm
     #Close Browser
