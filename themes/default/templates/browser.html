@@ -54,28 +54,25 @@
             });
 
             clip.on('load', function (client) {
-              console.log("Flash movie loaded and ready.");
-              console.log("Load repoaddress value: "+$("#repoaddress").text());
+              //console.log("Flash movie loaded and ready.");
+              //console.log("Load repoaddress value: "+$("#repoaddress").text());
               clip.setText($("#repoaddress").text());
             });
 
             $("#repoaddress").on("load", function(){
-              console.log("Load repoaddress value: "+$(this).text());
               clip.setText($(this).text());
             });
 
             $("#repoaddress").on("change", function(){
-              console.log("Change repoaddress value: "+$(this).text());
               clip.setText($(this).text());
             });
 
             clip.on('noflash', function (client) {
               $("#protocol_selection").hide();
-              console.log("Your browser has no flash.");
             });
 
             clip.on('complete', function (client, args) {
-              console.log("Copied text to clipboard: " + args.text );
+              //console.log("Copied text to clipboard: " + args.text );
             });
 
           $('.proto_btn').click(function () {
