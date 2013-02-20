@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation  Tests related for changing project visibility
-Resource       common_resource.txt
+Resource       ${ENVIRONMENT}.txt
 Test Timeout  1 minute
 Suite setup  Login
 Test Setup  Go to Welcome Page
