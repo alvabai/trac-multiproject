@@ -462,7 +462,7 @@ $(document).ready(function () {
 
     clip.on('load', function (client) {
       //console.log("Flash movie loaded and ready.");
-      console.log("Load repoaddress value: "+$("#map_address").val());
+      //console.log("Load repoaddress value: "+$("#map_address").val());
       clip.setText($("#map_address").val());
     });
 
@@ -479,7 +479,7 @@ $(document).ready(function () {
     });
 
     clip.on('complete', function (client, args) {
-      console.log("Copied text to clipboard: " + args.text );
+      //console.log("Copied text to clipboard: " + args.text );
     });
 });
 })(window);
