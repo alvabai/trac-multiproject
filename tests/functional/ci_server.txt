@@ -1,0 +1,8 @@
+*** Settings ***
+Resource  common_resource.txt
+
+
+*** Variables ***
+${PROTOCOL}      https
+${SERVER}        ${PROTOCOL}://127.0.0.1
+${BROWSER}       firefox

@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation  Tests related for changing project visibility
-Resource       common_resource.txt
+Resource       ${ENVIRONMENT}.txt
 Test Timeout  1 minute
 Suite setup  Login
 Test Setup  Go to Welcome Page
@@ -12,7 +12,6 @@ ${proj_name}  test_project6
 *** Test Cases ***
 
 Change public project to private
-    #Login  tracadmin  tracadmin
     Create new project    ${proj_name}
     Title should be  ${projname} – ${projname}
     Click link  Admin
@@ -26,10 +25,13 @@ Change public project to private
     Page should contain  ${proj_name}
     [Teardown]     Remove project  ${proj_name}
 
-Remove project
+Removing project should succeed
     Create new project  ${projname}
     Title should be  ${projname} – ${projname}
     Remove project  ${projname}
+    Title should be  My projects – home
+    Page should not contain  ${projname}
+
 
 
 # vim:sw=4:ts=4

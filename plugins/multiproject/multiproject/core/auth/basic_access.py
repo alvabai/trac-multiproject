@@ -54,7 +54,7 @@ class BasicAccessControl(object):
                     # is a valid string
                     conf.log.error('Password conversion from ISO-8859-1 FAILED')
             self._password = resulting_password
-            self.req.user = self.username
+            self.req.user = self.username # ???
 
         if not self._username:
             self._username = "anonymous"
