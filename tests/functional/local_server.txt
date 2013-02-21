@@ -1,0 +1,8 @@
+*** Settings ***
+Resource  common_resource.txt
+
+
+*** Variables ***
+${PORT}          4433
+${PROTOCOL}      https
+${SERVER}        ${PROTOCOL}://localhost:${PORT}

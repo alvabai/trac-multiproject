@@ -3,9 +3,8 @@ Library         Selenium2Library  0  2    # Set explicit wait to 0 and implicit 
 
 
 *** Variables ***
-${PORT}          4433
 ${PROTOCOL}      https
-${SERVER}        ${PROTOCOL}://localhost:${PORT}
+${SERVER}        ${PROTOCOL}://localhost
 ${BROWSER}       firefox
 ${LOGIN_URL}     ${SERVER}/home/user
 ${WELCOME_PAGE}  ${SERVER}/home

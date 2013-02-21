@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation  Tests related for accessing to the home project permission with trac_admin rights
-Resource       common_resource.txt
+Resource       ${ENVIRONMENT}.txt
 Suite setup  Login
 Test Setup  Go to Welcome Page
 Suite Teardown  Close Browser
