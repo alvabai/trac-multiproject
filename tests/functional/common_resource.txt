@@ -7,8 +7,10 @@ Library         Selenium2Library  0  2    # Set explicit wait to 0 and implicit 
 ${PROTOCOL}      https
 ${SERVER}        ${PROTOCOL}://localhost
 ${BROWSER}       firefox
-${LOGIN_URL}     ${SERVER}/home/user
-${WELCOME_PAGE}  ${SERVER}/home
+${LOGIN_PAGE}     ${SERVER}/home/user
+${LOGIN_TITLE}   Welcome – home
+${WELCOME_PAGE}   ${SERVER}/home
+${WELCOME_TITLE}  multiproject – home
 ${VALID_USER}    tracadmin
 ${VALID_PASSWD}  tracadmin
 
@@ -17,7 +19,7 @@ ${VALID_PASSWD}  tracadmin
 *** Keywords ***
 
 Open Browser to Login Page
-    Open Browser  ${LOGIN_URL}  ${BROWSER}
+    Open Browser  ${LOGIN_PAGE}  ${BROWSER}
     Maximize Browser Window
 
 Go to Welcome Page
@@ -28,7 +30,7 @@ Login
     [Documentation]  Login when login page is already opened
     [Arguments]   ${username}=${VALID_USER}  ${password}=${VALID_PASSWD}
     Open Browser to Login Page
-    Title Should be  Welcome – home  # en-dash, not a normal one :-/
+    Title Should be  ${LOGIN_TITLE}  # en-dash, not a normal one :-/
     Input Text  name=username  ${username} 
     Input Password  name=password  ${password} 
     Click Button  Login
@@ -50,7 +52,6 @@ Remove project
     Page should contain  Want to remove project from service?
     Click element   name=remove
     Click button   Confirm
-    #Close Browser
 
 
 
