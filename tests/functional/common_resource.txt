@@ -1,4 +1,5 @@
 *** Settings ***
+Documentation   Common variables and keywords
 Library         Selenium2Library  0  2    # Set explicit wait to 0 and implicit wait to 1 sec
 
 
@@ -21,7 +22,7 @@ Open Browser to Login Page
 
 Go to Welcome Page
     Go to  ${WELCOME_PAGE}
-    Title should be  multiproject – home
+    Element should contain  tag=title  home
 
 Login
     [Documentation]  Login when login page is already opened
