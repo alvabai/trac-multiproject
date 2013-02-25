@@ -19,6 +19,7 @@ div.group {
 div.group_header {
     background: #ededed;
     margin-bottom: 1em;
+    padding-top: 1em;
 }
 
 div.group_header div.name {
