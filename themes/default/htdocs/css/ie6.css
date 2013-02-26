@@ -1,33 +1,74 @@
-#nav li { display: inline; float: left; }
+#nav li {
+  display: inline;
+  float: left;
+}
 
-#areaLinks { width: 100%; }
+#areaLinks {
+  width: 100%
+}
 
-#header { z-index: 3; }
-#login  { z-index: 3; }
-#nav { z-index: 2;}
-#footer { z-index: 3; }
-
-#Home.hover			{ background-position: 0px -41px; }
-#Design.hover 		{ background-position: -51px -41px; }
-#Develop.hover		{ background-position: -142px -41px; } 
-#Distribute.hover	{ background-position: -240px -41px; }
-#Devices.hover		{ background-position: -346px -41px; }
-#Library.hover		{ background-position: -446px -41px; }
-#Community.hover	{ background-position: -867px -41px; }	
-
-#regionalSitesNav a { height: 1%; }
+#header {
+  z-index: 3
+}
 
 #login {
-	height: 20px;
-	background: #fff;
-	}	
-	
-.ui-selectmenu-menu { z-index: 3; }
+  z-index: 3
+}
 
+#nav {
+  z-index: 2
+}
 
-  .clearfix {
-    zoom: 1;     /* triggers hasLayout */
-    display: block;     /* resets display for IE/Win */
-    }  /* Only IE can see inside the conditional comment
+#footer {
+  z-index: 3
+}
+
+#Home.hover {
+  background-position: 0px -41px
+}
+
+#Design.hover {
+  background-position: -51px -41px
+}
+
+#Develop.hover {
+  background-position: -142px -41px
+}
+
+#Distribute.hover {
+  background-position: -240px -41px
+}
+
+#Devices.hover {
+  background-position: -346px -41px
+}
+
+#Library.hover {
+  background-position: -446px -41px
+}
+
+#Community.hover {
+  background-position: -867px -41px
+}
+
+#regionalSitesNav a {
+  height: 1%
+}
+
+#login {
+  height: 20px;
+  background: #fff;
+}
+
+.ui-selectmenu-menu {
+  z-index: 3
+}
+
+.clearfix {
+  zoom: 1; /* triggers hasLayout */
+  display: block; /* resets display for IE/Win */
+}
+
+/* Only IE can see inside the conditional comment
     and read this CSS rule. Don't ever use a normal HTML
     comment inside the CC or it will close prematurely. */

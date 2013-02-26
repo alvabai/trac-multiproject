@@ -1,1 +1,7 @@
-#fnsearch, #sitelogin, #footer, #fncontentOwner, #fnmainNavigation { display: none; }
+#fnsearch, 
+#sitelogin, 
+#footer, 
+#fncontentOwner, 
+#fnmainNavigation { 
+	display: none; 
+}
