@@ -1,7 +1,8 @@
 *** Settings ***
-Documentation  Tests related for changing project visibility
+Documentation  Tests related for changing project visibility. 
+...            Run with pybot --variable ENVIRONMENT:<server_resource> <testfile>
 Resource       ${ENVIRONMENT}.txt
-Test Timeout  1 minute
+Test Timeout  2 minutes
 Suite setup  Login
 Test Setup  Go to Welcome Page
 Suite Teardown  Close Browser

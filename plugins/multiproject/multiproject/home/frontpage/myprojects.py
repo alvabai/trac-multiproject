@@ -141,9 +141,9 @@ class MyProjectsModule(Component):
         if viewing_user_profile:
             for project in all_projects:
                 self.log.warning('project %s' % project.env_name)
-                if policy.check_permission(project.trac_environment_key, 'TICKET_VIEW', 'anonymous'):
+                if policy.check_permission(project.env_name, 'TICKET_VIEW', 'anonymous'):
                     ticket_projects.append(project)
-                if policy.check_permission(project.trac_environment_key, 'DISCUSSION_VIEW', 'anonymous'):
+                if policy.check_permission(project.env_name, 'DISCUSSION_VIEW', 'anonymous'):
                     post_projects.append(project)
         else:
             ticket_projects = all_projects
