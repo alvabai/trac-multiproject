@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-from trac.core import Component, implements, TracError
+from trac.core import Component, implements, TracError, ExtensionPoint
 from trac.prefs.api import IPreferencePanelProvider
 
 from multiproject.common.projects import Project
 from multiproject.core.users import get_userstore
 from multiproject.core.watchlist import CQDEWatchlistStore
+from multiproject.common.projects.listeners import IProjectChangeListener
 
 
 class WatchlistPreferencePanel(Component):
@@ -12,6 +13,9 @@ class WatchlistPreferencePanel(Component):
     """
     implements(IPreferencePanelProvider)
 
+    # Extension points
+    project_change_listeners = ExtensionPoint(IProjectChangeListener)
+    
     def get_preference_panels(self, req):
         if req.authname != 'anonymous':
             yield ('following', 'Following')
