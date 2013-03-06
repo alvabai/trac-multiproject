@@ -6,7 +6,7 @@ from trac.config import Option
 from trac.core import Component, implements, TracError
 from trac.prefs.api import IPreferencePanelProvider
 from trac.web.api import ITemplateStreamFilter, IRequestFilter
-from trac.web.chrome import add_warning, add_notice, _, add_stylesheet
+from trac.web.chrome import add_warning, add_notice, _, add_stylesheet, add_script
 from genshi.filters.transform import Transformer
 
 from multiproject.core.configuration import conf
@@ -108,6 +108,7 @@ class UserImagePreferencePanel(Component):
     def render_preference_panel(self, req, panel):
         """ Renders preference panel and handles image change on POST
         """
+
         if req.authname == 'anonymous':
             raise TracError("User is not authenticated", "No access")
 
@@ -160,6 +161,10 @@ class UserBasicInfo(Component):
     def render_preference_panel(self, req, panel):
         """ Renders preference panel and handles information change on POST
         """
+        add_script(req, 'multiproject/js/jquery-ui.js')
+        add_script(req, 'multiproject/js/preference.js')
+        add_stylesheet(req, 'multiproject/css/jquery-ui.css')
+
         if req.authname == 'anonymous':
             raise TracError("User is not authenticated", "No access")
 
