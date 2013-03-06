@@ -65,8 +65,6 @@ class CQDECategoryStore(object):
 
     def get_categories(self, context_id):
         """ Returns a list of Category class instances
-
-
         ### Used only in xmlrpc
         """
         context_id = safe_int(context_id) or 0
