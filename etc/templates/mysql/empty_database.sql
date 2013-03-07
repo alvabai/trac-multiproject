@@ -1991,6 +1991,29 @@ UNLOCK TABLES;
 --
 -- Dumping routines for database 'trac_admin'
 --
+/*!50003 DROP PROCEDURE IF EXISTS `add_category` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = '' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50020 DEFINER=`tracuser`@`localhost`*/ /*!50003 PROCEDURE `add_category`(cat_name CHAR(255), cat_description CHAR(255), parent_cat_id SMALLINT(5),
+cat_context_id SMALLINT(4))
+BEGIN
+START TRANSACTION;
+IF NOT EXISTS (SELECT * FROM categories WHERE description = cat_description) THEN
+  INSERT INTO categories (category_id, category_name, description, parent_id, context_id)
+  VALUES(null, cat_name, cat_description, parent_cat_id, cat_context_id);
+ELSE
+  UPDATE categories SET category_name = cat_name WHERE description = cat_description;
+END IF;
+COMMIT;
+
+END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
@@ -2056,6 +2079,27 @@ DELIMITER ;;
 BEGIN
 START TRANSACTION;
 INSERT INTO organization_group VALUES(organization_id, group_id);
+COMMIT;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `add_project_user_visibility` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = '' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50020 DEFINER=`tracuser`@`localhost`*/ /*!50003 PROCEDURE `add_project_user_visibility`(project_key INT, user_key INT)
+BEGIN
+START TRANSACTION;
+INSERT INTO `project_user_visibility` (project_id,user_id) VALUES (project_key, user_key);
 COMMIT;
 END */;;
 DELIMITER ;
@@ -2135,6 +2179,27 @@ FROM projects
 WHERE project_id = project_key;
 
 SELECT LAST_INSERT_ID() FROM `project_archive` LIMIT 0,1;
+COMMIT;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `create_group` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = '' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50020 DEFINER=`tracuser`@`localhost`*/ /*!50003 PROCEDURE `create_group`(groupname VARCHAR(128), trac_environment_id INT)
+BEGIN
+START TRANSACTION;
+INSERT INTO `group`(group_name, trac_environment_key) VALUES(groupname, trac_environment_id);
 COMMIT;
 END */;;
 DELIMITER ;
@@ -2615,6 +2680,72 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `get_participated_projects` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = '' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50020 DEFINER=`tracuser`@`localhost`*/ /*!50003 PROCEDURE `get_participated_projects`(user_id INT)
+BEGIN
+DECLARE org_id INT;
+SELECT organization_key INTO org_id FROM user WHERE user.user_id = user_id;
+SELECT projects.* FROM projects
+INNER JOIN `group` ON group.project_key = projects.project_id
+LEFT JOIN user_group ON user_group.group_key = group.group_id
+LEFT JOIN organization_group ON organization_group.group_key = group.group_id
+WHERE user_group.user_key = user_id OR organization_group.organization_key = org_id;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `get_project_ids_by_user_id` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = '' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50020 DEFINER=`tracuser`@`localhost`*/ /*!50003 PROCEDURE `get_project_ids_by_user_id`(user_key INT)
+BEGIN
+SELECT project_id FROM `project_user_visibility`
+WHERE project_user_visibility.user_id = user_key;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `get_project_ids_by_user_ids` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = '' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50020 DEFINER=`tracuser`@`localhost`*/ /*!50003 PROCEDURE `get_project_ids_by_user_ids`(user_key INT, anon_key INT)
+BEGIN
+SELECT project_id FROM `project_user_visibility`
+WHERE project_user_visibility.user_id = user_key
+OR project_user_visibility.user_id = anon_key;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `get_project_public_permissions` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -2941,6 +3072,73 @@ START TRANSACTION;
 DELETE FROM organization_group
 WHERE organization_group.organization_key = organization_id
 AND organization_group.group_key = group_id;
+COMMIT;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `remove_project_user_visibilities_by_project_id` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = '' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50020 DEFINER=`tracuser`@`localhost`*/ /*!50003 PROCEDURE `remove_project_user_visibilities_by_project_id`(project_key INT)
+BEGIN
+START TRANSACTION;
+DELETE FROM project_user_visibility
+WHERE project_user_visibility.project_id = project_key;
+COMMIT;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `remove_project_user_visibilities_by_user_id` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = '' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50020 DEFINER=`tracuser`@`localhost`*/ /*!50003 PROCEDURE `remove_project_user_visibilities_by_user_id`(user_key INT)
+BEGIN
+START TRANSACTION;
+DELETE FROM project_user_visibility
+WHERE project_user_visibility.user_id = user_key;
+COMMIT;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `remove_project_user_visibility` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = '' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50020 DEFINER=`tracuser`@`localhost`*/ /*!50003 PROCEDURE `remove_project_user_visibility`(project_key INT, user_key INT)
+BEGIN
+START TRANSACTION;
+DELETE FROM project_user_visibility
+WHERE project_user_visibility.project_id = project_key
+AND project_user_visibility.user_id = user_key;
 COMMIT;
 END */;;
 DELIMITER ;
