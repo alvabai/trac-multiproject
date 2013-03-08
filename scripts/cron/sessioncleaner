@@ -6,10 +6,13 @@
 DB_HOST="localhost"
 DB_USER="tracuser"
 DB_PASSWORD="password"
+LOGFILE="/var/www/trac/logs/sessioncleaner.log"
 PROJECTS_DIR="/var/www/trac/projects"
 YESTERDAY=$((`date +%s` - 86400))
 THREE_MONTHS_AGO=$((`date +%s` - 7776000))
+counter=0
 
+echo "$0 started "`date` >> $LOGFILE
 for db in `echo "SHOW DATABASES;" | mysql -h $DB_HOST -u $DB_USER --password=$DB_PASSWORD | grep -vx -e information_schema -e mysql -e trac_admin -e trac_analytical | tail -n +2` ; do
 	if [ -d $PROJECTS_DIR/$db ] ; then
 		# Delete unauthenticated sessions older than 3 months, as well as unauthenticated
@@ -17,12 +20,16 @@ for db in `echo "SHOW DATABASES;" | mysql -h $DB_HOST -u $DB_USER --password=$DB
 		for id in `echo "SELECT session.sid FROM session WHERE session.authenticated = 0 AND session.last_visit < $THREE_MONTHS_AGO UNION SELECT session.sid FROM session, session_attribute WHERE session.sid = session_attribute.sid AND session_attribute.name = 'goto' AND session.last_visit < $YESTERDAY;" | mysql -h $DB_HOST -u $DB_USER --password=$DB_PASSWORD $db | tail -n +2` ; do
 			echo "DELETE FROM session_attribute WHERE sid = \"$id\";" | mysql -h $DB_HOST -u $DB_USER --password=$DB_PASSWORD $db
 			echo "DELETE FROM session WHERE sid = \"$id\";" | mysql -h $DB_HOST -u $DB_USER --password=$DB_PASSWORD $db
+			((counter+=2))
 		done
 		# Delete all sessions that have no attributes.
 		for id in `echo "SELECT DISTINCT session.sid FROM session LEFT JOIN session_attribute USING (sid) WHERE session_attribute.sid IS NULL;" | mysql -h $DB_HOST -u $DB_USER --password=$DB_PASSWORD $db | tail -n +2` ; do
 			echo "DELETE FROM session WHERE sid = \"$id\";" | mysql -h $DB_HOST -u $DB_USER --password=$DB_PASSWORD $db
+			((counter++))
 		done
 	fi
 done
+echo "Deleted $counter rows in $SECONDS seconds." >> $LOGFILE
+echo "$0 finished "`date` >> $LOGFILE
 
 exit 0
