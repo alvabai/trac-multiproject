@@ -35,6 +35,8 @@ Login
     Click Button  Login
     Location Should Be  ${WELCOME_PAGE}
 
+Logout
+    Click Link  id=signOut
 
 Create new project  [Arguments]  ${projname}
     [Documentation]  Attempt to create a new project, without verification of the result.
