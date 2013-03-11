@@ -232,12 +232,11 @@ class CQDEUserGroupStore(object):
         :param trac_environment_key: We want to get rid of this eventually so use ``env`` kwargs instead.
         :param env: Trac environment which identifies the project
         """
-        self.project_identifier = None
+        self.env = env
         if trac_environment_key is None and env is None:
             raise ValueError('Neither trac_environment_key or env given')
         if env is not None:
             trac_environment_key = _get_trac_environment_key(env)
-            self.project_identifier = _get_trac_project_name(env)
         self._cache = GroupPermissionCache.instance()
         self._organizations = CQDEOrganizationStore.instance()
         self._ldapgroups = CQDELdapGroupStore.instance()
@@ -439,13 +438,14 @@ class CQDEUserGroupStore(object):
         :param list user_name: username for get user object
         :param list group_name: groupname to check correct group
         """
-        if group_name == 'Members' or group_name == 'Owners':
-            from multiproject.common.projects.project import Project
-            project = Project.get(None, None, self.project_identifier)
-            user = conf.getUserStore().getUser(user_name)
-            from multiproject.core.watchlist import CQDEWatchlistStore
-            watch_store = CQDEWatchlistStore()
-            watch_store.watch_project(user.id, project.id)
+        if self.env is not None:
+            if group_name == 'Members' or group_name == 'Owners':
+                from multiproject.common.projects.project import Project
+                project = Project.get(None, None, _get_trac_project_name(self.env))
+                user = conf.getUserStore().getUser(user_name)
+                from multiproject.core.watchlist import CQDEWatchlistStore
+                watch_store = CQDEWatchlistStore()
+                watch_store.watch_project(user.id, project.id)
 
     def add_user_to_group(self, user_name, group_name, validate=True):
         """
