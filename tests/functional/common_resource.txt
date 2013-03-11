@@ -5,7 +5,6 @@ Library         Selenium2Library  0  2    # Set explicit wait to 0 and implicit 
 
 *** Variables ***
 ${PROTOCOL}      https
-${SERVER}        ${PROTOCOL}://localhost
 ${BROWSER}       firefox
 ${LOGIN_PAGE}     ${SERVER}/home/user
 ${LOGIN_TITLE}   Welcome – home
