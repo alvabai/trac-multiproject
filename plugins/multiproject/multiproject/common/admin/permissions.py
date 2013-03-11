@@ -223,10 +223,6 @@ class PermissionsAdminPanel(Component):
         if not username or not group:
             raise TracError('Invalid arguments while adding user')
 
-        conf.log.exception("Member add - group_store: %s" % group_store)
-        conf.log.exception("Member add - membership: %s" % membership)
-        conf.log.exception("Member add - username: %s" % username)
-
         # Get/check if user exists
         auth = Authentication()
         username = auth.get_trac_username(username)

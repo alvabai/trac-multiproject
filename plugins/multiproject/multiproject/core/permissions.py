@@ -7,6 +7,7 @@ from multiproject.core.cache.permission_cache import GroupPermissionCache
 from multiproject.core.exceptions import SingletonExistsException
 from multiproject.core.db import admin_query, admin_transaction, safe_int, MySQLdb
 from multiproject.core.users import get_userstore
+#from multiproject.common.projects.project import Project
 
 
 def _call_proc_with_success(name, args):
@@ -31,6 +32,11 @@ def _get_trac_environment_key(env):
     """Helper for migrating to environment based constructors."""
     from multiproject.common.environment import TracEnvironment
     return TracEnvironment.read(conf.resolveProjectName(env)).environment_id
+
+def _get_trac_project_name(env):
+    """Helper for migrating to environment based constructors."""
+    from multiproject.common.environment import TracEnvironment
+    return TracEnvironment.read(conf.resolveProjectName(env)).identifier
 
 
 def get_special_users(username):
@@ -226,10 +232,12 @@ class CQDEUserGroupStore(object):
         :param trac_environment_key: We want to get rid of this eventually so use ``env`` kwargs instead.
         :param env: Trac environment which identifies the project
         """
+        self.project_identifier = None
         if trac_environment_key is None and env is None:
             raise ValueError('Neither trac_environment_key or env given')
         if env is not None:
             trac_environment_key = _get_trac_environment_key(env)
+            self.project_identifier = _get_trac_project_name(env)
         self._cache = GroupPermissionCache.instance()
         self._organizations = CQDEOrganizationStore.instance()
         self._ldapgroups = CQDELdapGroupStore.instance()
@@ -424,6 +432,21 @@ class CQDEUserGroupStore(object):
         with admin_query() as cursor:
             cursor.callproc("remove_group", [group_id])
 
+    def follow_project(self, user_name, group_name):
+        """
+        Sets user to follow project if group is correct.
+
+        :param list user_name: username for get user object
+        :param list group_name: groupname to check correct group
+        """
+        if group_name == 'Members' or group_name == 'Owners':
+            from multiproject.common.projects.project import Project
+            project = Project.get(None, None, self.project_identifier)
+            user = conf.getUserStore().getUser(user_name)
+            from multiproject.core.watchlist import CQDEWatchlistStore
+            watch_store = CQDEWatchlistStore()
+            watch_store.watch_project(user.id, project.id)
+
     def add_user_to_group(self, user_name, group_name, validate=True):
         """
         Adds user to group.
@@ -468,6 +491,7 @@ class CQDEUserGroupStore(object):
             # User already exists in the group
             except MySQLdb.IntegrityError:
                 conf.log.warning('User %s already exists in group: %s' % (user_name, group_name))
+        self.follow_project(user_name, group_name)
 
     def remove_user_from_group(self, user_name, group_name):
         """
