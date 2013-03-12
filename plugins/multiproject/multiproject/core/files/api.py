@@ -1339,13 +1339,32 @@ class MappedFileNode(FileSystemNode):
 def get_div_class(filename):
     """
     Returns div class corresponding filename. This is also used for download entries.
+    Supported file types: pdf, txt, deb, rpm, xml, swf, binary, archive, docs,
+    spread, pres, images, audio, video
     :param filename:
-    :return: string 'icon_file extension_txt' for filename 'temp.txt'
+    :return: string 'icon_file extension_image' for filename 'temp.jpg' see supported file types
     """
-    exts = os.path.splitext(filename)
-    if len(exts) > 1 and exts[1].isalpha():
-        css_class = 'icon_file extension_' + exts[1]
-    else:
+    known_extensions = {'pdf': 'pdf', 'txt': 'txt', 'dep': 'dep', 'rpm': 'rpm',
+    'xml': 'xml', 'swf': 'swf', 'apk': 'binary', 'exe': 'binary',
+    'jar': 'binary', 'jad': 'binary', 'war': 'binary', 'sis': 'binary',
+    'sisx': 'binary', 'zip': 'archive', 'rar': 'archive', 'arj': 'archive',
+    'lhz': 'archive', 'bz2': 'archive', 'gz': 'archive', 'tgz': 'archive',
+    'tb2': 'archive', '7z': 'archive', 'kgb': 'archive', 'ace': 'archive',
+    'egg': 'archive', 'ott': 'docs', 'doc': 'docs', 'docx': 'docs',
+    'odt': 'docs', 'rtf': 'docs', 'abw': 'docs', 'sxw': 'docs', 'xls': 'spread',
+    'xlsx': 'spread', 'ods': 'spread', 'gnumeric': 'spread', 'ppt': 'pres',
+    'pptx': 'pres', 'odp': 'pres', 'wav': 'audio', 'mp3': 'audio', 'wma': 'audio',
+    'ogg': 'audio', 'flac': 'audio', 'mid': 'audio', 'ac3': 'audio',
+    'avi': 'video', 'mp4': 'video', 'mov': 'video', 'flv': 'video',
+    'mkv': 'video', 'wmv': 'video', 'ogm': 'video', 'xvid': 'video',
+    'divx': 'video', 'jpg': 'image', 'jpeg': 'image', 'gif': 'image', 
+    'bmp': 'image', 'png': 'image', 'tiff': 'image', 'psd': 'image', 'xcf': 'image'}
+    file_ext = filename.split(".")
+    file_extension = file_ext[-1].lower()
+    try: 
+        ext = known_extensions[file_extension]
+        css_class = 'icon_file extension_' + ext
+    except:
         css_class = 'icon_file'
     return css_class
 
