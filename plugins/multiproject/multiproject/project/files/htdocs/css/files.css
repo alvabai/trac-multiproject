@@ -426,7 +426,7 @@ table.files_table {
 }
 
 .files_entries > .files_entry_head > .filename .node_icon.icon_file.extension_image {
-    background: transparent url("../images/file_images.png") no-repeat scroll center center;
+    background: transparent url("../images/file_image.png") no-repeat scroll center center;
 }
 
 .files_entries > .files_entry_head > .filename .node_icon.icon_file.extension_archive {
