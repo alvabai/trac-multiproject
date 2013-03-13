@@ -425,7 +425,7 @@ table.files_table {
     background: transparent url("../images/file_audio.png") no-repeat scroll center center;
 }
 
-.files_entries > .files_entry_head > .filename .node_icon.icon_file.extension_images {
+.files_entries > .files_entry_head > .filename .node_icon.icon_file.extension_image {
     background: transparent url("../images/file_images.png") no-repeat scroll center center;
 }
 
