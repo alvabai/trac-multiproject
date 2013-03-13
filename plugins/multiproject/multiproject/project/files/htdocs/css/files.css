@@ -433,6 +433,10 @@ table.files_table {
     background: transparent url("../images/file_tgz.png") no-repeat scroll center center;
 }
 
+.files_entries > .files_entry_head > .filename .node_icon.icon_file.extension_binary {
+    background: transparent url("../images/file_binary.png") no-repeat scroll center center;
+}
+
 #files .parent_dir_breadcrumb > .breadcrumb_item > .node_icon.icon_downloads,
 .files_entries > .files_entry_head > .filename .node_icon.icon_downloads {
     background: transparent url("../images/files_icon_downloads.png") no-repeat scroll center center;
