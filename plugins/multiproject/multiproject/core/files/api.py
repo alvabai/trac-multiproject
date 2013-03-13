@@ -1344,7 +1344,7 @@ def get_div_class(filename):
     :param filename:
     :return: string 'icon_file extension_image' for filename 'temp.jpg' see supported file types
     """
-    known_extensions = {'pdf': 'pdf', 'txt': 'txt', 'dep': 'dep', 'rpm': 'rpm',
+    known_extensions = {'pdf': 'pdf', 'txt': 'txt', 'deb': 'deb', 'rpm': 'rpm',
     'xml': 'xml', 'swf': 'swf', 'apk': 'binary', 'exe': 'binary',
     'jar': 'binary', 'jad': 'binary', 'war': 'binary', 'sis': 'binary',
     'sisx': 'binary', 'zip': 'archive', 'rar': 'archive', 'arj': 'archive',
