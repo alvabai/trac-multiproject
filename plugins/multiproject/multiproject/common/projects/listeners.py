@@ -87,3 +87,9 @@ class IProjectChangeListener(Interface):
 
         """
         pass
+
+    def project_watched(project):
+        """
+        Called when a project is followed.
+        """
+        pass

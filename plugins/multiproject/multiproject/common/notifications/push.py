@@ -373,6 +373,9 @@ class ChangeNotifier(Component):
     def project_deleted(self, project):
         pass
 
+    def project_watched(self, project):
+        pass
+
     # ITicketChangeListener methods
 
     def ticket_created(self, ticket):
