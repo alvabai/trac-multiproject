@@ -17,7 +17,9 @@
         or removed permanently.</p>
         <form action="#" method="post">
             <input type="hidden" name="action" value="remove_expired" />
-            <input type="submit" name="restore" value="Remove expired projects" alt="Are you sure you want to remove all expired projects?" class="confirm blueButton" />
+            <div class="buttons">
+                <input type="submit" name="restore" value="Remove expired projects" alt="Are you sure you want to remove all expired projects?" class="confirm primaryButton" />
+            </div>
         </form>
         <hr />
         <div id="archived_projects">
@@ -37,14 +39,18 @@
                             <form action="#" method="post">
                                 <input type="hidden" name="archived_project_id" value="${project.project_archive_id}" />
                                 <input type="hidden" name="action" value="restore" />
-                                <input type="submit" name="restore" value="Restore project" alt="Are you sure you want to restore project?" class="confirm blueButton" />
+                                <div class="buttons">
+                                    <input type="submit" name="restore" value="Restore project" alt="Are you sure you want to restore project?" class="confirm secondaryButton" />
+                                </div>
                             </form>
                         </td>
                         <td>
                             <form action="#" method="post">
                                 <input type="hidden" name="archived_project_id" value="${project.project_archive_id}" />
                                 <input type="hidden" name="action" value="remove" />
-                                <input type="submit" name="remove" value="Remove project" alt="Are you sure you want to remove project?" class="confirm blueButton" />
+                                <div class="buttons">
+                                    <input type="submit" name="remove" value="Remove project" alt="Are you sure you want to remove project?" class="confirm secondaryButton" />
+                                </div>
                             </form>
                         </td>
                     </tr>

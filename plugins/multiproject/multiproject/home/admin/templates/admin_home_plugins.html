@@ -51,9 +51,9 @@
             Upload a plugin packaged as Python egg.
           </py:otherwise>
         </p>
-        <div class="primaryButton buttons">
+        <div class="buttons">
           <input type="submit" name="install" value="${_('Install')}"
-                 disabled="${readonly or None}" />
+                 disabled="${readonly or None}" class="primaryButton"/>
         </div>
       </fieldset>
     </form>
@@ -63,12 +63,10 @@
         <h3 class="foldable">${plugin.name} ${plugin.version}</h3>
         <!--! FIXME: Plugin uninstall disabled as it is unreliable (#3545)
         <div class="uninstall buttons">
-          <span class="primaryButton">
             <input type="hidden" name="plugin_filename"
                  value="${plugin.plugin_filename}" />
             <input type="submit" name="uninstall" value="${_('Uninstall')}"
-                 disabled="${plugin.readonly or None}" />
-          </span>
+                 disabled="${plugin.readonly or None}" class="primaryButton" />
         </div> -->
         <py:if test="plugin.info">
           <p class="summary">${plugin.info.get('summary')}</p>
@@ -146,10 +144,8 @@
         </table>
 
         <div class="update buttons">
-          <span class="primaryButton">
-            <input type="hidden" name="plugin" value="$idx" />
-            <input type="submit" name="update" value="${_('Apply changes')}" />
-          </span>
+          <input type="hidden" name="plugin" value="$idx" />
+          <input type="submit" name="update" value="${_('Apply changes')}" class="primaryButton" />
         </div>
       </div>
     </form>

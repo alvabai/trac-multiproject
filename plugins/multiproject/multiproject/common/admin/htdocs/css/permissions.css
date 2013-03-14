@@ -23,7 +23,7 @@ div.group_header {
 
 div.group_header div.name {
     float: left;
-    margin-left: 0.5em;
+    margin: 0.7em;
 }
 
 div.group_header div.remove {
@@ -121,6 +121,7 @@ div.permissions ul {
 div.permissions ul li {
     height: 18px;
     margin: 0;
+    padding: 2px;
 }
 
 div.permissions ul li:hover {

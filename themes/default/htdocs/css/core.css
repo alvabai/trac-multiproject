@@ -162,7 +162,7 @@ ul#frontpage_navigation {
 
 .flippedButton {
   cursor: pointer;
-  background: url(/htdocs/theme/images/tab_bg.png) no-repeat scroll right center transparent !important;
+  background: url(/htdocs/theme/images/tab_bg.png) no-repeat right center transparent !important;
   height: 26px !important;
 }
 
@@ -199,7 +199,7 @@ label.question {
 }
 
 .create_form_float fieldset .answer {
-  width: 310px
+  width: 210px
 }
 
 .resource-box a.more {
@@ -256,6 +256,47 @@ h2 .title .editButton a,
   width: 120px;
 }
 
+.vcs {
+  padding: 5px 0 10px 0;
+}
+
+.vcs .question {
+  float: left;
+  width: 100px;
+  padding-top: 6px;  
+}
+
+.vcs .answer {
+  padding-top: 3px;
+  height: 20px;
+}
+
+.vcs .ui-selectmenu { 
+  display: block; 
+  clear: both; 
+}
+
+.vcs .ui-radio { 
+  display: block; 
+  float: left; 
+  padding-right: 5px;
+}
+
+.vcs #vcstype-selection { 
+  display: block; 
+  float: left;
+}
+
+.vcs #vcsparent-selection { 
+  display: block; 
+  float: left; 
+}
+
+.vcs #vcs-create, 
+.vcs #vcs-clone { 
+  float: left; 
+}
+
 /* Timeline subpage */
 
 #timeline-prefs {
@@ -274,13 +315,20 @@ h2 .title .editButton a,
 
 #timeline-prefs fieldset label {
   display: inline-block;
-  font-family: Tahoma, Geneva, sans-serif;
   font-size: 11px;
 }
 
 #timeline-prefs ul {
   list-style: none;
-  margin: 0;
+  margin: 10px 0 0 0;
+}
+
+#timeline-prefs ul li {
+  margin: 0;    
+}
+
+#timeline-prefs .buttons {
+  margin-top: 10px;
 }
 
 /* Milestone subpage specific styles */

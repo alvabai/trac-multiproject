@@ -19,7 +19,7 @@
                 <legend>Search projects</legend>
                 <input type="text" name="pattern" />
                 <div id="search" class="buttons">
-                    <span class="primaryButton"><input type="submit" value="Search" name="searchprojects" /></span>
+                    <input type="submit" value="Search" name="searchprojects" class="primaryButton" />
                 </div>
             </fieldset>
             <fieldset class="fieldset_middle">
@@ -48,9 +48,7 @@
                     </tbody>
                 </table>
                 <div class="buttons" py:if="selected">
-                    <span class="primaryButton">
-                      <input type="submit" value="Update" name="update" />
-                    </span>
+                    <input type="submit" value="Update" name="update" class="primaryButton" />
                 </div>
             </fieldset>
         </form>

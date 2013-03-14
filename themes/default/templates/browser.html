@@ -137,16 +137,18 @@
       </py:choose>
       <!-- Url to show -->
       <span class="urlToClipboard">
-        <span class="secondaryButton flippedButton" id="clipbutton">Copy to clipboard</span>
         <!--! Always at first show first protocol -->
         <span class="ltgreyfield blueitalic" id="repoaddress">${co_commands[schemes[0]]}</span>
+        <input class="flippedButton secondaryButton" type="submit" id="copybutton" value="Copy to clipboard"/>
       </span>
 	</div>
 
          <div class="headeritems">
             <div id="jumprev" py:if="'up' not in chrome.links and not file">
               <form action="" method="get">
-                <input type="submit" value="${_('Go')}" id="go" />
+                <div class="buttons">
+                  <input type="submit" value="${_('Go')}" id="go" class="primaryButton" />
+                </div>
                 <span>
                   <label for="rev" title="${stickyrev and _('Hint: clear the field to view latest revision') or None}">View revision:</label>
                   <input type="text" id="rev" name="rev" value="$stickyrev" size="6" />

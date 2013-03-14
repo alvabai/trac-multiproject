@@ -31,8 +31,8 @@ from multiproject.core.configuration import conf
             <form action="${conf.url_home_path}/project/remove" method="post">
                 <input type="hidden" name="project" value="${project.env_name}" />
                 <input type="hidden" name="goto" value="${goto}" />
-                <input type="submit" name="delete" value="Delete" class="blueButton"/>
-                <input type="submit" name="cancel" value="Cancel" class="blueButton"/>
+                <input type="submit" name="delete" value="Delete" class="primaryButton"/>
+                <input type="submit" name="cancel" value="Cancel" class="secondaryButton"/>
             </form>
         </py:when>
         <py:otherwise>
@@ -41,7 +41,7 @@ from multiproject.core.configuration import conf
             <form action="${conf.url_home_path}/project/remove" method="get">
                 <input type="text" name="project" value="${env_name}" />
                 <input type="hidden" name="goto" value="${goto}" />
-                <input type="submit" name="find" value="Find" class="blueButton"/>
+                <input type="submit" name="find" value="Find" class="primaryButton"/>
             </form>
         </py:otherwise>
     </div>

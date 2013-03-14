@@ -27,7 +27,8 @@
         <form class="backup" method="post" action="${backup_href('backup')}">
             <p class="inline">You can give an optional description of the current state in the textarea below. Thus making the restoring to current state will be easier.</p>
             <textarea id="module-backup-desc" class="backup-desc pagewidth description" name="description" placeholder="Short description about the backup"></textarea>
-            <input type="submit" name="create" value="Create a new snapshot" />
+            <br/>
+            <input type="submit" name="create" value="Create a new snapshot" class="primaryButton" />
         </form>
 
         <p class="inline">List of existing backups to restore:</p>
@@ -56,12 +57,12 @@
                 </td>
                 <td>
                     <form class="backup" method="post" action="${backup_href(backup.id, 'delete')}">
-                        <input type="submit" name="delete" alt="Are you sure you want to delete backup?" class="confirm secondaryInputBtn" value="Delete" />
+                        <input type="submit" name="delete" alt="Are you sure you want to delete backup?" class="confirm secondaryButton" value="Delete" />
                     </form>
                 </td>
                 <td>
                     <form class="backup" method="post" action="${backup_href(backup.id, 'restore')}">
-                        <input type="submit" name="restore" alt="Are you sure you want to restore the backup?"  class="confirm blueButton" value="Restore" />
+                        <input type="submit" name="restore" alt="Are you sure you want to restore the backup?"  class="confirm secondaryButton" value="Restore" />
                     </form>
                 </td>
             </tr>

@@ -66,7 +66,7 @@ from multiproject.core.configuration import conf
                                 </select>
                             </py:otherwise>
                         </py:choose>
-                        <input type="submit" name="add_and_bind" value="Add your own"/>
+                        <input type="submit" name="add_and_bind" value="Add your own" class="primaryButton" />
                         <p>Adds existing or creates new
                             <py:if test="len(main_addable_contexts) == 1">${main_addable_contexts[0].name}</py:if>
                             category.</p>

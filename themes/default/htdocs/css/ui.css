@@ -345,50 +345,40 @@ ul#tabbedNavigation {
   background: url(/htdocs/theme/images/stepNavigation-last-selected_bg.png) no-repeat scroll right center transparent
 }
 
-a.primaryButton, 
-.primaryButton, 
-a.blueButton, 
-.blueButton, 
-input[type="submit"], 
-input[type="button"] {
-  background: url(/htdocs/theme/images/buttons.png) no-repeat scroll left top transparent;
-  display: inline-block;
-  font-size: 12px;
-  color: #fff;
-  height: 25px;
-  padding: 0 30px 0 10px;
-  text-decoration: none;
-  line-height: 23px;
-  cursor: pointer;
-}
-
 input[type="submit"].remove_member, 
 input[type="submit"].remove_group, 
 input[type="submit"].remove_permission {
   background: url(/htdocs/theme/images/remove_btn.png) no-repeat transparent;
   display: inline-block;
   border: none;
-  padding: 0 30px 0 10px;
+  padding: 5px 10px 10px 5px;
   cursor: pointer;
 }
 
-a.secondaryButton, 
-.secondaryButton, 
-a.greenButton, 
-.greenButton, 
-.greenInputBtn input, 
-.secondaryInputBtn input, 
-input.greenInputBtn, 
-input.secondaryInputBtn {
-  background: url(/htdocs/theme/images/buttons.png) no-repeat scroll left top transparent;
+.primaryButton,
+.secondaryButton {
+  background: url(/htdocs/theme/images/buttons.png) no-repeat left top transparent;
   display: inline-block;
   font-size: 12px;
   color: #fff;
-  height: 25px;
-  padding: 0 30px 0 10px;
+  height: 22px;
+  padding: 2px 6px;
   text-decoration: none;
-  line-height: 23px;
+  line-height: 20px;
   cursor: pointer;
+  border: 0;
+}
+
+.primaryButton:hover,
+.secondaryButton:hover,
+.zeroclipboard-is-hover {
+  background-position: 0 -27px;
+}
+
+a.primaryButton:hover,
+a.secondaryButton:hover {
+  text-decoration: none;
+  color: #FFF;
 }
 
 .news-panel a {
@@ -1419,8 +1409,12 @@ img.signpost-icon {
 
 /* this should (if possible) be done with jquery ui */
 
-input[type=text], input[type=password], textarea {
-  border: 1px solid #ccc
+input[type=text], 
+input[type=password], 
+textarea {
+  border: 1px solid #ccc;
+  padding: 2px;
+  line-height: 12px;
 }
 
 sup {

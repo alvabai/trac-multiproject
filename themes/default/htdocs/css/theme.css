@@ -25,13 +25,9 @@ table.content td {
 }
 
 table.content td.label {
-  padding-top: 7px;
+  padding-top: 9px;
   text-align: right;
   max-width: 120px;
-}
-
-table.content td.buttons {
-  text-align: right
 }
 
 p.desc {
@@ -52,7 +48,7 @@ div#chart {
 }
 
 .shaded-box-project-summary {
-  margin: 2px 0px 10px 12px;
+  margin: 2px 0 10px 12px;
   line-height: 1.5;
   font-size: 11px;
 }
@@ -63,23 +59,12 @@ div#chart {
 
 /* Buttons */
 
-.buttons input[type="submit"], 
-input[type="button"], 
-button {
-  background: url(/htdocs/theme/images/buttons.png) no-repeat scroll left top transparent;
-  color: #FFFFFF;
-  display: inline-block;
-  font-size: 12px;
-  height: 25px;
-  line-height: 23px;
-  padding: 0 30px 0 10px;
-  text-decoration: none;
-  border: 0;
+.buttons {
+  padding: 0 0 5px 0;
 }
 
-.title .editButton #watch, 
-.title .editButton #unwatch {
-  float: right
+.buttons form {
+  float: left
 }
 
 .buttons .secondaryButton, 
@@ -87,32 +72,36 @@ button {
   cursor: pointer
 }
 
-.buttons .secondaryButton input[type="submit"], 
-input[type="button"] {
-  background: none repeat scroll 0 0 transparent;
-  border: 0 none;
-  color: white;
+.buttons input[type="submit"], 
+input[type="button"], 
+button {
+  background: #0052a5 url(/htdocs/theme/images/buttons.png) no-repeat left top;
+  color: #FFFFFF;
+  display: inline-block;
+  font-size: 12px;
+  height: 25px;
+  line-height: 23px;
+  padding: 0 10px;
+  text-decoration: none;
+  border: 0;
   cursor: pointer;
 }
 
-.buttons .primaryButton input[type="submit"], 
-input[type="button"] {
-  background: none repeat scroll 0 0 transparent;
-  border: 0 none;
-  color: white;
-  cursor: pointer;
+.buttons input[type="submit"]:hover, 
+input[type="button"]:hover, 
+button:hover {
+  background-position: 0 -27px;
 }
 
-.buttons form {
-  float: left
+.title .editButton #watch, 
+.title .editButton #unwatch {
+  float: right
 }
 
 #go, 
 #gobutton {
   background: url(/htdocs/theme/images/buttons.png) no-repeat scroll right top transparent;
   margin-left: 2px;
-  cursor: pointer;
-  border: none;
 }
 
 #altlinks {
@@ -205,10 +194,15 @@ ul#tabbedNavigation {
   float: right !important;
 }
 
-#sortingbox span, #sortingbox select, #sortingbox button {
+#sortingbox span, 
+#sortingbox select {
   float: left;
-  line-height: 25px;
+  line-height: 20px;
   vertical-align: middle;
+}
+
+#sortingbox span {
+  margin-right: 5px;
 }
 
 #groupingbox {
