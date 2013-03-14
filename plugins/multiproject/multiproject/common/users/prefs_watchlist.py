@@ -51,6 +51,11 @@ class WatchlistPreferencePanel(Component):
             for item in notifylist:
                 project_id, notification = item.split('_')
                 w.watch_project(user.id, project_id, notification)
+                
+                # Notify listeners.
+                project = Project.get(id=project_id)
+                for listener in self.project_change_listeners:
+                    listener.project_watchers(project)
 
         if req.args.get('remove'):
             removelist = self.__to_list(req.args.get('remove'))

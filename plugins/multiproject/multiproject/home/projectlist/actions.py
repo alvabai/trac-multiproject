@@ -159,15 +159,17 @@ class ProjectListModule(Component):
         if public:
             projects.add_public_project_visibility(project.id)
 
-        # Notify listeners. The project object still exists, but database does not
-        for listener in self.project_change_listeners:
-            listener.project_created(project)
-            if public:
-                listener.project_set_public(project)
-
         #Add author to follow project
         watch_store = CQDEWatchlistStore()
         watch_store.watch_project(author.id, project.id)
+
+        # Notify listeners. The project object still exists, but database does not
+        for listener in self.project_change_listeners:
+            listener.project_created(project)
+            listener.project_watchers(project)
+            if public:
+                listener.project_set_public(project)
+
 
         return self.create_success(req, project)
 

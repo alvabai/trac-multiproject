@@ -96,6 +96,10 @@ Example usage:
         if action == 'watch':
             watchstore.watch_project(uid, project_id)
 
+            # Notify listeners.
+            for listener in self.project_change_listeners:
+                listener.project_watchers(project)
+
         # Stop following
         elif action == 'unwatch':
             watchstore.unwatch_project(uid, project_id)
