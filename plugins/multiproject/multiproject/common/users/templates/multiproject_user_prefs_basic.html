@@ -46,6 +46,7 @@
                 </p>
             </py:otherwise>
         </py:choose>
+        <input type="hidden" value="${'local' if is_local else 'non_local'}" id='local_user' class='local' />
     </fieldset>
 
   </body>
