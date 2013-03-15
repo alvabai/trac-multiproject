@@ -126,9 +126,7 @@ class TimelineEmptyMessage(Component):
     implements(ITemplateStreamFilter)
 
     def filter_stream(self, req, method, filename, stream, data):
-        conf.log.exception("Die die die")
         if filename == 'timeline.html':
-            conf.log.exception("Data: %s" % data['project']['name'])
             if not data['events']:
                 import datetime
                 from multiproject.core.db import db_query
