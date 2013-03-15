@@ -10,6 +10,7 @@ from trac.util.datefmt import to_timestamp, utc
 from trac.timeline import ITimelineEventProvider
 from trac.web.api import ITemplateStreamFilter
 from multiproject.common.projects import Project
+from multiproject.core.configuration import conf
 
 
 timeline_db_version = 1
@@ -45,6 +46,7 @@ class ProjectTimelineEvents(Component):
                 'data': data, 'provider': provider}
 
     def get_latest_timeline_events(self, req, count):
+        conf.log.exception("Shittendaal")
         """
         Returns latest (within 10 days) timeline events.
         If count is given, returns only given number of elements.
@@ -91,6 +93,7 @@ class ProjectTimelineEvents(Component):
         return events[:count] if events else []
 
     def get_timeline_events(self, req, time_in_days, time_in_minutes):
+        conf.log.exception("Timeline.py - get timeline events")
         events = []
         available_filters = []
 
@@ -123,7 +126,22 @@ class TimelineEmptyMessage(Component):
     implements(ITemplateStreamFilter)
 
     def filter_stream(self, req, method, filename, stream, data):
+        conf.log.exception("Die die die")
         if filename == 'timeline.html':
+            conf.log.exception("Data: %s" % data['project']['name'])
             if not data['events']:
-                return stream | Transformer('//form[@id="prefs"]').before(Element('p')('No events match your search criteria, change the parameters and try again'))
+                import datetime
+                from multiproject.core.db import db_query
+                project_name = data['project']['name']
+                row = []
+                with db_query(project_name) as cursor:
+                    query = "SELECT MAX(t.time) FROM (SELECT time from revision UNION SELECT time from ticket UNION SELECT time FROM ticket_change UNION SELECT time FROM wiki)t;"
+                    cursor.execute(query)
+                    row = cursor.fetchall()
+                unix_date = str(list(row)[0])
+                real_unix_date = int(unix_date[1:11])
+                new_date = (datetime.datetime.fromtimestamp(real_unix_date).strftime('%m/%d/%y'))
+                resend_url = "../"+project_name+"/timeline?from="+new_date+"&daysback=30&authors=&wiki=on&discussion=on&ticket=on&files_events=on&files_downloads_events=on&changeset=on&milestone=on&update=Update&error=not_found"
+                return req.redirect(resend_url)
         return stream
+        
