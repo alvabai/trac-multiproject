@@ -17,7 +17,7 @@ import re
 from pkg_resources import resource_filename
 
 from genshi.filters import Transformer
-from trac.core import Component, implements, TracError
+from trac.core import Component, implements, TracError, ExtensionPoint
 from trac.util.translation import ngettext
 from trac.wiki.api import parse_args
 from trac.web.api import IRequestHandler, ITemplateStreamFilter
@@ -28,11 +28,16 @@ from multiproject.core.users import get_userstore
 from multiproject.core.watchlist import CQDEWatchlistStore
 from multiproject.common.projects.projects import Project
 
+from multiproject.common.projects.listeners import IProjectChangeListener
+
 REQ_REGEXP = re.compile('\/api\/project/(?P<pid>\d+)\/watch')
 
 
 class WatchProjectsModule(Component):
     implements(IRequestHandler, IWikiMacroProvider, ITemplateProvider, ITemplateStreamFilter)
+
+    # Extension point
+    project_change_listeners = ExtensionPoint(IProjectChangeListener)
 
     # Macros
     macros = {
@@ -84,9 +89,16 @@ Example usage:
         user = userstore.getUser(req.authname)
         uid = user.id if user else None
 
+        #load project
+        project = Project.get(id=project_id)
+
         # Start following
         if action == 'watch':
             watchstore.watch_project(uid, project_id)
+
+            # Notify listeners.
+            for listener in self.project_change_listeners:
+                listener.project_watchers(project)
 
         # Stop following
         elif action == 'unwatch':

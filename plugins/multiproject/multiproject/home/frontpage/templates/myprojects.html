@@ -116,14 +116,14 @@
     <div class="halfWidth left last">
         <div class="resource-box">
 			<py:if test="not userpage">
-			<h2 class="resources-title">Following <span class="editButton"><a href="${req.base_path}/watchlist_timeline" id="watchlist_timeline_button">Timeline</a></span></h2>
+			<h2 class="resources-title">Following<span class="editButton"><a href="${req.base_path}/watchlist_timeline" id="watchlist_timeline_button">Timeline</a></span></h2>
+            <a href="${req.base_path}/prefs/following" id="following_settings_button">View all</a>
 			<ul>
 	        ${list_watchlist_events(watchlist)}
 	        </ul>
 	        </py:if>
         </div>
     </div>
-
         <form id="sorting_form" style="display:none;" action="" method="post">
         <fieldset>
             <input id="sort_tasks_by" name="sort_tasks_by" type="hidden" value="${sort_tasks_by}" />
