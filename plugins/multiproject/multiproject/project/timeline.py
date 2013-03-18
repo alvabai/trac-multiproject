@@ -137,7 +137,7 @@ class TimelineEmptyMessage(Component):
             if not data['events']:
                 import datetime
                 from multiproject.core.db import db_query
-                project_name = data['project']['name']
+                project_name = data['chrome']['scripts'][0]['href'].split("/")[1]
                 row = []
                 with db_query(project_name) as cursor:
                     query = "SELECT MAX(t.time) FROM (SELECT time from revision UNION SELECT time from ticket UNION SELECT time FROM ticket_change UNION SELECT time FROM wiki)t;"
