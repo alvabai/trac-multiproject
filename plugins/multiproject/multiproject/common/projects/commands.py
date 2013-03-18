@@ -158,6 +158,10 @@ class CreateTracVersionControl(Command):
         elif self.vcs_type == 'git':
             if self._run(('git', '--bare', '--git-dir', self.vcs_path, 'init', '--shared=true')):
                 self._run(('git', '--git-dir', self.vcs_path, 'update-server-info'))
+                # Add denyCurrentBranch & denyDeleteCurrent to default config
+                f = open(self.vcs_path + '/config', 'a')
+                f.write('\tdenyCurrentBranch = ignore\n\tdenyDeleteCurrent = ignore\n')
+                f.close()
                 self.success = True
 
         # Unknown repository type
