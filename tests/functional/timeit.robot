@@ -16,7 +16,7 @@ Logging in should be quick
     Log in ${login_times} times
     ${end}=  Get time  epoch
     Log  ${end}
-    ${diff}=  Evaluate  (${start}-${end})/${login_times}
+    ${diff}=  Evaluate  (${end}-${start})/${login_times}
     Save time info  ${diff}
 
 
@@ -33,7 +33,8 @@ Log in ${arg} times
 Save time info
     [Documentation]  Save timing data to a csv file
     [Arguments]  ${time}
-    Create file  data.csv  ${time}
+    Create file  data.csv  Time to log in\n
+    Append to file  data.csv   ${time}\n
 
 
 # vim:sw=4:ts=4
