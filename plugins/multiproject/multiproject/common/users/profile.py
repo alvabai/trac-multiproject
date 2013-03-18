@@ -184,5 +184,6 @@ class UserProfileBox(Component):
             add_stylesheet(req, 'multiproject/css/multiproject.css')
             add_script(req, 'multiproject/js/multiproject.js')
             add_script(req, 'multiproject/js/profile.js')
+            add_script(req, 'multiproject/js/preference.js')
 
         return template, data, content_type

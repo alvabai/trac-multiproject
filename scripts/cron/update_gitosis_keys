@@ -1,0 +1,50 @@
+#!/bin/bash
+
+set -e
+
+DB_SERVER="localhost"
+DB_USER="tracuser"
+DB_PASSWORD="password"
+GITOSIS_REPO_PATH="/var/www/trac/gitosis/gitosis-clone"
+GIT="/usr/bin/git"
+GITOSIS_USER="git"
+LOGFILE="/var/www/trac/gitosis/scripts/log/gitosis.log"
+
+if [[ "$USER" != "$GITOSIS_USER" ]] ; then
+	echo "ERROR: This script must be run as user $GITOSIS_USER" >&2
+	exit 1
+fi
+
+echo "Started run at `date`" >> $LOGFILE
+cd $GITOSIS_REPO_PATH
+last_user=""
+for x in `echo "SELECT username,ssh_key FROM user,ssh_keys WHERE user.user_id = ssh_keys.user_id;" | mysql -h $DB_SERVER -u $DB_USER --password=$DB_PASSWORD trac_admin | tail -n +2 | sed 's/\t/:/;s/ /|/g' | sort` ; do
+	username=`echo "$x" | cut -d ":" -f 1`
+	key=`echo "$x" | cut -d ":" -f 2 | sed 's/|/ /g'`
+	if [ -f keydir/$username.pub ] ; then
+		# If the user has more than 1 key, we just want to append, not overwrite these
+		if [[ "$username" == "$last_user" ]] ; then
+			echo "$key" >> $GITOSIS_REPO_PATH/keydir/$username.pub
+		else
+			echo "$key" > $GITOSIS_REPO_PATH/keydir/$username.pub
+		fi
+	else
+		echo "$key" > $GITOSIS_REPO_PATH/keydir/$username.pub
+		$GIT add keydir/$username.pub
+	fi
+	last_user=$username
+done
+
+# Delete old keys.
+touch keydir
+find keydir -cmin +4 -exec $GIT rm {} \;
+
+# If there are any changes, commit them & push
+if [ ! -z "`$GIT status --porcelain | grep -v ^??`" ] ; then
+	$GIT commit -am "Cronjob update `date`"
+	$GIT push
+	echo "Keys updated successfully" >> $LOGFILE
+else
+	echo "Nothing to do" >> $LOGFILE
+fi
+exit 0

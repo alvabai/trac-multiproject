@@ -379,6 +379,64 @@ table.files_table {
     background: transparent url("../images/files_icon_file.png") no-repeat scroll center center;
 }
 
+/*FILE EXTENSIONS*/
+
+.files_entries > .files_entry_head > .filename .node_icon.icon_file.extension_pdf {
+    background: transparent url("../images/file_pdf.png") no-repeat scroll center center;
+}
+
+.files_entries > .files_entry_head > .filename .node_icon.icon_file.extension_txt {
+    background: transparent url("../images/file_txt.png") no-repeat scroll center center;
+}
+
+.files_entries > .files_entry_head > .filename .node_icon.icon_file.extension_deb {
+    background: transparent url("../images/file_deb.png") no-repeat scroll center center;
+}
+
+.files_entries > .files_entry_head > .filename .node_icon.icon_file.extension_rpm {
+    background: transparent url("../images/file_rpm.png") no-repeat scroll center center;
+}
+
+.files_entries > .files_entry_head > .filename .node_icon.icon_file.extension_xml {
+    background: transparent url("../images/file_xml.png") no-repeat scroll center center;
+}
+
+.files_entries > .files_entry_head > .filename .node_icon.icon_file.extension_swf {
+    background: transparent url("../images/file_swf.png") no-repeat scroll center center;
+}
+
+.files_entries > .files_entry_head > .filename .node_icon.icon_file.extension_docs {
+    background: transparent url("../images/file_doc.png") no-repeat scroll center center;
+}
+
+.files_entries > .files_entry_head > .filename .node_icon.icon_file.extension_spread {
+    background: transparent url("../images/file_spread.png") no-repeat scroll center center;
+}
+
+.files_entries > .files_entry_head > .filename .node_icon.icon_file.extension_pres {
+    background: transparent url("../images/file_pres.png") no-repeat scroll center center;
+}
+
+.files_entries > .files_entry_head > .filename .node_icon.icon_file.extension_video {
+    background: transparent url("../images/file_video.png") no-repeat scroll center center;
+}
+
+.files_entries > .files_entry_head > .filename .node_icon.icon_file.extension_audio {
+    background: transparent url("../images/file_audio.png") no-repeat scroll center center;
+}
+
+.files_entries > .files_entry_head > .filename .node_icon.icon_file.extension_image {
+    background: transparent url("../images/file_image.png") no-repeat scroll center center;
+}
+
+.files_entries > .files_entry_head > .filename .node_icon.icon_file.extension_archive {
+    background: transparent url("../images/file_tgz.png") no-repeat scroll center center;
+}
+
+.files_entries > .files_entry_head > .filename .node_icon.icon_file.extension_binary {
+    background: transparent url("../images/file_binary.png") no-repeat scroll center center;
+}
+
 #files .parent_dir_breadcrumb > .breadcrumb_item > .node_icon.icon_downloads,
 .files_entries > .files_entry_head > .filename .node_icon.icon_downloads {
     background: transparent url("../images/files_icon_downloads.png") no-repeat scroll center center;

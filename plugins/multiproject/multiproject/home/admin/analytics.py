@@ -43,6 +43,7 @@ EVENT_DESCRIPTIONS = {
     'file_downloaded':'Files downloaded',
     'release_uploaded':'Project releases uploaded',
     'release_downloaded':'Project releases downloaded',
+    'project_watchers':'Project followed',
 }
 
 class ProjectStatisticsAdminPanel(Component):
