@@ -126,6 +126,13 @@ class TimelineEmptyMessage(Component):
     implements(ITemplateStreamFilter)
 
     def filter_stream(self, req, method, filename, stream, data):
+        """
+            Checks the project timeline and if there is no events with default params then user is
+            directed to see latest events
+            :param stream: Contains whole website
+            :param data: Contains events, project information etc
+            :return stream or if no events then redirect
+        """
         if filename == 'timeline.html':
             if not data['events']:
                 import datetime
