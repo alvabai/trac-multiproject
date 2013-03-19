@@ -58,6 +58,10 @@ class CategoryEditorAdminPanel(Component):
         context = req.args.get('context', '').strip()
         category = req.args.get('category', '').strip()
         parent = req.args.get('parent', '').strip()
+        license_url = reg.args.get('license_url', '').strip()
+
+        if license_url is not None:
+            category = category + "#" + license_url
 
         if not context or not category:
             return
@@ -95,6 +99,8 @@ class CategoryEditorAdminPanel(Component):
             return
         category_name = req.args.get('edited_category_name', '')
         category_description = req.args.get('edited_category_description', '')
+        if len(category_description.split("#")) == 2:
+            category_name = category_name + "#" + category_description.split("#")[1]
         if not category_name or not category_description:
             add_warning(req, _('Category name and description cannot be empty. "%s" "%s"'%(category_name, category_description)))
             return
