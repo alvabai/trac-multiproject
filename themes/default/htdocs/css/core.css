@@ -955,3 +955,13 @@ table.wiki > tbody > tr {
 }
 
 /*** Explore projects section END ***/
+
+/*** Project admin categories BEGIN ***/
+
+#license_url{
+  display: block;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+/*** Project admin categories END ***/
