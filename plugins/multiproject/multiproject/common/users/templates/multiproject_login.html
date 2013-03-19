@@ -25,23 +25,23 @@ from multiproject.core.configuration import conf
     <h1 id="fnloginHeader">Login to ${conf.domain_name}</h1>
     <div class="halfWidth left">
       <div id="fnloginToForum">
-        <form id="ssologin" method="post" action="${conf.url_home_path}/user">
-             <fieldset>
-              <p>
-                <label for="fnloginUsername">Username</label>
-                <input id="fnloginUsername" name="username" maxlength="100" value="${req.args.get('username')}" type="text" />
-                <br />
-                <label for="fnloginPassword">Password</label>
-                <input id="fnloginPassword" name="password" maxlength="50" value="" type="password" />
-                <br />
-                <div class="buttons">
-                  <input type="submit" value="Login" name="login" class="primaryButton" />
-                </div>
-              </p>
-              <input type="hidden" name="action" value="do_login" />
-            </fieldset>
-          </form>
-          <div class="fnClearer"> </div>
+        <form id="ssologin" method="post" action="${conf.url_home_path}/user" class="form">
+           <fieldset>
+            <div class="field">
+              <label for="fnloginUsername">Username</label>
+              <input id="fnloginUsername" name="username" maxlength="100" value="${req.args.get('username')}" type="text" />
+            </div>
+            <div class="field">
+              <label for="fnloginPassword">Password</label>
+              <input id="fnloginPassword" name="password" maxlength="50" value="" type="password" />
+            </div>
+            <div class="field buttons">
+              <input type="submit" value="Login" name="login" class="primaryButton" />
+            </div>
+            <input type="hidden" name="action" value="do_login" />
+          </fieldset>
+        </form>
+        <div class="fnClearer"> </div>
       </div>
       <div class="fnMainClear"></div>
     </div>

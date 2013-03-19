@@ -1433,6 +1433,16 @@ code {
   font-family: monospace
 }
 
+/* Forms */
+
+.form .field {
+  margin: 5px 0;
+}
+
+.form .buttons {
+  margin-top: 10px;
+}
+
 /* remember to define focus styles! */
 
 :focus {
