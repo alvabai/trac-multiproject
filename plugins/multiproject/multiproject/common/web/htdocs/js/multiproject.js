@@ -1820,7 +1820,9 @@
 
             // Load ready-rendered profile box and show it once done
             var user = options.usercb(clicked);
-            box.load(multiproject.req.base_path + '/user/' + user.username.trim() + '/profilebox', function(){
+            var user_name = user.username.trim().replace(" ", "%20");
+            var probox_url = multiproject.req.base_path + '/user/' + user_name + '/profilebox';
+            box.load(probox_url, function(){
                 // Bind action for elements match with div.close
                 box.find('div.close').click(function(event){ return self.closeProfileBox(box, clicked); });
             });
