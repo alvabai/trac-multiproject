@@ -106,6 +106,10 @@ p strong {
   font-weight: bold;
 }
 
+strong {
+  font-weight: bold;
+}
+
 h2 {
   margin: 0 0 10px 0;
   padding-top: 12px;
