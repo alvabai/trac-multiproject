@@ -2212,3 +2212,14 @@ $('#prj_long_name').live("keyup", function(){
 $("#signOut").live("click", function(){
     $.removeCookie('trac_form_token', { path: '/home' });
 });
+
+//Add new ticket link to ticket tab
+(function($, window, undefined) {
+  $(document).ready(function(){ 
+    var url = window.location.href;
+    var location = url.split("/")[4];
+    if (location == "ticket"){
+      $("#ctxtnavitems ul .first").after("<li>|</li><li><a href=\"../newticket\">New ticket</a></li>");
+    }
+  });
+})(jQuery, window);
