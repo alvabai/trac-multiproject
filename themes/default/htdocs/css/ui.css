@@ -1440,11 +1440,23 @@ code {
 /* Forms */
 
 .form .field {
-  margin: 5px 0;
+  margin: 5px 0 10px 0;
+  overflow: hidden;
 }
 
 .form .buttons {
   margin-top: 10px;
+}
+
+.form .field label {
+  margin: 5px 0;
+  display: block;
+}
+
+.form .field .checkbox {
+  top: -4px;
+  position: relative;
+  margin-right: 10px;
 }
 
 /* remember to define focus styles! */

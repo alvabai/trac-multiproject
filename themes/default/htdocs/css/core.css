@@ -191,8 +191,9 @@ label.question {
   padding-top: 5px
 }
 
-.create_form_float fieldset .answer {
-  width: 210px
+.create_form_float fieldset input[type="text"], 
+.create_form_float fieldset textarea {
+  width: 400px
 }
 
 .resource-box a.more {
@@ -278,6 +279,7 @@ h2 .title .editButton a,
 .vcs #vcstype-selection { 
   display: block; 
   float: left;
+  margin-left: 5px;
 }
 
 .vcs #vcsparent-selection { 
@@ -1125,14 +1127,28 @@ table.wiki thead th,
 table.listing thead tr,
 table.listing thead th {
   background-color: #E1E1E1;
-  padding: 5px 5px 5px 0;
-  color: #395796;
+  font-weight: bold;
+  vertical-align: bottom;
+  padding: 5px;
+  line-height: 14px;
 }
 
 table.listing > tbody > tr,
 table.wiki > tbody > tr {
   font-size: 12px;
-  line-height: 20px;
+}
+
+table.listing thead .hint {
+  float: right;
+  font-weight: normal;
+}
+
+table.listing td {
+  padding: 4px;
+}
+
+table.listing p {
+  margin-bottom: 0;
 }
 
 /* Pagination for numbered_pagination(min, max, selected, total_pages) - projects_pagination */
