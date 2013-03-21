@@ -5,6 +5,9 @@
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/"
       py:strip="True">
+<?python
+from multiproject.core.configuration import conf
+?>
 
 <!-- ! This template defines functions that creates lists of categories -->
 <!-- ! TODO: move into common and merge things from admin_categoryeditor.html -->
@@ -16,7 +19,7 @@
         <py:for each="category in sorted(category_dict.values(), key=lambda x:x.name, cmp=lambda x,y: cmp(x.lower(), y.lower() ))">
         <li id="cat_${category.category_id}"
                 onclick="unBindCategory('${env}', ${context.context_id}, ${category.category_id})">
-                <span class="selected_category">${category.name}</span>
+                <span class="selected_category">${category.name.split("#")[0]}</span>
             </li>
         </py:for>
     </ul>
@@ -93,10 +96,22 @@
             </py:if>
             <py:choose test="category.category_id in selected_categories">
                 <py:when test="False">
-                    <a onclick="bindCategory('${env}', ${context.context_id}, ${category.category_id})">${category.name}</a>
+                    <a onclick="bindCategory('${env}', ${context.context_id}, ${category.category_id})">${category.name.split("#")[0]}</a>
+                    <span class="license_url_image"
+                    py:if="context.name == 'License' and len(category.name.split('#')) == 2">
+                        <a href="${category.name.split('#')[1]}">
+                            <img src="${conf.theme_htdocs_location}/images/link_icon.png" alt="Category url" />
+                        </a>
+                    </span>
                 </py:when>
                 <py:otherwise>
-                    <span class="selected_category">${category.name}</span>
+                    <span class="selected_category">${category.name.split("#")[0]}</span>
+                    <span class="license_url_image" style="padding-top: 3px;"
+                    py:if="context.name == 'License' and len(category.name.split('#')) == 2">
+                        <a href="${category.name.split('#')[1]}">
+                            <img src="${conf.theme_htdocs_location}/images/link_icon.png" alt="Category url" />
+                        </a>
+                    </span>
                 </py:otherwise>
             </py:choose>
         </li>
