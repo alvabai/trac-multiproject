@@ -304,7 +304,7 @@ class UserSshKeys(Component):
         # This is to prevent adding of more than one ssh password.
         # Remove this if we support more in the future.
         if keys:
-            data['hide_add_dialog'] = True
+            data['hide_add_dialog'] = False
 
         data['domain'] = conf.domain_name
         data['user'] = user
@@ -323,7 +323,7 @@ class UserSshKeys(Component):
         ssh_key = SshKey.remove_comment_from_key_string(ssh_key)
 
         if not SshKey.validate_key_string(ssh_key):
-            add_warning(req, _('Failed to add SSH key: invalid SSH key'))
+            add_warning(req, _('Failed to add SSH key: invalid SSH key, key must be in open ssh format'))
             return user
 
         description = req.args.get('description')
@@ -335,7 +335,7 @@ class UserSshKeys(Component):
         user_id = user.id
 
         if key_store.add_ssh_key(user_id, ssh_key, description):
-            add_notice(req, _('New SSH key added (validation takes about 1 minute)'))
+            add_notice(req, _('New SSH key added (validation takes about 5 minute)'))
             return user
 
         add_warning(req, _('Failed to add SSH key: Server error'))

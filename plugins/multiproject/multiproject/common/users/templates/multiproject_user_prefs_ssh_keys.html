@@ -35,8 +35,16 @@
   </div>  
   
   <div class="ssh_keys_container" py:if="keys">
-    <dl py:for="key in keys">
-      <h2 class="title"><span>Current Git SSH key</span></h2>
+    <h2 class="title"><span>Current Git SSH key</span></h2>
+    <table>
+      <tr>
+        <th>Description</th><th>SSH key</th><th>Delete</th>
+      </tr>
+      <tr py:for="key in keys">
+        <td>${key.description}</td><td>${key.ssh_key[0:30]}...</td><td><input type="checkbox" name="deletelist" value="${key.key_id}" /></td>
+      </tr>
+     </table>
+    <!--<dl py:for="key in keys">
       <fieldset>
         <legend>Added: ${key.added}</legend>
         <div py:if="key.description">
@@ -51,12 +59,12 @@
       <label id="sshdelete" for="deletelist"><input type="checkbox" name="deletelist" value="${key.key_id}" /> Delete</label><br />
       </fieldset>
       <p />
-    </dl>
+    </dl>-->
   </div>
   
   <div class="ssh_keys_container">
 
-    <fieldset py:if="not hide_add_dialog">
+    <fieldset py:if="not hide_add_dialog">  
       <h2 class="title"><span>Create a new Git SSH key</span></h2>
       <label for="description">Description (optional, max 200 characters)</label><br />
       <input class="sshkey" type="text" name="description" value="" maxlength="200" /><br /><br />
