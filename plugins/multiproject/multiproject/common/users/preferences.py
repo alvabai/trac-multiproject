@@ -335,7 +335,7 @@ class UserSshKeys(Component):
         user_id = user.id
 
         if key_store.add_ssh_key(user_id, ssh_key, description):
-            add_notice(req, _('New SSH key added (validation takes about 5 minute)'))
+            add_notice(req, _('New SSH key added (please allow 5 minutes for replication)'))
             return user
 
         add_warning(req, _('Failed to add SSH key: Server error'))
