@@ -19,7 +19,6 @@ Logout
 Create new project  [Arguments]  ${projname}
     [Documentation]  Attempt to create a new project, without verification of the result.
     Click Link  Create new project >
-    Location Should Be  ${WELCOME_PAGE}/project/new
     Title should be  Create a New Project – home
     Input text  prj_long_name  ${projname}
     Input text  prj_description  This is a dummy test project
@@ -28,7 +27,6 @@ Create new project  [Arguments]  ${projname}
 Remove project
     [Arguments]  ${proj_name}
     Go to        ${SERVER}/${proj_name}/admin/general/system
-    Page should contain  Want to remove project from service?
     Click element   name=remove
     Click button   Confirm
 
