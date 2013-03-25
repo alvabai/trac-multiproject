@@ -25,16 +25,6 @@ Go to Welcome Page
     Go to  ${WELCOME_PAGE}
     Element should contain  tag=title  home
 
-Login
-    [Documentation]  Login when login page is already opened
-    [Arguments]   ${username}=${VALID_USER}  ${password}=${VALID_PASSWD}
-    Open Browser to Login Page
-    Title Should be  ${LOGIN_TITLE}  # en-dash, not a normal one :-/
-    Input Text  name=username  ${username} 
-    Input Password  name=password  ${password} 
-    Click Button  Login
-    Location Should Be  ${WELCOME_PAGE}
-
 Logout
     Click Link  id=signOut
 
