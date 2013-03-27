@@ -24,7 +24,7 @@ Logging in should be quick
 
 Log in and out
     Login
-    Log out
+    Logout
     [TearDown]  Close Browser
 
 Log in ${arg} times

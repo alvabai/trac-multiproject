@@ -372,7 +372,7 @@ class FindProjectsModule(Component):
 
         for project in projects:
             cats = cs.get_all_project_categories(project.id, ordered=True)
-            cats_joined = ', '.join([cat.name for cat in cats])
+            cats_joined = ', '.join([cat.name.split("#")[0] for cat in cats])
             project_categories[project.id] = cats_joined
 
         return project_categories

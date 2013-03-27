@@ -31,7 +31,7 @@ from multiproject.core.configuration import conf
             <li id="${el_id}" class="${element_style}">
                 <span class="category_checkbox"><input name="${el_id}_cb" id="${el_id}_cb" type="checkbox" /></span>
                 <div class="toggle_button" py:if="cat.has_children()"> </div>
-                <label for="${el_id}_cb"><span class="list_name">${cat.name}</span></label>
+                <label for="${el_id}_cb"><span class="list_name">${cat.name.split("#")[0]}</span></label>
                 <py:if test="cat.has_children and cat.has_children()">
                     <ul id="children_${el_id}" class="catlist subcatlist">
                     ${explore_projects_list_categories(sorted(cat.children, key=lambda x: x.name), is_top_category)}
