@@ -28,7 +28,8 @@ class FindProjectsModule(Component):
 
     # List tabs that we have
     TABS = [('active', 'Active'),
-            ('recent', "Recent")]
+            ('recent', "Recent"),
+            ('download', 'Download')]
 
     DEFAULT_TAB = 'active'
 
@@ -316,7 +317,7 @@ class FindProjectsModule(Component):
         """ Based on url, resolve what to do
         """
         tab = req.args.get('tab') or self.DEFAULT_TAB
-        if tab not in ['recent', 'active']:
+        if tab not in ['recent', 'active', 'download']:
             tab = self.DEFAULT_TAB
         return tab
 
