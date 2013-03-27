@@ -68,56 +68,49 @@ sub {
 /* Welcome page navigation styles */
 
 ul#frontpage_navigation {
-  margin: 0 0 15px 0;
+  margin: 10px 0;
   list-style-type: none;
+  clear: both;
 }
 
 #frontpage_navigation li {
   display: inline-block;
-  border-left: 1px solid #e7e7e7;
-  padding-left: 10px;
-  width: 220px;
+  *display:inline;
+  zoom:1;
   vertical-align: top;
+  background: #efefef;
+  padding: 10px 15px;
+  width: 20%;
+  min-height: 85px;
 }
 
 #frontpage_navigation li:first-child {
-  border-left: none;
-  padding-left: 0;
+  color: #999;
+  font-size: 16px;
+  width: 26%;
 }
 
 #frontpage_navigation li h3 {
-  margin: 2px 0;
+  margin: 5px 0 0 0;
   display: block;
+  color: #222;
 }
 
 #frontpage_navigation li span {
   display: block;
   min-height: 40px;
-  color: black;
 }
 
 #frontpage_navigation a {
   display: block
 }
 
-#frontpage_navigation #punch_line {
-  color: #a9a9a9;
-  font-size: 17px;
-  font-family: Tahoma, Geneva, sans-serif;
-}
-
-/* The admin link */
-
-#admin_link {
-  padding-top: 10px;
-  font-family: Tahoma, Geneva, sans-serif;
-}
-
 /* Site title icon and text, also used in explore projects and create project */
 
 #site_title {
-  background: url(../images/large_project_ico.png) no-repeat scroll left center transparent;
+  background: url(../images/large_project_ico.png) no-repeat left top;
   padding-left: 62px;
+  line-height: 38px;
 }
 
 #welcomepage #site_title {
@@ -198,8 +191,9 @@ label.question {
   padding-top: 5px
 }
 
-.create_form_float fieldset .answer {
-  width: 210px
+.create_form_float fieldset input[type="text"], 
+.create_form_float fieldset textarea {
+  width: 400px
 }
 
 .resource-box a.more {
@@ -285,6 +279,7 @@ h2 .title .editButton a,
 .vcs #vcstype-selection { 
   display: block; 
   float: left;
+  margin-left: 5px;
 }
 
 .vcs #vcsparent-selection { 
@@ -1132,14 +1127,28 @@ table.wiki thead th,
 table.listing thead tr,
 table.listing thead th {
   background-color: #E1E1E1;
-  padding: 5px 5px 5px 0;
-  color: #395796;
+  font-weight: bold;
+  vertical-align: bottom;
+  padding: 5px;
+  line-height: 14px;
 }
 
 table.listing > tbody > tr,
 table.wiki > tbody > tr {
   font-size: 12px;
-  line-height: 20px;
+}
+
+table.listing thead .hint {
+  float: right;
+  font-weight: normal;
+}
+
+table.listing td {
+  padding: 4px;
+}
+
+table.listing p {
+  margin-bottom: 0;
 }
 
 /* Pagination for numbered_pagination(min, max, selected, total_pages) - projects_pagination */

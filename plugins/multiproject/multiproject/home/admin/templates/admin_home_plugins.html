@@ -98,7 +98,14 @@
         </py:if>
         <table class="listing">
           <thead>
-               <tr><th>Component</th><th class="sel" colspan="2"><div>Enabled</div><span>Home</span><span>Project</span></th></tr>
+            <tr>
+              <th>
+                Component
+                <span class="hint">Enabled for</span>
+              </th>
+              <th class="sel">Home project</th>
+              <th class="sel">All projects</th>
+            </tr>
           </thead>
           <tbody>
             <tr py:for="component in plugin.components">

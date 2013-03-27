@@ -23,14 +23,14 @@ from multiproject.core.configuration import conf
 
         <h1 id="site_title">Create a New Project</h1>
 
-        <form class="create_project_form" action="${url('create')}" method="post">
+        <form class="create_project_form form" action="${url('create')}" method="post">
             <div class="create_form_float halfWidth left">
             <fieldset>
                 <h2 class="title"><span>Basic information</span></h2>
 
                 <input type="hidden" name="action" value="create" />
 
-                <div style="clear: both; margin-top:15px;">
+                <div class="field">
                     <label class="question" for="prj_long_name">Name</label>
                     <span style="float: left;" class="requiredField">*</span>
                     <div class="answer">
@@ -38,7 +38,7 @@ from multiproject.core.configuration import conf
                     </div>
                 </div>
 
-                <div style="clear: both;">
+                <div class="field">
                     <label class="question" for="prj_short_name">Identifier</label>
                     <span style="float: left;" class="requiredField">*</span>
                     <div class="answer">
@@ -46,21 +46,21 @@ from multiproject.core.configuration import conf
                     </div>
                 </div>
 
-                <div style="clear: both;">
+                <div class="field">
                     <label class="question" for="prj_description">Description</label>
                     <span style="float: left;" class="requiredField">*</span>
                     <div class="answer">
-                        <textarea cols="53" rows="8" style="width: 97%; height:100%" name="prj_description" id="prj_description">${prj_description}</textarea>
+                        <textarea cols="53" rows="8" name="prj_description" id="prj_description">${prj_description}</textarea>
                     </div>
                 </div>
 
-                <div py:if="conf.allow_public_projects" style="clear: both;">
+                <div py:if="conf.allow_public_projects" class="field">
+                    <div id="public_project_answer" class="" style="float:left" py:choose="(prj_is_public and prj_is_public == 'on') or (not prj_is_public and conf.create_public_as_default)">
+						<input type="checkbox" role="checkbox" class="checkbox" checked="checked" id="prj_is_public" name="prj_is_public" py:when="True" />
+						<input type="checkbox" role="checkbox" class="checkbox" id="prj_is_public" name="prj_is_public" py:otherwise="" />
+                    </div>
                     <label class="question" for="prj_is_public">Public project</label>
                     <span style="float: left;" class="requiredField">*</span>
-                    <div id="public_project_answer" class="answer" py:choose="(prj_is_public and prj_is_public == 'on') or (not prj_is_public and conf.create_public_as_default)">
-						<input type="checkbox" role="checkbox" checked="checked" id="prj_is_public" name="prj_is_public" py:when="True" />
-						<input type="checkbox" role="checkbox" id="prj_is_public" name="prj_is_public" py:otherwise="" />
-                    </div>
                 </div>
 
             </fieldset>

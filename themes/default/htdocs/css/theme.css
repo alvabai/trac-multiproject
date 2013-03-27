@@ -41,6 +41,15 @@ div#chart {
   margin: 10px 0
 }
 
+/* Forms */
+
+#fnloginToForum label {
+  width: 60px;
+  display: inline-block; 
+  *display: inline;
+  zoom: 1;
+}
+
 /* We need to horizontally compress the navi bar slightly */
 
 #tabbedNavigation a {

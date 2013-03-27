@@ -6,29 +6,27 @@
       py:strip="True">
 
 <py:choose>
-  <div py:when="len(projects) > 0" class="greyBgContainer" style="margin-left:10%;width:80%;margin-bottom:15px;">
-      <div class="greyBgContent">
-          <py:if test="not userpage">
-              <span style="font-weight: bold;">Boy you are good at squashing bugs,</span>
-              <br/>
-              why not check your projects and start working on more?
-          </py:if>
-          <py:if test="userpage">
-              <span style="font-weight: bold;">No tickets</span>
-          </py:if>
-      </div>
+  <div py:when="len(projects) > 0" class="greyBgContainer">
+    <div class="greyBgContent">
+      <py:if test="not userpage">
+        <strong>Boy you are good at squashing bugs,</strong><br/>
+        why not check your projects and start working on more?
+      </py:if>
+      <py:if test="userpage">
+        <strong>No tickets</strong>
+      </py:if>
+    </div>
   </div>
   <div py:otherwise="" class="greyBgContainer" style="margin-left:10%;width:80%;">
-      <div class="greyBgContent">
-          <py:if test="not userpage">
-              <span style="font-weight: bold;">What's going on? Are you slacking?</span>
-              <br/>
-              Why not check out some open tickets and get some work done?
-          </py:if>
-          <py:if test="userpage">
-              <span style="font-weight: bold;">No tickets</span>
-          </py:if>
-      </div>
+    <div class="greyBgContent">
+      <py:if test="not userpage">
+        <strong>What's going on? Are you slacking?</strong><br/>
+        Why not check out some open tickets and get some work done?
+      </py:if>
+      <py:if test="userpage">
+        <strong>No tickets</strong>
+      </py:if>
+    </div>
   </div>
 </py:choose>
 
