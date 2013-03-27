@@ -35,28 +35,20 @@
   </div>  
   
   <div class="ssh_keys_container" py:if="keys">
-    <dl py:for="key in keys">
-      <h2 class="title"><span>Current Git SSH key</span></h2>
-      <fieldset>
-        <legend>Added: ${key.added}</legend>
-        <div py:if="key.description">
-          <label for="currentdescription">Description</label>
-          <br />
-          <input name="currentdescription" id="currentdescription" type="text" class="sshkey" readonly="readonly" value="${key.description}" />
-        </div>
-      <label for="currentkey">SSH key</label>
-      <br />
-      <textarea name="currentkey" id="currentkey" class="sshkey" rows="6" readonly="readonly">${key.ssh_key}</textarea>
-      <br />
-      <label id="sshdelete" for="deletelist"><input type="checkbox" name="deletelist" value="${key.key_id}" /> Delete</label><br />
-      </fieldset>
-      <p />
-    </dl>
+    <h2 class="title"><span>Current Git SSH key(s)</span></h2>
+    <table id="ssh_key_table">
+      <tr class="ssh_key_table_header">
+        <th>Description</th><th>SSH key</th><th>Delete</th>
+      </tr>
+      <tr py:for="key in keys">
+        <td>${key.description}</td><td>${key.ssh_key[0:30]}...</td><td><input type="checkbox" name="deletelist" value="${key.key_id}" /></td>
+      </tr>
+     </table>
   </div>
   
   <div class="ssh_keys_container">
 
-    <fieldset py:if="not hide_add_dialog">
+    <fieldset py:if="not hide_add_dialog">  
       <h2 class="title"><span>Create a new Git SSH key</span></h2>
       <label for="description">Description (optional, max 200 characters)</label><br />
       <input class="sshkey" type="text" name="description" value="" maxlength="200" /><br /><br />

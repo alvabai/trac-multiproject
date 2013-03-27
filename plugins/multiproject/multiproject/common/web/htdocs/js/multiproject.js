@@ -337,7 +337,7 @@
          * @param {Array} words List of words
          * @returns {String} Possible username
          */
-        this.generate = function(words) {
+        this.generate = function(words, input_field) {
             var parts = [];
 
             if (typeof words === 'String') {
@@ -353,7 +353,7 @@
             self.username = parts.join('.');
 
             // Set value to element and return it back as well
-            $(self.element).val(self.username);
+            $(input_field).val(self.username);
             return self.username;
         };
 
@@ -362,18 +362,26 @@
          * @param {String} username
          * @param {function} callback
          */
-        this.checkConflict = function(callback) {
+        this.checkConflict = function(callback, db_field, input_field) {
             var result = false;
-            var username = self.element.val();
+            var username = input_field.val();
             var users = multiproject.api.Users();
 
             // Make AJAX request to fetch users
-            users.queryUsers({query: username, fields: ['username'], limit:40, cb: function(data){
+            users.queryUsers({query: username, fields: [db_field], limit:40, cb: function(data){
                 // Iterate all the results and check if there are users with same username
                 for(var entry in data) {
-                    if (data[entry].username === username) {
-                        result = true;
-                        break;
+                    if(db_field == 'username'){
+                        if (data[entry].username === username) {
+                            result = true;
+                            break;
+                        }
+                    }
+                    else {
+                        if (data[entry].email === username) {
+                            result = true;
+                            break;
+                        }   
                     }
                 }
                 callback(result);
@@ -1691,7 +1699,6 @@
                 field: fields.join(','),
                 status: status.join(',')
             };
-
             // Make AJAX request to fetch users
             $.getJSON(
                 multiproject.req.base_path + "/api/user/list",

@@ -1,45 +1,54 @@
 $(document).ready(function(){
     var username_check = $('a#check');
+    var email_check = $('a#checkEmail');
     var username_field = $('input#username');
+    var email_field = $('input#email');
     var firstname_field = $('input#first');
     var lastname_field = $('input#last');
     var check_progress = false;
 
     // Generate default username from first and last name
     var username = multiproject.ui.UserNameField(username_field);
+    var email_element = multiproject.ui.UserNameField(email_field);
 
     // Callback for checking username conflict
-    var check_username = function(event) {
+    function check_value(event, db_field, input_element, input_field) {
         event.preventDefault();
-        username_field.addClass('loading');
+        input_field.addClass('loading');
 
         if (check_progress) {
-            username_field.removeClass('loading');
+            input_field.removeClass('loading');
             return false;
         }
 
         check_progress = true;
-        username.checkConflict(function(result){
-            username_field.removeClass('ok');
-            username_field.removeClass('error');
+        input_element.checkConflict(function(result){
+            input_field.removeClass('ok');
+            input_field.removeClass('error');
             if (result) {
-                username_field.addClass('error');
+                input_field.addClass('error');
             }
             else {
-                username_field.addClass('ok');
+                input_field.addClass('ok');
             }
             check_progress = false;
-            username_field.removeClass('loading');
-        });
+            input_field.removeClass('loading');
+        }, db_field, input_field);
     };
 
     // Callback for generating username
     var update_username = function(event) {
-        username.generate([firstname_field.val(), lastname_field.val()]);
+        username.generate([firstname_field.val(), lastname_field.val()], username_field);
     };
 
     // Bind events
-    username_check.click(check_username);
+    //username_check.click(check_username, 'username');
+    username_check.live("click", function(evt){
+        check_value(evt, 'username', username, username_field);
+    });
+    email_check.live("click", function(evt){
+        check_value(evt, 'email', email_element, email_field);
+    });
     firstname_field.keyup(update_username);
     lastname_field.keyup(update_username);
 });
