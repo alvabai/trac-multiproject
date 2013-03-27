@@ -13,9 +13,10 @@ from trac.web.chrome import _
 
 from multiproject.core.users import User, get_userstore
 from multiproject.core.util import sanitize_html, safe_address
-from multiproject.core.util.request import get_context
+from multiproject.core.util.request import get_context, get_user
 from multiproject.core.configuration import conf
 from multiproject.core.exceptions import ProjectValidationException
+from multiproject.core.watchlist import CQDEWatchlistStore
 from multiproject.common.projects import Project, Projects
 from multiproject.common.projects.listeners import IProjectChangeListener
 from multiproject.common.projects.archive import ProjectArchive
@@ -104,9 +105,7 @@ class ProjectListModule(Component):
         req.perm.require("PROJECT_CREATE")
         if req.method != 'POST':
             return self.create_failure(req, 'POST request needed when creating a new project')
-
         author = get_context(req)['author']
-
         # If agreement needed but not getting it, show failure
         if conf.project_requires_agreed_terms and not self._is_active_user(req):
             return self.create_failure(req, 'You need to approve legal text to create a project!')
@@ -160,11 +159,17 @@ class ProjectListModule(Component):
         if public:
             projects.add_public_project_visibility(project.id)
 
+        #Add author to follow project
+        watch_store = CQDEWatchlistStore()
+        watch_store.watch_project(author.id, project.id)
+
         # Notify listeners. The project object still exists, but database does not
         for listener in self.project_change_listeners:
             listener.project_created(project)
+            listener.project_watchers(project)
             if public:
                 listener.project_set_public(project)
+
 
         return self.create_success(req, project)
 

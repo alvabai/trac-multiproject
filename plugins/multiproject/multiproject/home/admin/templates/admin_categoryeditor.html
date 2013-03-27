@@ -24,8 +24,14 @@ from multiproject.core.configuration import conf
 <py:def function="_category_editor_tree_for_categories(context, category)">
   <ul>
       <li id="cat_${category.category_id}">
-          <span py:if="not is_rdf_description(category.description)" class="name">${category.name}</span>
-          <span py:if="is_rdf_description(category.description)" class="name rdf_category">${category.name}</span>
+          <span py:if="not is_rdf_description(category.description)" class="name">${category.name.split("#")[0]}</span>
+          <span py:if="is_rdf_description(category.description)" class="name rdf_category">${category.name.split("#")[0]}</span>
+          <span class="license_url_image" style="padding-top: 3px;"
+            py:if="context.name == 'License' and len(category.name.split('#')) == 2">
+                <a href="${category.name.split('#')[1]}">
+                    <img src="${conf.theme_htdocs_location}/images/link_icon.png" alt="Category url" />
+                </a>
+          </span>
           <span class="description">${category.description}</span>
           <span class="category_id">${category.category_id}</span>
           <a href="#" class="edit_link">Edit</a>
@@ -157,6 +163,10 @@ from multiproject.core.configuration import conf
                         <strong>Add a new category</strong><br/><br/>
                         <label>New category:</label>
                         <input type="text" name="category"/><br/>
+                        <span py:if="context.name == 'License'">
+                            <label>License url:</label>
+                            <input type="text" name="license_url" /><br />
+                        </span>
                         <py:if test="categories_per_context[context.context_id]">
                             <label>Parent category:</label>
                             <select name="parent">

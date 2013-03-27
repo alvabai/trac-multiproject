@@ -328,7 +328,6 @@ class Projects(object):
         query = ("SELECT projects.*, project_selected.value AS priority FROM project_selected "
                  "INNER JOIN projects ON  project_selected.project_id = projects.project_id "
                  "ORDER BY priority ")
-        conf.log.exception("Query when getting featured projects: %s" % query)
         if limit:
             if count:
                 query += "LIMIT %d,%d" % (safe_int(limit), safe_int(count))

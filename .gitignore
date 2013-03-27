@@ -32,3 +32,4 @@ tests/perf/MultiprojectTestCase.conf
 tests/functional/log.html
 tests/functional/output.xml
 tests/functional/report.html
+selenium-screenshot-*.png

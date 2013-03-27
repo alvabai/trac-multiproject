@@ -1,43 +1,24 @@
 *** Settings ***
+Documentation   Common variables and keywords
 Library         Selenium2Library  0  2    # Set explicit wait to 0 and implicit wait to 1 sec
-
-
-*** Variables ***
-${PROTOCOL}      https
-${SERVER}        ${PROTOCOL}://localhost
-${BROWSER}       firefox
-${LOGIN_URL}     ${SERVER}/home/user
-${WELCOME_PAGE}  ${SERVER}/home
-${VALID_USER}    tracadmin
-${VALID_PASSWD}  tracadmin
-
 
 
 *** Keywords ***
 
 Open Browser to Login Page
-    Open Browser  ${LOGIN_URL}  ${BROWSER}
+    Open Browser  ${LOGIN_PAGE}  ${BROWSER}
     Maximize Browser Window
 
 Go to Welcome Page
     Go to  ${WELCOME_PAGE}
-    Title should be  multiproject – home
+    Element should contain  tag=title  home
 
-Login
-    [Documentation]  Login when login page is already opened
-    [Arguments]   ${username}=${VALID_USER}  ${password}=${VALID_PASSWD}
-    Open Browser to Login Page
-    Title Should be  Welcome – home  # en-dash, not a normal one :-/
-    Input Text  name=username  ${username} 
-    Input Password  name=password  ${password} 
-    Click Button  Login
-    Location Should Be  ${WELCOME_PAGE}
-
+Logout
+    Click Link  id=signOut
 
 Create new project  [Arguments]  ${projname}
     [Documentation]  Attempt to create a new project, without verification of the result.
     Click Link  Create new project >
-    Location Should Be  ${WELCOME_PAGE}/project/new
     Title should be  Create a New Project – home
     Input text  prj_long_name  ${projname}
     Input text  prj_description  This is a dummy test project
@@ -46,10 +27,8 @@ Create new project  [Arguments]  ${projname}
 Remove project
     [Arguments]  ${proj_name}
     Go to        ${SERVER}/${proj_name}/admin/general/system
-    Page should contain  Want to remove project from service?
     Click element   name=remove
     Click button   Confirm
-    #Close Browser
 
 
 

@@ -140,6 +140,7 @@ class CategorizationAdminPanel(Component):
         if req.method != 'POST':
             raise TracError('POST request required')
         category_name = req.args.get('category_name', '').strip()
+        category_name = category_name + "#" + req.args.get('license_url').strip()
 
         cat = self.categ.get_category_by_name(category_name)
         if not cat:
@@ -154,6 +155,7 @@ class CategorizationAdminPanel(Component):
                 return
 
             context = context_data['context_by_id'][context_id]
+
             if context.edit_type != context.EDIT_TYPE_ADD:
                 add_warning(req, _("Adding category into context %(context_name) is not allowed",
                     context_name=context.name))
@@ -170,10 +172,10 @@ class CategorizationAdminPanel(Component):
         project_key = context_data['project_key']
         if cat and project_key and self.categ.bind_category_project(project_key, cat.category_id):
             add_notice(req, _('Category %(what)s has been added.',
-                               what = category_name))
+                               what = category_name.split("#")[0]))
         else:
             add_warning(req, _('Category %(what)s cannot be added.',
-                               what = category_name))
+                               what = category_name.split("#")[0]))
 
     def _get_context_data(self, context_id = None):
         """

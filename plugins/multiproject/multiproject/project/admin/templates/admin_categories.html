@@ -20,6 +20,10 @@ from multiproject.core.configuration import conf
   </head>
 
   <body>
+    <div>
+        <form action="" enctype="multipart/form-data" method="post">
+        </form>
+    </div>
     <h2>Categorization</h2>
     <div class="categories">
       <py:with vars="first=True">
@@ -81,12 +85,13 @@ from multiproject.core.configuration import conf
                         <legend>Other category name</legend>
                         <input type="text" name="category_name" id="new_category_${context.context_id}" class="new_context_category" />
                         <input type="hidden" name="context_id" value="${context.context_id}" />
+                        <input type="text" name="license_url" placeholder="URL" id="license_url" title="Place license url here if exists"
+                        py:if="context.name == 'License'"/>
                         <input type="submit" name="add_and_bind" value="Add your own"/>
                         <p>Adds existing or creates new ${context.name} category.</p>
                     </fieldset>
                 </form>
             </div>
-
             </py:with>
         </py:for>
       </py:with>
