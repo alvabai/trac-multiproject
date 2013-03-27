@@ -53,10 +53,10 @@ from multiproject.core.configuration import conf
             <div py:if="conf.allow_public_projects" class="field"> 
               <label class="question" for="prj_is_public">Public project</label>
               <span style="float: left;" class="requiredField">*</span>
-              <div id="public_project_answer" style="float:left" py:choose="(prj_is_public and prj_is_public == 'on') or (not prj_is_public and conf.create_public_as_default)">
+              <span py:choose="(prj_is_public and prj_is_public == 'on') or (not prj_is_public and conf.create_public_as_default)">
                 <input type="checkbox" role="checkbox" class="checkbox" checked="checked" id="prj_is_public" name="prj_is_public" py:when="True" />
                   <input type="checkbox" role="checkbox" class="checkbox" id="prj_is_public" name="prj_is_public" py:otherwise="" />
-              </div>
+              </span>
             </div>
 
           </fieldset>

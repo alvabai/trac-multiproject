@@ -1450,12 +1450,13 @@ code {
 
 .form .field label {
   margin: 5px 0;
-  display: block;
+  min-width: 5em;
+  display: inline-block;
+  *display: inline;
+  zoom: 1;
 }
 
 .form .field .checkbox {
-  top: -4px;
-  position: relative;
   margin-right: 10px;
 }
 

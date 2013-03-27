@@ -187,10 +187,6 @@ label.question {
   text-align: left
 }
 
-#public_project_answer {
-  padding-top: 5px
-}
-
 .create_form_float fieldset input[type="text"], 
 .create_form_float fieldset textarea {
   width: 400px
