@@ -90,9 +90,9 @@ from multiproject.core.configuration import conf
                     </p>
                     <p>Updates the projects in merged category to be in the target category, and deletes the merged category.</p>
                     <p>The contexts of the category and its sub-categories are also updated, if needed.</p>
-                    <p>
-                    <span class="primaryButton"><input type="submit" name="merge" value="Merge"/></span>
-                    </p>
+                    <div class="buttons">
+                        <input type="submit" name="merge" value="Merge" class="primaryButton" />
+                    </div>
                 </fieldset>
             </form>
             <form action="" enctype="multipart/form-data" method="post" >
@@ -110,9 +110,9 @@ from multiproject.core.configuration import conf
                     </p>
                     <p>Updates the parent of the repositioned category to be the new parent category.</p>
                     <p>The contexts of the category and its sub-categories are also updated, if needed.</p>
-                    <p>
-                    <span class="primaryButton"><input type="submit" name="reposition" value="Reposition"/></span>
-                    </p>
+                    <div class="buttons">
+                        <input type="submit" name="reposition" value="Reposition" class="primaryButton" />
+                    </div>
                 </fieldset>
             </form>
             <div id="edit_category_div" >
@@ -128,10 +128,10 @@ from multiproject.core.configuration import conf
                             <label for="edited_category_description">Category description: </label><br/>
                             <input type="text" name="edited_category_description" id="edited_category_description" />
                         </p>
-                        <p>
-                            <span class="primaryButton"><input type="submit" name="edit" value="Edit" /></span>
-                            <span class="secondaryButton" style="display: none;"><input type="submit" name="cancel" value="Cancel" /></span>
-                        </p>
+                        <div class="buttons">
+                            <input type="submit" name="edit" value="Edit" class="primaryButton"/>
+                            <input type="submit" name="cancel" value="Cancel" class="secondaryButton" style="display: none;" />
+                        </div>
                     </fieldset>
                 </form>
                 <form action="" enctype="multipart/form-data" method="post" >
@@ -141,8 +141,10 @@ from multiproject.core.configuration import conf
                         <input type="text" class="autocomplete-category" name="removed_category_name" id="removed_category_name" />
                         <br/><br/>
                         <p>Removes the category. Note, that also sub categories are removed.</p>
-                        <span class="primaryButton"><input type="submit" name="remove" value="Remove" /></span>
-                        <span class="secondaryButton" style="display: none;"><input type="submit" name="cancel" value="Cancel" /></span>
+                        <div class="buttons">
+                            <input type="submit" name="remove" value="Remove" class="primaryButton" />
+                            <input type="submit" name="cancel" value="Cancel" class="secondaryButton" style="display: none;" />
+                        </div>
                     </fieldset>
                 </form>
             </div>

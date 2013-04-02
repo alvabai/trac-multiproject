@@ -1,30 +1,30 @@
 #site-container {
-    width: auto;
-    margin: 0 15px;
+  width: auto;
+  margin: 0 15px;
 }
 
 #fnmainNavigation {
-    width: 100%;
-    }
+  width: 100%
+}
 
 #fnnav {
-    background: transparent url(/images/nav-fluid.gif) repeat-x;
-    }
+  background: transparent url(/images/nav-fluid.gif) repeat-x
+}
 
 #footer {
-    background: transparent url(/images/footer-fluid.png) no-repeat;
+  background: transparent url(/images/footer-fluid.png) no-repeat
 }
 
 #footerFluidLeft {
-    float: left;
-    width: 10px;
-    height: 115px;
-    background: transparent url(/images/footer-fluid.png) top left no-repeat;
+  float: left;
+  width: 10px;
+  height: 115px;
+  background: transparent url(/images/footer-fluid.png) top left no-repeat;
 }
 
 #footerFluid {
-    float: right;
-    width: 10px;
-    height: 115px;
-    background: transparent url(/images/footer-fluid.png) top right no-repeat;
+  float: right;
+  width: 10px;
+  height: 115px;
+  background: transparent url(/images/footer-fluid.png) top right no-repeat;
 }

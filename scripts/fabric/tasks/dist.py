@@ -219,8 +219,10 @@ def build(release='false', compress='false', docs='', pkgs='tar', version='', ex
         ]
         exclude_param = ' '.join(['--exclude=%s' % pt for pt in exclude_patterns])
         with lcd(BUILD_DIR):
-            local('tar -czf %s.tar.gz --exclude-vcs %s %s' %
-                (dist_join(package_name), exclude_param, package_name))
+            #local('tar -czf %s.tar.gz --exclude-vcs %s %s' %
+            #    (dist_join(package_name), exclude_param, package_name))
+            local('tar -czf %s.tar.gz %s' %
+                (dist_join(package_name), package_name))
 
     # Debian package
     if 'deb' in pkg_formats:

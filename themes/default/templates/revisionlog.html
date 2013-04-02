@@ -69,9 +69,7 @@
                 </table>
               </div>
               <div class="buttons">
-                <span class="primaryButton">
-                  <input type="submit" value="${_('Update')}" />
-                </span>
+                <input type="submit" value="${_('Update')}" class="primaryButton"/>
               </div>
               <div id="foldingbottom"><span></span></div>
             </div>
@@ -184,12 +182,10 @@
           </table>
 
         <div py:if="len(items) &gt; 1 and len(item_ranges) == 1" class="buttons">
-          <span class="primaryButton">
-            <input type="hidden" name="reponame" value="$reponame" />
-            <input id="viewchanges" type="submit" value="${_('View changes')}"
-              title="Diff from Old Revision to New Revision (as selected in the Diff column)" />
-          </span>
-        </div>
+          <input type="hidden" name="reponame" value="$reponame" />
+          <input id="viewchanges" type="submit" value="${_('View changes')}"
+            title="Diff from Old Revision to New Revision (as selected in the Diff column)" class="primaryButton"/>
+      </div>
       </form>
 
       <div class="shadedBox">

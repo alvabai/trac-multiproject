@@ -3,442 +3,559 @@
    --------------------------------------------------*/
 
 /* system elements */
-.system-message-wrapper { border-top: inherit 3px solid; margin-bottom: 20px; }
-.system-message-wrapper.notice { border-top: #00c060 3px solid; }
-.system-message-wrapper.warning { border-top: #FF7E00 3px solid; }
-.system-message-wrapper .system-message { background-color: whiteSmoke; border: #D6D6D6 1px solid; margin-top: 1px; -webkit-border-bottom-left-radius: 8px; -khtml-border-radius-bottomleft: 8px; -moz-border-radius-bottomleft: 8px; border-bottom-left-radius: 8px; padding: 4px; }
-.system-message-wrapper .system-message strong { font-weight: bold; }
 
-.signpost-box { background-color: whiteSmoke; border: #D6D6D6 1px solid; margin-top: 1px; -webkit-border-bottom-left-radius: 8px; -khtml-border-radius-bottomleft: 8px; -moz-border-radius-bottomleft: 8px; border-bottom-left-radius: 8px; padding: 4px; }
+.system-message-wrapper {
+  border-top: inherit 3px solid;
+  margin-bottom: 20px;
+}
+
+.system-message-wrapper.notice {
+  border-top: #00c060 3px solid
+}
+
+.system-message-wrapper.warning {
+  border-top: #FF7E00 3px solid
+}
+
+.system-message-wrapper .system-message {
+  background-color: #F5F5F5;
+  border: #D6D6D6 1px solid;
+  margin-top: 1px;
+  -webkit-border-bottom-left-radius: 8px;
+  -khtml-border-radius-bottomleft: 8px;
+  -moz-border-radius-bottomleft: 8px;
+  border-bottom-left-radius: 8px;
+  padding: 4px;
+}
+
+.system-message-wrapper .system-message strong {
+  font-weight: bold
+}
+
+.signpost-box {
+  background-color: whiteSmoke;
+  border: #D6D6D6 1px solid;
+  margin-top: 1px;
+  -webkit-border-bottom-left-radius: 8px;
+  -khtml-border-radius-bottomleft: 8px;
+  -moz-border-radius-bottomleft: 8px;
+  border-bottom-left-radius: 8px;
+  padding: 4px;
+}
 
 .notop {
-    border-top: none;
+  border-top: none
 }
 
 sub {
-	vertical-align: sub;
-	font-size: 80%;
+  vertical-align: sub;
+  font-size: 80%;
 }
 
 .create_project_form .system-message {
-    border-top: 2px solid red;
-    color: #646464;
-    font-family: Tahoma,Geneva,sans-serif;
-    font-size: 19px;
-    font-weight: normal;
-    letter-spacing: -0.07em;
-    padding-left: 0;
-    padding-top: 3px;
+  border-top: 2px solid red;
+  color: #646464;
+  font-family: Tahoma, Geneva, sans-serif;
+  font-size: 19px;
+  font-weight: normal;
+  letter-spacing: -0.07em;
+  padding-left: 0;
+  padding-top: 3px;
 }
 
 /* Front page styles. */
 
 /* Welcome page navigation styles */
+
 ul#frontpage_navigation {
-    margin: 0 0 15px 0;
-    list-style-type: none;
+  margin: 10px 0;
+  list-style-type: none;
+  clear: both;
 }
+
 #frontpage_navigation li {
-    display: inline-block;
-    border-left: 1px solid #e7e7e7;
-    padding-left: 10px;
-    width: 220px;
-    vertical-align: top;
+  display: inline-block;
+  *display:inline;
+  zoom:1;
+  vertical-align: top;
+  background: #efefef;
+  padding: 10px 15px;
+  width: 20%;
+  min-height: 85px;
 }
+
 #frontpage_navigation li:first-child {
-    border-left: none;
-    padding-left: 0;
+  color: #999;
+  font-size: 16px;
+  width: 26%;
 }
+
 #frontpage_navigation li h3 {
-    margin: 2px 0;
-    display: block;
+  margin: 5px 0 0 0;
+  display: block;
+  color: #222;
 }
 
 #frontpage_navigation li span {
-    display: block;
-    min-height: 40px;
-    color: black;
+  display: block;
+  min-height: 40px;
 }
 
 #frontpage_navigation a {
-    display: block;
-}
-
-#frontpage_navigation #punch_line {
-    color: #a9a9a9;
-    font-size:17px;
-    font-family: Tahoma,Geneva,sans-serif;
-}
-
-/* The admin link */
-#admin_link {
-    padding-top: 10px;
-    font-family:Tahoma,Geneva,sans-serif;
+  display: block
 }
 
 /* Site title icon and text, also used in explore projects and create project */
+
 #site_title {
-    background: url("../images/large_project_ico.png") no-repeat scroll left center transparent;
-    padding-left: 62px;
+  background: url(../images/large_project_ico.png) no-repeat left top;
+  padding-left: 62px;
+  line-height: 38px;
 }
 
 #welcomepage #site_title {
-    padding-bottom: 15px;
+  padding-bottom: 15px
 }
 
 #welcomepage {
-    margin-top: 10px;
-    padding-top: 10px;
+  margin-top: 10px;
+  padding-top: 10px;
 }
 
 /* Welcome (front page) wiki text block */
+
 #welcomewiki {
-    float: left;
-    width: 700px;
-    margin-right: 15px;
-    display: inline;
+  float: left;
+  width: 700px;
+  margin-right: 15px;
+  display: inline;
 }
 
 /* Welcome page "right" section */
+
 #welcomeright {
-    float: right;
-    width: 220px;
-    display: inline;
+  float: right;
+  width: 220px;
+  display: inline;
 }
 
 /* End of front page styles */
 
 .slightlyBigger .shaded-box-description {
-    font-size: 12px;
+  font-size: 12px
 }
 
 .slightlyBigger strong {
-    font-weight: bold;
+  font-weight: bold
 }
 
 .slightlyBigger .shaded-box-title {
-    margin-bottom: 15px;
+  margin-bottom: 15px
 }
 
 .flippedButton {
-    cursor: pointer;
-    background: url("/htdocs/theme/images/tab_bg.png") no-repeat scroll right center transparent !important;
-    height: 26px !important;
+  cursor: pointer;
+  background: url(/htdocs/theme/images/tab_bg.png) no-repeat right center transparent !important;
+  height: 26px !important;
 }
 
 /* Create new project  */
 
 #advanced_options_box {
-    border-bottom: 1px solid #EBEBEB;
+  border-bottom: 1px solid #EBEBEB
 }
 
 .requiredField {
-    display: none;
+  display: none
 }
 
 .advanced_options .question {
-    font-weight: normal;
-    float: none;
+  font-weight: normal;
+  float: none;
 }
 
 .advanced_options .question strong {
-    font-weight: bold;
+  font-weight: bold
 }
 
 .advanced_options .answer {
-    margin-left: 0px;
-    margin-top: 15px;
+  margin-left: 0px;
+  margin-top: 15px;
 }
 
 label.question {
-    text-align: left;
+  text-align: left
 }
 
-#public_project_answer {
-    padding-top: 5px;
-}
-
-.create_form_float fieldset .answer {
-    width: 310px;
+.create_form_float fieldset input[type="text"], 
+.create_form_float fieldset textarea {
+  width: 400px
 }
 
 .resource-box a.more {
-    color: #395796;
+  color: #395796
 }
 
 #welcome_project_summary {
-    margin-bottom: 20px;
+  margin-bottom: 20px
 }
 
 #welcome_project_summary hr {
-        margin-top: 0px;
+  margin-top: 0px
 }
 
 ul.projectlist .icon {
-    width: 24px;
-    height: 24px;
-    margin-top: 2px;
+  width: 24px;
+  height: 24px;
+  margin-top: 2px;
 }
 
 ul.projectlist li.single_line a {
-    padding: 6px 0;
-    padding-left: 10px;
-    display:inline-block;
-    width:auto;
-}
-ul.projectlist li.single_line img.icon {
-    margin:0;
+  padding: 6px 0;
+  padding-left: 10px;
+  display: inline-block;
+  width: auto;
 }
 
-h2 .title .editButton, .editButton {
-    float:right;
-    font-size: small;
-    font-family: Arial, Helvetica, sans-serif;
-    letter-spacing: 0;
-    padding: 4px 0;
+ul.projectlist li.single_line img.icon {
+  margin: 0
 }
-h2 .title .editButton a, .editButton a {
-    color:#777;
+
+h2 .title .editButton,
+.editButton {
+  float: right;
+  font-size: small;
+  font-family: Arial, Helvetica, sans-serif;
+  letter-spacing: 0;
+  padding: 4px 0;
+}
+
+h2 .title .editButton a,
+.editButton a {
+  color: #777
 }
 
 #team_summary_content ul li {
-    font-weight: bold;
-    padding: 10px 0;
+  font-weight: bold;
+  padding: 10px 0;
 }
 
 #team_summary_content .buttons a,
 #team_summary_content .buttons a span {
-    color: #FFFFFF;
-    width:120px;
+  color: #FFFFFF;
+  width: 120px;
+}
+
+.vcs {
+  padding: 5px 0 10px 0;
+}
+
+.vcs .question {
+  float: left;
+  width: 100px;
+  padding-top: 6px;  
+}
+
+.vcs .answer {
+  padding-top: 3px;
+  height: 20px;
+}
+
+.vcs .ui-selectmenu { 
+  display: block; 
+  clear: both; 
+}
+
+.vcs .ui-radio { 
+  display: block; 
+  float: left; 
+  padding-right: 5px;
+}
+
+.vcs #vcstype-selection { 
+  display: block; 
+  float: left;
+  margin-left: 5px;
+}
+
+.vcs #vcsparent-selection { 
+  display: block; 
+  float: left; 
+}
+
+.vcs #vcs-create, 
+.vcs #vcs-clone { 
+  float: left; 
 }
 
 /* Timeline subpage */
 
 #timeline-prefs {
-    font-size: 0.8em;
-    float: right;
+  font-size: 0.8em;
+  float: right;
 }
 
 #timeline-prefs input {
-    margin: 2px;
+  margin: 2px
 }
 
 #timeline-prefs label {
-    margin-top: 2px; margin-bottom: 3px;
+  margin-top: 2px;
+  margin-bottom: 3px;
 }
 
 #timeline-prefs fieldset label {
-    display: inline-block;
-    font-family: Tahoma,Geneva,sans-serif;
-    font-size: 11px;
+  display: inline-block;
+  font-size: 11px;
 }
+
 #timeline-prefs ul {
-    list-style: none;
-    margin: 0;
+  list-style: none;
+  margin: 10px 0 0 0;
+}
+
+#timeline-prefs ul li {
+  margin: 0;    
+}
+
+#timeline-prefs .buttons {
+  margin-top: 10px;
 }
 
 /* Milestone subpage specific styles */
 
 .milestone .info h2 {
-    color: #222222;
-    margin: 0 0 2px;
+  color: #222222;
+  margin: 0 0 2px;
 }
 
 .milestone .info h2 em {
-    color: #0052A5;
+  color: #0052A5
 }
 
 .milestone .field {
-    margin-bottom: 3px;
-    margin-top: 2px;
+  margin-bottom: 3px;
+  margin-top: 2px;
 }
 
 div.milestones {
-    margin-top: 20px;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #EBEBEB;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #EBEBEB;
 }
 
 .roadmap #prefs .buttons {
-    margin-top: 10px;
+  margin-top: 10px
 }
 
 /* hack to fix float: right from ticket.css */
+
 .milestones .description {
-    float: none;
+  float: none
 }
 
 .milestone .info .progress {
-    margin: 1em 0.5em 0 1em;
-    max-width: 70%;
-    width: 40em;
+  margin: 1em 0.5em 0 1em;
+  max-width: 70%;
+  width: 40em;
 }
 
 #revisionlistform {
-    margin-top: 8px;
-    margin-bottom: 15px;
+  margin-top: 8px;
+  margin-bottom: 15px;
 }
 
 table.progress {
-     border: 1px solid #d7d7d7;
-     border-collapse: collapse;
-     border-spacing: 0;
-     float: left;
-     margin: 0;
-     padding: 0;
-     empty-cells: show;
+  border: 1px solid #d7d7d7;
+  border-collapse: collapse;
+  border-spacing: 0;
+  float: left;
+  margin: 0;
+  padding: 0;
+  empty-cells: show;
 }
 
-table.progress a, table.progress :link, table.progress :visited,
-    table.progress :link:hover, table.progress :visited:hover {
-     border: none;
-     display: block;
-     width: 100%;
-     height: 1.2em;
-     padding: 0;
-     margin: 0;
-     text-decoration: none
+table.progress a,
+table.progress :link,
+table.progress :visited,
+table.progress :link:hover,
+table.progress :visited:hover {
+  border: none;
+  display: block;
+  width: 100%;
+  height: 1.2em;
+  padding: 0;
+  margin: 0;
+  text-decoration: none;
 }
 
 .milestone .info dl {
-    font-size: 10px;
-    font-style: italic;
-    margin: 1em 1em 2em;
-    padding-top:3px;
-    white-space: nowrap;
-    clear: left;
+  font-size: 10px;
+  font-style: italic;
+  margin: 1em 1em 2em;
+  padding-top: 3px;
+  white-space: nowrap;
+  clear: left;
 }
 
-table.progress td { background: #fff; padding: 0 }
-table.progress td.new { background: #f5f5b5 }
-table.progress td.closed { background: #9EDFFF; }
-table.progress td :hover { background: none }
+table.progress td {
+  background: #fff;
+  padding: 0;
+}
+
+table.progress td.new {
+  background: #f5f5b5
+}
+
+table.progress td.closed {
+  background: #9EDFFF
+}
+
+table.progress td :hover {
+  background: none
+}
 
 p.percent {
-    line-height: 1.2em;
-    margin: 1em 0.2em 0.2em 0.2em;
+  line-height: 1.2em;
+  margin: 1em 0.2em 0.2em 0.2em;
 }
 
-.milestone {  }
+.milestone .info dt {
+  display: inline;
+  margin-left: .5em;
+}
 
-.milestone .info dt { display: inline; margin-left: .5em }
-.milestone .info dd { display: inline; margin: 0 1em 0 .5em }
-.milestone .description { margin-left: 1em }
+.milestone .info dd {
+  display: inline;
+  margin: 0 1em 0 .5em;
+}
+
+.milestone .description {
+  margin-left: 1em
+}
 
 /* Styles for the milestone view */
-.milestone .date { color: #888; font-style: italic; margin: 0 }
-.milestone .description { margin: 1em 0 2em }
+
+.milestone .date {
+  color: #888;
+  font-style: italic;
+  margin: 0;
+}
+
+.milestone .description {
+  margin: 1em 0 2em
+}
 
 /* User profile box */
+
 div.profilebox div.info-wrapper {
-    background-color: #efefef;
+  background-color: #efefef
 }
 
 div.profilebox .avatar {
-    margin: 4px;
+  margin: 4px
 }
 
 div.profilebox .loading {
-    background: url("/htdocs/theme/images/loading.gif") no-repeat scroll center transparent;
+  background: url(/htdocs/theme/images/loading.gif) no-repeat scroll center transparent
 }
 
 div.profilebox .text p {
-    margin: 0;
+  margin: 0
 }
 
 div.profilebox .text p.username {
-    color: #626262;
+  color: #626262
 }
 
 /* Generic folding options. The advanced query specific options are in
  * ticket.css. These rules also apply to revision log view.
  */
+
 #foldingtitle {
-    display: inline-block;
-    cursor: pointer;
+  display: inline-block;
+  cursor: pointer;
 }
 
 #folding {
-    background: none repeat scroll 0 0 #e1e1e1;
-    clear: both;
-    width: 100%;
-    margin: 0 0 10px 0;
-    border-bottom: 1px solid #EBEBEB;
-    padding-bottom: 5px;
+  background: none repeat scroll 0 0 #e1e1e1;
+  clear: both;
+  width: 100%;
+  margin: 0 0 10px 0;
+  border-bottom: 1px solid #EBEBEB;
+  padding-bottom: 5px;
 }
 
 #folding.closed {
-    display: none;
+  display: none
 }
 
 #foldingbody {
-    margin-top: 5px;
+  margin-top: 5px
 }
 
 #foldingbody table {
-    font-size: 12px;
+  font-size: 12px
 }
+
 #foldingbody table td {
-    vertical-align: middle;
-    padding-top: 3px;
+  vertical-align: middle;
+  padding-top: 3px;
 }
 
 #folding .buttons {
-    margin-right: 10px;
-    text-align: right;
-}
-
-#folding .buttons .primaryButton {
-/*    float: right; */
+  margin-right: 10px;
+  text-align: right;
 }
 
 .settings_title {
-    background-color: #2C4A83;
-    color: #FFFFFF;
-    cursor: pointer;
-    font-weight: bold;
-    line-height: 35px;
+  background-color: #2C4A83;
+  color: #FFFFFF;
+  cursor: pointer;
+  font-weight: bold;
+  line-height: 35px;
 }
 
 #foldingheader.settings_title #foldingtitle {
-    padding-left: 10px;
-    display: block;
+  padding-left: 10px;
+  display: block;
 }
 
 .nextprev_title {
-    background-color: #2C4A83;
-    color: #FFFFFF;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: bold;
-    padding: 11px 27px 11px 16px;
-    height: 16px;
-    margin-bottom: 10px;
+  background-color: #2C4A83;
+  color: #FFFFFF;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 11px 27px 11px 16px;
+  height: 16px;
+  margin-bottom: 10px;
 }
 
 #prefs fieldset {
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 }
 
 /* Download in other formats footer */
 
 #altlinks {
-    margin-top: 20px;
+  margin-top: 20px
 }
+
 #altlinks h2 {
-    padding-top: 5px;
-    font-size: 16px;
-    margin: 0 0 13px;
+  padding-top: 5px;
+  font-size: 16px;
+  margin: 0 0 13px;
 }
 
 #altlinks ul {
-    margin: 0 0 5px 0;
+  margin: 0 0 5px 0
 }
 
 #altlinks li {
-    display: inline;
-    padding-right: 10px;
+  display: inline;
+  padding-right: 10px;
 }
 
 /* Wiki */
@@ -449,257 +566,313 @@ div.profilebox .text p.username {
 }
 
 #attachfile {
-    margin-left: 4px;
+  margin-left: 4px
 }
 
 #changeinfo {
-    padding: 2px 0 2px 0;
+  padding: 2px 0 2px 0
 }
 
 #edit #text {
-    min-height: 30em;
+  min-height: 30em
 }
 
 #changeinfo legend {
-    font-weight: bold;
+  font-weight: bold
 }
 
 #changeinfo #comment {
-    margin-top: 2px;
+  margin-top: 2px
 }
 
 #preview h2 {
-    border-top: none;
+  border-top: none
 }
 
 .trac-nav {
-    margin-top: 5px;
+  margin-top: 5px
 }
 
 #edit .buttons {
-    margin-bottom: 5px;
+  margin-bottom: 5px
 }
 
 #help {
-    clear: both;
-    margin: 2px 0 10px 0;
-    padding: 13px 0 0 40px;
-    height: 26px;
-    background: white url("/htdocs/theme/images/help_logo.png") no-repeat center left;
+  clear: both;
+  margin: 2px 0 10px 0;
+  padding: 13px 0 0 40px;
+  height: 26px;
+  background: white url(/htdocs/theme/images/help_logo.png) no-repeat center left;
 }
 
 #help strong {
-    font-weight: bold;
+  font-weight: bold
 }
 
-pre.wiki, pre.literal-block {
-    background: none repeat scroll 0 0 #F7F7F7;
-    border: 1px solid #D7D7D7;
-    margin: 10px;
-    overflow: auto;
-    padding: 0.25em;
-    font-family: Courier New, Courier, monospace;
-    color:black;
+pre.wiki,
+pre.literal-block {
+  background: none repeat scroll 0 0 #F7F7F7;
+  border: 1px solid #D7D7D7;
+  margin: 10px;
+  overflow: auto;
+  padding: 0.25em;
+  font-family: Courier New, Courier, monospace;
+  color: black;
 }
 
 em {
-    font-style: italic;
+  font-style: italic
 }
 
 /* Sources (Last change) */
+
 #site-content #contextlines {
-    padding: 0 2px;
-    height: 16px;
-    background: none repeat scroll 0 0 transparent;
-    text-align: center;
+  padding: 0 2px;
+  height: 16px;
+  background: none repeat scroll 0 0 transparent;
+  text-align: center;
 }
+
 #site-content #overview {
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 }
+
 #site-content #overview .changeset {
-    font-size: 10px;
+  font-size: 10px
 }
+
 #site-content #nextprevitems {
-    float: right;
-    margin: 0;
+  float: right;
+  margin: 0;
 }
-#site-content #nextprevitems span a, #site-content .nextprev_title .property a {
-    color: #FFFFFF;
-    font-weight: normal;
+
+#site-content #nextprevitems span a,
+#site-content .nextprev_title .property a {
+  color: #FFFFFF;
+  font-weight: normal;
 }
+
 #site-content #nextprevitems span.missing {
-    color: #999988;
-    font-weight: normal;
+  color: #999988;
+  font-weight: normal;
 }
-#site-content #changesetentries .entry, #site-content #overview .files li {
-    border: 0;
-    list-style-image: none;
+
+#site-content #changesetentries .entry,
+#site-content #overview .files li {
+  border: 0;
+  list-style-image: none;
 }
+
 #site-content #changesetentries .entry h2 {
-    border-top: 0px;
+  border-top: 0px
 }
+
 #site-content #changesetentries table.trac-diff th {
-    text-align: center;
-    min-width: 60px;
-    font-size: 10px;
+  text-align: center;
+  min-width: 60px;
+  font-size: 10px;
 }
+
 #site-content #topheader #title h2 {
-    color: #0052A5;
-    border-top: 0px;
+  color: #0052A5;
+  border-top: 0px;
 }
+
 #site-content #prefs.changeset div {
-    margin: 5px;
+  margin: 5px
 }
-#site-content #prefs.changeset div.withspace{
-    margin-bottom: 10px;
+
+#site-content #prefs.changeset div.withspace {
+  margin-bottom: 10px
 }
+
 /* Sources (Diff) */
+
 #site-content #anydiff {
-    min-height: 230px;
+  min-height: 230px
 }
+
 #site-content #anydiff .revision_select_inputs.first {
-    padding-top: 10px;
+  padding-top: 10px
 }
+
 #site-content #anydiff .revision_select_inputs {
-    float: left;
-    clear: left;
-    font-weight: bold;
-    height: 25px;
-    padding: 10px 0;
-    width: 600px;
-    margin-left: 10px;
+  float: left;
+  clear: left;
+  font-weight: bold;
+  height: 25px;
+  padding: 10px 0;
+  width: 600px;
+  margin-left: 10px;
 }
+
 #site-content #anydiff .revision_select_inputs div {
-    float: left;
-    height: 27px;
-    margin: 0 4px;
+  float: left;
+  height: 27px;
+  margin: 0 4px;
 }
+
 #site-content #anydiff .revision_select_inputs div.text {
-    padding-top: 10px;
-    font-size: 10px;
+  padding-top: 10px;
+  font-size: 10px;
 }
+
 #site-content #anydiff .revision_select_inputs .changeset_input {
-    width: 230px;
+  width: 230px
 }
+
 #site-content #anydiff #view_changes_btn {
-    float: left;
-    clear: left;
-    margin: 100px 10px 10px;
+  float: left;
+  clear: left;
+  margin: 100px 10px 10px;
 }
+
 #site-content #anydiff .changeset_prefs {
-    float: right;
-    font-size:10px;
-    margin: 10px;
-    padding: 10px;
+  float: right;
+  font-size: 10px;
+  margin: 10px;
+  padding: 10px;
 }
+
 #site-content .changeset_input {
-    border: medium none;
-    color: #7F7F7F;
-    font-weight: bold;
-    height: 23px;
-    margin: 0;
-    padding: 4px 0 0 ;
-    width: 100%;
+  border: medium none;
+  color: #7F7F7F;
+  font-weight: bold;
+  height: 23px;
+  margin: 0;
+  padding: 4px 0 0;
+  width: 100%;
 }
+
 #site-content .changeset_input input {
-   width: 230px;
-   padding: 0;
+  width: 230px;
+  padding: 0;
 }
+
 #site-content .changeset_input input.suggest {
-   width: 230px;
+  width: 230px
 }
+
 #site-content .changeset_prefs.rounded_fieldset {
-    padding: 0;
-    min-width: 286px;
-    border: 1px solid #C2C2C2;
-    position: relative;
+  padding: 0;
+  min-width: 286px;
+  border: 1px solid #C2C2C2;
+  position: relative;
 }
+
 .withspace {
-    margin-bottom: 10px;
+  margin-bottom: 10px
 }
+
 /* RSS content */
+
 #rsscontent {
-    margin: 0;
-    padding: 0 5px;
+  margin: 0;
+  padding: 0 5px;
 }
+
 #rssframecontent {
-    margin: 0;
-    border: 1px solid #DEDEDE;
-    padding: 0 5px;
+  margin: 0;
+  border: 1px solid #DEDEDE;
+  padding: 0 5px;
 }
+
 #rssheader {
-    margin: 5px 0;
-    padding: 5px 0;
+  margin: 5px 0;
+  padding: 5px 0;
 }
-#rssheader span, #rssframeheader span {
-    font-size: 15px;
-    font-family: Tahoma,Geneva,sans-serif;
-    color: #555;
+
+#rssheader span,
+#rssframeheader span {
+  font-size: 15px;
+  font-family: Tahoma, Geneva, sans-serif;
+  color: #555;
 }
-#rssheader a, #rssframeheader a {
-    font-size: 10px;
+
+#rssheader a,
+#rssframeheader a {
+  font-size: 10px
 }
+
 #rssframeheader {
-    margin: 5px 0;
-    border: 1px solid #DEDEDE;
-    padding: 5px 10px;
+  margin: 5px 0;
+  border: 1px solid #DEDEDE;
+  padding: 5px 10px;
 }
+
 #rssupdated {
-    font-size:9px;
-    padding-top:2px;
-    font-family:Tahoma,Geneva,sans-serif;
+  font-size: 9px;
+  padding-top: 2px;
+  font-family: Tahoma, Geneva, sans-serif;
 }
+
 #rss {
-    margin-bottom: 2px;
+  margin-bottom: 2px
 }
+
 /* Panels */
+
 #rightpanel {
-  padding: 5px;
+  padding: 5px
 }
+
 #rightpanel .inputfield input {
-  width: 227px;
+  width: 227px
 }
+
 #rightpanel .inputfield select {
   width: 230px;
-  margin-top:-1px;
+  margin-top: -1px;
 }
+
 #rightpanel > div.inputrow,
 #mainpanel > div.inputrow {
   clear: left;
-  padding:3px 0;
+  padding: 3px 0;
 }
+
 #rightpanel .buttons .primaryButton {
-  width: 72px;
+  width: 72px
 }
+
 #mainpanel > div.inputrow,
 #mainpanel > div.buttons {
-    margin-left:10px;
+  margin-left: 10px
 }
+
 #mainpanel legend {
-    color: #646464;
-    font-family:Tahoma,Geneva,sans-serif;
-    font-size:20px;
-    letter-spacing:-0.07em;
-    margin:0 0 10px;
-    padding:0;
-}
-#mainpanel .labelfield {
-    float:left;
-    padding-right:5px;
-    min-width:100px;
-    line-height: 20px;
-}
-#mainpanel .inputfield input {
-  min-width:260px;
+  color: #646464;
+  font-family: Tahoma, Geneva, sans-serif;
+  font-size: 20px;
+  letter-spacing: -0.07em;
+  margin: 0 0 10px;
   padding: 0;
 }
-/* Downloads plugin */
-#downloadplugin {
-  margin-bottom: 30px;
+
+#mainpanel .labelfield {
+  float: left;
+  padding-right: 5px;
+  min-width: 100px;
+  line-height: 20px;
 }
+
+#mainpanel .inputfield input {
+  min-width: 260px;
+  padding: 0;
+}
+
+/* Downloads plugin */
+
+#downloadplugin {
+  margin-bottom: 30px
+}
+
 #downloadplugin table.listing,
-table.wiki td, table.wiki th, table.wiki p, table.wiki ul {
+table.wiki td,
+table.wiki th,
+table.wiki p,
+table.wiki ul {
   margin-top: auto;
   margin-bottom: auto;
   vertical-align: middle;
@@ -707,46 +880,56 @@ table.wiki td, table.wiki th, table.wiki p, table.wiki ul {
 
 #downloadplugin table.listing tbody tr.details,
 table.wiki tbody tr.details {
-  border-top: 0;
+  border-top: 0
 }
+
 #downloadplugin #actionselector {
   float: left;
   height: 27px;
   padding-top: 3px;
 }
+
 #downloadplugin table.listing tbody tr td.featured {
-  background: url(/htdocs/theme/images/featured.png) no-repeat center center;
+  background: url(/htdocs/theme/images/featured.png) no-repeat center center
 }
+
 #downloadplugin table.listing tbody tr td.moredetails {
-  background: url(/htdocs/theme/images/right.png) no-repeat center center;
+  background: url(/htdocs/theme/images/right.png) no-repeat center center
 }
+
 #downloadplugin table.listing tbody tr td.moredetails.open {
-  background: url(/htdocs/theme/images/down.png) no-repeat center center;
+  background: url(/htdocs/theme/images/down.png) no-repeat center center
 }
+
 #downloadplugin tr.download td.sel {
-  vertical-align: middle;
+  vertical-align: middle
 }
+
 #downloadplugin tbody tr.details td.details table tbody tr {
-  text-align: left;
+  text-align: left
 }
+
 #downloadplugin tbody tr.details td.details table tbody tr td {
   font-size: 12px;
   width: 100%;
   padding: 2px 5px;
   line-height: 15px;
 }
+
 #downloadplugin tbody tr.details td.details table tbody tr td.header {
   font-size: 11px;
   font-weight: bold;
   width: 30px;
 }
+
 #downloadplugin .primaryButton {
-  margin-top: 1px;
+  margin-top: 1px
 }
+
 #wikipage .downloads table.listing tbody td {
   /* see also ui.css, rule for .table td */
   padding: 6px 10px;
-  font-size:12px;
+  font-size: 12px;
   border-top: #e1e1e1 1px solid;
   height: 20px;
   line-height: 20px;
@@ -755,12 +938,14 @@ table.wiki tbody tr.details {
   background-position: right center;
   border: 1px solid #CCCCCC;
 }
+
 #downloadplugin table.listing>tbody>tr>td,
 .downloads table.listing tbody td {
   /* see also tickets.css, rule for #query table.tickets td */
   border: 0 none;
   border-bottom: 1px solid #cccccc;
 }
+
 #downloadplugin table.listing thead th,
 #wikipage .downloads table.listing thead th {
   /* see also ui.css, rule for .table th */
@@ -768,9 +953,9 @@ table.wiki tbody tr.details {
   font-size: 12px;
   font-weight: normal;
   padding-right: 25px;
-  padding-left:10px;
-  padding-top:5px;
-  padding-bottom:5px;
+  padding-left: 10px;
+  padding-top: 5px;
+  padding-bottom: 5px;
   border-bottom: white 0px solid;
   height: 20px;
   line-height: 20px;
@@ -781,177 +966,235 @@ table.wiki tbody tr.details {
   /* see also tickets.css, rule for .table.listing.tickets tbody tr td */
   border-top: 1px solid #cccccc;
 }
+
 #wikipage .downloads table.listing tbody td {
   border: 0 none;
   border-bottom: 1px solid #cccccc;
 }
+
 #downloadplugin table.listing > thead > tr > th,
-#downloadplugin table.listing > tbody > tr > td
-{
-  padding:4px;
+#downloadplugin table.listing > tbody > tr > td {
+  padding: 4px;
   line-height: 20px; /* from ui.css, rule for #query table.tickets td */
   text-align: left;
 }
+
 #enhanced .button {
-  background: url("/htdocs/theme/images/fileadd.png") no-repeat scroll left top transparent;
+  background: url(/htdocs/theme/images/fileadd.png) no-repeat scroll left top transparent
 }
+
 #enhanced #file_button_focus {
-  background: url("/htdocs/theme/images/fileaddfocus.png") no-repeat scroll left top transparent;
+  background: url(/htdocs/theme/images/fileaddfocus.png) no-repeat scroll left top transparent
 }
+
 #enhanced #file {
   width: 230px;
   height: 24px;
-  -moz-opacity:0;
+  -moz-opacity: 0;
   background: white;
   border: 1px solid #CCCCCC;
 }
+
 .headtextfield {
-  height:10px;
+  height: 10px;
   font-size: 9px;
   padding-top: 2px;
 }
+
 /* Featured projects */
+
 #projects.listing {
-  font-family:Tahoma,Geneva,sans-serif;
+  font-family: Tahoma, Geneva, sans-serif
 }
+
 #projects.listing thead th {
-  font-size: 14px;
+  font-size: 14px
 }
+
 #projects.listing tbody tr {
+  font-size: 12px
+}
+
+#featured #search {
+  padding-top: 5px
+}
+
+/* Line through closed tickets in wiki */
+
+a.closed:link,
+a.closed:visited,
+span.closed {
+  text-decoration: line-through
+}
+
+/* Copy ui.css definitions for  ul  also for  ol  */
+
+ol {
+  margin: 0 0 30px 20px;
+  color: #555555;
   font-size: 12px;
 }
-#featured #search {
-  padding-top: 5px;
-}
-/* Line through closed tickets in wiki */
-a.closed:link, a.closed:visited, span.closed { text-decoration: line-through }
-/* Copy ui.css definitions for  ul  also for  ol  */
-ol {
-    margin: 0 0 30px 20px;
-    color:#555555;
-    font-size:12px;
-}
+
 /* Prevent large skips after nested listes (ticket #772) */
-ul ul, ol ol, ol ul, ul ol {
-    margin-top: 5px;
-    margin-bottom: 5px;
+
+ul ul,
+ol ol,
+ol ul,
+ul ol {
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
+
 /* general fixes for numbered lists */
+
 ol {
-    list-style-type: decimal;
+  list-style-type: decimal
 }
+
 ol.loweralpha {
-  list-style: lower-alpha;
+  list-style: lower-alpha
 }
+
 ol.lowerroman {
-  list-style: lower-roman;
+  list-style: lower-roman
 }
+
 /* Fix for summary page */
-li.timeline_event > .content
-{
+
+li.timeline_event > .content {
   line-height: 12px;
   padding-top: 5px;
 }
+
 /* Permission panel */
+
 #addsubj div.shaded-box,
 #addperm div.shaded-box {
-    margin-bottom: 10px;
+  margin-bottom: 10px
 }
+
 #permlist .nousers {
-    background-color: #A51B1B;
+  background-color: #A51B1B
 }
+
 #permlist .usercount span {
-    background-color: #888888;
+  background-color: #888888
 }
-#permlist .nousers, #permlist .usercount span {
-    border: 1px solid #EDEDED;
-    color: white;
-    font-size: 8px;
-    font-weight: normal;
-    min-width: 20px;
-    text-align: center;
-    padding:2px;
-    width:auto;
-}
+
+#permlist .nousers,
 #permlist .usercount span {
-    padding: 1px 2px;
+  border: 1px solid #EDEDED;
+  color: white;
+  font-size: 8px;
+  font-weight: normal;
+  min-width: 20px;
+  text-align: center;
+  padding: 2px;
+  width: auto;
 }
+
+#permlist .usercount span {
+  padding: 1px 2px
+}
+
 #permlist .nousers,
 #permlist .usercount {
-    margin-left: 20px;
-    margin-bottom: 5px;
-    line-height:8px;
+  margin-left: 20px;
+  margin-bottom: 5px;
+  line-height: 8px;
 }
+
 #permlist div {
-    white-space:nowrap;
-    max-width: 50%;
+  white-space: nowrap;
+  max-width: 50%;
 }
+
 /* Guide settings */
+
 #guide {
   margin-bottom: 10px;
   padding: 15px;
   overflow: auto;
 }
+
 /* General table settings */
+
 table.wiki thead th,
 table.listing thead tr,
 table.listing thead th {
-  background-color:#E1E1E1;
-  padding: 5px 5px 5px 0;
-  color: #395796;
+  background-color: #E1E1E1;
+  font-weight: bold;
+  vertical-align: bottom;
+  padding: 5px;
+  line-height: 14px;
 }
 
 table.listing > tbody > tr,
 table.wiki > tbody > tr {
   font-size: 12px;
-  line-height: 20px;
+}
+
+table.listing thead .hint {
+  float: right;
+  font-weight: normal;
+}
+
+table.listing td {
+  padding: 4px;
+}
+
+table.listing p {
+  margin-bottom: 0;
 }
 
 /* Pagination for numbered_pagination(min, max, selected, total_pages) - projects_pagination */
+
 /* Used in search_results.html (project search) and find.html (explore projects) */
+
 .pagination {
-    line-height: 26px;
-    float: right;
-    color: #C7C5C1;
+  line-height: 26px;
+  float: right;
+  color: #C7C5C1;
 }
 
 .pagination .subpage_link.disabled {
-    text-decoration: none;
-    color: #999999;
-    text-decoration: none;
+  text-decoration: none;
+  color: #999999;
+  text-decoration: none;
 }
 
 .pagination .subpage_link.selected {
-    background: #365594;
-    color: white;
-    padding-right: 3px;
-    padding-left: 3px;
-    padding-top: 2px;
-    padding-bottom: 2px;
-    text-decoration: none;
+  background: #365594;
+  color: white;
+  padding-right: 3px;
+  padding-left: 3px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  text-decoration: none;
 }
 
 .pagination a.selected:hover {
-    color: white;
+  color: white
 }
 
 /*** Explore projects section BEGIN ***/
 
 .categorylist_div ul.catlist > li.selected {
-    color: #C00000;
+  color: #C00000
 }
 
 /* Sub category selected hint */
+
 .categorylist_div ul.catlist > li.sub_cat_selected {
-    color: #C00000;
+  color: #C00000
 }
 
 .project_list .project_item {
-    border-bottom: 1px solid black;
+  border-bottom: 1px solid black
 }
 
 .project_search #resultsPerPageDiv p {
-    color: black;
+  color: black
 }
 
 /*** Explore projects section END ***/

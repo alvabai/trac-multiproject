@@ -29,7 +29,7 @@
             <a py:if="conf.user_profile_url" class="badge_link" href="${user_profile_href(user.username)}" title="">${badgelinktitle} &gt;</a>
             <py:if test="not userpage">
                 <a class="badge_link" href="${req.base_path}/prefs" title="">My Projects settings &gt;</a>
-                <a py:if="can_create_project" href="${req.base_path}/project/new" class="primaryButton"><span>Create new project</span></a>
+                <a py:if="can_create_project" href="${req.base_path}/project/new" class="primaryButton">Create new project</a>
             </py:if>
         </div>
         

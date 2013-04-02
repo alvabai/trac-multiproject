@@ -13,7 +13,7 @@
 <py:choose>
     <py:when test="allow_public_projects">
         <h2>Project visibility</h2>
-        <p>Project is currently : <strong>${'public' if is_public else 'private'}</strong></p>
+        <p>Project is currently: <strong>${'public' if is_public else 'private'}</strong></p>
         <p>
             The difference between private and public project are the permissions:
             If your project is public (and we really hope you will keep it public)
@@ -38,11 +38,9 @@
 <h2>Manage group permissions</h2>
 
 <div id="tools">
-
     <div id="new_group_button_container">
         <form method="post" action="" class="create_group">
-            <input type="submit" class="blueButton" id="new_group_button" alt="Create new group"
-                   value="Create group" name="create-new"/>
+            <input type="submit" class="primaryButton" id="new_group_button" alt="Create new group" value="Create group" name="create-new"/>
         </form>
     </div>
 
@@ -67,7 +65,7 @@
 
             <div id="create_button_container">
                 <input type="hidden" name="action" value="create_group" />
-                <input type="submit" class="blueButton" alt="Create"
+                <input type="submit" class="primaryButton" alt="Create"
                        value="Create" name="create_button" id="create_button" disabled="disabled" />
             </div>
 
@@ -85,16 +83,14 @@
             <td class="membership_name"><span class="author">${username}</span></td>
             <td class="membership_add">
                 <form method="post" action="" class="">
+                    <input type="hidden" name="action" value="add_member" />
+                    <input type="hidden" name="add_type" value="user" />
+                    <input type="hidden" name="member" value="${username}" />
+                    <select class="membership_group" name="group">
+                        <option py:for="group, values in perm_data.iteritems()">${group}</option>
+                    </select>
                     <div class="buttons">
-                        <input type="hidden" name="action" value="add_member" />
-                        <input type="hidden" name="add_type" value="user" />
-                        <input type="hidden" name="member" value="${username}" />
-                        <select class="membership_group" name="group">
-                            <option py:for="group, values in perm_data.iteritems()">${group}</option>
-                        </select>
-                        <span class="primaryButton">
-                            <input type="submit" value="Add to group" name="add"/>
-                        </span>
+                        <input type="submit" value="Add to group" name="add" class="primaryButton"/>
                     </div>
                 </form>
             </td>
@@ -103,9 +99,7 @@
                     <div class="buttons">
                         <input type="hidden" name="action" value="decline_membership" />
                         <input type="hidden" name="applicant" value="${username}" />
-                        <span class="secondaryButton">
-                            <input type="submit" value="Decline" name="decline"/>
-                        </span>
+                        <input type="submit" value="Decline" name="decline" class="secondaryButton"/>
                     </div>
                 </form>
             </td>
@@ -117,9 +111,7 @@
     <div class="group clearfxc">
         <!-- group header -->
         <div class="group_header clearfxc">
-            <div class="name">
-                <h4>${group}</h4>
-            </div>
+            <div class="name">${group}</div>
 
             <div class="remove">
                 <form method="post" action="">
@@ -184,9 +176,7 @@
                 <div class="buttons">
                     <input type="hidden" name="action" value="add_member" />
                     <input type="hidden" name="group" value="${group}" />
-                    <span class="primaryButton">
-                        <input type="submit" value="Add" name="add"/>
-                    </span>
+                    <input type="submit" value="Add" name="add" class="primaryButton"/>
                 </div>
             </form>
         </div>
@@ -233,10 +223,8 @@
                     <option></option>
                     <option py:for="permission in permissions" value="${permission}">${permission}</option>
                 </select>
-                <span class="primaryButton">
-                    <input type="hidden" name="action" value="add_permission" />
-                    <input type="submit" value="Add" name="add"/>
-                </span>
+                <input type="hidden" name="action" value="add_permission" />
+                <input type="submit" value="Add" name="add" class="primaryButton"/>
             </div>
             </form>
         </div>

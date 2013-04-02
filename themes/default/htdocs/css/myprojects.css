@@ -1,204 +1,245 @@
 /* Following styles are for ticket sorting select menu
  * in My Projects page
  */
+
 .ui-selectmenu-menu li a {
-    padding-left:3px;
-    font-size:xx-small;
-    color:#999;
+  padding-left: 3px;
+  font-size: xx-small;
+  color: #999;
 }
+
 #my_projects_tasks_title {
-    position:relative;
+  position: relative
 }
 
 #ticket_sort_control {
-    position:absolute;
-    right:0px;
-    top:15px;
-    letter-spacing: normal;
+  position: absolute;
+  right: 0px;
+  top: 15px;
+  letter-spacing: normal;
 }
 
 #ticket_sort_control .ui-selectmenu-icon.ui-icon {
-    /* Hide dropdown icon */
-    display: none;
+  /* Hide dropdown icon */
+  display: none;
 }
 
 #toggle_sort {
-    display: block;
-    float: right;
-    height:25px;
-    line-height: 25px;
-    width:17px;
-    cursor:pointer;
-    margin:0;
+  display: block;
+  float: right;
+  height: 25px;
+  line-height: 25px;
+  width: 17px;
+  cursor: pointer;
+  margin: 0;
 }
 
 #toggle_sort.sort_desc {
-    background: url(../images/small_desc.png) no-repeat center center;
+  background: url(../images/small_desc.png) no-repeat center center
 }
 
 #toggle_sort.sort_asc {
-    background: url(../images/small_asc.png) no-repeat center center;
+  background: url(../images/small_asc.png) no-repeat center center
 }
 
 /* User badge style */
+
 .userBadge {
-    padding:10px;
-    font-family: Arial, Helvetica, sans-serif;
-    position: relative;
-    min-height: 85px;
-    border: 1px solid #E8E8E8;
+  padding: 10px;
+  font-family: Arial, Helvetica, sans-serif;
+  position: relative;
+  min-height: 85px;
+  border: 1px solid #E8E8E8;
 }
+
 .userBadge .primaryButton {
-    margin-top: 16px;
+  margin-top: 16px
 }
+
 .userBadge > div {
- display: inline-block;
-    margin:0;
-    padding:0;
-    overflow: hidden;
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
+
 .userBadge > #userIcon {
-    width:68px;
-    float: left;
+  width: 68px;
+  float: left;
 }
+
 .userBadge > #userIcon img {
-    max-width: 52px;
+  max-width: 52px
 }
 
 .userBadge > #userInfo {
-    width:230px;
+  width: 230px
 }
+
 .userBadge.changesetBadge > #userInfo {
-    width: 370px;
+  width: 370px
 }
+
 .userBadge > #userInfo #userName {
-    font-size:20px;
-    padding-top: 1px;
+  font-size: 20px;
+  padding-top: 1px;
 }
+
 .userBadge > #userNavi {
-    width:135px;
-    position: absolute;
-    bottom:16px;
-    right:18px;
+  width: 135px;
+  position: absolute;
+  bottom: 16px;
+  right: 18px;
 }
+
 .userBadge > #userNavi .badge_link {
-    display: block;
-    margin-top: 7px;
+  display: block;
+  margin-top: 7px;
 }
+
 .userBadge #userDetails {
-    list-style: none outside none;
-    margin: 13px 0 0 2px;
+  list-style: none outside none;
+  margin: 13px 0 0 2px;
 }
+
 .userBadge #userDetails li {
-    margin: 0 0 2px;
+  margin: 0 0 2px
 }
+
 .userBadge #userDetails strong {
-    font-weight: bold;
+  font-weight: bold
 }
+
 .userBadge #userDetails .property {
-    min-width: 80px;
-    font-weight: bold;
-    float: left;
+  min-width: 80px;
+  font-weight: bold;
+  float: left;
 }
+
 .userBadge #userDetails #changesetmsg {
-    padding-left: 80px;
+  padding-left: 80px
 }
+
 .userBadge #userDetails #changesetmsg p {
-    font-family: Arial, Helvetica, sans-serif;
-    margin-bottom: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  margin-bottom: 0;
 }
+
 #myprojects_page .my_projects_list {
-    clear: both;
+  clear: both
 }
 
 /* Post and tasklist items */
+
 .resource-box ul li.project_list_item {
-    font-size: 11px;
-    padding: 10px 0;
-    position:relative;
-    color: #999;
-    min-height: 25px;
+  font-size: 11px;
+  padding: 10px 0;
+  position: relative;
+  color: #999;
+  min-height: 25px;
 }
+
 .resource-box .project_list_item a {
-    height:13px;
-    width:auto;
+  height: 13px;
+  width: auto;
 }
+
 .project_list_item .logo {
-    width:48px;
-    height:100%;
-    float:left;
+  width: 48px;
+  height: 100%;
+  float: left;
 }
+
 .project_list_item .logo img {
-    max-width:32px;
+  max-width: 32px
 }
+
 .project_list_item .desc {
-    line-height: 1.25em;
-    float:left;
-    overflow: hidden;
-    white-space: nowrap;
-    width:360px;
+  line-height: 1.25em;
+  float: left;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 360px;
 }
+
 .project_list_item .desc a {
-    color:#395796;
+  color: #395796
 }
+
 .project_list_item .desc a strong {
-    font-weight: bold;
+  font-weight: bold
 }
+
 .project_list_item .meta {
-    color:#999;
-    text-align:right;
-    position:absolute;
-    right:0;
-    top:11px;
+  color: #999;
+  text-align: right;
+  position: absolute;
+  right: 0;
+  top: 11px;
 }
+
 .project_list_item .priority {
-    text-transform:capitalize;
-    margin-top: 3px;
+  text-transform: capitalize;
+  margin-top: 3px;
 }
+
 .project_list_item .priority.trivial {
-    color:#335293;
+  color: #335293
 }
+
 .project_list_item .priority.minor {
-    color:#0b9709;
+  color: #0b9709
 }
+
 .project_list_item .priority.major {
-    color:#973333;
+  color: #973333
 }
+
 .project_list_item .priority.critical {
-    color:#a51b1b;
+  color: #a51b1b
 }
+
 .project_list_item .priority.blocker {
-    color:#d60606;
+  color: #d60606
 }
+
 .project_list_item .priority.unknown {
-    color:black;
+  color: black
 }
+
 #myprojects_page .project_list_item {
-    height:43px;
+  height: 43px
 }
+
 #myprojects_page .my_projects_list .project_list_item {
-    margin-right: 3%;
-    width: 30%;
-    display: inline-block;
-    vertical-align: top;
-    overflow: hidden;
+  margin-right: 3%;
+  width: 30%;
+  display: inline-block;
+  vertical-align: top;
+  overflow: hidden;
 }
+
 /* post list specifics */
+
 .project_list_item .posttype {
-    margin-top:2px;
-    text-transform: capitalize;
+  margin-top: 2px;
+  text-transform: capitalize;
 }
+
 /* My project list item */
+
 .my_projects_item_title a {
-    font-size:16px;
-    display:inline;
+  font-size: 16px;
+  display: inline;
 }
+
 .my_projects_item_title span {
-    float:right;
-    color:#999;
-    font-size:11px;
+  float: right;
+  color: #999;
+  font-size: 11px;
 }
+
 .project_list_item .admintag {
-    text-transform: capitalize;
-    margin-top: 5px;
+  text-transform: capitalize;
+  margin-top: 5px;
 }

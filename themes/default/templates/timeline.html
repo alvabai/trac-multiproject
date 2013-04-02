@@ -36,9 +36,7 @@
 
   <body>
     <div id="content" class="timeline">
-
       <h1>Timeline</h1>
-
 		<div id="timeline-prefs" class="shaded-box-wrapper right last">
 		<div class="shaded-box">
 		<form id="prefs" method="get" action="">
@@ -51,24 +49,23 @@
 			
 	       	<fieldset>
                 <ul>
-                <py:for each="filter in filters">
-                <li><input type="checkbox" name="${filter.name}"
-                       checked="${filter.enabled or None}" id="filter_${filter.label}"/>
-        		<label for="filter_${filter.label}" >${filter.label}
-	        	</label></li>
-	        	</py:for>
-	        	</ul>
-            </fieldset>
-		  </div>
-	       
-        	<div class="shaded-box-button">
-           		<input type="submit" name="update" value="${_('Update')}" class="primaryButton" />
-        	</div>	
+                  <py:for each="filter in filters">
+                    <li>
+                      <input type="checkbox" name="${filter.name}" checked="${filter.enabled or None}" id="filter_${filter.label}"/>
+              		    <label for="filter_${filter.label}" >${filter.label}</label>
+                    </li>
+      	        	</py:for>
+      	        </ul>
+              </fieldset>
+      		  </div>
+    	      <div class="buttons shaded-box-button">
+              <input type="submit" name="update" value="${_('Update')}" class="primaryButton" />
+            </div>	
         </form>
-		</div>
+		  </div>
 		</div>
 
-      <div class="resource-box" style="float:left; width:700px;">
+    <div class="resource-box" style="float:left; width:700px;">
       <py:for each="day, events in groupby(events, key=lambda e: format_date(e.date))">
         <h2 class="resources-title">${day}: ${day == today and _("Today") or day == yesterday and _("Yesterday") or None}</h2>
         <ul>

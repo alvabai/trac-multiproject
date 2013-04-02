@@ -24,7 +24,9 @@ from multiproject.core.configuration import conf
                 <input type="hidden" name="project" value="${multiproject.project.env_name}" />
                 <input type="hidden" name="goto" value="${multiproject.home_url}" />
                 <input type="hidden" name="action" value="remove" />
-                <input type="submit" name="remove" value="Remove project" alt="Are you sure you want to remove project?" class="confirm blueButton" />
+                <div class="buttons">
+                  <input type="submit" name="remove" value="Remove project" alt="Are you sure you want to remove project?" class=" primaryButton confirm" />
+                </div>
             </fieldset>
         </form>
     </div>

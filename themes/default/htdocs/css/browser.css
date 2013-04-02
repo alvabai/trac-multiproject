@@ -1,133 +1,251 @@
-#prefs { margin-top: -0.6em }
-* html #prefs { width: 34em } /* Set width only for IE */
-#prefs fieldset { margin: 0; }
-#prefs fieldset label { display: block }
-#prefs .buttons { margin-top: -2.3em }
-#prefs .choice {
- float: left;
- margin: 0 .6em 0 .3em;
- border-right: 1px dotted #d7d7d7;
+#prefs {
+  margin-top: -0.6em
 }
 
-#file-legend { margin-top: 3em; }
+* html #prefs {
+  width: 34em
+}
+
+/* Set width only for IE */
+
+#prefs fieldset {
+  margin: 0
+}
+
+#prefs fieldset label {
+  display: block
+}
+
+#prefs .choice {
+  float: left;
+  margin: 0 .6em 0 .3em;
+  border-right: 1px dotted #d7d7d7;
+}
+
+#file-legend {
+  margin-top: 3em
+}
 
 /* Browser file annotations */
-table.code th.blame { width: 5em; }
-table.code th.blame a { color: #ddd; }
+
+table.code th.blame {
+  width: 5em
+}
+
+table.code th.blame a {
+  color: #ddd
+}
 
 div.message {
   background: #f7f7f0;
   border: 3px double #d7d7d7;
   margin: 0;
   padding: 8px;
-  /* Note: border width and padding must be compensated for in the placement */
+  /* Note: border width and padding must be compensated for in the placement */;
 }
 
-div.message div.inlinebuttons { float: right;  }
+div.message div.inlinebuttons {
+  float: right
+}
 
 /* Styles for the directory entries table
    (extends the styles for "table.listing") */
-table.dirlist { margin-top: 0 }
-table.dirlist td.rev, table.dirlist td.age, table.dirlist td.author, table.dirlist td.change {
- white-space: nowrap;
- vertical-align: middle;
+
+table.dirlist {
+  margin-top: 0
 }
+
+table.dirlist td.rev, 
+table.dirlist td.age, 
+table.dirlist td.author, 
+table.dirlist td.change {
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
 table.dirlist td.rev {
- font-family: monospace;
- letter-spacing: -0.08em;
- text-align: center;
+  font-family: monospace;
+  letter-spacing: -0.08em;
+  text-align: center;
 }
+
 table.dirlist td.size {
- white-space: nowrap;
- text-align: center;
- vertical-align: middle;
+  white-space: nowrap;
+  text-align: center;
+  vertical-align: middle;
 }
 
 table.dirlist td.age {
- border-width: 0 2px 0 0;
- border-style: solid;
- }
-
-table.dirlist td.name a, table.dirlist td.name span {
- background-position: 0% 50%;
- background-repeat: no-repeat;
- padding-left: 20px;
+  border-width: 0 2px 0 0;
+  border-style: solid;
 }
-table.dirlist td.name a.parent { background-image: url(/htdocs/trac/parent.png) }
-table.dirlist td.name div { white-space: pre }
+
+table.dirlist td.name a, 
+table.dirlist td.name span {
+  background-position: 0% 50%;
+  background-repeat: no-repeat;
+  padding-left: 20px;
+}
+
+table.dirlist td.name a.parent {
+  background-image: url(/htdocs/trac/parent.png)
+}
+
+table.dirlist td.name div {
+  white-space: pre
+}
+
 table.dirlist tr span.expander {
   background-image: url(/htdocs/trac/expander_normal.png);
   cursor: pointer;
   padding-left: 8px;
   margin-left: 4px;
 }
+
 table.dirlist tr span.expander:hover {
-  background-image: url(/htdocs/trac/expander_normal_hover.png);
+  background-image: url(/htdocs/trac/expander_normal_hover.png)
 }
+
 table.dirlist tr.expanded span.expander {
   background-image: url(/htdocs/trac/expander_open.png);
   padding-left: 12px;
   margin-left: 0;
 }
-table.dirlist tr.expanded span.expander:hover {
-  background-image: url(/htdocs/trac/expander_open_hover.png);
-}
-table.dirlist td.name a.dir { background-image: url(/htdocs/trac/folder.png) }
-table.dirlist td.name a.file { background-image: url(/htdocs/trac/file.png); display: block }
-table.dirlist td.name a, table.dirlist td.rev a { border-bottom: none }
 
-table.dirlist td.description { padding-left: 2em }
-table.dirlist td.description > :first-child { margin-top: 0 }
-table.dirlist td.description > :last-child { margin-bottom: 0 }
+table.dirlist tr.expanded span.expander:hover {
+  background-image: url(/htdocs/trac/expander_open_hover.png)
+}
+
+table.dirlist td.name a.dir {
+  background-image: url(/htdocs/trac/folder.png)
+}
+
+table.dirlist td.name a.file {
+  background-image: url(/htdocs/trac/file.png);
+  display: block;
+}
+
+table.dirlist td.name a, 
+table.dirlist td.rev a {
+  border-bottom: none
+}
+
+table.dirlist td.description {
+  padding-left: 2em
+}
+
+table.dirlist td.description > :first-child {
+  margin-top: 0
+}
+
+table.dirlist td.description > :last-child {
+  margin-bottom: 0
+}
 
 table.dirlist td span.loading {
   background-image: url(/htdocs/trac/loading.gif);
-  font-style: italic
+  font-style: italic;
 }
 
-#content.browser div.description { padding: 0 0.5em }
+#content.browser div.description {
+  padding: 0 0.5em
+}
 
 /* Style for the ''View Changes'' button and the diff preparation form */
-#anydiff { margin: 0 0 1em; float: left }
-#anydiff form, #anydiff div, #anydiff h2 { display: inline }
-#anydiff form th { text-align: right }
-#anydiff input {  vertical-align: baseline; margin: 0 -0.5em 0 1em }
-@media print {
- #anydiff form { display:  none }
+
+#anydiff {
+  margin: 0 0 1em;
+  float: left;
+}
+
+#anydiff form, 
+#anydiff div, 
+#anydiff h2 {
+  display: inline
+}
+
+#anydiff form th {
+  text-align: right
+}
+
+#anydiff input {
+  vertical-align: baseline;
+  margin: 0 -0.5em 0 1em;
+}
+
+@media print { 
+  #anydiff form {
+    display: none
+  }
 }
 
 /* Log */
-tr.diff input { padding: 0 1em; margin: 0 }
 
-@media print {
- th.diff, td.diff { display: none }
+tr.diff input {
+  padding: 0 1em;
+  margin: 0;
+}
+
+@media print { 
+  th.diff, td.diff {
+    display: none
+  }
 }
 
 /* Styles for the revision log table (extends the styles for "table.listing") */
-table.chglist { margin-top: 0 }
-.chglist td.diff, .chglist td.rev, .chglist td.age,
-.chglist td.author, .chglist td.change {
- white-space: nowrap;
- vertical-align: middle;
+
+table.chglist {
+  margin-top: 0
 }
-.chglist td.author { color: #888 }
+
+.chglist td.diff, 
+.chglist td.rev, 
+.chglist td.age, 
+.chglist td.author, 
+.chglist td.change {
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.chglist td.author {
+  color: #888
+}
+
 .chglist td.change span {
- border: 1px solid #999;
- display: block;
- margin: .2em .5em 0 0;
- width: .8em; height: .8em;
+  border: 1px solid #999;
+  display: block;
+  margin: .2em .5em 0 0;
+  width: .8em;
+  height: .8em;
 }
-.chglist td.diff { padding: 1px }
-.chglist td.change .comment { display: none }
-.chglist td.age { font-size: 85% }
-.chglist td.author { font-size: 85% }
+
+.chglist td.diff {
+  padding: 1px
+}
+
+.chglist td.change .comment {
+  display: none
+}
+
+.chglist td.age {
+  font-size: 85%
+}
+
+.chglist td.author {
+  font-size: 85%
+}
+
 .chglist td.rev {
- font-family: monospace;
- letter-spacing: -0.08em;
- font-size: 90%;
- text-align: right;
+  font-family: monospace;
+  letter-spacing: -0.08em;
+  font-size: 90%;
+  text-align: right;
 }
-.chglist td.rev a { border-bottom: none }
+
+.chglist td.rev a {
+  border-bottom: none
+}
+
 .chglist td.rev a.chgset {
   background-repeat: no-repeat;
   background-image: url(/htdocs/trac/changeset.png);
@@ -136,213 +254,256 @@ table.chglist { margin-top: 0 }
   margin: 0 5px 0 0;
 }
 
-.chglist td.summary, .chglist td.log {
- width: 100%;
- font-size: 85%;
- vertical-align: middle;
-}
-.chglist td.summary *, .chglist td.log * { margin-top: 0 }
-/* verbose mode */
-.chglist tr.verbose { border-top: none }
-.chglist tr.verbose td.filler, .chglist tr.verbose td.log {
- border: none;
- border-bottom: 1px solid #ddd;
- color: #333;
-}
-.chglist tr.verbose td { border: none; }
-.chglist tr.verbose td.diff, .chglist tr.verbose td.filler {
- border-left: 1px solid #ddd;
-}
-.chglist tr.verbose td.summary, .chglist tr.verbose td.log {
- border-right: 1px solid #ddd;
+.chglist td.summary, 
+.chglist td.log {
+  width: 100%;
+  font-size: 85%;
+  vertical-align: middle;
 }
 
-#paging { margin: 1em 0 }
+.chglist td.summary *, 
+.chglist td.log * {
+  margin-top: 0
+}
+
+/* verbose mode */
+
+.chglist tr.verbose {
+  border-top: none
+}
+
+.chglist tr.verbose td.filler, 
+.chglist tr.verbose td.log {
+  border: none;
+  border-bottom: 1px solid #ddd;
+  color: #333;
+}
+
+.chglist tr.verbose td {
+  border: none
+}
+
+.chglist tr.verbose td.diff, 
+.chglist tr.verbose td.filler {
+  border-left: 1px solid #ddd
+}
+
+.chglist tr.verbose td.summary, 
+.chglist tr.verbose td.log {
+  border-right: 1px solid #ddd
+}
+
+#paging {
+  margin: 1em 0
+}
 
 /* Styles for the revision info in the file view (see also trac.css) */
-#info { margin: 0; }
-#info .props {
- color: #666;
- list-style: square;
- margin: 0 0 .4em 1.6em;
- padding: 0;
+
+#info {
+  margin: 0
 }
-#info .props > li { padding: 2px 0; overflow: auto; }
+
+#info .props {
+  color: #666;
+  list-style: square;
+  margin: 0 0 .4em 1.6em;
+  padding: 0;
+}
+
+#info .props > li {
+  padding: 2px 0;
+  overflow: auto;
+}
+
 .trac-toggledeleted {
- display: none;
- margin-left: 3em;
- white-space: nowrap;
+  display: none;
+  margin-left: 3em;
+  white-space: nowrap;
 }
 
 /* Styles for the HTML preview */
-#preview { background: #fff; clear: both; margin: 0 }
-#preview .code-block { border-top: 1px solid #999; margin: 0 }
-#preview .image-file { overflow: hidden }
-#preview .image-file img { max-width: 100% }
+
+#preview {
+  background: #fff;
+  clear: both;
+  margin: 0;
+}
+
+#preview .code-block {
+  border-top: 1px solid #999;
+  margin: 0;
+}
+
+#preview .image-file {
+  overflow: hidden
+}
+
+#preview .image-file img {
+  max-width: 100%
+}
 
 /* Source tab */
 
 table.dirlist tr.even {
-    background-color: transparent;
+  background-color: transparent
 }
 
-table.dirlist th, table.dirlist td {
-    color: black;
+table.dirlist th, 
+table.dirlist td {
+  color: black
 }
 
 table.dirlist td.rev {
-    letter-spacing: inherit;
+  letter-spacing: inherit
 }
 
 #dirlist td {
-    padding: 8px 5px 8px 5px;
-    border: 0px;
-    border-bottom: 1px solid #CCCCCC;
+  padding: 8px 5px 8px 5px;
+  border: 0px;
+  border-bottom: 1px solid #CCCCCC;
 }
 
 table.dirlist td.age {
-    border-style: solid;
+  border-style: solid
 }
 
 table.dirlist td.rev a.chgset {
-    background-position: 78% 50%;
+  background-position: 78% 50%
 }
 
 #dirlist thead a {
-    color: black;
+  color: black
 }
 
 table.dirlist td.name {
-    width: 36%;
+  width: 36%
 }
 
 table.dirlist td.change {
-    width: 36%;
-    max-width: 290px;
-    overflow: hidden;
+  width: 36%;
+  max-width: 290px;
+  overflow: hidden;
 }
 
 #dirlist {
-    border-top: 1px solid #EBEBEB;
-    margin-top: 12px;
-    margin-bottom: 25px;
+  border-top: 1px solid #EBEBEB;
+  margin-top: 12px;
+  margin-bottom: 25px;
 }
 
 #jumprev {
-    float: right;
-    width: 340px; /*IE7fix*/
-    margin: 0;
+  float: right;
+  width: 340px; /*IE7fix*/
+  margin: 0;
 }
 
 #jumprev, #jumploc {
-    float: right;
-    font-size: 10px;
-    margin: 0 0 0.6em;
+  float: right;
+  font-size: 10px;
+  margin: 0 0 0.6em;
 }
 
 #jumprev form span {
-    background: none repeat scroll 0 0 transparent;
-    float: right;
-    margin-left: 12px;
+  background: none repeat scroll 0 0 transparent;
+  float: right;
+  margin-left: 12px;
 }
 
 #jumprev #go {
-    float: right;
-    height: 26px;
-    margin-top: 0px;
-    width: 70px;
-    margin-left: 2px;
+  float: right;
+  height: 24px;
+  margin: 5px 0 0 2px;
 }
 
-
 #jumprev form span label {
-    margin: 0 5px 0 5px;
-    vertical-align: middle;
+  margin: 0 5px 0 5px;
+  vertical-align: middle;
 }
 
 #jumprev form input {
-    margin-left: 5px;
+  margin-left: 5px
 }
 
-
 #jumprev #rev {
-    width: 100px;
-    height: 18px;
+  width: 100px;
+  height: 18px;
 }
 
 #jumploc div.buttons {
-    margin: 2px 0 0;
+  margin: 2px 0 0
 }
 
 #clipbutton {
-    float: right;
-    margin-left: 2px;
-    margin-top: 0;
-    width: 130px;
+  float: right;
+  margin-left: 2px;
+  margin-top: 0;
+  width: 130px;
 }
 
 #repoaddress {
-    margin-left: 10px;
-    margin-right: 1px;
-    padding: 5px;
-    margin-top: 0px;
-    height: 13px;
-    border: 1px solid #EBEBEB;
-    background-color: white;
-    width: 580px;
-    overflow: hidden;
-    display: inline-block;
-    white-space: nowrap;
+  margin-left: 10px;
+  margin-right: 1px;
+  padding: 5px;
+  margin-top: 0px;
+  height: 13px;
+  border: 1px solid #EBEBEB;
+  background-color: white;
+  width: 580px;
+  overflow: hidden;
+  display: inline-block;
+  white-space: nowrap;
 }
 
-.protocolSelectButtons, .protocolSelectButtons div {
-    float: left;
-    margin-top: 7px;
+.protocolSelectButtons, 
+.protocolSelectButtons div {
+  float: left;
+  margin-top: 7px;
 }
 
-.urlToClipboard, .urlToClipboard div {
-    float: right;
-    width: 775px;
+.urlToClipboard, 
+.urlToClipboard div {
+  float: right;
+  width: 775px;
 }
 
 .protodivider {
-    color: #CCCCCC;
-    margin: 0 10px;
+  color: #CCCCCC;
+  margin: 0 10px;
 }
 
 #protoselector {
-    border-left: 1px solid #CCCCCC;
-    border-right: 1px solid #CCCCCC;
-    padding: 0 10px;
+  border-left: 1px solid #CCCCCC;
+  border-right: 1px solid #CCCCCC;
+  padding: 0 10px;
 }
 
 #protocol_selection {
-    border-top: 1px solid #CCCCCC;
-    min-height: 25px;
-    padding: 10px 0px;
+  border-top: 1px solid #CCCCCC;
+  min-height: 25px;
+  padding: 10px 0px;
 }
 
 .greybutton {
-    border-width: 0;
-    font-size: 12px;
-    height: 28px;
-    line-height: 28px;
-    padding: 0;
-    position: static;
-    text-align: center;
-    width: 120px;
+  border-width: 0;
+  font-size: 12px;
+  height: 28px;
+  line-height: 28px;
+  padding: 0;
+  position: static;
+  text-align: center;
+  width: 120px;
 }
 
 .headeritems {
-    padding-top: 12px;
-    float: right;
+  padding-top: 12px;
+  float: right;
 }
 
 .greyseparator {
-    background: url("/htdocs/theme/images/grey-separator.png") no-repeat scroll left center transparent;
-    border-width: 0;
-    height: 28px;
-    padding: 0;
-    position: static;
-    width: 1px;
+  background: url(/htdocs/theme/images/grey-separator.png) no-repeat scroll left center transparent;
+  border-width: 0;
+  height: 28px;
+  padding: 0;
+  position: static;
+  width: 1px;
 }
