@@ -120,6 +120,13 @@ class PermissionsAdminPanel(Component):
         # check if project if current configuration and permission state is in such state that
         # permission editions are likely fail
         invalid_state = None
+
+        if is_normal_project:
+            is_a_public = project.public
+        else:
+            is_a_public = ""
+
+
         try:
             group_store.is_valid_group_members()
         except InvalidPermissionsState, e:
@@ -138,7 +145,7 @@ class PermissionsAdminPanel(Component):
             'use_ldap': self.config.getbool('multiproject', 'ldap_groups_enabled', False),
             'membership_requests': membership_requests,
             'invalid_state': invalid_state,
-            'is_public': project.public,
+            'is_public': is_a_public,
             'allow_public_projects': conf.allow_public_projects
         }
 

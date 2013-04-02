@@ -9,12 +9,12 @@
                         <!-- Main categories -->
                         <py:if test="len(combined_categories) &gt; 1">
                             <py:for each="category in combined_categories[:-1]">
-                                <a href="${req.href('../home/project/explore') + '#c[]=%s'%category.category_id}">${category.name}</a>,
+                                <a href="${req.href('../home/project/explore') + '#c[]=%s'%category.category_id}">${category.name.split("#")[0]}</a>,
                             </py:for>
                         </py:if>
                         <py:if test="len(combined_categories) &gt; 0">
                             <py:with vars="last_category=combined_categories[-1]">
-                                <a href="${req.href('../home/project/explore') + '#c[]=%s'%last_category.category_id}">${last_category.name}</a>
+                                <a href="${req.href('../home/project/explore') + '#c[]=%s'%last_category.category_id}">${last_category.name.split("#")[0]}</a>
                             </py:with>
                         </py:if>
                         <!-- Category contexts -->
@@ -28,12 +28,12 @@
                             <td>
                             <py:if test="len(separated_categories_per_context[context_id]) &gt; 1">
                                 <py:for each="category in separated_categories_per_context[context_id][:-1]">
-                                    <a href="${req.href('../home/project/explore') + '#c[]=%s'%category.category_id}">${category.name}</a>,
+                                    <a href="${req.href('../home/project/explore') + '#c[]=%s'%category.category_id}">${category.name.split("#")[0]}</a>,
                                 </py:for>
                             </py:if>
                             <py:if test="len(separated_categories_per_context[context_id]) &gt; 0">
                                 <py:with vars="last_category=separated_categories_per_context[context_id][-1]">
-                                    <a href="${req.href('../home/project/explore') + '#c[]=%s'%last_category.category_id}">${last_category.name}</a>
+                                    <a href="${req.href('../home/project/explore') + '#c[]=%s'%last_category.category_id}">${last_category.name.split("#")[0]}</a>
                                 </py:with>
                             </py:if>
                             </td>

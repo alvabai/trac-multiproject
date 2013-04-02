@@ -46,7 +46,6 @@ class ProjectTimelineEvents(Component):
                 'data': data, 'provider': provider}
 
     def get_latest_timeline_events(self, req, count):
-        conf.log.exception("Shittendaal")
         """
         Returns latest (within 10 days) timeline events.
         If count is given, returns only given number of elements.
