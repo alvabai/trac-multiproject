@@ -13,7 +13,7 @@ from multiproject.core.authentication import CQDEAuthenticationStore
 from multiproject.core.cache import ProjectCache
 from multiproject.core.categories import CQDECategoryStore
 from multiproject.core.configuration import conf
-from multiproject.core.db import admin_query, admin_transaction, safe_string, safe_int, cursors
+from multiproject.core.db import admin_query, admin_transaction, safe_string, safe_int, cursors, db_query
 from multiproject.core.exceptions import ProjectValidationException
 from multiproject.core.permissions import get_permission_id, get_special_users
 from multiproject.core.users import get_userstore
@@ -1055,6 +1055,19 @@ class Projects(object):
                 raise
 
         return projects
+
+    def queryProjectObjectsDB(self, project_query, db_name):
+        projects = []
+
+        with db_query(db_name) as cursor:
+            try:
+                cursor.execute(project_query)
+                for project in cursor:
+                    projects.append(Projects.sqlToProject(project))
+            except:
+                conf.log.exception("Project query failed: {0}".format(project_query))
+                raise
+
 
     def queryProjectObjectsForSearch(self, project_query):
         projects = []

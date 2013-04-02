@@ -70,10 +70,23 @@ class FindProjectsModule(Component):
         numresults = int(numresults)
 
         # Fetch projects based on tab
-        projects, activities, project_count = Projects().search(filter, category_id_list, req.authname, tab, sub_page, numresults)
-
-        # Activity css classes for activity meters
-        activity_classes = self.activities_to_classes(activities)
+        if tab == "download":
+            project_query = """
+                SELECT project_name FROM project_dim, event_fact, event_dim
+                WHERE project_dim.project_sk = event_fact.project_sk
+                AND event_fact.event_sk = event_dim.event_sk
+                AND action_name='source_checkin'
+                GROUP BY project_name
+                ORDER BY COUNT(project_name) DESC;
+            """
+            projects = Projects().queryProjectObjectsDB(project_query, 'trac_analytical')
+            activities = None
+            if projects is None:
+                project_count = 0
+            else:
+                project_count = len(projects)
+        else:
+            projects, activities, project_count = Projects().search(filter, category_id_list, req.authname, tab, sub_page, numresults)
 
         # Some calculations for pagination
         # NOTE: math.ceil returns a float
@@ -94,13 +107,25 @@ class FindProjectsModule(Component):
         if end_page > total_page_count:
             end_page = total_page_count
 
-        # Get categories for projects that was searched
-        project_categories = self.get_project_categories(projects)
-
-        # Get number of project watchers
-        project_watchers = self.get_project_watchers(projects)
+            
+        if projects:
+            # Activity css classes for activity meters
+            activity_classes = self.activities_to_classes(activities)
+            # Get categories for projects that was searched
+            project_categories = self.get_project_categories(projects)
+            # Get number of project watchers
+            project_watchers = self.get_project_watchers(projects)
+        else:
+            activity_classes = ""
+            project_categories = ""
+            project_watchers = ""
         if project_count:
             if tab == 'recent':
+                showing_clause = _("Showing %(start)s - %(end)s most recent projects out of %(total)s",
+                    start = (sub_page - 1) * numresults + 1,
+                    end = min(sub_page * numresults, project_count),
+                    total = project_count)
+            elif tab == 'download':
                 showing_clause = _("Showing %(start)s - %(end)s most recent projects out of %(total)s",
                     start = (sub_page - 1) * numresults + 1,
                     end = min(sub_page * numresults, project_count),

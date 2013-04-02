@@ -9,7 +9,7 @@
 <py:def function="list_projects_in_find(projects)">
     <py:choose>
         <!-- ! When projects -->
-        <py:when test="len(projects) > 0" py:for="project in projects">
+        <py:when test="projects is not None" py:for="project in projects">
             <div class="project_item">
 
                 <div class="project_title">
