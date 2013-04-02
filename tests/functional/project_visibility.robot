@@ -18,7 +18,7 @@ Change public project to private
     Click link  Admin
     Click link  Permissions
     Click element  name=makeprivate
-    Page should contain  Project is currently : private
+    Page should contain  Project is currently: private
     Click link  Projects Home
     Click link  All public projects >
     Page should not contain  ${proj_name}
