@@ -19,28 +19,31 @@ from multiproject.core.configuration import conf
         $("#fnloginUsername").focus();
       });
     </script>
- </head>
+  </head>
 
   <body>
-      <h1 id="fnloginHeader">Login to ${conf.domain_name}</h1>
-        <div class="halfWidth left">
-            <div id="fnloginToForum">
-                <h2>Enter your username and password</h2>
-                <form id="ssologin" method="post" action="${conf.url_home_path}/user">
-                     <fieldset>
-                       <label for="fnloginUsername">Username</label>
-                       <input id="fnloginUsername" name="username" maxlength="100" value="${req.args.get('username')}" type="text" />
-                       <br />
-                       <label for="fnloginPassword">Password</label>
-                       <input id="fnloginPassword" name="password" maxlength="50" value="" type="password" />
-                       <br />
-                       <span class="blueInputBtn"><input class="blueInputBtn" value="Login" type="submit" /></span>
-                       <input type="hidden" name="action" value="do_login" />
-                    </fieldset>
-                  </form>
-                  <div class="fnClearer"> </div>
+    <h1 id="fnloginHeader">Login to ${conf.domain_name}</h1>
+    <div class="halfWidth left">
+      <div id="fnloginToForum">
+        <form id="ssologin" method="post" action="${conf.url_home_path}/user" class="form">
+           <fieldset>
+            <div class="field">
+              <label for="fnloginUsername">Username</label>
+              <input id="fnloginUsername" name="username" maxlength="100" value="${req.args.get('username')}" type="text" />
             </div>
-            <div class="fnMainClear"></div>
-        </div>
+            <div class="field">
+              <label for="fnloginPassword">Password</label>
+              <input id="fnloginPassword" name="password" maxlength="50" value="" type="password" />
+            </div>
+            <div class="field buttons">
+              <input type="submit" value="Login" name="login" class="primaryButton" />
+            </div>
+            <input type="hidden" name="action" value="do_login" />
+          </fieldset>
+        </form>
+        <div class="fnClearer"> </div>
+      </div>
+      <div class="fnMainClear"></div>
+    </div>
   </body>
 </html>

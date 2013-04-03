@@ -43,8 +43,7 @@ class UmaskWatchedFileHandler(WatchedFileHandler):
             os.umask(old_umask)
 
 
-def logger_factory(logfile=None, level='WARNING',
-                   logid='Trac', format=None, **kwargs):
+def logger_factory(logfile=None, level='WARNING', logid='Trac', format=None, **kwargs):
     """
     Factory for offering a logger instance for both Trac and multiproject. This is
     overriding Trac's internal (due to multiproject patch), and is called for

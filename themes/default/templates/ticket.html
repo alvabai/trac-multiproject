@@ -187,16 +187,12 @@
                   <div class="buttons">
                     <form py:if="'cnum' in change and can_edit_comment" method="get" action="#comment:${change.cnum}">
                       <input type="hidden" name="cnum_edit" value="${change.cnum}"/>
-                      <span class="secondaryButton">
-                        <input type="submit" value="${_('Edit')}" title="${_('Edit comment %(cnum)s', cnum=change.cnum)}"/>
-                      </span>
+                      <input type="submit" value="${_('Edit')}" title="${_('Edit comment %(cnum)s', cnum=change.cnum)}" class="secondaryButton"/>
                     </form>
                     <form py:if="'cnum' in change and can_append" id="reply-to-comment-${change.cnum}"
                         method="get" action="#comment">
                       <input type="hidden" name="replyto" value="${change.cnum}"/>
-                      <span class="primaryButton">
-                        <input type="submit" value="${_('Reply')}" title="${_('Reply to comment %(cnum)s', cnum=change.cnum)}"/>
-                      </span>
+                        <input type="submit" value="${_('Reply')}" title="${_('Reply to comment %(cnum)s', cnum=change.cnum)}" class="primaryButton"/>
                     </form>
                   </div>
                 </py:if>
@@ -242,10 +238,8 @@ ${comment}</textarea>
             Warnings are shown at the <a href="#warning">top of the page</a>. The ticket validation
             may have failed.
           </div>
-            <div class="buttons" style="margin-top:5px; text-align:right;">
-                <span class="primaryButton">
-                    <input type="submit" name="submit" value="${ticket.exists and _('Submit changes') or _('Create ticket')}"/>
-                </span>
+            <div class="buttons">
+              <input type="submit" name="submit" value="${ticket.exists and _('Submit changes') or _('Create ticket')}" class="primaryButton"/>
             </div>
           <!--! Preview of ticket changes -->
           <div id="ticketchange" class="ticketdraft" style="${not show_comment_preview and 'display: none' or None}">
@@ -449,12 +443,8 @@ ${comment}</textarea>
                  </td></tr>
                  <tr><td colspan="6">
                     <div class="buttons">
-                        <span class="secondaryButton">
-                            <input type="submit" name="preview" value="${_('Preview')}" accesskey="r" />
-                        </span>
-                        <span class="primaryButton">
-                            <input type="submit" name="submit" value="${ticket.exists and _('Submit changes') or _('Create ticket')}" />
-                        </span>
+                      <input type="submit" name="preview" value="${_('Preview')}" accesskey="r" class="secondaryButton"/>
+                      <input type="submit" name="submit" value="${ticket.exists and _('Submit changes') or _('Create ticket')}" class="primaryButton"/>
                     </div>
                   </td></tr>
 
@@ -489,12 +479,8 @@ ${comment}</textarea>
                 <tr>
                 <td>
                 <div class="buttons">
-                    <span class="secondaryButton">
-                        <input type="submit" name="preview" value="${_('Preview')}" accesskey="r" />
-                    </span>
-                    <span class="primaryButton">
-                        <input type="submit" name="submit" value="${ticket.exists and _('Submit changes') or _('Create ticket')}"/>
-                    </span>
+                  <input type="submit" name="preview" value="${_('Preview')}" accesskey="r" class="secondaryButton" />
+                  <input type="submit" name="submit" value="${ticket.exists and _('Submit changes') or _('Create ticket')}" class="primaryButton"/>
                 </div>
                 </td>
                 </tr>

@@ -1,583 +1,188 @@
-form.premium-account-form, .premium-account-form fieldset{
-    border:0;
-    background:transparent;
-}
-form.premium-account-form select, form.premium-account-form input, form.premium-account-form textarea{
-    font-size: 100%; /* IE hack */
-    font-family:inherit;
-}
-.change-notifications-container{
-    background:transparent url(../images/change_notifications_bg.png) top left no-repeat;
-    padding-top:8px;
-    margin-bottom:14px;    
-    zoom: 1;
-}
-.change-notifications-container .hovered{
-    background-color:#eeeeee;
-}
-.change-notifications-content-container{
-    border-left:1px solid #bbbbbb;
-    border-right:1px solid #bbbbbb;
-}
-.change-notifications-content{
-    background:#f8f8f8 url(../images/change_notifications_inner_bg.png) top left repeat-x;
-    padding:2px 10px 0 5px;
-}
-.change-notifications-title{
-    padding-left:6px;
-    font-weight:bold;
-    font-size:13px;
-    padding-bottom:7px;
-}
-.change-notifications-footer{
-    background:transparent url(../images/change_notifications_bg.png) bottom left no-repeat;
-    height:8px;
-    line-height:0;
-    font-size:0;
-}
-.changer-notifications-container{
-    padding-bottom:5px;
-}
-.change-notification{
-    padding:5px;
-    zoom:1;
-}
-.changer-title{
-    padding:0 5px 2px 5px;
-    width:500px;
-}
-.changer-title a{
-    font-weight:bold;
-}
-.changed-field-name{
-    float:left;
-    width:90px;
-    display:inline;
-    font-weight:bold;
-}
-.changed-field-value{
-    float:left;
-    width:450px;
-    margin-left:20px;
-    display:inline;
-}
-.changed-user-field-info{
-    float:left;
-    width:550px;
-    display:inline;
-}
-.notifications-hr{
-    margin:5px 5px 8px 5px;
-    height:1px;
-    background-color:#ccc;
-    padding:0;
-    line-height:0;
-    font-size:0;
-}
-.user-change-notifications .change-notification{
-    padding:5px 5px 4px 5px;
-}
-.user-change-notifications .changed-user-field-info {
-}
-.change-action-accept, .change-action-reject{
-    float:left;
-    margin-left:10px;
-}
-.form-toggle-section{
-    background:transparent url(../images/green_toggle_header_bg.png) top left repeat-x;
-    margin-bottom:3px;
-}
-.toggle-section-header{
-    font-size:15px;
-    color:#fff;
-    height:28px;
-    line-height:28px;
-    padding:0 30px;
-    font-weight:bold;
-    background: blue url(../images/form_section_arrow_down.gif) 12px 11px no-repeat;
-    cursor:pointer;
-}
-.form-toggle-section-closed .toggle-section-header{
-    background:transparent url(../images/form_section_arrow_right.gif) 16px 8px no-repeat;
-}
-.toggle-section-fields{
-    padding:10px 12px 10px 12px;
-}
-.form-toggle-section-closed .toggle-section-fields{
-    display:none;
-}
-.section-fields-info{
-    margin-bottom:10px;
-}
-.sub-section-fields{
-    padding-bottom:8px;
-}
-.form-toggle-section h4{
-    color:#000;
-    margin:0;
-    padding:0 0 5px 0;
-}
-.form-toggle-section label{
-    color:#000;
-    font-weight:normal;
-    padding-bottom:3px;
-}
-.form-toggle-section .readonly{
-    color:#9a9a9a;
-}
-.form-toggle-section label.inline-label{
-    display:inline-block;
-    padding-right:15px;
-}
-.form-cols3{
-    width:30%;
-    margin-right:3%;
-    float:left;
-    display:inline;
-    padding-bottom:8px;
-}
-.form-cols3 select, .form-cols3 input.text, .form-cols3 textarea{
-    width:190px;
-}
-.form-cols2{
-    width: 47%;
-    margin-right: 2%;
-    float: left;
-    display: inline;
-    padding-bottom: 20px;
-}
-.form-cols2 select, .form-cols2 input.text, .form-cols2 textarea{
-    width: 250px;
-}
-.form-cols1{
-    width: 99%;
-    float: left;
-    display: inline;
-    padding-bottom: 20px;
-}
-.form-cols1 select, .form-cols1 input
-    width:300px;
-}
-.form-cols1 textarea{
-    width:500px !important;
-}
-.form-toggle-section .checkbox{
-    vertical-align:text-bottom;
-    margin:2px 0 1px 0;
-    padding:0;
-}
-.form-toggle-section textarea{
-    margin:0;
-    height:80px;
-}
-.checkbox-radio-cols-4 .checkbox-radio-wrapper{
-    width:22%;
-    margin-right:2%;
-    display:inline-block;
-}
-.checkbox-radio-cols-2 .checkbox-radio-wrapper{
-    width:45%;
-    margin-right:2%;
-    display:inline-block;
-}
-.checkbox-radio-cols-3 .checkbox-radio-wrapper{
-    width:30%;
-    margin-right:2%;
-    display:inline-block;
-}
-.checkbox-radio-wrapper{
-    white-space:nowrap;
-}
-.checkbox-radio-wrapper label{
-    margin:2px 0 3px 0;
-}
-.premium-account-form span.fnButton{
-    line-height:auto;
-    padding-right:7px;
-    *padding-right:13px;
-    margin-right:5px;
-}
-.premium-account-form span.fnButton input{
-    height:22px;
-    line-height:22px;
-    padding-bottom:4px;
-    padding-left:15px;
-    vertical-align:middle;
-    width:auto;
-    overflow:visible;
-}
-.account-programs-list{
-    margin:0;
-}
-.account-programs-list dd{
-    width:48%;
-    margin:0 2% 0 0 !important;
-    float:left;
-    padding-bottom:10px;
-}
-.account-agreements-list{
-    width:610px;
-    margin:1px 0 9px 10px;
-}
-.account-agreements-list th{
-    padding-bottom:5px;
-}
-.account-agreements-list td{
-    padding-bottom:3px;
-}
-.agreements-list-title{
-    width:320px;
-}
-.agreements-list-date{
-    width:100px;
-}
-.info-box{
-    padding:8px;
-    background:#fafafa;
-    border:1px solid #bbbbbb;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
-    margin-bottom:10px;
+form.premium-account-form, .premium-account-form fieldset {
+  border: 0;
+  background: transparent;
 }
 
-.toggle-section-fields table {
-    width: 100%;
-    }
-.toggle-section-fields td, .toggle-section-fields th {
-    padding: 3px;
-    }
-
-.premium-account-form table {
-    width:100%;
-    border:0;
-    margin:0;
-    border-collapse: collapse;
-    border-spacing: 0;
-    background:transparent;
-    font-size: 100%; /* IE hack */ 
-}
-.premium-account-form table td{
-    padding:3px;
-}
-.premium-account-form table th{
-    padding:0 3px 3px 3px;
-}
-.account-users-list td{
-    padding:3px;
-    vertical-align: top;
-    background:transparent;
-}
-.account-users-list tr.first-row td{
-    padding-top:8px;
-}
-.account-users-list th{
-    border-bottom:2px solid #a6cd93;
-    padding:0 3px 3px 3px;
-    vertical-align:bottom;
-}
-.account-users-list .col-portal-account{
-    width:100px;
-    text-align:center;
-}
-.col-checkbox{
-    width:10px;
-    padding-right:0;
-}
-.col-checkbox input{
-    padding:0 !important;
-    *margin:-2px -2px -3px -3px !important;
-}
-.account-exists{
-    background:transparent url(../images/symbol_green_yes.gif) bottom center no-repeat;
-    height:12px;
-}
-.toggle-user-programs{
-    cursor:pointer;
-    color:#459547;
-    background:transparent url(../images/toggle_user_programs_opened.gif) left 5px no-repeat;
-    padding-left:10px;
-}
-.closed-multiple-user-programs .toggle-user-programs{
-    background:transparent url(../images/toggle_user_programs_closed.gif) 2px 3px no-repeat;    
-    padding-bottom:2px;
+form.premium-account-form select, form.premium-account-form input, form.premium-account-form textarea {
+  font-size: 100%; /* IE hack */
+  font-family: inherit;
 }
 
-.multiple-user-programs-container div{
-    padding:2px 0 2px 10px;
+.change-notifications-container {
+  background: transparent url(../images/change_notifications_bg.png) top left no-repeat;
+  padding-top: 8px;
+  margin-bottom: 14px;
+  zoom: 1;
 }
 
-.closed-multiple-user-programs div{
-    display:none;
-}
-tr.hovered td{
-    background-color:#f4f9f4;
-}
-table.account-agreements-list{
-    margin:0 0 9px 12px !important;
-}
-.account-users-list-actions{
-    padding:11px 0 15px 33px;
-    background:transparent url(../images/account_users_list_actions_bg.gif) 7px 5px no-repeat;
-}
-.account-users-list-actions select{
-    margin-right:7px;
-}
-.account-users-list-actions .fnButton{
-    margin-top:-3px;
-}
-.account-users-list-actions .fnButton[class]{
-    *margin-bottom:-6px !important;
+.change-notifications-container .hovered {
+  background-color: #eeeeee
 }
 
-/* tabs */
-
-.toggle-fields-tabNav li a{
-    cursor:pointer;
+.change-notifications-content-container {
+  border-left: 1px solid #bbbbbb;
+  border-right: 1px solid #bbbbbb;
 }
 
-
-#tabContent-manageUsers.tabContent-container{
-    padding-top:5px;
+.change-notifications-content {
+  background: #f8f8f8 url(../images/change_notifications_inner_bg.png) top left repeat-x;
+  padding: 2px 10px 0 5px;
 }
 
-.tabContent-container{
-    display:none;
-    padding-top:10px;
+.change-notifications-title {
+  padding-left: 6px;
+  font-weight: bold;
+  font-size: 13px;
+  padding-bottom: 7px;
 }
 
-/* register steps */
-
-.premium-register-form .fnMainContent {
-    padding-top:0;
-    padding-left:0;
-    padding-right:0;
+.change-notifications-footer {
+  background: transparent url(../images/change_notifications_bg.png) bottom left no-repeat;
+  height: 8px;
+  line-height: 0;
+  font-size: 0;
 }
 
-.premium-register-form .register-step{
-    
-}
-.premium-register-form .register-step .toggle-register-step-title{
-    position:relative;
-    xbackground: green;
-}
-.premium-register-form .register-step .toggle-register-step-title a, .premium-register-form .register-step .toggle-register-step-title a:hover, .premium-register-form .register-step .toggle-register-step-title span{
-    font-size: 20px;
-    xtext-decoration:none;
-    xdisplay:block;
-    xpadding:7px 20px 9px 20px;
-    xcolor:#fff;
-}
-.premium-register-form .register-step .toggle-register-step-title a.back-link{
-    font-size:12px;
-    padding:0;
-    display:inline-block;
-    position:absolute;
-    top:16px;
-    right:30px;
-}
-.premium-register-form .register-step .toggle-register-step-title a.back-link:hover {
-    font-size:12px;
-    text-decoration:underline;
-    padding:0;
-}
-.premium-register-form .fnStationary {
-    padding:0 !important;
-}
-.premium-register-form .register-step-first {
-    background:transparent url(../images/register_step_bg_first.png) 4px 5px no-repeat !important;
-}
-.premium-register-form .register-step-first .toggle-register-step-title a, .premium-register-form .register-step-first .toggle-register-step-title a:hover {
-    padding:12px 20px 9px 20px;
-}
-.premium-register-form .register-step-inactive{
-    background:transparent url(../images/register_step_inactive_bg.png) 4px top no-repeat !important;
-}   
-.premium-register-form .register-step-first-inactive {
-    background:transparent url(../images/register_step_inactive_bg_first.png) 4px 5px no-repeat !important;
-}
-.premium-register-form .register-step-inactive .toggle-register-step-title a, .premium-register-form .register-step-inactive .toggle-register-step-title span{
-    cursor:default;
-}
-.premium-register-form .register-step-content{
-    display:none;
-}
-.premium-register-form .register-step-open .register-step-content{
-    display:block;
+.changer-notifications-container {
+  padding-bottom: 5px
 }
 
-.program-info-for-billing, .program-info {
-    border-bottom:1px solid #eeeeee;
-    margin:0 0 15px 0;
-    padding:0 0 10px 0;
-    padding: 20px;
-}
-.program-info {
-    padding: 0;
-    }
-
-.program-info-for-billing strong {
-    width: 200px;
-    text-align: right;
-    padding-right: 5px;
-    display: block;
-    float: left;
+.change-notification {
+  padding: 5px;
+  zoom: 1;
 }
 
-.program-info-for-billing textarea {
-    float: left;
-    }
-
-.premium-register-form .register-step-content .program-info-for-billing label {    
-    width: auto;
-    margin: 0;
-}
-    
-.premium-register-form .register-step-content label{
-    float:left;
-    width:100%;
-    margin:0 15px 0 0;
-    padding-top:2px;
-    color:#000;
-    font-weight:normal;
-    color: #333;
-    margin-bottom: 5px;
-}
-.register-step-content label strong, .form-toggle-section label strong {
-    padding-bottom: 5px;
-    display: block;
-    }
-
-
-.premium-register-form .register-step-content label.inline-label{
-    float:none !important;
-    width:auto !important;
-    text-align:left !important;
-    display:inline-block;
-    padding-right:15px;
-    margin:0;
+.changer-title {
+  padding: 0 5px 2px 5px;
+  width: 500px;
 }
 
-.register-nda-container{
-    border-bottom:1px solid #eeeeee;
-    margin:0 0 10px 0;
-    padding:0 0 5px 0;
-}
-.program-info-total-hr{
-    width:300px;
-    border-top:1px solid #eeeeee;
+.changer-title a {
+  font-weight: bold
 }
 
-#program-currency-values span{
-    display:none;
+.changed-field-name {
+  float: left;
+  width: 90px;
+  display: inline;
+  font-weight: bold;
 }
 
-
-.premium-register-form .sub-section-fields h4 {
-    color:#000;
-    margin-bottom: 10px;
-    font-size: 14px;
+.changed-field-value {
+  float: left;
+  width: 450px;
+  margin-left: 20px;
+  display: inline;
 }
-.premium-register-form .section-header {
-      background: #63b73b url(../images/form_section_arrow_down.gif) no-repeat scroll 12px 11px;
-      color: #fff;
-      font-size:15px;
-      font-weight:bold;
-      height:28px;
-      line-height:28px;
-      padding:0 30px; 
-      margin-bottom: 20px;
-      }
 
-.premium-register-form #nda {
-      height: 200px;
-      overflow: auto;
-      margin: 0 10px;
-      border: inset 2px #ccc;
-      padding: 10px;
-      background: #efefef;
-      }
+.changed-user-field-info {
+  float: left;
+  width: 550px;
+  display: inline;
+}
 
- .nda-hidden {           
-      background: lightgray;
-      display: none;
-     }
+.notifications-hr {
+  margin: 5px 5px 8px 5px;
+  height: 1px;
+  background-color: #ccc;
+  padding: 0;
+  line-height: 0;
+  font-size: 0;
+}
 
-#confirmTransfer {
-    margin: 15px 0;
-    border: solid 1px #ccc;
-    padding: 15px;
-    background: #f2f2f2;
-    }  
+.user-change-notifications .change-notification {
+  padding: 5px 5px 4px 5px
+}
 
-#confirmTransfer h3 { 
-    margin: 0; 
-    }
+.change-action-accept, .change-action-reject {
+  float: left;
+  margin-left: 10px;
+}
 
-#confirmTransfer p { 
-    margin: 10px 0 0 0; 
-    }
-#confirmTransfer span { 
-    margin-top: 15px; 
-    }
+.form-toggle-section {
+  background: transparent url(../images/green_toggle_header_bg.png) top left repeat-x;
+  margin-bottom: 3px;
+}
 
-#acceptNDA {
-    border: inset 3px #bbb;
-    background: #565656;
-    margin: 20px 10px;
-    padding: 0 10px 20px 10px;
-     }
+.toggle-section-header {
+  font-size: 15px;
+  color: #fff;
+  height: 28px;
+  line-height: 28px;
+  padding: 0 30px;
+  font-weight: bold;
+  background: blue url(../images/form_section_arrow_down.gif) 12px 11px no-repeat;
+  cursor: pointer;
+}
 
-#acceptNDA  h2, #acceptNDA p{
-    color: #fff;
-    }
- 
-#acceptNDA #nda p { 
-    color: #444433; 
-    }
- 
-#acceptNDA #nda {
-    background: #fff;
-    border: 1px solid #A1A1A1;
-    height: 200px;
-    margin: 0 0 20px 0;
-    overflow: auto;
-    padding: 10px;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    }
+.form-toggle-section-closed .toggle-section-header {
+  background: transparent url(../images/form_section_arrow_right.gif) 16px 8px no-repeat
+}
 
-    .payment-receipt{
-      padding-bottom:20px;
-    }
-    .payment-receipt h3{
-      margin-bottom:10px;
-    }
-    .payment-receipt dl{
-      margin-top:5px;
-      width:500px;
-    }
-    .payment-receipt dt{
-      width:130px !important;
-      padding-bottom:8px;
-      float:left;
-      clear:none;
-    }
-    .payment-receipt dd{
-      padding-bottom:8px;
-      margin-left:20px !important;
-      float:left;
-      width:320px;
-    }
-    .btn-print-receipt{
-      margin-top:20px;
-    }
-    .payment-receipt .clearer{
-      font-size:0;
-      line-height:0;
-    }
-    .ccp .error { 
-        font-weight:bold; 
-        color:red; }
-    }
+.toggle-section-fields {
+  padding: 10px 12px 10px 12px
+}
 
- 
+.form-toggle-section-closed .toggle-section-fields {
+  display: none
+}
+
+.section-fields-info {
+  margin-bottom: 10px
+}
+
+.sub-section-fields {
+  padding-bottom: 8px
+}
+
+.form-toggle-section h4 {
+  color: #000;
+  margin: 0;
+  padding: 0 0 5px 0;
+}
+
+.form-toggle-section label {
+  color: #000;
+  font-weight: normal;
+  padding-bottom: 3px;
+}
+
+.form-toggle-section .readonly {
+  color: #9a9a9a
+}
+
+.form-toggle-section label.inline-label {
+  display: inline-block;
+  padding-right: 15px;
+}
+
+.form-cols3 {
+  width: 30%;
+  margin-right: 3%;
+  float: left;
+  display: inline;
+  padding-bottom: 8px;
+}
+
+.form-cols3 select, .form-cols3 input.text, .form-cols3 textarea {
+  width: 190px
+}
+
+.form-cols2 {
+  width: 47%;
+  margin-right: 2%;
+  float: left;
+  display: inline;
+  padding-bottom: 20px;
+}
+
+.form-cols2 select, .form-cols2 input.text, .form-cols2 textarea {
+  width: 250px
+}
+
+.form-cols1 {
+  width: 99%;
+  float: left;
+  display: inline;
+  padding-bottom: 20px;
+}

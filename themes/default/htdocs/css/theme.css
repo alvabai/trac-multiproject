@@ -1,165 +1,182 @@
 h1 a {
-    color: inherit;
+  color: inherit
 }
 
 h1.subpage_title {
-    font-size: 32px;
+  font-size: 32px
 }
 
 /* Theme insists on absolute positioning for h1 img's
  * which we don't fancy at all. */
+
 h1 .project_heading {
-    position: static;
-}
-h1 #projecticon {
-    position: static;
-    vertical-align: middle;
-    max-width: 64px;
-    max-height: 64px;
+  position: static
 }
 
+h1 #projecticon {
+  position: static;
+  vertical-align: middle;
+  max-width: 64px;
+  max-height: 64px;
+}
 
 table.content td {
-    padding: 2px 6px 2px 0;
+  padding: 2px 6px 2px 0
 }
 
 table.content td.label {
-    padding-top: 7px;
-    text-align: right;
-    max-width: 120px;
-}
-
-table.content td.buttons {
-    text-align: right;
+  padding-top: 9px;
+  text-align: right;
+  max-width: 120px;
 }
 
 p.desc {
-    font-size: 10px;
-    color: #aaa;
-    margin: 0px 0 4px 0;
-    font-family: Tahoma, Geneva, sans-serif;
+  font-size: 10px;
+  color: #aaa;
+  margin: 0 0 4px 0;
+  font-family: Tahoma, Geneva, sans-serif;
 }
 
 div#chart {
-    margin: 10px 0;
+  margin: 10px 0
+}
+
+/* Forms */
+
+#fnloginToForum label {
+  width: 60px;
+  display: inline-block; 
+  *display: inline;
+  zoom: 1;
 }
 
 /* We need to horizontally compress the navi bar slightly */
+
 #tabbedNavigation a {
-    padding-right: 15px;
+  padding-right: 15px
 }
 
 .shaded-box-project-summary {
-    margin: 2px 0px 10px 12px;
-    line-height: 1.5;
-    font-size: 11px;
+  margin: 2px 0 10px 12px;
+  line-height: 1.5;
+  font-size: 11px;
 }
 
 .shaded-box-project-summary strong {
-    font-weight: bold;
+  font-weight: bold
 }
 
 /* Buttons */
 
-.buttons input[type="submit"], input[type="button"], button {
-    background: url("/htdocs/theme/images/buttons.png") no-repeat scroll left top transparent;
-    color: #FFFFFF;
-    display: inline-block;
-    font-size: 12px;
-    height: 25px;
-    line-height: 23px;
-    padding: 0 30px 0 10px;
-    text-decoration: none;
-    border:0;
-}
-
-.title .editButton #watch, .title .editButton #unwatch {
-    float: right;
-}
-
-.buttons .secondaryButton, .buttons .primaryButton {
-    cursor: pointer;
-}
-
-.buttons .secondaryButton input[type="submit"], input[type="button"] {
-    background: none repeat scroll 0 0 transparent;
-    border: 0 none;
-    color: white;
-    cursor: pointer;
-}
-
-.buttons .primaryButton input[type="submit"], input[type="button"] {
-    background: none repeat scroll 0 0 transparent;
-    border: 0 none;
-    color: white;
-    cursor: pointer;
+.buttons {
+  padding: 0 0 5px 0;
 }
 
 .buttons form {
-  float: left;
+  float: left
 }
 
-#go, #gobutton {
-    background: url("/htdocs/theme/images/buttons.png") no-repeat scroll right top transparent;
-    margin-left:2px;
-    cursor: pointer;
-    border: none;
+.buttons .secondaryButton, 
+.buttons .primaryButton {
+  cursor: pointer
+}
+
+.buttons input[type="submit"], 
+input[type="button"], 
+button {
+  background: #0052a5 url(/htdocs/theme/images/buttons.png) no-repeat left top;
+  color: #FFFFFF;
+  display: inline-block;
+  font-size: 12px;
+  height: 25px;
+  line-height: 23px;
+  padding: 0 10px;
+  text-decoration: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.buttons input[type="submit"]:hover, 
+input[type="button"]:hover, 
+button:hover {
+  background-position: 0 -27px;
+}
+
+.title .editButton #watch, 
+.title .editButton #unwatch {
+  float: right
+}
+
+#go, 
+#gobutton {
+  background: url(/htdocs/theme/images/buttons.png) no-repeat scroll right top transparent;
+  margin-left: 2px;
 }
 
 #altlinks {
-    clear:both;
+  clear: both
 }
 
 .nav ul {
-    font-size: 12px;
-    list-style: none outside none;
-    margin: 0;
-    text-align: left;
-    font-family: Tahoma,Geneva,sans-serif;
+  font-size: 12px;
+  list-style: none outside none;
+  margin: 0;
+  text-align: left;
+  font-family: Tahoma, Geneva, sans-serif;
 }
+
 .nav li a {
-    color: #323232;
+  color: #323232
 }
+
 .nav li a:hover {
-    color: #0066CB;
+  color: #0066CB
 }
 
 div.trac-modifiedby {
-    color: #323232;
-    float: left;
-    font-size: 80%;
-    font-style: italic;
-    margin: 0.5em 1em;
-    text-align: left;
+  color: #323232;
+  float: left;
+  font-size: 80%;
+  font-style: italic;
+  margin: 0.5em 1em;
+  text-align: left;
 }
 
 /* Heading anchors */
-.anchor:link, .anchor:visited {
- border: none;
- color: #395796;
- font-size: .8em;
- vertical-align: text-top;
+
+.anchor:link, 
+.anchor:visited {
+  border: none;
+  color: #395796;
+  font-size: .8em;
+  vertical-align: text-top;
 }
 
-* > .anchor:link, * > .anchor:visited {
- visibility: hidden;
+* > .anchor:link, 
+* > .anchor:visited {
+  visibility: hidden
 }
 
-h1:hover .anchor, h2:hover .anchor, h3:hover .anchor,
-h4:hover .anchor, h5:hover .anchor, h6:hover .anchor,
+h1:hover .anchor, 
+h2:hover .anchor, 
+h3:hover .anchor, 
+h4:hover .anchor, 
+h5:hover .anchor, 
+h6:hover .anchor, 
 span:hover .anchor {
- visibility: visible;
+  visibility: visible
 }
 
 #featured_downloads_list a {
-    display: inline;
+  display: inline
 }
 
 #ticket_sort_control a[id*="ticket_sort_select"] {
-    width:60px !important;
+  width: 60px !important
 }
 
 ul#tabbedNavigation {
+<<<<<<< HEAD
     list-style-type: none;
     list-style-image: none;
     font-family: Tahoma,Geneva,sans-serif;
@@ -168,152 +185,171 @@ ul#tabbedNavigation {
     line-height:26px;
     float: left;
     margin: 0;
+=======
+  list-style-type: none;
+  list-style-image: none;
+  margin: 0 0 10px 0;
+  width: 100%;
+  font-family: Tahoma,Geneva,sans-serif;
+  height: 26px;
+  font-size: 13px;
+  line-height: 26px;
+  border-bottom: 1px solid #0066cb;
+>>>>>>> 7e373ff4582e36a211041f1a8df34188033d0dff
 }
 
 .resource-box .team_members a {
-    display: inline;
+  display: inline
 }
 
-#sortingbox #sorting,
-#sortingbox #showrows,
+#sortingbox #sorting, 
+#sortingbox #showrows, 
 #sortingbox #sortby {
-    margin-top:5px !important;
-    margin-right:10px !important;
+  margin-top: 5px !important;
+  margin-right: 10px !important;
 }
 
 #sortingbox {
-   height: 25px !important;
-   float: right !important;
+  height: 25px !important;
+  float: right !important;
 }
 
-#sortingbox span,
-#sortingbox select,
-#sortingbox button {
-    float: left;
-    line-height: 25px;
-    vertical-align: middle;
+#sortingbox span, 
+#sortingbox select {
+  float: left;
+  line-height: 20px;
+  vertical-align: middle;
+}
+
+#sortingbox span {
+  margin-right: 5px;
 }
 
 #groupingbox {
-   height: 25px !important;
-   margin-right:10px !important;
-   float:left !important;
+  height: 25px !important;
+  margin-right: 10px !important;
+  float: left !important;
 }
 
 #groupingbox #grouptxt {
-   height: 25px !important;
-   float: left !important;
-   margin-top:7px !important;
-   margin-right:10px !important;
-   font-size:13px !important;
+  height: 25px !important;
+  float: left !important;
+  margin-top: 7px !important;
+  margin-right: 10px !important;
+  font-size: 13px !important;
 }
 
 #optionbox {
-   height: 25px !important;
-   float: left !important;
-   margin: 7px 10px 0 10px !important;
-   font-size:13px !important;
+  height: 25px !important;
+  float: left !important;
+  margin: 7px 10px 0 10px !important;
+  font-size: 13px !important;
 }
+
 #optionbox label {
-   margin-right: 15px;
+  margin-right: 15px
 }
 
-#sortingbox a[id*="sorting"],
+#sortingbox a[id*="sorting"], 
 ul[id*="sorting"] {
-   width:200px !important;
+  width: 200px !important
 }
 
-#sortingbox a[id*="sortby"],
-#groupingbox a[id*="group"],
-ul[id*="sortby"],
+#sortingbox a[id*="sortby"], 
+#groupingbox a[id*="group"], 
+ul[id*="sortby"], 
 ul[id*="group"] {
-   width:100px !important;
+  width: 100px !important
 }
 
-#sortingbox a[id*="showrows"],
-#sortingbox a[id*="max"],
-ul[id*="showrows"],
+#sortingbox a[id*="showrows"], 
+#sortingbox a[id*="max"], 
+ul[id*="showrows"], 
 ul[id*="max"] {
-   width:65px !important;
+  width: 65px !important
 }
 
 input.ui-autocomplete-input {
-    background-image: url("../images/search_bg.png");
-    background-position: right center;
-    background-repeat: no-repeat;
+  background-image: url(../images/search_bg.png);
+  background-position: right center;
+  background-repeat: no-repeat;
 }
 
 input.loading {
-    background: url("/htdocs/theme/images/loading.gif") no-repeat scroll right center transparent;
+  background: url(/htdocs/theme/images/loading.gif) no-repeat scroll right center transparent
 }
 
 #newticketbutton {
-  margin-top: 0 !important;
+  margin-top: 0 !important
 }
 
 #add_msg_body {
-  width: 100%;
+  width: 100%
 }
 
 /* Analytics / Statistics */
+
 div.results div#chart {
-    width: 776px;
-    height: 400px;
+  width: 776px;
+  height: 400px;
 }
 
 div.results div#chart.loading {
-    background: url("/htdocs/theme/images/loading.gif") no-repeat scroll center center transparent;
+  background: url(/htdocs/theme/images/loading.gif) no-repeat scroll center center transparent
 }
 
 div.results table#results tr.project div.accbutton {
-    margin: 6px 6px 6px 0;
-    width: 13px;
-    height: 13px;
-    background-color: inherit;
-    background-image: url('/htdocs/theme/images/accordeonClose.png');
+  margin: 6px 6px 6px 0;
+  width: 13px;
+  height: 13px;
+  background-color: inherit;
+  background-image: url(/htdocs/theme/images/accordeonClose.png);
 }
 
 div.results table#results tr.project div.accbutton.collapsed {
-    background-image: url('/htdocs/theme/images/accordeonExpand.png');
+  background-image: url(/htdocs/theme/images/accordeonExpand.png)
 }
 
 div.results table#results tr.project div.legend {
-    height: 23px;
+  height: 23px
 }
 
 /* jQuery UI theme */
+
 .ui-widget-header {
-    border: 1px solid #AAA;
-    background: #CCC url(../images/ui-bg_highlight-soft_75_cccccc_1x100.png) 50% 50% repeat-x;
-    color: white;
-    font-weight: normal;
+  border: 1px solid #AAA;
+  background: #CCC url(../images/ui-bg_highlight-soft_75_cccccc_1x100.png) 50% 50% repeat-x;
+  color: white;
+  font-weight: normal;
 }
 
 /* Messages */
+
 div#messages-dialog a.message-recipient-remove {
-    text-indent: -3000px;
-    background: transparent url('../images/delete_x.png') no-repeat center center;
-    padding-left: 15px;
-    opacity: 0.5;
+  text-indent: -3000px;
+  background: transparent url(../images/delete_x.png) no-repeat center center;
+  padding-left: 15px;
+  opacity: 0.5;
 }
 
 div#messages-dialog a.message-recipient-remove:hover {
-    opacity: 1;
+  opacity: 1
 }
 
 div#messages-dialog a.message-recipient-remove .remove-text {
-    display: none;
+  display: none
 }
 
 div#messages-dialog a.message-more {
-    display: block;
-    line-height: 20px;
-    margin-right: 20px;
-    margin-left: 20px;
+  display: block;
+  line-height: 20px;
+  margin-right: 20px;
+  margin-left: 20px;
 }
 
-div#messages-dialog a.message-more.loading, div#messages-dialog a.message-more.loading:hover {
-    color: #aaa;
-    text-decoration: none;
-    background: url("../images/loading.gif") no-repeat scroll right center transparent;
+div#messages-dialog a.message-more.loading, 
+div#messages-dialog a.message-more.loading:hover {
+  color: #aaa;
+  text-decoration: none;
+  background: url(../images/loading.gif) no-repeat scroll right center transparent;
 }

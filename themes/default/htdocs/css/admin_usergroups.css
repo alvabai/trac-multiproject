@@ -3,75 +3,89 @@
   height: 30px;
   background-color: #8F8F8F;
 }
+
 #aug_heading div {
   color: white;
   padding: 5px;
   font-size: 11.5px;
 }
-#admin_user_groups #aug_heading div.left,
-#admin_user_groups #aug_heading div.right
-{
-  padding:8px 0 8px 10px;
-  font-size:12px;
-  font-weight:bold;
-  min-height: 14px;
-}
+
+#admin_user_groups #aug_heading div.left, 
 #admin_user_groups #aug_heading div.right {
-  float:left;
-  padding: 8px 0px;
-  padding-left:10px;
+  padding: 8px 0 8px 10px;
+  font-size: 12px;
+  font-weight: bold;
   min-height: 14px;
 }
+
+#admin_user_groups #aug_heading div.right {
+  float: left;
+  padding: 8px 0px;
+  padding-left: 10px;
+  min-height: 14px;
+}
+
 #admin_user_groups div.group {
-  width:100%;
-  min-height:28px;
-  display:inline-block;
-  margin-bottom:-2px;
+  width: 100%;
+  min-height: 28px;
+  display: inline-block;
+  margin-bottom: -2px;
 }
+
 #admin_user_groups div.left {
-  width:175px;
-  font-size:11.5px;
-  padding:10px 5px;
-  padding-left:10px;
-  font-weight:bold;
+  width: 175px;
+  font-size: 11.5px;
+  padding: 10px 5px;
+  padding-left: 10px;
+  font-weight: bold;
 }
+
 #admin_user_groups div.even {
-  background-color:#F2F2F2;
+  background-color: #F2F2F2
 }
+
 #admin_user_groups div.right {
-  font-size:11.5px;
-  padding:7px 2px;
-  width:304px;
-  min-height:18px;
+  font-size: 11.5px;
+  padding: 7px 2px;
+  width: 304px;
+  min-height: 18px;
 }
+
 #admin_user_groups .users.over {
-  background-color:#BBBBDD;
+  background-color: #BBBBDD
 }
+
 #admin_user_groups .user {
-  padding:6px;
-  cursor:pointer;
-  float:left;
-  margin:2px;
-  -moz-border-radius:0 7px 0 7px;
-  -webkit-border-radius:0 7px 0 7px;
+  padding: 6px;
+  cursor: pointer;
+  float: left;
+  margin: 2px;
+  -moz-border-radius: 0 7px 0 7px;
+  -webkit-border-radius: 0 7px 0 7px;
   border-top-right-radius: 7px;
   border-bottom-left-radius: 7px;
-  background-color:#DDD;
-  color:#555;
+  background-color: #DDD;
+  color: #555;
 }
+
 #admin_user_groups .selected.user {
-  background-color:#BBBBDD;
+  background-color: #BBBBDD
 }
+
 #admin_user_groups #usergroups {
   border: 1px solid #AAA;
   border-width: 0 1px 1px 1px;
 }
+
 #admin_user_groups .recyclebin {
-  background-color:#DDBBBB;
+  background-color: #DDBBBB
 }
+
 #revoke_wrap {
-  width:500px;
+  width: 500px
 }
-#tabcontent form#addsubj.addnew, #tabcontent form#addsubj.addnew .shadedBox {
-  margin-top:0;
+
+#tabcontent form#addsubj.addnew, 
+#tabcontent form#addsubj.addnew .shadedBox {
+  margin-top: 0
 }

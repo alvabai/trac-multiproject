@@ -33,3 +33,4 @@ tests/functional/log.html
 tests/functional/output.xml
 tests/functional/report.html
 selenium-screenshot-*.png
+tests/functional/data.csv

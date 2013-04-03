@@ -55,9 +55,7 @@
           </label>
           </div>
           <div id="sortingbox">
-          <a class="primaryButton" id="newticketbutton" href="${href()}/newticket">
-                <span>New Ticket</span>
-          </a>
+          <a class="primaryButton" id="newticketbutton" href="${href()}/newticket">New Ticket</a>
           </div>
         </div>
 
@@ -71,7 +69,7 @@
                       <option value="${val}" selected="${val == query.max or None}">${val}</option>
                   </py:for>
                </select>
-               <button id="gobutton" type="submit" name="update">${_('Update')}</button>
+               <button id="gobutton" type="submit" name="update" class="secondaryButton">${_('Update')}</button>
              </div>
           </div>
           <div id="folding" class="closed"> <!-- ! this div is folded -->
@@ -194,9 +192,7 @@
               <input py:if="report_resource" type="hidden" name="report" value="$report_resource.id" />
               <input type="hidden" name="order" value="$query.order" />
               <input py:if="query.desc" type="hidden" name="desc" value="1" />
-              <span class="primaryButton">
-                <input id="updatebutton" type="submit" name="update" value="${_('Update')}" />
-              </span>
+                <input id="updatebutton" type="submit" name="update" value="${_('Update')}" class="primaryButton"/>
             </div>
             <div id="foldingbottom"><span></span></div>
           </div>

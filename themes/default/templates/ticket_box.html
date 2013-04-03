@@ -80,9 +80,7 @@ Arguments:
           id="addreply" method="get" action="#comment">
       <div class="buttons">
         <input type="hidden" name="replyto" value="description" />
-        <span class="primaryButton">
-          <input type="submit" name="reply" value="${_('Reply')}" title="Reply, quoting this description" />
-        </span>
+        <input type="submit" name="reply" value="${_('Reply')}" title="Reply, quoting this description" class="primaryButton"/>
       </div>
     </form>
     <br py:if="not ticket.description" style="clear: both" />
