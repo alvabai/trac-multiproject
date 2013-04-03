@@ -100,15 +100,18 @@ class FindProjectsModule(Component):
             end_page = total_page_count
 
             
-        if projects:
+        if projects or len(projects) > 0:
             # Activity css classes for activity meters
-            activity_classes = self.activities_to_classes(activities)
+            if activities:
+                activity_classes = self.activities_to_classes(activities)
+            else:
+                activity_classes = {}
             # Get categories for projects that was searched
             project_categories = self.get_project_categories(projects)
             # Get number of project watchers
             project_watchers = self.get_project_watchers(projects)
         else:
-            activity_classes = ""
+            activity_classes = {}
             project_categories = ""
             project_watchers = ""
         if project_count:

@@ -867,11 +867,14 @@ class Projects(object):
                 GROUP BY project_name
                 ORDER BY COUNT(project_name) DESC;
             """
-        project_ids = self.queryProjectObjectsDB(project_query, 'trac_analytical')
+        project_ids = []
+        with db_query('trac_analytical') as cursor:
+                cursor.execute(project_query)
+                project_ids = cursor.fetchall()
         projects = []
         if project_ids is not None:
             for project_id in project_ids:
-                projects.append(Project()._get_project(project_id))
+                projects.append(Project._get_project(project_id))
         return projects
 
 
@@ -1084,6 +1087,7 @@ class Projects(object):
             except:
                 conf.log.exception("Project query failed: {0}".format(project_query))
                 raise
+
 
 
     def queryProjectObjectsForSearch(self, project_query):
