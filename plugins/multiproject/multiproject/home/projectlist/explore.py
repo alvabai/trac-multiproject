@@ -71,15 +71,7 @@ class FindProjectsModule(Component):
 
         # Fetch projects based on tab
         if tab == "download":
-            project_query = """
-                SELECT project_name FROM project_dim, event_fact, event_dim
-                WHERE project_dim.project_sk = event_fact.project_sk
-                AND event_fact.event_sk = event_dim.event_sk
-                AND action_name='source_checkin'
-                GROUP BY project_name
-                ORDER BY COUNT(project_name) DESC;
-            """
-            projects = Projects().queryProjectObjectsDB(project_query, 'trac_analytical')
+            projects = Projects().searchMostDownloaded()
             activities = None
             if projects is None:
                 project_count = 0

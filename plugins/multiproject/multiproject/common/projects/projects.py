@@ -858,6 +858,23 @@ class Projects(object):
         projects, activities = self.queryProjectObjectsForSearch(query)
         return projects, activities, query_count
 
+    def searchMostDownloaded(self):
+        project_query = """
+                SELECT project_key FROM project_dim, event_fact, event_dim
+                WHERE project_dim.project_sk = event_fact.project_sk
+                AND event_fact.event_sk = event_dim.event_sk
+                AND action_name='source_checkin'
+                GROUP BY project_name
+                ORDER BY COUNT(project_name) DESC;
+            """
+        project_ids = self.queryProjectObjectsDB(project_query, 'trac_analytical')
+        projects = []
+        if project_ids is not None:
+            for project_id in project_ids:
+                projects.append(Project()._get_project(project_id))
+        return projects
+
+
     def _get_single_result(self, query):
         value = None
         with admin_query() as cursor:

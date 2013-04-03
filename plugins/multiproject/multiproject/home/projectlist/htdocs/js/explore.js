@@ -520,6 +520,18 @@ function init_view() {
         return false;
     });
 
+    /* Tab click action (change tab) */
+    $('#tabbedNavigationExplore li').click(function(event) {
+        /* Change tab to selected tab and reset pagination, finally search */
+        selected_tab = $(this).attr('id').split("_")[1];
+        // Select correct tab
+        $('#tabbedNavigationExplore li.selected').removeClass('selected');
+        $(this).addClass('selected');
+        selected_sub_page = 1;
+        update_url();
+        return false;
+    });
+
     $('#project_search_form').submit(
         function() {
             selected_sub_page = 1;

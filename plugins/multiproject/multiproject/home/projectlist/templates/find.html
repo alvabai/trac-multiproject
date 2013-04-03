@@ -121,7 +121,7 @@ from multiproject.core.configuration import conf
 
                 <!-- ! Navigation tabs -->
                 <div id="search_container">
-                    <ul id="tabbedNavigation">
+                    <ul id="tabbedNavigationExplore">
                         <py:for each="tab,text in tabs">
                             <py:choose>
                                 <li py:when="selected_tab == tab" class="selected" id="tab_${tab}"><a href="#">${text}</a></li>
