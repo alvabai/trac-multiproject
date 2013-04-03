@@ -165,10 +165,13 @@ class ProjectListModule(Component):
 
         # Notify listeners. The project object still exists, but database does not
         for listener in self.project_change_listeners:
-            listener.project_created(project)
-            listener.project_watchers(project)
-            if public:
-                listener.project_set_public(project)
+            try:
+                listener.project_created(project)
+                listener.project_watchers(project)
+                if public:
+                    listener.project_set_public(project)
+            except:
+                pass
 
 
         return self.create_success(req, project)
