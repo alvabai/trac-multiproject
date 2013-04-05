@@ -98,7 +98,10 @@ Example usage:
 
             # Notify listeners.
             for listener in self.project_change_listeners:
-                listener.project_watchers(project)
+                try:
+                    listener.project_watchers(project)
+                except:
+                    pass
 
         # Stop following
         elif action == 'unwatch':
