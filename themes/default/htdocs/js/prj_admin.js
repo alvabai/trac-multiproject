@@ -8,12 +8,6 @@ $(document).ready(function () {
     }
 );
 
-
-/*admin_relations_panel.html*/
-function requestMerge() {
-    $("#merge_request_form").submit();
-}
-
 /* admin_tags.html */
 function selectTag(obj)
 {
