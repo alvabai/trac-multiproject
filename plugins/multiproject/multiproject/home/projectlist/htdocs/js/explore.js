@@ -63,6 +63,7 @@ function search_done(data) {
         $('#searchForProjects').trigger('focus');
     }
     $('#keyword_attribs').removeClass('searching');
+    $("#result_range_ajax").css("display", "none");
     $('#result_range').text($('#result_range_ajax').text());
 
     /* Initializes event handlers for pagination items */
