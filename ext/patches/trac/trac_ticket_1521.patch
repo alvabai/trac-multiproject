@@ -59,11 +59,12 @@
   
                   if not env_path or not os.path.isdir(env_path):
 !                    if Auxilliary().is_archived(env_name):
-!                        link = "<a href="+'"/HelpAndSupport"'+"> Help and Support. </a>"
-!                        msg = "This project has been archived. \nIf you think it should not be archived, Please raise a request on "
+!                        link = "<a href="+'"/HelpAndSupport"'+"> Help and Support. </a></p>"
+!                        msg = "<strong> This project has been archived. </strong>
+!                        msg = msg + "<p> If you think it should not be archived, Please raise a request on "
 !                        errmsg = msg + link
 !                    else:
-!                        errmsg = " Environment not found."
+!                        errmsg = "<p>Environment not found.</p>"
 ! 
               except UnicodeDecodeError:
                   errmsg = 'Invalid URL encoding (was %r)' % script_name
