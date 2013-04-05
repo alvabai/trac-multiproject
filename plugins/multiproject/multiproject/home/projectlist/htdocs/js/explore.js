@@ -47,7 +47,13 @@ function search_fail(params) {
 /* Callback method for search event */
 function search_done(data) {
     // Inject returned project list data in place
+    console.log(data);
+    var data1 = data.split("<div class=\"project_item\">")[0];
+    console.log(data1);
+    data = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">"+
+    data.substring(data1.length)
     $('.project_list').html(data);
+    $('#pagination_container').html(data1);
 
     // Change page back to active
     $('body').css('cursor','auto');
