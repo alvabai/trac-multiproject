@@ -167,11 +167,20 @@ class Projects(object):
         FROM projects
         WHERE environment_name = %s
         """
+        query_project_archived = """
+        SELECT COUNT(orig_project_id)
+        FROM project_archive
+        WHERE environment_name = %s
+        """
 
         with admin_query() as cursor:
             try:
                 cursor.execute(query, env_name)
                 row = cursor.fetchone()
+                if bool(row[0]) == False:
+                    cursor.execute(query_project_archived, env_name)
+                    row = cursor.fetchone()
+
             except Exception, e:
                 conf.log.exception(e)
                 return False
