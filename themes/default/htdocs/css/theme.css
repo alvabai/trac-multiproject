@@ -176,6 +176,16 @@ span:hover .anchor {
 }
 
 ul#tabbedNavigation {
+<<<<<<< HEAD
+    list-style-type: none;
+    list-style-image: none;
+    font-family: Tahoma,Geneva,sans-serif;
+    height:26px;
+    font-size:13px;
+    line-height:26px;
+    float: left;
+    margin: 0;
+=======
   list-style-type: none;
   list-style-image: none;
   margin: 0 0 10px 0;
@@ -185,6 +195,7 @@ ul#tabbedNavigation {
   font-size: 13px;
   line-height: 26px;
   border-bottom: 1px solid #0066cb;
+>>>>>>> 7e373ff4582e36a211041f1a8df34188033d0dff
 }
 
 .resource-box .team_members a {

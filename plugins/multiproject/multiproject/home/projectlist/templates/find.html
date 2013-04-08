@@ -120,26 +120,28 @@ from multiproject.core.configuration import conf
             <div class="project_search left">
 
                 <!-- ! Navigation tabs -->
-                <ul id="tabbedNavigation">
-                    <py:for each="tab,text in tabs">
-                        <py:choose>
-                            <li py:when="selected_tab == tab" class="selected" id="tab_${tab}"><a href="#">${text}</a></li>
-                            <li py:otherwise="" id="tab_${tab}"><a href="#">${text}</a></li>
-                        </py:choose>
-                    </py:for>
-                </ul>
-                <div id="resultsPerPageDiv">
-                    <p>
-                        <span>Results per page: </span>
-                        <select id="resperpage">
-                            <option selected="selected">10</option>
-                            <option>25</option>
-                            <option>50</option>
-                            <option>100</option>
-                        </select>
-                    </p>
+                <div id="search_container">
+                    <ul id="tabbedNavigationExplore">
+                        <py:for each="tab,text in tabs">
+                            <py:choose>
+                                <li py:when="selected_tab == tab" class="selected" id="tab_${tab}"><a href="#">${text}</a></li>
+                                <li py:otherwise="" id="tab_${tab}"><a href="#">${text}</a></li>
+                            </py:choose>
+                        </py:for>
+                    </ul>
+                    <div id="resultsPerPageDiv">
+                        <p>
+                            <span>Results per page: </span>
+                            <select id="resperpage">
+                                <option selected="selected">10</option>
+                                <option>25</option>
+                                <option>50</option>
+                                <option>100</option>
+                            </select>
+                        </p>
+                    </div>
                 </div>
-
+                <div id="pagination_container"><!-- AJAX call container --></div>
                 <div id="project_search_attribs">
                     <!--! Will have class 'with_keywords', if keywords, and 'searching', if searching. -->
                     <p id="keyword_attribs">

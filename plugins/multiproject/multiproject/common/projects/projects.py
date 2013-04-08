@@ -13,7 +13,7 @@ from multiproject.core.authentication import CQDEAuthenticationStore
 from multiproject.core.cache import ProjectCache
 from multiproject.core.categories import CQDECategoryStore
 from multiproject.core.configuration import conf
-from multiproject.core.db import admin_query, admin_transaction, safe_string, safe_int, cursors
+from multiproject.core.db import admin_query, admin_transaction, safe_string, safe_int, cursors, db_query
 from multiproject.core.exceptions import ProjectValidationException
 from multiproject.core.permissions import get_permission_id, get_special_users
 from multiproject.core.users import get_userstore
@@ -867,6 +867,26 @@ class Projects(object):
         projects, activities = self.queryProjectObjectsForSearch(query)
         return projects, activities, query_count
 
+    def searchMostDownloaded(self):
+        project_query = """
+                SELECT project_key FROM project_dim, event_fact, event_dim
+                WHERE project_dim.project_sk = event_fact.project_sk
+                AND event_fact.event_sk = event_dim.event_sk
+                AND action_name='source_checkin'
+                GROUP BY project_name
+                ORDER BY COUNT(project_name) DESC;
+            """
+        project_ids = []
+        with db_query('trac_analytical') as cursor:
+                cursor.execute(project_query)
+                project_ids = cursor.fetchall()
+        projects = []
+        if project_ids is not None:
+            for project_id in project_ids:
+                projects.append(Project._get_project(project_id))
+        return projects
+
+
     def _get_single_result(self, query):
         value = None
         with admin_query() as cursor:
@@ -1064,6 +1084,20 @@ class Projects(object):
                 raise
 
         return projects
+
+    def queryProjectObjectsDB(self, project_query, db_name):
+        projects = []
+
+        with db_query(db_name) as cursor:
+            try:
+                cursor.execute(project_query)
+                for project in cursor:
+                    projects.append(Projects.sqlToProject(project))
+            except:
+                conf.log.exception("Project query failed: {0}".format(project_query))
+                raise
+
+
 
     def queryProjectObjectsForSearch(self, project_query):
         projects = []
