@@ -2228,5 +2228,10 @@ $("#signOut").live("click", function(){
     if (location == "ticket"){
       $("#ctxtnavitems ul .first").after("<li>|</li><li><a href=\"../newticket\">New ticket</a></li>");
     }
+    if($("table.trac-clause").children().length > 2){
+        //Remove display none if more than default setting in advanced filter
+        $("#foldingtitle").removeClass('closed').addClass('open');
+        $("#folding").css('display', 'block');
+    }
   });
 })(jQuery, window);
