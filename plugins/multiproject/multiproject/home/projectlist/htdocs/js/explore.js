@@ -47,7 +47,13 @@ function search_fail(params) {
 /* Callback method for search event */
 function search_done(data) {
     // Inject returned project list data in place
+    console.log(data);
+    var data1 = data.split("<div class=\"project_item\">")[0];
+    console.log(data1);
+    data = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">"+
+    data.substring(data1.length)
     $('.project_list').html(data);
+    $('#pagination_container').html(data1);
 
     // Change page back to active
     $('body').css('cursor','auto');
@@ -57,6 +63,7 @@ function search_done(data) {
         $('#searchForProjects').trigger('focus');
     }
     $('#keyword_attribs').removeClass('searching');
+    $("#result_range_ajax").css("display", "none");
     $('#result_range').text($('#result_range_ajax').text());
 
     /* Initializes event handlers for pagination items */
@@ -514,6 +521,18 @@ function init_view() {
         selected_tab = $(this).attr('id').split("_")[1];
         // Select correct tab
         $('#tabbedNavigation li.selected').removeClass('selected');
+        $(this).addClass('selected');
+        selected_sub_page = 1;
+        update_url();
+        return false;
+    });
+
+    /* Tab click action (change tab) */
+    $('#tabbedNavigationExplore li').click(function(event) {
+        /* Change tab to selected tab and reset pagination, finally search */
+        selected_tab = $(this).attr('id').split("_")[1];
+        // Select correct tab
+        $('#tabbedNavigationExplore li.selected').removeClass('selected');
         $(this).addClass('selected');
         selected_sub_page = 1;
         update_url();

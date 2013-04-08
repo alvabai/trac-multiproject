@@ -1370,8 +1370,20 @@ img.signpost-icon {
   color: #FFF;
 }
 
+<<<<<<< HEAD
+ul#tabbedNavigation {
+    list-style-type: none;
+    list-style-image: none;
+    margin: 0;
+    font-family: Tahoma,Geneva,sans-serif;
+    height:26px;
+    font-size:13px;
+    line-height:26px;
+    float: left;
+=======
 .signpost-banner-link a:hover {
   color: #FFF
+>>>>>>> 7e373ff4582e36a211041f1a8df34188033d0dff
 }
 
 .border-green {
