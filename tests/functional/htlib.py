@@ -37,7 +37,8 @@ def get_session_dict(cookies, key="session"):
     # Go trough the cookies list, and leave only strings having 'key' as a
     # substring.  Then, trusting that the strings look like 'key=value', create
     # a dictionary from them and return it.
-    ck_list = [tuple(x.strip().split('=')) for x in cookies.split('; ') if key in x]
+    ck_list = [x.strip() for x in cookies.split('; ') if key in x]
+    ck_list = [tuple(x.split('=')) for x in ck_list]
     return dict(ck_list)
 
 
