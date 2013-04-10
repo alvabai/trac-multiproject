@@ -28,9 +28,14 @@ Follow redirect
   Log Response Headers
   Response Status Code Should Equal  200
 
-Login
-  Create HTTP Context   localhost:4433  https
-  Myget  /
+Go to home page
+  Login
+  Myget  /home
+  Show Response Body In Browser
+  Myget  /foo
+  Show Response Body In Browser
+  Myget  /foo/admin
+  Show Response Body In Browser
 
 
 *** Keywords ***
@@ -41,13 +46,14 @@ Get Cookies
   [Return]  ${c1}
 
 
-Myget
+Login
+  Create HTTP Context   localhost:4433  https
   [Documentation]  Send a HTTP GET request, sending and storing all the cookies.
-  [Arguments]  ${url}  ${params}=${EMPTY}
-  GET  ${url}
+  [Arguments]  ${login_url}=/  ${params}=${EMPTY}
+  GET  ${login_url}
   ${status}=  Get Response Status
   Run Keyword If  '${status}' == '302 Found'  Follow Response
-  ${chead}=  Get Response Header  set-cookie  
+  ${chead}=  Get Response Header  set-cookie
   ${c1}=  Get Cookies  ${chead}
   Log  ${c1}
   ${form_token}=  Get Session Cookies  ${chead}  key=form_token
@@ -60,7 +66,12 @@ Myget
   ${auth_cookie}=  Get Session Cookies  ${all_cookies}  key=auth 
   Log  ${auth_cookie}
   Set Request Header  Cookie  ${c1}; ${auth_cookie}
-  GET  /home/
-  Show Response Body In Browser
+  Set Suite Variable  ${cookies}  ${c1}; ${auth_cookie}
+
+
+Myget
+  [Arguments]  ${url}=/home
+  Set Request Header  Cookie  ${cookies}
+  GET  ${url}
 
 
