@@ -7,7 +7,7 @@ from trac.mimeview.api import Context, WikiTextRenderer
 from trac.core import Component, implements
 from trac.perm import IPermissionRequestor
 from trac.web import IRequestHandler
-from trac.web.chrome import ITemplateProvider, INavigationContributor, tag, Chrome
+from trac.web.chrome import ITemplateProvider, INavigationContributor, tag, Chrome, add_script, add_stylesheet
 from trac.util.datefmt import LocalTimezone, utc
 from trac.util.translation import _
 
@@ -53,10 +53,12 @@ Example usage:
     def process_request(self, req):
         """ Process request for listing, creating and removing projects
         """
+        add_script(req, 'multiproject/js/summary.js')
         data = {}
 
         if req.authname == 'anonymous':
             req.perm.require('PROJECT_VIEW')
+
 
         if not ('PROJECT_VIEW' in req.perm or 'PROJECT_PRIVATE_VIEW' in req.perm):
             return 'no_access.html', data, None
@@ -64,11 +66,12 @@ Example usage:
         # Load project from db
         project = Project.get(self.env)
 
+        if req.args.get('action') == 'timeline_events':
+            return self.get_summary_timeline_events(req, project.created)
+
         # TODO: Move project timeline implementation into macro
         # Get recent timeline events
-        timeline = ProjectTimelineEvents(self.env)
-        events = timeline.get_latest_timeline_events(req, 5)
-
+        
         # TODO: Move project downloads implementation into macro
         # Get list of featured downloads
         downloads = []
@@ -93,9 +96,9 @@ Example usage:
             wiki_renderer = WikiTextRenderer(self.env)
             summary_content = wiki_renderer.render(context, 'text/x-trac-wiki', summary_wiki.text)
 
+        
         data = {
             '_project_': project, # project object of a project we are in
-            'activities': events, # list of latest activities
             'downloads': downloads, # list of featured downloads
             'wiki_summary': summary_content, # Rendered content of the SummaryPage
             'is_summary': True,
@@ -103,6 +106,15 @@ Example usage:
         }
 
         return 'summary.html', data, None
+
+    def get_summary_timeline_events(self, req, project_created):
+        timeline = ProjectTimelineEvents(self.env)
+        #events = timeline.get_latest_timeline_events(req, 5)
+        events = timeline.get_summary_events(req, 5, project_created)
+        data = {
+            'activities': events
+        }
+        return 'timeline_partial.html', data, None
 
     # INavigationContributor methods
 
@@ -173,6 +185,7 @@ Example usage:
         stream = chrome.render_template(req, 'multiproject_summary.html', data, fragment=True)
         if req.form_token:
             stream |= chrome._add_form_token(req.form_token)
+
         return stream
 
     # Internal methods
@@ -231,6 +244,7 @@ Example usage:
                 # http://www.w3schools.com/tags/att_meta_http_equiv.asp
                 # http://www.w3.org/TR/2011/WD-html-markup-20110113/meta.http-equiv.content-language.html
                 languages = [c.description for c in separated_categories_per_context[context_id]]
+
 
         return (combined_categories, separated_categories_per_context, context_by_id,
                context_order, languages)
