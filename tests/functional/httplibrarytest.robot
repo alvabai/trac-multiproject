@@ -30,10 +30,25 @@ Follow redirect
 
 Login
   Create HTTP Context   localhost:4433  https
-  GET  /
-  Follow Response
-  ${chead}=  Get Response Header  set-cookie  
+  Myget  /
+
+
+*** Keywords ***
+
+Get Cookies
+  [Arguments]  ${chead}
   ${c1}=  Get Session Cookies  ${chead}
+  [Return]  ${c1}
+
+
+Myget
+  [Documentation]  Send a HTTP GET request, sending and storing all the cookies.
+  [Arguments]  ${url}  ${params}=${EMPTY}
+  GET  ${url}
+  ${status}=  Get Response Status
+  Run Keyword If  '${status}' == '302 Found'  Follow Response
+  ${chead}=  Get Response Header  set-cookie  
+  ${c1}=  Get Cookies  ${chead}
   Log  ${c1}
   ${form_token}=  Get Session Cookies  ${chead}  key=form_token
   ${form_token}=  Evaluate  str("${form_token}").split('=')[1]
@@ -46,12 +61,6 @@ Login
   Log  ${auth_cookie}
   Set Request Header  Cookie  ${c1}; ${auth_cookie}
   GET  /home/
-  #${body}=  Get response body
-  #Log  ${body}
-  #Response Status Code Should Equal  200
-  #Set Request Body  username=tracadmin&password=tracadmin&action=do_login
   Show Response Body In Browser
-  #POST  /home/user/
-  #Response Status Code Should Equal  200
 
-*** Keywords ***
+
