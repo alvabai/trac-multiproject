@@ -45,7 +45,7 @@ class ProjectTimelineEvents(Component):
                 'dateuid': dateuid, 'render': render, 'event': event,
                 'data': data, 'provider': provider}
 
-    def get_latest_timeline_events(self, req, count):
+    def get_latest_timeline_events(self, req, count, project_created=None):
         """
         Returns latest (within 10 days) timeline events.
         If count is given, returns only given number of elements.
@@ -71,9 +71,12 @@ class ProjectTimelineEvents(Component):
             filters.append(item)
 
         # start time of timeline is last update of if not known, last two monts
-        project = Project.get(self.env)
+        if not project_created:
+            project = Project.get(self.env)
 
-        project_start_date = project.created
+            project_start_date = project.created
+        else:
+            project_start_date = project_created
         project_start_date = project_start_date.replace (tzinfo = datefmt.localtz)
 
         # do the actual event querying
@@ -120,51 +123,6 @@ class ProjectTimelineEvents(Component):
 
         events.sort(lambda x, y: cmp(y['date'], x['date']))
         return events
-
-    def get_summary_events(self, req, count=None, project_created=0):
-        """
-        Returns latest (within 10 days) timeline events.
-        If count is given, returns only given number of elements.
-
-        :param Request req: Trac request
-        :param int count: Number of elements to returns. Defaults to all
-        :returns: List of events
-        """
-        events = []
-        available_filters = []
-
-        for event_provider in self.event_providers:
-            available_filters += event_provider.get_timeline_filters(req) or []
-
-        # TODO: make this incredibly obscure piece of code readable
-        # check the request or session for enabled filters, or use default
-        filters = []
-        filters_list = []
-        for afilter in available_filters:
-            filters_list.append(afilter[0])
-        filter_set = set(filters_list)
-        for item in filter_set:
-            filters.append(item)
-
-        # start time of timeline is last update of if not known, last two monts
-        project = Project.get(self.env)
-
-        project_start_date = project_created.replace (tzinfo = datefmt.localtz)
-
-        # do the actual event querying
-        for provider in self.event_providers:
-            todate = datetime.now(datefmt.localtz)
-            fromdate = todate - timedelta(days = 10)
-            eventcount = 0
-            while eventcount < count and todate > project_start_date:
-                for event in provider.get_timeline_events(req, fromdate, todate, filters):
-                    eventcount += 1
-                    events.append(self._event_data(provider, event))
-                todate = fromdate
-                fromdate = todate - timedelta(days = 10)
-        events.sort(lambda x, y: cmp(y['date'], x['date']))
-        # Note, when count = None, all the events are returned
-        return events[:count] if events else []
 
 class TimelineEmptyMessage(Component):
     implements(ITemplateStreamFilter)

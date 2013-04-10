@@ -110,7 +110,7 @@ Example usage:
     def get_summary_timeline_events(self, req, project_created):
         timeline = ProjectTimelineEvents(self.env)
         #events = timeline.get_latest_timeline_events(req, 5)
-        events = timeline.get_summary_events(req, 5, project_created)
+        events = timeline.get_latest_timeline_events(req, 5, project_created)
         data = {
             'activities': events
         }
