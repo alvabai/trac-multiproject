@@ -26,11 +26,11 @@ def get_session_cookies(cookies, key="trac"):
 def headers_to_dict(cookies, key="trac"):
     """Return a dict with cookies but strip all cookie attributes.
 
-    >>> get_session_dict('foo_session=890az; expires=Thu, 04-Jul-2013 04:52:37 GMT; Path=/home')
+    >>> headers_to_dict('foo_session=890az; expires=Thu, 04-Jul-2013 04:52:37 GMT; Path=/home', key="foo")
     {'foo_session': '890az'}
 
-    >>> get_session_dict('foo_session=890az; foo_auth=4de33; foo_form_token=1234; expires=Sun, 07 Apr 2013 08:04:33; Path=/', key="foo")
-    {'foo_session': '890az', 'foo_auth': '4de33', 'foo_form_token': '1234'}
+    >>> headers_to_dict(['foo_session=890az', 'foo_auth=4de33; Path=/'], key="foo")
+    {'foo_session': '890az', 'foo_auth': '4de33'}
     """
 
     if not type(cookies) == list:
