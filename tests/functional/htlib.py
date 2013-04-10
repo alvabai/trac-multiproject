@@ -28,11 +28,17 @@ def get_session_dict(cookies, key="session"):
 
     >>> get_session_dict('foo_session=890az; expires=Thu, 04-Jul-2013 04:52:37 GMT; Path=/home')
     {'foo_session': '890az'}
+
+    >>> get_session_dict('foo_session=890az; foo_auth=4de33; foo_form_token=1234; expires=Sun, 07 Apr 2013 08:04:33; Path=/', key="foo")
+    {'foo_session': '890az', 'foo_auth': '4de33', 'foo_form_token': '1234'}
     """
 
-    ckd = dict()
-    ck_and_value, sep, tail = cookies.partition(';')
-    cookie, value = ck_and_value.split('=')
+
+    # Go trough the cookies list, and leave only strings having 'key' as a
+    # substring.  Then, trusting that the strings look like 'key=value', create
+    # a dictionary from them and return it.
+    ck_list = [tuple(x.strip().split('=')) for x in cookies.split('; ') if key in x]
+    return dict(ck_list)
 
 
 def parse_cookie(cookie, sub="session"):
