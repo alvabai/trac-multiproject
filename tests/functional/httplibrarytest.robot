@@ -4,29 +4,8 @@ Library        HttpLibrary.HTTP
 Library        htlib
 
 *** Variables ***
-${proj_name}  test_project6
-${login_times}  5
 
 *** Test Cases ***
-
-Goto login page
-  [Documentation]   Fetching login page should succeed
-  Create HTTP Context   localhost:4433  https
-  GET  /home/user
-  Response Status Code Should Equal  200
-  #Follow Response  
-  #Response Body Should Contain  generating different HTTP codes
-
-
-Follow redirect
-  [Documentation]   Fetching login page should succeed
-  Create HTTP Context   localhost:4433  https
-  GET  /
-  Response Status Code Should Equal  302
-  Log Response Headers
-  Follow Response  
-  Log Response Headers
-  Response Status Code Should Equal  200
 
 Go to home page
   Login
