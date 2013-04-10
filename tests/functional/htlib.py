@@ -23,7 +23,7 @@ def get_session_cookies(cookies, key="trac"):
     #return dict([k,v for x.split('=') in s_cookies])
 
 
-def get_session_dict(cookies, key="session"):
+def headers_to_dict(cookies, key="trac"):
     """Return a dict with cookies but strip all cookie attributes.
 
     >>> get_session_dict('foo_session=890az; expires=Thu, 04-Jul-2013 04:52:37 GMT; Path=/home')
@@ -33,13 +33,24 @@ def get_session_dict(cookies, key="session"):
     {'foo_session': '890az', 'foo_auth': '4de33', 'foo_form_token': '1234'}
     """
 
+    if not type(cookies) == list:
+        cookies = [cookies]
 
-    # Go trough the cookies list, and leave only strings having 'key' as a
-    # substring.  Then, trusting that the strings look like 'key=value', create
-    # a dictionary from them and return it.
-    ck_list = [x.strip() for x in cookies.split('; ') if key in x]
-    ck_list = [tuple(x.split('=')) for x in ck_list]
-    return dict(ck_list)
+    def ck_to_dict(ck_string):
+        """ Go trough the cookies, and leave only strings having 'key' as a
+        substring.  Then, trusting that the strings look like 'key=value', create
+        a dictionary from them and return it.
+        """
+        ck_list = [x.strip() for x in ck_string.split('; ') if key in x]
+        ck_list = [tuple(x.split('=')) for x in ck_list]
+        return dict(ck_list)
+
+    c_dict = {}
+    for ck in cookies:
+        c_dict.update(ck_to_dict(ck))
+
+    return c_dict
+
 
 
 def parse_cookie(cookie, sub="session"):

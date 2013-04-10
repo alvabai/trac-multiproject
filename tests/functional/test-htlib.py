@@ -6,16 +6,24 @@ import htlib
 
 class TestGetSessionDict(unittest.TestCase):
 
-    def testFoo(self):
-        ret = htlib.get_session_dict('foo_session=890az; \
-                    foo_auth=4de33; \
-                    foo_form_token=1234; expires=Sun, 07 Apr 2013 08:04:33; \
-                    Path=/', key="foo")
+    def testOneString(self):
+        ret = htlib.headers_to_dict('foo_session=890az; lkj=324; expires=Sun, 07 Apr 2013 08:04:33; Path=/', key="foo")
+
+        self.assertEqual(ret, {'foo_session': '890az'})
+
+    def testSimpleList(self):
+        ret = htlib.headers_to_dict(['foo_session=890az; lkj=324; expires=Sun, 07 Apr 2013 08:04:33; Path=/'], key="foo")
+
+        self.assertEqual(ret, {'foo_session': '890az'})
+
+
+    def testList(self):
+        ret = htlib.headers_to_dict(['foo_session=890az; lkj=324', 
+                                    'bar=jlöj90u; foo_auth=4de33' ], key="foo")
 
         self.assertEqual(ret, {'foo_session': '890az', 
-                           'foo_auth': '4de33', 
-                           'foo_form_token': '1234'}
-                    )
+                           'foo_auth': '4de33'})
+
 
 if __name__ == "__main__":
     unittest.main()
