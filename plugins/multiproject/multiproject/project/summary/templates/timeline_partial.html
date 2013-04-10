@@ -1,0 +1,20 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      py:strip="True">
+        <h2 class="resources-title">5 latest activities</h2>
+
+        <ul id="welcome_global_timeline_items">
+            <li py:for="activity in activities" class="timeline_event ${classes(activity.kind, False)}">
+                <div class="icon"></div>
+                <div class="content">
+                    <a href="${activity.render('url', context)}" py:strip="len(str(activity.render('url', context))) == 0">
+                        ${activity.render('title', context)}</a><span> by </span>
+                    <span py:if="activity.author" class="author">${plaintext(format_author(activity.author))}</span>
+                </div>
+            </li>
+            <li id="viewfulltimeline">
+                <a class="more" href="${req.href('timeline')}" shape="rect">See the complete timeline &gt;</a>
+            </li>
+        </ul>
+</html>
