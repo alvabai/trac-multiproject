@@ -21,8 +21,16 @@ class TestGetSessionDict(unittest.TestCase):
         ret = htlib.headers_to_dict(['foo_session=890az; lkj=324', 
                                     'bar=jlöj90u; foo_auth=4de33' ], key="foo")
 
-        self.assertEqual(ret, {'foo_session': '890az', 
-                           'foo_auth': '4de33'})
+        self.assertEqual(ret, {'foo_session': '890az', 'foo_auth': '4de33'})
+
+
+class TestGetCookieHeader(unittest.TestCase):
+
+    def testSimple(self):
+        data = {'foo_auth': '123', 'foo_token': 'asdf'}
+        ret = htlib.get_cookie_header(data)
+        self.assertEqual(ret, 'foo_auth=123; foo_token=asdf')
+
 
 
 if __name__ == "__main__":

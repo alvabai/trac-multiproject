@@ -20,7 +20,6 @@ def get_session_cookies(cookies, key="trac"):
     assert(type(cookies) == list),  "cookies is not a list"
     s_cookies = [parse_cookie(c, key) for c in cookies if key in c]
     return "; ".join(s_cookies)
-    #return dict([k,v for x.split('=') in s_cookies])
 
 
 def headers_to_dict(cookies, key="trac"):
@@ -51,6 +50,13 @@ def headers_to_dict(cookies, key="trac"):
 
     return c_dict
 
+
+def get_cookie_header(data):
+    """ Parse dict having cookies and return them in a string suitable for
+    sending in HTTP request.
+    """
+    assert(type(data) == dict)
+    return "; ".join(["%s=%s" % (k,v) for k,v in data.items()])
 
 
 def parse_cookie(cookie, sub="session"):
