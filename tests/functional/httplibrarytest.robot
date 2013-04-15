@@ -20,9 +20,10 @@ Go to home page
 
 Change project description
   Login
-  Myget  /foo/admin
+  Myget   /foo
+  Myget   /foo/admin
+  Mypost  /foo/admin  form_values=icon=&name=foo&author_id=4&created=2013-03-04 18:33:58&published=2013-03-04 18:33:59&descr=uusi-kuvaus-tahan&apply=Apply changes
   Show Response Body In Browser
-  #Mypost
   #Myget  /foo/
   #Show Response Body In Browser
 
@@ -64,11 +65,12 @@ Myget
 
 
 Mypost
-  #[Arguments]  
+  [Arguments]  ${url}  ${form_values}
   ${form_token}=  Get From Dictionary  ${suite_cookies}  trac_form_token
-  Set Request Body  __FORM_TOKEN=${form_token}&descr=UUSI_KUVAUS
-  POST /foo/admin
+  Set Request Body  __FORM_TOKEN=${form_token}&${form_values}
+  POST  ${url}
   Save cookies
+  Follow Response
 
 
 Save cookies
