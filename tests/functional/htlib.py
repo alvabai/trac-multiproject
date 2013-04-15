@@ -51,6 +51,11 @@ def headers_to_dict(cookies, key="trac"):
     return c_dict
 
 
+def update_dictionary(base, updates):
+    """Update dictionary 'base' with keys and values from dictionary 'updates'."""
+    return base.update(updates)
+
+
 def get_cookie_header(data):
     """ Parse dict having cookies and return them in a string suitable for
     sending in HTTP request.
