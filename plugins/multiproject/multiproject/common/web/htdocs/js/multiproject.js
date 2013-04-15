@@ -2205,6 +2205,15 @@ $(".create_project_form").live("submit", function(){
         check = false;
         alert("Project description must be 8 characters long");
     }
+    else if($("#vcs_name").val().length < 3){
+        check = false;
+        alert("Repository name must be 3 characters long.");
+    }
+    else if(!$('#vcs_name').val().match(/^[a-zA-Z0-9_-]*$/)){
+        check = false;
+        alert("Repository name contains special chars!"+
+        "Only alphanumerical, underscore and hyphen allowed.");
+    }
     return check;
 });
 

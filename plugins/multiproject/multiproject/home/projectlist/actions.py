@@ -112,6 +112,7 @@ class ProjectListModule(Component):
 
         # Read and transform some variables
         vcs_type = req.args.get('vcstype')
+        vcs_name = req.args.get('vcs_name')
         parent_project = None
         if "_project_" in req.args:
             parent_project = Project.get(env_name=req.args.get('_project_'))
@@ -122,6 +123,8 @@ class ProjectListModule(Component):
         settings = {}
         if vcs_type:
             settings['vcs_type'] = vcs_type
+        if vcs_name:
+            settings['vcs_name'] = vcs_name
 
         identifier = req.args.get('prj_short_name')
         name = req.args.get('prj_long_name')

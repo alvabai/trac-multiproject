@@ -132,8 +132,9 @@ class CreateTracVersionControl(Command):
     """
     def __init__(self, project, settings):
         Command.__init__(self)
-        self.vcs_path = conf.getEnvironmentVcsPath(project.env_name)
         self.vcs_type = settings['vcs_type']
+        self.vcs_name = settings['vcs_name']
+        self.vcs_path = conf.getEnvironmentVcsPath(project.env_name, self.vcs_type, self.vcs_name)
         self.name = "CreateTracVersionControl"
 
     def do(self):
@@ -207,8 +208,9 @@ class CreateTracVersionControl(Command):
 class InitCommitHooks(Command):
     def __init__(self, project, settings):
         Command.__init__(self)
-        self.vcs_path = conf.getEnvironmentVcsPath(project.env_name)
         self.vcs_type = settings['vcs_type']
+        self.vcs_name = settings['vcs_name']
+        self.vcs_path = conf.getEnvironmentVcsPath(project.env_name, self.vcs_type, self.vcs_name)
         self.name = "InitCommitHooks"
         self.hooks = {'git': self._git_hook,
                       'hg': self._hg_hook,
@@ -288,12 +290,13 @@ class CreateTracEnvironment(Command):
     def __init__(self, project, settings):
         Command.__init__(self)
         self.vcs_type = settings['vcs_type']
+        self.vcs_name = settings['vcs_name']
         self.short_name = project.env_name
         self.long_name = project.project_name
         self.author = project.author
         self.env_path = conf.getEnvironmentSysPath(self.short_name)
         self.db_string = conf.getEnvironmentDbPath(self.short_name)
-        self.vcs_path = conf.getEnvironmentVcsPath(self.short_name)
+        self.vcs_path = conf.getEnvironmentVcsPath(self.short_name, self.vcs_type, self.vcs_name)
         self.args = "'" + self.long_name + "'" + " " + self.db_string
         self.args += " " + self.vcs_type + " " + self.vcs_path
         self.args += " --inherit=" + conf.global_conf_path

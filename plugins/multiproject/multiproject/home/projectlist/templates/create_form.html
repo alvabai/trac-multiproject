@@ -83,9 +83,13 @@ from multiproject.core.configuration import conf
                   <!--! Version control selections -->
 
                   <div style="clear: both;">
-                    <label for="vcs-create" class="question">Create new</label>
+                    <label for="vcs_name" class="question">Repository name</label>
                     <div class="answer">
-                      <input id="vcs-create" type="radio" name="scm_source" value="create" title="Create" checked="checked" />
+                      <input id="vcs_name" type="text" name="vcs_name" title="Repository name" />
+                    </div>
+                    <label for="vcs-create" class="question">Repository type</label>
+                    <div class="answer">
+                      <input id="vcs-create" type="radio" name="scm_source" value="create" title="Repository type" checked="checked" />
 
                       <div id="vcstype-selection">
                         <select id="vcstype" name="vcstype" class="selectMenu">

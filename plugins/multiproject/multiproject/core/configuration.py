@@ -915,16 +915,16 @@ class Configuration(object):
         path += '@' + self.db_host + ":" + str(self.db_port) + '/' + env_name
         return path
 
-    def getEnvironmentVcsPath(self, env_name):
+    def getEnvironmentVcsPath(self, env_name, vcs_type, repo_name):
         """ Helper function for resolving environment svn path based on
             environment name
         """
-        return self.sys_vcs_root + '/' + env_name
+        return self.sys_vcs_root + '/' + env_name + '/' + vcs_type + '/' + repo_name
 
     def makeEnvironmentDownloadsPath(self, env_name):
         """ Helper function for environment download path
         """
-        return self.sys_root + '/downloads/' + env_name + '/'
+        return self.sys_vcs_root + '/' + env_name
 
     def getEnvironmentDownloadsPath(self, env):
         """ Helper function for resolving environment download path
