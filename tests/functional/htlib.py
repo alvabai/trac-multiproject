@@ -85,6 +85,17 @@ def parse_cookie(cookie, sub="session"):
     return session_strings.pop()
 
 
+def element_should_contain(html, elem, content):
+    """Verify that the html given has an element containing given content."""
+    from bs4 import BeautifulSoup
+    soup = BeautifulSoup(html)
+    for item in soup.findChildren(elem):
+        if content in str(item):
+            return True
+
+    return False
+
+
 
 if __name__ == "__main__":
     import doctest

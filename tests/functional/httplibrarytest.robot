@@ -17,23 +17,25 @@ Go to home page
   Myget  /foo/admin
   Show Response Body In Browser
 
-
-Change project description
-  Login
-  Myget   /foo
-  Myget   /foo/admin
-  Mypost  /foo/admin  form_values=icon=&name=foo&author_id=4&created=2013-03-04 18:33:58&published=2013-03-04 18:33:59&descr=uusi-kuvaus-tahan&apply=Apply changes
+Changing project description should work
+  ${time}=  Get time
+  ${new_desc}=  Set Variable  New description at ${time}
+  Change project description  foo  ${new_desc}
+  Myget  /foo
   Show Response Body In Browser
-  #Myget  /foo/
-  #Show Response Body In Browser
+  ${body}=  Get Response Body
+  htlib.Element Should contain  ${body}  elem="p"  ${new_desc}
 
 
 *** Keywords ***
 
-Get Cookies
-  [Arguments]  ${chead}
-  ${c}=  Get Session Cookies  ${chead}
-  [Return]  ${c}
+Change project description
+  [Arguments]  ${project}  ${new_description}
+  Login
+  Myget   /${project}
+  Myget   /${project}/admin  # needed to get form_token ?
+  Mypost  /${project}/admin  form_values=icon=&name=foo&author_id=4&created=2013-03-04 18:33:58&published=2013-03-04 18:33:59&descr=${new_description}&apply=Apply changes
+
 
 Create Variables
   ${suite_cookies}=  Create Dictionary
@@ -47,7 +49,6 @@ Login
   ${status}=  Get Response Status
   Run Keyword If  '${status}' == '302 Found'  Follow Response
   Save cookies
-
   ${form_token}=  Get From Dictionary  ${suite_cookies}  trac_form_token
   ${cookie_hdrs}=  Get Cookie Header  ${suite_cookies}
   Set Request Header  Cookie  ${cookie_hdrs}
@@ -57,6 +58,7 @@ Login
 
 
 Myget
+  [Documentation]  Make a GET request to the given url.
   [Arguments]  ${url}=/home
   ${cookie_hdrs}=  Get Cookie Header  ${suite_cookies}
   Set Request Header  Cookie  ${cookie_hdrs}
@@ -65,6 +67,7 @@ Myget
 
 
 Mypost
+  [Documentation]  Make a POST request to the given url with given arguments. All form values except the form_token should be given as the second argument, separated with ampersands.
   [Arguments]  ${url}  ${form_values}
   ${form_token}=  Get From Dictionary  ${suite_cookies}  trac_form_token
   Set Request Body  __FORM_TOKEN=${form_token}&${form_values}
@@ -74,6 +77,7 @@ Mypost
 
 
 Save cookies
+  [Documentation]  Save current cookies. Note that path information is not considered, so cookies with same name but different path-attributes override each other.
   ${headers}=  Get Response Header  set-cookie
   ${cookies}=  Headers to Dict  ${headers}  key=trac
   Update Dictionary  ${suite_cookies}  ${cookies}
