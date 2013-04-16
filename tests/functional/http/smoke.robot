@@ -5,9 +5,6 @@ Suite Setup    Setup and login
 Suite Teardown  Logout
 
 *** Variables ***
-${VALID_USER}    tracadmin
-${VALID_PASSWD}  tracadmin
-
 
 *** Test Cases ***
 

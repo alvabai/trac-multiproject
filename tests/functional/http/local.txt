@@ -2,3 +2,5 @@
 ${PROTOCOL}  https
 ${PORT}      4433
 ${SERVER}    localhost:${PORT}
+${VALID_USER}    tracadmin
+${VALID_PASSWD}  tracadmin
