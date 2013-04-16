@@ -28,8 +28,7 @@ class FindProjectsModule(Component):
 
     # List tabs that we have
     TABS = [('active', 'Active'),
-            ('recent', "Recent"),
-            ('download', 'Download')]
+            ('recent', "Recent")]
 
     DEFAULT_TAB = 'active'
 
