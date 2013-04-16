@@ -32,6 +32,3 @@ Changing project visibility should work
   htlib.Element Should contain  ${body}  elem="p"  Project is currently : <strong>public</strong>
   Change project visibility  foo  private
   [Teardown]  Change project visibility  foo  public
-
-
-*** Keywords ***
