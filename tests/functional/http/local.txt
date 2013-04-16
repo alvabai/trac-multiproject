@@ -1,0 +1,4 @@
+*** Variables ***
+${PROTOCOL}  https
+${PORT}      4433
+${SERVER}    localhost:${PORT}
