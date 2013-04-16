@@ -168,15 +168,22 @@ class ProjectListModule(Component):
         watch_store.watch_project(author.id, project.id)
 
         #Change project trac.ini to support multiple repositories
-        #TODO: Change this to use subprocess if changed to newer version of python
         project_env_path = conf.getEnvironmentSysPath(project.env_name)
-        rn_cmd = 'rname=`grep ^repository_dir '+project_env_path+'/conf/trac.ini | sed "s@.*/@@"` ; sed -i "s/repository_type/$rname.type/;s/repository_dir/repository_dir =\nrepository_type = svn\n\n\[repositories\]\n$rname.dir/" '+project_env_path+'/conf/trac.ini'
-        cmd_res = self.run_command(rn_cmd)
-        if cmd_res is not None:
-            conf.log.exception("trac.ini error: {0}".format(
-                cmd_res)
-            )
-            return self.create_failure(req, "Changes to trac.ini %s" % cmd_res)
+        repo_env_path = conf.getEnvironmentVcsPath(project.env_name, vcs_type, vcs_name)
+        os.rename(project_env_path + '/conf/trac.ini', project_env_path + '/conf/trac.ini.bak')
+        oldfile = open(project_env_path + '/conf/trac.ini.bak', 'r')
+        newfile = open(project_env_path + '/conf/trac.ini', 'w')
+        lines = oldfile.readlines()
+        for line in lines:
+            newfile.write(line)
+            if line.startswith('database ='):
+                break
+        newfile.write('repository_dir =\nrepository_type = svn\n\n[repositories]\n')
+        newfile.write('%s.dir = %s\n' % (vcs_name, repo_env_path))
+        newfile.write('%s.type = %s\n' % (vcs_name, vcs_type))
+        newfile.close()
+        oldfile.close()
+        os.remove(project_env_path + '/conf/trac.ini.bak')
 
         # Notify listeners. The project object still exists, but database does not
         for listener in self.project_change_listeners:
