@@ -1,0 +1,48 @@
+<!DOCTYPE html
+        PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+<xi:include href="admin.html" />
+<head>
+    <title>Repositories</title>
+</head>
+
+<body>
+<h1>Reposity manager</h1>
+<div id="repository_container">
+    <h2>Repositories</h2>
+    <form method="delete" action="" id="delete_repositories">
+        <table>
+            <tr class="repo_table_header">
+                <th>Name</th><th>Type</th><th>Delete</th>
+            </tr>
+        </table>
+        <p><input type="submit" value="Delete" id="delete_repositories_btn" 
+            class="confirm" 
+            alt="Are you sure you want to delete repository/repositories?"/>
+        </p>
+    </form>
+</div>
+<div id="add_repository_container">
+    <h2>Add new repository</h2>
+    <fieldset>
+        <form method="post" action="" id="add_new_repository">
+            <ul>
+                <li><label for="add_repository_name">Repository name: </label>
+                    <input type="text" name="repo_name" placeholder="Repository name" 
+                    id="add_repository_name"/>
+                </li>
+                <li><label for="add_repository_type">Repository type: </label>
+                    <select name="repo_type" id="add_repository_type">
+                        <option value="">Choose type</option>
+                    </select>
+                </li>
+                <li><input type="submit" value="Add" /></li>
+            </ul>
+        </form>
+    </fieldset>
+</div>
+</body>
+</html>

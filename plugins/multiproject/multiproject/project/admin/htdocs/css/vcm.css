@@ -1,0 +1,33 @@
+#repository_container table {
+    border-top: 1px solid #ccc;
+    margin-bottom: 10px;
+}
+
+#repository_container table tr {
+    border-bottom: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+}
+
+#repository_container table tr th, #repository_container table tr td {
+    border-left: 1px solid #ccc;
+    padding: 3px 0 3px 3px;
+}
+
+
+#add_repository_container fieldset form ul {
+    padding: 0;
+    margin: 0;
+}
+
+#add_repository_container fieldset form ul li {
+    list-style-type: none;
+}
+
+#add_repository_container fieldset form ul li label {
+    position: absolute;
+}
+
+#add_repository_container fieldset form ul li input[type=text], #add_repository_container fieldset form ul li select {
+    position: relative;
+    left: 115px;
+}
