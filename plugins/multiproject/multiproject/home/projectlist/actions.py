@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys, math, re
 import os
+import commands
 from pkg_resources import resource_filename
 from datetime import datetime
 
@@ -166,6 +167,17 @@ class ProjectListModule(Component):
         watch_store = CQDEWatchlistStore()
         watch_store.watch_project(author.id, project.id)
 
+        #Change project trac.ini to support multiple repositories
+        #TODO: Change this to use subprocess if changed to newer version of python
+        project_env_path = conf.getEnvironmentSysPath(project.env_name)
+        rn_cmd = 'rname=`grep ^repository_dir '+project_env_path+'/conf/trac.ini | sed "s@.*/@@"` ; sed -i "s/repository_type/$rname.type/;s/repository_dir/repository_dir =\nrepository_type = svn\n\n\[repositories\]\n$rname.dir/" '+project_env_path+'/conf/trac.ini'
+        cmd_res = self.run_command(rn_cmd)
+        if cmd_res is not None:
+            conf.log.exception("trac.ini error: {0}".format(
+                cmd_res)
+            )
+            return self.create_failure(req, "Changes to trac.ini %s" % cmd_res)
+
         # Notify listeners. The project object still exists, but database does not
         for listener in self.project_change_listeners:
             try:
@@ -178,6 +190,9 @@ class ProjectListModule(Component):
 
 
         return self.create_success(req, project)
+
+    def run_command(self, command):
+        return commands.getoutput(command)
 
     def _is_active_user(self, req):
         author = get_context(req)['author']

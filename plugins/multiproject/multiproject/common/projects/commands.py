@@ -317,7 +317,6 @@ class CreateTracEnvironment(Command):
                 self.args)
             )
             return False
-
         self.success = True
         return True
 
@@ -328,6 +327,9 @@ class CreateTracEnvironment(Command):
             conf.log.exception('Failed to delete trac environment: {0}'.format(self.env_path))
             return False
         return True
+
+    
+
 
 
 class ConfigureTrac(Command):
