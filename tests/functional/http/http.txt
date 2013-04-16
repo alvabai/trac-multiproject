@@ -1,0 +1,68 @@
+*** Settings ***
+Library        Collections
+Library        HttpLibrary.HTTP
+Library        htlib
+
+*** Keywords ***
+
+Change project description
+  [Arguments]  ${project}  ${new_description}
+  Mypost  /${project}/admin  form_values=icon=&name=foo&author_id=4&created=2013-03-04 18:33:58&published=2013-03-04 18:33:59&descr=${new_description}&apply=Apply changes
+
+
+Change project visibility
+  [Documentation]  Make project private or public and test if succeeded.
+  ...              Arguments: project name and "private" or "public"
+  [Arguments]  ${project}  ${visibility}
+  Myget   /${project}/admin/general/permissions
+  Mypost  /${project}/admin/general/permissions  make${visibility}=Make ${visibility}
+  ${body}=  Get Response Body
+  htlib.Element Should contain  ${body}  elem="p"  Project is currently : <strong>${visibility}</strong>
+
+
+Setup and login
+  ${suite_cookies}=  Create Dictionary
+  Set Suite Variable  ${suite_cookies}
+  Login
+
+Login
+  [Documentation]  Send a HTTP GET request, sending and storing all the cookies.
+  [Arguments]  ${login_url}=/  ${params}=${EMPTY}
+  Create HTTP Context  ${SERVER}  https
+  GET  ${login_url}
+  ${status}=  Get Response Status
+  Run Keyword If  '${status}' == '302 Found'  Follow Response
+  Save cookies
+  Mypost  /home/user  username=${VALID_USER}&password=${VALID_PASSWD}&login=Login&action=do_login
+
+Logout
+  Myget  /home/user?action=logout
+
+Myget
+  [Documentation]  Make a GET request to the given url.
+  [Arguments]  ${url}=/home
+  ${cookie_hdrs}=  Get Cookie Header  ${suite_cookies}
+  Set Request Header  Cookie  ${cookie_hdrs}
+  GET  ${url}
+  Save cookies
+
+
+Mypost
+  [Documentation]  Make a POST request to the given url with given arguments. All form values except the form_token should be given as the second argument, separated with ampersands.
+  [Arguments]  ${url}  ${form_values}
+  ${form_token}=  Get From Dictionary  ${suite_cookies}  trac_form_token
+  ${cookie_hdrs}=  Get Cookie Header  ${suite_cookies}
+  Set Request Header  Cookie  ${cookie_hdrs}
+  Set Request Body  __FORM_TOKEN=${form_token}&${form_values}
+  POST  ${url}
+  Save cookies
+  Follow Response
+
+
+Save cookies
+  [Documentation]  Save current cookies. Note that path information is not considered, so cookies with same name but different path-attributes override each other.
+  ${headers}=  Get Response Header  set-cookie
+  ${cookies}=  Headers to Dict  ${headers}  key=trac
+  Update Dictionary  ${suite_cookies}  ${cookies}
+
+# vim: syntax=robot
