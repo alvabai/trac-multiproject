@@ -41,7 +41,6 @@ setup(
         'multiproject.common.admin': ['templates/*.html', 'htdocs/js/*.js', 'htdocs/css/*.css', 'htdocs/images/*.*'],
         'multiproject.common.users': ['templates/*.html', 'templates/*.txt', 'htdocs/js/*.js'],
         'multiproject.common.notifications': ['templates/*.txt', 'templates/*.html', 'htdocs/js/*.js'],
-        'multiproject.common.messages': ['templates/*.html', 'htdocs/js/*.js'],
         'multiproject.common.pagination': ['templates/*.html'],
         'multiproject.common.wiki': ['templates/*.html'],
         'multiproject.common.featured': ['templates/*.html'],
