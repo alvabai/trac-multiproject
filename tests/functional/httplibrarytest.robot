@@ -3,7 +3,7 @@ Resource       ${ENVIRONMENT}.txt
 Library        HttpLibrary.HTTP
 Library        htlib
 Library        Collections
-Suite Setup    Create Variables
+Suite Setup    Setup and login
 
 *** Variables ***
 ${USER}    tracadmin
@@ -15,31 +15,47 @@ ${PASSWD}  tracadmin
 Go to home page
   Login
   Myget  /foo/admin
-  Show Response Body In Browser
+  ${body}=  Get Response Body
+  htlib.Element Should contain  ${body}  elem="p"  Administration: Permissions – foo
 
 Changing project description should work
   ${time}=  Get time
   ${new_desc}=  Set Variable  New description at ${time}
   Change project description  foo  ${new_desc}
   Myget  /foo
-  Show Response Body In Browser
   ${body}=  Get Response Body
   htlib.Element Should contain  ${body}  elem="p"  ${new_desc}
+
+
+Changing project visibility should work
+  Myget  /foo/admin/general/permissions
+  ${body}=  Get Response Body
+  htlib.Element Should contain  ${body}  elem="p"  Project is currently : <strong>public</strong>
+  Change project visibility  foo  private
+  [Teardown]  Change project visibility  foo  public
 
 
 *** Keywords ***
 
 Change project description
   [Arguments]  ${project}  ${new_description}
-  Login
-  Myget   /${project}
-  Myget   /${project}/admin  # needed to get form_token ?
   Mypost  /${project}/admin  form_values=icon=&name=foo&author_id=4&created=2013-03-04 18:33:58&published=2013-03-04 18:33:59&descr=${new_description}&apply=Apply changes
 
 
-Create Variables
+Change project visibility
+  [Documentation]  Make project private or public and test if succeeded.
+  ...              Arguments: project name and "private" or "public"
+  [Arguments]  ${project}  ${visibility}
+  Myget   /${project}/admin/general/permissions
+  Mypost  /${project}/admin/general/permissions  make${visibility}=Make ${visibility}
+  ${body}=  Get Response Body
+  htlib.Element Should contain  ${body}  elem="p"  Project is currently : <strong>${visibility}</strong>
+
+
+Setup and login
   ${suite_cookies}=  Create Dictionary
   Set Suite Variable  ${suite_cookies}
+  Login
 
 Login
   Create HTTP Context  localhost:4433  https
@@ -70,6 +86,8 @@ Mypost
   [Documentation]  Make a POST request to the given url with given arguments. All form values except the form_token should be given as the second argument, separated with ampersands.
   [Arguments]  ${url}  ${form_values}
   ${form_token}=  Get From Dictionary  ${suite_cookies}  trac_form_token
+  ${cookie_hdrs}=  Get Cookie Header  ${suite_cookies}
+  Set Request Header  Cookie  ${cookie_hdrs}
   Set Request Body  __FORM_TOKEN=${form_token}&${form_values}
   POST  ${url}
   Save cookies
