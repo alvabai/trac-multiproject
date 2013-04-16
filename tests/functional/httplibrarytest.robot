@@ -4,6 +4,7 @@ Library        HttpLibrary.HTTP
 Library        htlib
 Library        Collections
 Suite Setup    Setup and login
+Suite Teardown  Logout
 
 *** Variables ***
 ${USER}    tracadmin
@@ -58,20 +59,17 @@ Setup and login
   Login
 
 Login
-  Create HTTP Context  localhost:4433  https
   [Documentation]  Send a HTTP GET request, sending and storing all the cookies.
   [Arguments]  ${login_url}=/  ${params}=${EMPTY}
+  Create HTTP Context  localhost:4433  https
   GET  ${login_url}
   ${status}=  Get Response Status
   Run Keyword If  '${status}' == '302 Found'  Follow Response
   Save cookies
-  ${form_token}=  Get From Dictionary  ${suite_cookies}  trac_form_token
-  ${cookie_hdrs}=  Get Cookie Header  ${suite_cookies}
-  Set Request Header  Cookie  ${cookie_hdrs}
-  Set Request Body  __FORM_TOKEN=${form_token}&username=${VALID_USER}&password=${VALID_PASSWD}&login=Login&action=do_login
-  POST  /home/user
-  Save cookies
+  Mypost  /home/user  username=${VALID_USER}&password=${VALID_PASSWD}&login=Login&action=do_login
 
+Logout
+  Myget  /home/user?action=logout
 
 Myget
   [Documentation]  Make a GET request to the given url.
