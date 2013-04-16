@@ -1,5 +1,5 @@
-*** trac/web/main.py	2012-09-07 23:52:14.000000000 +0300
---- trac/web/main.py	2013-04-02 10:19:20.097894664 +0300
+*** trac/web/main.py  2012-09-07 23:52:14.000000000 +0300
+--- trac/web/main.py  2013-04-05 10:19:20.097894664 +0300
 ***************
 *** 53,58 ****
 --- 53,60 ----
@@ -59,12 +59,11 @@
   
                   if not env_path or not os.path.isdir(env_path):
 !                    if Auxilliary().is_archived(env_name):
-!                        link = "<a href="+'"/HelpAndSupport"'+"> Help and Support. </a></p>"
-!                        msg = "<strong> This project has been archived. </strong>
-!                        msg = msg + "<p> If you think it should not be archived, Please raise a request on "
+!                        link = "<a href="+'"/HelpAndSupport"'+"> Help and Support. </a>"
+!                        msg = "This project has been archived. \nIf you think it should not be archived, Please raise a request on "
 !                        errmsg = msg + link
 !                    else:
-!                        errmsg = "<p>Environment not found.</p>"
+!                        errmsg = " Environment not found."
 ! 
               except UnicodeDecodeError:
                   errmsg = 'Invalid URL encoding (was %r)' % script_name
@@ -74,3 +73,4 @@
 !                                [('Content-Type', 'text/html'),
                                   ('Content-Length', str(len(errmsg)))])
                   return [errmsg]
+  
