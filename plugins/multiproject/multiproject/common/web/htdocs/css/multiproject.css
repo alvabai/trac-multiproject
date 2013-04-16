@@ -271,17 +271,22 @@
 }
 
 .project_search #upper_pagination {
-    line-height: 26px;
-    position: absolute;
-    top: 0;
-    right: 0;
+    margin-top: -10px;
+}
+
+.project_search #search_container {
+    border-bottom: 1px solid #0066CB;
+    clear: both;
+    display: block;
+    float: left;
+    margin-bottom: 10px;
+    width: 100%;
 }
 
 /** Results per page **/
 .project_search #resultsPerPageDiv {
-    position: absolute;
     top: 0px;
-    left: 210px;
+    float: left;
 }
 
 .project_search #resperpage {
@@ -314,6 +319,7 @@
     background: #f8f7f2;
     padding: 12px 15px 12px 10px;
     margin-bottom: 11px;
+    clear: both;
 }
 
 #project_search_attribs #keyword_attribs {

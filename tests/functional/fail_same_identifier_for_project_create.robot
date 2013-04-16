@@ -1,5 +1,5 @@
 *** Settings ***
-Documentation  Tests project create failure if exists project with same identifier
+Documentation  Creating a duplicate project should fail
 Resource       ${ENVIRONMENT}.txt
 Test Timeout  1 minute
 Suite setup  Login
@@ -7,17 +7,23 @@ Test Setup  Go to Welcome Page
 Suite Teardown  Close Browser
 
 *** Variables ***
-${proj_name}  duplicate_project
+${archived_proj_name}  duplicate_projectxn
+${proj_name}  a_duplicate_project_xnn
 ${failed_to_create}  This project already exists! Change identifier
 
 *** Test Cases ***
 
-Project create should fail if exists project with same identifier
+Creating a project with same environment name as an existing one should fail incl archived projects
+    Create new project    ${archived_proj_name}
+    Remove project  ${archived_proj_name}
+    Goto  ${WELCOME_PAGE}
+    Create new project    ${archived_proj_name}
+    Page should contain   ${failed_to_create}
+
+Creating a project with same environment name as an existing one should fail
     Create new project    ${proj_name}
     Goto  ${WELCOME_PAGE}
     Create new project    ${proj_name}
     Page should contain   ${failed_to_create}
-    [Teardown]     Remove project  ${proj_name}
-
 
 # vim:sw=4:ts=4

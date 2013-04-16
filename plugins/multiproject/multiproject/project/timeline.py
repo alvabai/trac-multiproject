@@ -45,7 +45,7 @@ class ProjectTimelineEvents(Component):
                 'dateuid': dateuid, 'render': render, 'event': event,
                 'data': data, 'provider': provider}
 
-    def get_latest_timeline_events(self, req, count):
+    def get_latest_timeline_events(self, req, count, project_created=None):
         """
         Returns latest (within 10 days) timeline events.
         If count is given, returns only given number of elements.
@@ -63,16 +63,20 @@ class ProjectTimelineEvents(Component):
         # TODO: make this incredibly obscure piece of code readable
         # check the request or session for enabled filters, or use default
         filters = []
-        for test in (lambda f: f[0] in req.args,
-                     lambda f: len(f) == 2 or f[2]):
-            if filters:
-                break
-            filters = [f[0] for f in available_filters if test(f)]
+        filters_list = []
+        for afilter in available_filters:
+            filters_list.append(afilter[0])
+        filter_set = set(filters_list)
+        for item in filter_set:
+            filters.append(item)
 
         # start time of timeline is last update of if not known, last two monts
-        project = Project.get(self.env)
+        if not project_created:
+            project = Project.get(self.env)
 
-        project_start_date = project.created
+            project_start_date = project.created
+        else:
+            project_start_date = project_created
         project_start_date = project_start_date.replace (tzinfo = datefmt.localtz)
 
         # do the actual event querying
@@ -119,7 +123,6 @@ class ProjectTimelineEvents(Component):
 
         events.sort(lambda x, y: cmp(y['date'], x['date']))
         return events
-
 
 class TimelineEmptyMessage(Component):
     implements(ITemplateStreamFilter)

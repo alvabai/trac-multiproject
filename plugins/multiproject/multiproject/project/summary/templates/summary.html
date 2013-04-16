@@ -51,22 +51,9 @@
             ${wiki_to_html(context, '[[Announcements(count=3)]]')}
         </div>
 
-        <div py:if="'TIMELINE_VIEW' in req.perm" class="resource-box">
-            <h2 class="resources-title">5 latest activities</h2>
-
-            <ul id="welcome_global_timeline_items">
-                <li py:for="activity in activities" class="timeline_event ${classes(activity.kind, False)}">
-                    <div class="icon"></div>
-                    <div class="content">
-                        <a href="${activity.render('url', context)}" py:strip="len(str(activity.render('url', context))) == 0">
-                            ${activity.render('title', context)}</a><span> by </span>
-                        <span py:if="activity.author" class="author">${plaintext(format_author(activity.author))}</span>
-                    </div>
-                </li>
-                <li py:if="'TIMELINE_VIEW' in req.perm" id="viewfulltimeline">
-                    <a class="more" href="${req.href('timeline')}" shape="rect">See the complete timeline &gt;</a>
-                </li>
-            </ul>
+        <div class="resource-box" id="project_summary_timeline_container">
+            <h2 class="resources-title"><img src="${conf.theme_htdocs_location}/images/loading.gif" alt="Loading" style="margin: 0 auto; display: block;" /></h2>
+            <!-- Ajax call container -->
         </div>
 
     </div>

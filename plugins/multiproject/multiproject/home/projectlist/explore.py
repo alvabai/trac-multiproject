@@ -69,10 +69,15 @@ class FindProjectsModule(Component):
         numresults = int(numresults)
 
         # Fetch projects based on tab
-        projects, activities, project_count = Projects().search(filter, category_id_list, req.authname, tab, sub_page, numresults)
-
-        # Activity css classes for activity meters
-        activity_classes = self.activities_to_classes(activities)
+        if tab == "download":
+            projects = Projects().searchMostDownloaded()
+            activities = None
+            if projects is None:
+                project_count = 0
+            else:
+                project_count = len(projects)
+        else:
+            projects, activities, project_count = Projects().search(filter, category_id_list, req.authname, tab, sub_page, numresults)
 
         # Some calculations for pagination
         # NOTE: math.ceil returns a float
@@ -93,13 +98,28 @@ class FindProjectsModule(Component):
         if end_page > total_page_count:
             end_page = total_page_count
 
-        # Get categories for projects that was searched
-        project_categories = self.get_project_categories(projects)
-
-        # Get number of project watchers
-        project_watchers = self.get_project_watchers(projects)
+            
+        if projects or len(projects) > 0:
+            # Activity css classes for activity meters
+            if activities:
+                activity_classes = self.activities_to_classes(activities)
+            else:
+                activity_classes = {}
+            # Get categories for projects that was searched
+            project_categories = self.get_project_categories(projects)
+            # Get number of project watchers
+            project_watchers = self.get_project_watchers(projects)
+        else:
+            activity_classes = {}
+            project_categories = ""
+            project_watchers = ""
         if project_count:
             if tab == 'recent':
+                showing_clause = _("Showing %(start)s - %(end)s most recent projects out of %(total)s",
+                    start = (sub_page - 1) * numresults + 1,
+                    end = min(sub_page * numresults, project_count),
+                    total = project_count)
+            elif tab == 'download':
                 showing_clause = _("Showing %(start)s - %(end)s most recent projects out of %(total)s",
                     start = (sub_page - 1) * numresults + 1,
                     end = min(sub_page * numresults, project_count),
@@ -316,7 +336,7 @@ class FindProjectsModule(Component):
         """ Based on url, resolve what to do
         """
         tab = req.args.get('tab') or self.DEFAULT_TAB
-        if tab not in ['recent', 'active']:
+        if tab not in ['recent', 'active', 'download']:
             tab = self.DEFAULT_TAB
         return tab
 
