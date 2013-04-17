@@ -22,9 +22,9 @@
                 <tr class="repo_table_item">
                     <td>${repository[0]}</td><td>${repository[1]}</td>
                     <td>
-                        <input type="checkbox" value="repos[${repository[0]#repository[1]}]" />
+                        <input type="checkbox" value="repos[${repository[0]}#${repository[1]}]" />
                     </td>
-                <tr>
+                </tr>
             </py:for>
         </table>
         <p><input type="submit" value="Delete" id="delete_repositories_btn" 
@@ -32,9 +32,6 @@
             alt="Are you sure you want to delete repository/repositories?"/>
         </p>
     </form>
-    <div py:if="len(repositories) <= 0">
-        <p>You have no repositories.</p>
-    </div>
 </div>
 <div id="add_repository_container">
     <h2>Add new repository</h2>
@@ -48,6 +45,12 @@
                 <li><label for="add_repository_type">Repository type: </label>
                     <select name="repo_type" id="add_repository_type">
                         <option value="">Choose type</option>
+                        <option value="svn">Subversion</option>
+                        <py:for each="repository_type in repository_types">
+                            <option value="${repository_type['id']}">
+                                ${repository_type['name']}
+                            </option>
+                        </py:for>
                     </select>
                 </li>
                 <li><input type="submit" value="Add" /></li>

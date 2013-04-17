@@ -13,6 +13,19 @@
     padding: 3px 0 3px 3px;
 }
 
+tr.repo_table_header {
+    cursor: default;
+    background: #f9f9f9;
+}
+
+tr.repo_table_item {
+    cursor: pointer;
+}
+
+tr.repo_table_item:hover td {
+    background: #0AACFD;
+}
+
 
 #add_repository_container fieldset form ul {
     padding: 0;

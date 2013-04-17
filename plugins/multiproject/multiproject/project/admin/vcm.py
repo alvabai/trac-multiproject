@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import sys
 from trac.core import Component, implements, ExtensionPoint
 from trac.mimeview.api import Context
 from trac.util.translation import _
@@ -21,11 +22,14 @@ class RepositoriesAdminPanel(Component):
         """
         req.perm.require('TRAC_ADMIN')
         repos = self.get_repositories()
+        vcs_types = self.get_enabled_vcs(self.env)
+        conf.log.exception("VCS types: %s" % vcs_types)
         add_script(req, 'multiproject/js/admin_vcm.js')
         add_stylesheet(req, 'multiproject/css/vcm.css')
-        data = {'multiproject': {
-            'repositories':"GIT RULES!"
-        }}
+        data = {
+            'repositories':repos,
+            'repository_types':vcs_types
+        }
         
         return 'admin_vcm.html', data
 
@@ -42,3 +46,31 @@ class RepositoriesAdminPanel(Component):
 
     def create_new_repository(self, repo_name, repo_type):
         pass
+
+    def get_enabled_vcs(self, env):
+        """ This function checks from the trac configuration
+        what scm systems are enabled.
+        """
+        # FIXME: Home environment should not have any scm systems enabled
+        #        this function should simply return a list from configuration
+        vcsi = {}
+        vcs_list = []
+        from trac.core import ComponentMeta
+        for component in ComponentMeta._components:
+            module = sys.modules[component.__module__].__name__
+            module = module.lower()
+            if env.is_component_enabled(component):
+                if module.startswith('tracext.git.') and 'git' not in vcsi.keys():
+                    vcs_list.append({ 'name': 'GIT', 'id': 'git' })
+                    vcsi['git'] = 1
+                elif module.startswith('tracext.hg.') and 'hg' not in vcsi.keys():
+                    vcs_list.append({ 'name': 'Mercurial', 'id': 'hg' })
+                    vcsi['hg'] = 1
+                elif module.startswith('tracbzr.') and 'bzr' not in vcsi.keys():
+                    vcs_list.append({ 'name': 'Bazaar', 'id': 'bzr' })
+                    vcsi['bzr'] = 1
+                elif module.startswith('tracext.perforce.') and 'pf' not in vcsi.keys():
+                    vcs_list.append({ 'name': 'Perforce', 'id': 'pf' })
+                    vcsi['pf'] = 1
+
+        return vcs_list
