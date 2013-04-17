@@ -19,10 +19,26 @@ class RepositoriesAdminPanel(Component):
         """
         Returns the admin view and handles the form actions
         """
+        req.perm.require('TRAC_ADMIN')
+        repos = self.get_repositories()
         add_script(req, 'multiproject/js/admin_vcm.js')
         add_stylesheet(req, 'multiproject/css/vcm.css')
         data = {'multiproject': {
             'repositories':"GIT RULES!"
         }}
-        req.perm.require('TRAC_ADMIN')
+        
         return 'admin_vcm.html', data
+
+    def get_repositories(self):
+        raw_data = self.config.options('repositories')
+        repos = []
+        for option in raw_data:
+            if option[0].endswith('.type'):
+                temp = []
+                temp.append(option[0].split('.')[0])
+                temp.append(option[1])
+                repos.append(temp)
+        return repos
+
+    def create_new_repository(self, repo_name, repo_type):
+        pass
