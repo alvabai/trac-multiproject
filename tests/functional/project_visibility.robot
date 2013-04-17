@@ -8,13 +8,13 @@ Test Setup  Go to Welcome Page
 Suite Teardown  Close Browser
 
 *** Variables ***
-${proj_name}  test_project6
 
 *** Test Cases ***
 
 Change public project to private
+    ${proj_name}  Get unique project name 
     Create new project    ${proj_name}
-    Title should be  ${projname} – ${projname}
+    Title should be  ${proj_name} – ${proj_name}
     Click link  Admin
     Click link  Permissions
     Click element  name=makeprivate
@@ -27,6 +27,7 @@ Change public project to private
     [Teardown]     Remove project  ${proj_name}
 
 Removing project should succeed
+    ${projname}  Get unique project name 
     Create new project  ${projname}
     Title should be  ${projname} – ${projname}
     Remove project  ${projname}
