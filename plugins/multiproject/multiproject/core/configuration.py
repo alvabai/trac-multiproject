@@ -2,7 +2,7 @@
 import os
 from urlparse import urlparse
 import sys
-from ConfigParser import ConfigParser, NoOptionError, NoSectionError
+from ConfigParser import ConfigParser, NoOptionError, NoSectionError, RawConfigParser
 
 from trac.config import ListOption, Option
 from trac.log import logger_factory
@@ -1018,9 +1018,11 @@ class Configuration(object):
           :parameter section_name, section where the option wants to be removed
           :parameter key_value, value which needs to be removed
         """
-        confp = ConfigParser()
+        confp = RawConfigParser()
         confp.read(ini_file)
         confp.remove_option(section_name, key_value)
+        with open(ini_file, 'r+') as configfile:
+            config.write(configfile)
 
 
 conf = Configuration.instance()
