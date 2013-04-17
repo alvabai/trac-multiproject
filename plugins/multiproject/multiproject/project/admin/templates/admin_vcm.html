@@ -13,17 +13,28 @@
 <h1>Reposity manager</h1>
 <div id="repository_container">
     <h2>Repositories</h2>
-    <form method="delete" action="" id="delete_repositories">
+    <form method="delete" action="" id="delete_repositories" py:if="len(repositories) > 0">
         <table>
             <tr class="repo_table_header">
                 <th>Name</th><th>Type</th><th>Delete</th>
             </tr>
+            <py:for each="repository in repositories">
+                <tr class="repo_table_item">
+                    <td>${repository[0]}</td><td>${repository[1]}</td>
+                    <td>
+                        <input type="checkbox" value="repos[${repository[0]#repository[1]}]" />
+                    </td>
+                <tr>
+            </py:for>
         </table>
         <p><input type="submit" value="Delete" id="delete_repositories_btn" 
             class="confirm" 
             alt="Are you sure you want to delete repository/repositories?"/>
         </p>
     </form>
+    <div py:if="len(repositories) <= 0">
+        <p>You have no repositories.</p>
+    </div>
 </div>
 <div id="add_repository_container">
     <h2>Add new repository</h2>
