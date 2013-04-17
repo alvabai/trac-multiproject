@@ -1011,5 +1011,16 @@ class Configuration(object):
                     return True
         return False
 
+    def remove_item_from_section(self, ini_file, section_name, key_value):
+        """
+          Removes option from *.ini file
+          :parameter ini_file, ini file where the removing should be done
+          :parameter section_name, section where the option wants to be removed
+          :parameter key_value, value which needs to be removed
+        """
+        confp = ConfigParser()
+        confp.read(ini_file)
+        confp.remove_option(section_name, key_value)
+
 
 conf = Configuration.instance()
