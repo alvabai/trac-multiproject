@@ -1011,8 +1011,5 @@ class Configuration(object):
                     return True
         return False
 
-    def get_section_items(self, section_name):
-        return self.config_parser.items(section_name)
-
 
 conf = Configuration.instance()
