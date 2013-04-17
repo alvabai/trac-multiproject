@@ -1021,8 +1021,8 @@ class Configuration(object):
         confp = RawConfigParser()
         confp.read(ini_file)
         confp.remove_option(section_name, key_value)
-        with open(ini_file, 'r+') as configfile:
-            config.write(configfile)
+        with open(ini_file, 'w') as configfile:
+            confp.write(configfile)
 
 
 conf = Configuration.instance()
