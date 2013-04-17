@@ -22,7 +22,7 @@
                 <tr class="repo_table_item">
                     <td>${repository[0]}</td><td>${repository[1]}</td>
                     <td>
-                        <input type="checkbox" value="repos[${repository[0]}#${repository[1]}]" />
+                        <input type="checkbox" value="${repository[0]}#${repository[1]}" name="repos[]" />
                     </td>
                 </tr>
             </py:for>
