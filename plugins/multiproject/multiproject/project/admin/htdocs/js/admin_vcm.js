@@ -30,9 +30,7 @@ $("#add_new_repository").live("submit", function(){
 })(jQuery, window);
 
 $('.repo_table_item > td').live("click", function(){
-    console.log("Child input: "+$(this).children().find("input").length);
-    console.log("Clicked: "+$(this).prop('tagName'));
-    if($(this).children().find("input") == null){
+    if($(this).children().length == 0){
         var del_check = $(this).parent().children().find("input");
         if($(del_check).attr("checked") == "checked"){
             $(del_check).removeAttr("checked");
