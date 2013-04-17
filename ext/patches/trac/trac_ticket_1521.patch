@@ -1,0 +1,76 @@
+*** trac/web/main.py  2012-09-07 23:52:14.000000000 +0300
+--- trac/web/main.py  2013-04-05 10:19:20.097894664 +0300
+***************
+*** 53,58 ****
+--- 53,60 ----
+  from trac.web.href import Href
+  from trac.web.session import Session
+  
++ from multiproject.core.db import admin_query, safe_string
++ 
+  default_tracker = 'http://trac.edgewall.org'
+  """This URL is used for semi-automatic bug reports (see
+     `send_internal_error`).  Please modify it to point to your own
+***************
+*** 71,76 ****
+--- 73,97 ----
+      def __call__(self, *args):
+          return self
+  
++ class Auxilliary:
++     def is_archived(self, env_name):
++       query = """
++         SELECT project_archive.project_archive_id
++         FROM project_archive
++         WHERE environment_name = %s
++         """
++       with admin_query() as cursor:
++             try:
++                 cursor.execute(query, env_name)
++                 row = cursor.fetchone()
++                 if not row:
++                   return False
++             except:
++                pass
++             finally:
++                cursor.close()
++       return True
++ 
+  
+  def populate_hdf(hdf, env, req=None):
+      """Populate the HDF data set with various information, such as common URLs,
+***************
+*** 440,452 ****
+                      env_path = get_environments(environ).get(env_name)
+  
+                  if not env_path or not os.path.isdir(env_path):
+!                     errmsg = 'Environment not found'
+              except UnicodeDecodeError:
+                  errmsg = 'Invalid URL encoding (was %r)' % script_name
+  
+              if errmsg:
+                  start_response('404 Not Found', 
+!                                [('Content-Type', 'text/plain'),
+                                  ('Content-Length', str(len(errmsg)))])
+                  return [errmsg]
+  
+--- 461,479 ----
+                      env_path = get_environments(environ).get(env_name)
+  
+                  if not env_path or not os.path.isdir(env_path):
+!                    if Auxilliary().is_archived(env_name):
+!                        link = "<a href="+'"/HelpAndSupport"'+"> Help and Support. </a>"
+!                        msg = "This project has been archived. \nIf you think it should not be archived, Please raise a request on "
+!                        errmsg = msg + link
+!                    else:
+!                        errmsg = " Environment not found."
+! 
+              except UnicodeDecodeError:
+                  errmsg = 'Invalid URL encoding (was %r)' % script_name
+  
+              if errmsg:
+                  start_response('404 Not Found', 
+!                                [('Content-Type', 'text/html'),
+                                  ('Content-Length', str(len(errmsg)))])
+                  return [errmsg]
+  
