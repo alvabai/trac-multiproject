@@ -1,0 +1,7 @@
+#!/bin/bash
+
+PROJECT_DIR="/var/www/trac/projects"
+project=`echo $1 | sed 's@/svn/.*@@;s@.*/@@'`
+repo=`echo $1 | sed 's@.*/@@'`
+trac-admin $PROJECT_DIR/$project repository resync "$repo"
+exit 0

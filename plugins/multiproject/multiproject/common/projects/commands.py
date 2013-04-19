@@ -135,6 +135,7 @@ class CreateTracVersionControl(Command):
         self.vcs_type = settings['vcs_type']
         self.vcs_name = settings['vcs_name']
         self.vcs_path = conf.getEnvironmentVcsPath(project.env_name, self.vcs_type, self.vcs_name)
+        self.hook_path = conf.getHooksDir(project.env_name)
         self.name = "CreateTracVersionControl"
 
     def do(self):
@@ -147,6 +148,8 @@ class CreateTracVersionControl(Command):
         # Subversion repository
         if self.vcs_type == 'svn':
             self.success = self._run(('svnadmin', 'create', self.vcs_path))
+            if self.success:
+                os.symlink(self.hook_path + '/svn-post-commit', self.vcs_path + '/hooks/post-commit')
 
         # Mercurial repository
         elif self.vcs_type == 'hg':
