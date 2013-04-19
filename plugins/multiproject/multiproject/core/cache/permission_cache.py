@@ -1,5 +1,5 @@
 from multiproject.core.configuration import conf
-from multiproject.core.exceptions import SingletonExistsException
+from multiproject.core.multiproj_exceptions import SingletonExistsException
 import base64
 
 class GroupPermissionCache(object):

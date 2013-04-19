@@ -14,7 +14,7 @@ from multiproject.core.cache import ProjectCache
 from multiproject.core.categories import CQDECategoryStore
 from multiproject.core.configuration import conf
 from multiproject.core.db import admin_query, admin_transaction, safe_string, safe_int, cursors, db_query
-from multiproject.core.exceptions import ProjectValidationException
+from multiproject.core.multiproj_exceptions import ProjectValidationException
 from multiproject.core.permissions import get_permission_id, get_special_users
 from multiproject.core.users import get_userstore
 

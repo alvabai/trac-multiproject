@@ -10,12 +10,12 @@ from trac.env import open_environment
 from trac.config import ConfigurationError
 from genshi.builder import Fragment
 
-from multiproject.core.db import get_connection, safe_int
-from multiproject.core.exceptions import SingletonExistsException
-from multiproject.core.stubs.memcache_stub import MemcacheStub
-from multiproject.core.decorators import deprecated
-from multiproject.core.decorators import singleton
-from multiproject.core.util.filesystem import safe_path
+from db import get_connection, safe_int
+from multiproj_exceptions import SingletonExistsException
+from stubs.memcache_stub import MemcacheStub
+from decorators import deprecated
+from decorators import singleton
+from util.filesystem import safe_path
 
 
 # TODO: This is EViL practice but seems to be needed

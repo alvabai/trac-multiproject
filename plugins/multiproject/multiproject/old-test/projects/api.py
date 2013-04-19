@@ -2,7 +2,7 @@
 from multiproject.common.projects import Projects, Project
 from multiproject.core.test.cqdetestcase import CQDETestCase
 from multiproject.tests.ConfigurationStub import conf, dbStub, userstoreStub
-from multiproject.core.exceptions import ProjectValidationException
+from multiproject.core.multiproj_exceptions import ProjectValidationException
 
 project_tasks_result = [
     # url, summary, description, priority, time, priority_sort

@@ -4,7 +4,7 @@ import MySQLdb
 from trac.config import Configuration
 
 from multiproject.core.configuration import conf
-from multiproject.core.exceptions import SingletonExistsException
+from multiproject.core.multiproj_exceptions import SingletonExistsException
 from multiproject.core.db import get_connection, admin_transaction, admin_query
 from multiproject.core.decorators import deprecated
 

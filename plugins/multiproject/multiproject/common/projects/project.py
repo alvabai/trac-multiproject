@@ -14,7 +14,7 @@ from multiproject.core.configuration import conf
 from multiproject.core.db import admin_query, admin_transaction, safe_string, safe_int
 from multiproject.core.files.files_conf import FilesConfiguration
 from multiproject.core.users import User, get_userstore
-from multiproject.core.exceptions import ProjectValidationException
+from multiproject.core.multiproj_exceptions import ProjectValidationException
 from multiproject.core.permissions import CQDEUserGroupStore, CQDEPermissionStore
 
 

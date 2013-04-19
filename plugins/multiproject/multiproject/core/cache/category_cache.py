@@ -1,5 +1,5 @@
 from multiproject.core.configuration import conf
-from multiproject.core.exceptions import SingletonExistsException
+from multiproject.core.multiproj_exceptions import SingletonExistsException
 
 class CategoryCache(object):
     """ Methods for caching all access control objects

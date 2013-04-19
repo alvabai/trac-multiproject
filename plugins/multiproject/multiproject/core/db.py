@@ -20,7 +20,7 @@ import MySQLdb
 from MySQLdb import cursors
 from MySQLdb import escape_string
 
-from multiproject.core.decorators import deprecated
+from decorators import deprecated
 
 # A private, module wide global database pool instance
 _pool = None

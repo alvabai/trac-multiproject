@@ -1,7 +1,7 @@
 from multiproject.core.cache import GroupPermissionCache
 from multiproject.core.configuration import conf
 from multiproject.core.db import admin_query, safe_int, admin_transaction
-from multiproject.core.exceptions import SingletonExistsException
+from multiproject.core.multiproj_exceptions import SingletonExistsException
 
 
 class CQDEAuthenticationStore(object):

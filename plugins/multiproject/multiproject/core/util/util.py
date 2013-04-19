@@ -8,7 +8,7 @@ import types
 from genshi.filters import HTMLSanitizer
 from genshi.input import HTML
 
-from multiproject.core.db import admin_query
+from ..db import admin_query
 
 
 def safe_address(env, address):

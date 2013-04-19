@@ -1,7 +1,7 @@
 import csv
 
 from multiproject.core.configuration import conf, Configuration
-from multiproject.core.exceptions import SingletonExistsException
+from multiproject.core.multiproj_exceptions import SingletonExistsException
 
 def to_absolute_path(path):
     """ If. path starts with / nothing happends.
