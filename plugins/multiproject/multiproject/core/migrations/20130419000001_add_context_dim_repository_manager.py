@@ -23,10 +23,7 @@ class AddContextDimForRepositoryManager(MigrateBase):
                 INSERT INTO %s.context_dim(context, environment_type, path_info, VALID_FROM, VALID_TO)
                 VALUES ('Admin Project VCM', 'project', '/admin/general/vcm', ' 2011-01-27 09:08:05', '2050-11-21 14:54:02')
                 """
-        queries.append(query % (conf.db_analytical_schema_name))   
-
-
-        queries.append(query2 % (conf.db_analytical_schema_name))
+        queries.append(query % (conf.db_analytical_schema_name))
 
 
         return self.manager.db_upgrade(queries)
