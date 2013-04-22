@@ -56,4 +56,4 @@ class AddContextDimForRepositoryManager(MigrateBase):
 
         return False
 
-MigrateMgr.instance().add(AddContextDimForPermission())
+MigrateMgr.instance().add(AddContextDimForRepositoryManager())
