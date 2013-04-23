@@ -1,0 +1,33 @@
+<Location /${project}/svn>
+  DAV svn
+  SVNParentPath ${trac_repositories_path}/${project}/svn
+  SVNAutoversioning on
+  SetHandler None
+  PythonOption auth_anonymous true
+  PythonOption realm "MultiProject version control"
+  PythonHeaderParserHandler multiproject.core.auth.mod_python_access.svn
+  Order allow,deny
+  Allow from all
+</Location>
+
+<Location /${project}/git>
+  SetHandler None
+  PythonOption auth_anonymous true
+  PythonOption realm "MultiProject version control"
+  PythonHeaderParserHandler multiproject.core.auth.mod_python_access.git
+  <Limit PROPFIND>
+    Deny from all
+    Order deny,allow
+  </Limit>
+  SetEnv GIT_HTTP_EXPORT_ALL
+  SetEnv GIT_PROJECT_ROOT ${trac_repositories_path}/${project}/git
+  Options +ExecCGI
+</Location>
+
+<Location /${project}/hg>
+  SetHandler None
+  PythonOption auth_anonymous true
+  PythonOption realm "MultiProject version control"
+  PythonHeaderParserHandler multiproject.core.auth.mod_python_access.hg
+  Options +ExecCGI
+</Location>

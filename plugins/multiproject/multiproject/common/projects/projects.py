@@ -54,6 +54,7 @@ class Projects(object):
         else:
             commandlist.append(commands.CreateTracVersionControl(project, services))
 
+        commandlist.append(commands.CreateApacheConfig(project))
         commandlist.append(commands.InitCommitHooks(project, services))
         commandlist.append(commands.CreateTracEnvironment(project, services))
         commandlist.append(commands.ConfigureTrac(project, services))

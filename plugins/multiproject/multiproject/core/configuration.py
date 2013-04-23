@@ -967,9 +967,13 @@ class Configuration(object):
         else:
             return 'Unknown version control system'
 
-    def getHooksDir(self, env_name):
-        env = open_environment(conf.getEnvironmentSysPath(env_name), use_cache=True)
+    def getHooksDir(self):
+        env = open_environment(conf.getEnvironmentSysPath('home'), use_cache=True)
         return env.config.get('multiproject', 'version_control_hooks_dir')
+
+    def getConfDir(self):
+        env = open_environment(conf.getEnvironmentSysPath('home'), use_cache=True)
+        return env.config.get('multiproject', 'global_conf_path').rsplit('/', 1)[0]
 
     def cleanupProjectName(self, pname):
         return str(pname).strip('\n\r\a\b\t\v\f\e\"\'*')

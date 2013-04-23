@@ -8,7 +8,7 @@ Command is an abstract base class used by all commands
 All heir of Command together forms a project creation process
 """
 
-import os, shutil
+import os, shutil, re
 from subprocess import Popen, PIPE
 from datetime import datetime
 from ConfigParser import ConfigParser
@@ -135,7 +135,9 @@ class CreateTracVersionControl(Command):
         self.vcs_type = settings['vcs_type']
         self.vcs_name = settings['vcs_name']
         self.vcs_path = conf.getEnvironmentVcsPath(project.env_name, self.vcs_type, self.vcs_name)
-        self.hook_path = conf.getHooksDir(project.env_name)
+        self.env_name = project.env_name
+        self.hook_path = conf.getHooksDir()
+        self.conf_path = conf.getConfDir()
         self.name = "CreateTracVersionControl"
 
     def do(self):
@@ -207,6 +209,34 @@ class CreateTracVersionControl(Command):
 
         return True
 
+class CreateApacheConfig(Command):
+
+    def __init__(self, project):
+        Command.__init__(self)
+        self.env_name = project.env_name
+        self.conf_path = conf.getConfDir()
+        self.name = "CreateApacheConfig"
+
+    def do(self):
+        try:
+            template = open(self.conf_path + '/projects/TEMPLATE', 'r')
+            newfile = open(self.conf_path + '/projects/' + self.env_name + '.conf', 'w')
+            for line in template.readlines():
+                newfile.write(re.sub('\${project}', self.env_name, line))
+            template.close()
+            newfile.close()
+        except:
+            conf.log.exception('Writing apache project file failed.')
+            return False
+
+        return True
+
+    def undo(self):
+        try:
+            os.remove(self.conf_path + '/projects/' + self.env_name + '.conf')
+        except:
+            return False
+        return True
 
 class InitCommitHooks(Command):
     def __init__(self, project, settings):

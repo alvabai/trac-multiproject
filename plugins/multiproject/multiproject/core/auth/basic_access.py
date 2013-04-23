@@ -209,11 +209,9 @@ class BasicAccessControl(object):
             conf.log.warning('Failed to parse project identifier from URI: %s' % uri)
             return None
 
-        # Identifier is always expected to be first (index 0) element.
         identifier = items[0]
-
-        if conf.multirepo_separator in identifier:
-            identifier = identifier.split(conf.multirepo_separator)[0]
+        if identifier == 'git' or identifier == 'hg' or identifier == 'svn':
+            identifier = items[1]
 
         return identifier
 
