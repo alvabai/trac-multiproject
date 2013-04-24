@@ -238,6 +238,32 @@ class CreateApacheConfig(Command):
             return False
         return True
 
+class CreateMercurialConfig(Command):
+
+    def __init__(self, project):
+        Command.__init__(self)
+        self.env_name = project.env_name
+        self.vcs_root = conf.getVcsRoot()
+        self.name = "CreateMercurialConfig"
+
+    def do(self):
+        try:
+            newfile = open(self.vcs_root + '/' + self.env_name + '/hgweb.config', 'w')
+            newfile.write("[web]\nbaseurl = /\nstyle = gitweb\npush_ssl = false\nallow_push = *\nallow_archive = bz2 gz zip\n\n[paths]\n")
+            newfile.write("%s/hg = %s/%s/hg/*\n" % (self.env_name, self.vcs_root, self.env_name))
+            newfile.close()
+        except:
+            conf.log.exception('Writing mercurial project file failed.')
+            return False
+        return True
+
+    def undo(self):
+        try:
+            os.remove(self.vcs_root + '/' + self.env_name + '/hgweb.config')
+        except:
+            return False
+        return True
+
 class InitCommitHooks(Command):
     def __init__(self, project, settings):
         Command.__init__(self)
