@@ -107,7 +107,7 @@ if __name__ == '__main__':
    #get all user account that will expire in 1 week
    q = """ 
        SELECT author_id, username, givenName, lastName, mail, expires FROM user 
-       WHERE expires BETWEEN NOW() AND DATE_SUB(NOW(), INTERVAL %s WEEK)
+       WHERE expires BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL %s WEEK)
        AND author_id IS NOT NULL
        ORDER BY author_id ASC 
        """ % interval
