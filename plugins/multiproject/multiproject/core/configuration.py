@@ -924,6 +924,9 @@ class Configuration(object):
     def getVcsRoot(self):
         return self.sys_vcs_root
 
+    def getRoot(self):
+        return self.sys_root
+
     def makeEnvironmentDownloadsPath(self, env_name):
         """ Helper function for environment download path
         """

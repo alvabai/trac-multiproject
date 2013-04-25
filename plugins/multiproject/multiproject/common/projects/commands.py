@@ -150,8 +150,6 @@ class CreateTracVersionControl(Command):
         # Subversion repository
         if self.vcs_type == 'svn':
             self.success = self._run(('svnadmin', 'create', self.vcs_path))
-            if self.success:
-                os.symlink(self.hook_path + '/svn-post-commit', self.vcs_path + '/hooks/post-commit')
 
         # Mercurial repository
         elif self.vcs_type == 'hg':
@@ -882,6 +880,23 @@ class ConfigureFilesystemPermissions(Command):
         # Restoring previous permissions here probably isn't worth the effort.
         return True
 
+class FlagApacheForReload(Command):
+
+    def __init__(self, project):
+        Command.__init__(self)
+        self.sys_root = conf.getRoot()
+        self.name = "FlagApacheForReload"
+
+    def do(self):
+        # "Touch" file
+        try:
+            open(self.sys_root + '/apache_reload', 'w').close()
+        except:
+            return False
+        return True
+
+    def undo(self):
+        return True
 
 class ProjectsInfo(object):
 

@@ -72,6 +72,7 @@ class Projects(object):
         commandlist.append(commands.TruncateDefaultInformation(project))
         commandlist.append(commands.RefreshStatistics(project))
         commandlist.append(commands.ConfigureFilesystemPermissions(project))
+        commandlist.append(commands.FlagApacheForReload(project))
 
         # Run all commands, on failure roll all back
         for cmd in commandlist:
