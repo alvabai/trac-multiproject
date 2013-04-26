@@ -11,11 +11,12 @@ Suite Teardown  Close Browser
 ${proj_name}  test_archived_project
 ${non_existent_project}  non_existing_project
 ${archived_message}  This project has been archived.
-${not_found_message}  Environment not found.
+${not_found_message}  Environment not found
 
 *** Test Cases ***
 
 better warn message for archived project
+    ${projname}  Get unique project name  test_archived_project
     Create new project  ${projname}
     Title should be  ${projname} – ${projname}
     Remove project  ${projname}

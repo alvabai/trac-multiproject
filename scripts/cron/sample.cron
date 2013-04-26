@@ -43,3 +43,8 @@
 
 # Do indexing for projects. Needed for explore projects feature.
 0 6,18 * * * source /etc/trac/env.sh; nice python /project/trac/dist/current/scripts/generate_project_user_visibility.py 2>&1 > /tmp/generate_project_user_visibility.log
+
+##
+## Email authors and local account users about about expiry
+##
+0 0 * * * python /storage/trac/dist/current/scripts/cron/author_email_notifier -i 1 daily

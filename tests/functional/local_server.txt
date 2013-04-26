@@ -1,5 +1,5 @@
 *** Settings ***
-Resource  common_resource.txt
+Resource  ui-resource.txt
 Resource  common_vars.txt
 Resource  login.txt
 
