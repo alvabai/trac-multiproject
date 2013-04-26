@@ -2193,7 +2193,7 @@ $(".create_project_form").live("submit", function(){
         check = false;
         alert("Project name must be 2 characters long");
     }
-    else if(!$('#prj_short_name').val().match(/^[a-zA-Z0-9_-]*$/)){
+    else if(!$('#prj_short_name').val().match(/^[a-zA-Z0-9_]*$/)){
         check = false;
         alert("Identifier should not contain scandic chars or spaces");
     }
@@ -2213,6 +2213,7 @@ $(".create_project_form").live("submit", function(){
 $('#prj_long_name').live("keyup", function(){
     var prj_name = $(this).val();
     prj_name = $.trim(prj_name.toLowerCase().replace(new RegExp(" ", "g"), "_").replace(new RegExp("ä", "g"), "a").replace(new RegExp("å", "g"), "a").replace(new RegExp("ö", "g"), "o"));
+    prj_name = prj_name.replace(new RegExp("-", "g"), "_");
     $('#prj_short_name').val(prj_name);
 });
 
