@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
+import re
 import os
 from trac.core import Component, implements, ExtensionPoint
 from trac.mimeview.api import Context
@@ -77,6 +78,8 @@ class RepositoriesAdminPanel(Component):
         os.rename(path, path2)
 
     def add_repository(self, name, repo_type, req):
+        if not self.validate_repository_name(name):
+            return add_warning(req, _("Repository adding failed. Check name."))
         project = Project._get_project(env_name=self.env.project_identifier, use_cache=False)
         ctvc = CreateTracVersionControl(project, {'vcs_type':repo_type, 'vcs_name':name})
         ctvc.do()
@@ -85,6 +88,20 @@ class RepositoriesAdminPanel(Component):
         self.env.config.set('repositories', name + '.type', repo_type)
         self.env.config.save()
         add_notice(req, _('Added new repository %s to project' % name))
+
+    def validate_repository_name(self, repository_name):
+        check = True
+        pattern = '^[a-zA-Z0-9-_]*$'
+        if repository_name is None:
+            check = False
+        elif len(repository_name) < 3:
+            check = False
+        elif not (re.match(pattern,repository_name)):
+            check = False
+        elif repository_name == "git" or repository_name == "hg" or repository_name == "svn":
+            check = False
+        print "repo name: %s" % repository_name
+        return check
 
     def get_enabled_vcs(self, env):
         """ This function checks from the trac configuration

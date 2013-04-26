@@ -92,6 +92,20 @@ class ProjectListModule(Component):
 
     # ITemplateProvider methods
 
+    def validate_repository_name(self, repository_name):
+        check = True
+        pattern = '^[a-zA-Z0-9-_]*$'
+        if repository_name is None:
+            check = False
+        elif len(repository_name) < 3:
+            check = False
+        elif not (re.match(pattern,repository_name)):
+            check = False
+        elif repository_name == "git" or repository_name == "hg" or repository_name == "svn":
+            check = False
+        print "repo name: %s" % repository_name
+        return check
+
     def get_templates_dirs(self):
         return [resource_filename(__name__, 'templates')]
 
@@ -114,6 +128,9 @@ class ProjectListModule(Component):
         # Read and transform some variables
         vcs_type = req.args.get('vcstype')
         vcs_name = req.args.get('vcs_name')
+        if not self.validate_repository_name(vcs_name):
+            return self.create_failure(req, 'Check repository name.')
+
         parent_project = None
         if "_project_" in req.args:
             parent_project = Project.get(env_name=req.args.get('_project_'))
