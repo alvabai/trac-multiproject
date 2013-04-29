@@ -162,7 +162,8 @@ class CreateLocalUserAdminPanel(Component):
 
         :param User user:
         :raises: TracError if email sending fails
-        """
+        """      
+
         data = {
             'system':conf.domain_name,
             'username':user.username,
@@ -170,6 +171,6 @@ class CreateLocalUserAdminPanel(Component):
             'expires':user.expires
         }
         enotify = EmailNotifier(self.env, "New user account created", data)
-        enotify.template_name = "local_account_created.txt"
+        enotify.template_name = "local_account_created.html"
         enotify.notify(user.mail)
 
