@@ -3,7 +3,10 @@
                    xmlns:dc="http://purl.org/dc/elements/1.1/"
                    xmlns:xi="http://www.w3.org/2001/XInclude">
   <channel>
-    <?python from multiproject.core.configuration import conf ?>
+<?python
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
+?>
     <title>Watchlist timeline</title>
     <link>${conf.url_home}/watchlist_timeline</link>
     <description>Watchlist timeline</description>
