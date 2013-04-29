@@ -3,6 +3,7 @@ import urllib
 
 from trac.core import Component, implements
 from trac.web.api import IRequestFilter
+from trac.web.chrome import add_script
 
 from multiproject.common.projects import Project
 from multiproject.core.configuration import conf
@@ -20,31 +21,46 @@ class BrowserModifyModule(Component):
         return handler
 
     def post_process_request(self, req, template, data, content_type):
+        add_script(req, 'multiproject/js/browser.js')
         repository_name = None
+        data_repositories = None
         conf.log.exception("Path length: %s" % len(req.path_info.split("/")))
         if len(req.path_info.split("/")) > 2:
             repository_name = req.path_info.split("/")[-1]
         conf.log.exception("Repo name: %s" % repository_name)
         if template == 'browser.html':
             username = urllib.quote(req.authname)
+            project = Project.get(self.env)
+            schemes = None
             if repository_name:
                 scm_type = repository_name + ".type"
                 scm = self.env.config.get('repositories', scm_type)
+                schemes = self.protocols(project.id, scm)
             else:
                 scm = self.env.config.get('trac', 'repository_type')
+                schemes = self.protocols(project.id, scm)
+                data_repo_names = self.get_repositories()
+                if len(data_repo_names) > 0:
+                    data_repositories = []
+                    for repo in data_repo_names:
+                        type_scheme = []
+                        for data_scheme in self.protocols(project.id, repo[1]):
+                            type_scheme.append(self.create_co_command(repo[1], username, data_scheme, repo[0]))
+                        data_repositories.append(type_scheme)
 
-            project = Project.get(self.env)
+            
 
             names = {'git':'GIT', 'svn':'Subversion', 'hg':'Mercurial'}
             cmd_kinds = {'git':'Clone', 'hg':'Clone', 'svn':'Check out'}
 
             type = names[scm]
-            schemes = self.protocols(project, scm)
+            
 
             data['kinds'] = cmd_kinds
             data['schemes'] = schemes
             data['name'] = names[scm]
             data['type'] = scm
+            data['data_repositories'] = data_repositories
 
             co_commands = {}
             for scheme in schemes:
@@ -53,8 +69,8 @@ class BrowserModifyModule(Component):
 
         return template, data, content_type
 
-    def protocols(self, project, scm):
-        protocol_manager = ProtocolManager(project.id)
+    def protocols(self, project_id, scm):
+        protocol_manager = ProtocolManager(project_id)
         allowed = protocol_manager.allowed_protocols(scm)
 
         schemes = []
@@ -82,3 +98,14 @@ class BrowserModifyModule(Component):
         co_commands['hg'] = 'hg clone %(scheme)s://%(domain)s/%(project)s/%(scm)s/%(repository_name)s'
 
         return co_commands[scm] % params
+
+    def get_repositories(self):
+        raw_data = self.config.options('repositories')
+        repos = []
+        for option in raw_data:
+            if option[0].endswith('.type'):
+                temp = []
+                temp.append(option[0].split('.')[0])
+                temp.append(option[1])
+                repos.append(temp)
+        return repos
