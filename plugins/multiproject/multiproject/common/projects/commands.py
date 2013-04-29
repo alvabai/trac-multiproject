@@ -14,17 +14,18 @@ from datetime import datetime
 from ConfigParser import ConfigParser
 
 from trac.admin import console
-from trac.config import Configuration
+from trac import config as trac_config
 from trac.util.datefmt import to_utimestamp, utc
 
 from multiproject.core.cache.project_cache import ProjectCache
 from multiproject.core.files.files_conf import FilesConfiguration, FilesDownloadConfig
 from multiproject.core.permissions import CQDEUserGroupStore
 from multiproject.core.configuration import Configuration
-conf = Configuration.instance()
 from multiproject.core.util import filesystem
 from multiproject.core.db import admin_transaction, admin_query, db_transaction, safe_string, safe_int
 
+
+conf = Configuration.instance()
 
 class Command(object):
     """ Abstract base class defining skeleton of any command
@@ -351,7 +352,7 @@ class ConfigureTrac(Command):
         # Open trac.ini for configuration
         config = None
         try:
-            config = Configuration(self.conf_file)
+            config = trac_config.Configuration(self.conf_file)
         except Exception:
             conf.log.exception("Error while reading config file!")
             return False

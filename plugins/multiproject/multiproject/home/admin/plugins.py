@@ -8,10 +8,10 @@ from trac.core import Component, implements, TracError
 from trac.util import get_pkginfo, get_module_path
 from trac.util.text import to_unicode
 from trac.util.translation import _
-from trac.config import Configuration
+from trac.config import Configuration as trac_configuration
+from multiproject.core.configuration import Configuration as multiproject_configuration
 
-from multiproject.core.configuration import Configuration
-conf = Configuration.instance()
+conf = multiproject_configuration.instance()
 
 def is_component_enabled(self, cls):
     """Implemented to only allow activation of components that are not
@@ -141,7 +141,7 @@ class PluginAdminPanel(Component):
         changed = {}
 
         # Set global project configuration
-        prjconf = Configuration(conf.global_conf_path)
+        prjconf = trac_configuration(conf.global_conf_path)
 
         for component in components:
             c_state = self.get_project_component_state(component, self.config)
@@ -292,7 +292,7 @@ class PluginAdminPanel(Component):
 
         mycount = len(mymodule.split('.'))
 
-        prjconf = Configuration(conf.global_conf_path)
+        prjconf = trac_configuration(conf.global_conf_path)
 
         rules = [(name.lower(), value.lower())
                  for name, value in prjconf.options('components')]
@@ -365,7 +365,7 @@ class PluginAdminPanel(Component):
 
             self.getSettings(component, plugins[dist.project_name]['settings'])
 
-            prjconf = Configuration(conf.global_conf_path)
+            prjconf = trac_configuration(conf.global_conf_path)
 
             pstate = self.get_project_component_state(component, prjconf)
             ostate = self.get_project_component_state(component, self.config)

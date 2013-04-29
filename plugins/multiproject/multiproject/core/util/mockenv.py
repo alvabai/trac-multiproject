@@ -26,8 +26,8 @@ class MockEnvironment(Environment):
         """
         if config_file is None:
             # TODO: switch to some constant when can be done without conf
-            from multiproject.core.configuration import Configuration
-            conf = Configuration.instance()
+            from multiproject.core.configuration import Configuration as multiproj_config
+            conf = multiproj_config.instance()
             config_file = conf.config_file
 
         # From Environment.setup_config:

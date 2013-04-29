@@ -1,10 +1,9 @@
 import logging
 import MySQLdb
 
-from trac.config import Configuration
+from trac.config import Configuration as trac_configuration
 
 from multiproject.core.configuration import Configuration
-conf = Configuration.instance()
 from multiproject.core.multiproj_exceptions import SingletonExistsException
 from multiproject.core.db import get_connection, admin_transaction, admin_query
 from multiproject.core.decorators import deprecated
@@ -12,6 +11,7 @@ from multiproject.core.decorators import deprecated
 # logs to console
 log = logging.getLogger('migration')
 
+conf = Configuration.instance()
 
 def printer(msg, title=None, flag='note'):
     """
@@ -70,7 +70,7 @@ class MigrateConfigure(object):
 
     def set_home_config(self, values):
         syspath = self.conf.getEnvironmentSysPath("home")
-        setconf = Configuration(syspath + '/conf/trac.ini')
+        setconf = trac_configuration(syspath + '/conf/trac.ini')
         try:
             for (main, sub, value) in values:
                 setconf.set(main, sub, value)
@@ -81,7 +81,7 @@ class MigrateConfigure(object):
 
     def get_home_config(self, mainchapter, subchapter):
         syspath = self.conf.getEnvironmentSysPath("home")
-        getconf = Configuration(syspath + '/conf/trac.ini')
+        getconf = trac_configuration(syspath + '/conf/trac.ini')
         return getconf.get(mainchapter, subchapter)
 
 
