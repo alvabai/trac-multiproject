@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from multiproject.core.authentication import CQDEAuthenticationStore
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.auth.auth import MultiprojectAuthentication
 from multiproject.core.users import get_userstore
 

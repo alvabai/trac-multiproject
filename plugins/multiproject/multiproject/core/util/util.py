@@ -56,7 +56,8 @@ def resolve_project_id(env_name):
             row = cursor.fetchone()
         except:
             # NOTE: this import must remain here or circular import will occur
-            from multiproject.core.configuration import conf
+            from multiproject.core.configuration import Configuration
+            conf = Configuration.instance()
             conf.log.exception("Failed to get project id with query: %s" % query)
 
     if row:
@@ -85,7 +86,8 @@ def env_id(env_name):
             row = cursor.fetchone()
         except:
             # NOTE: this import must remain here or circular import will occur
-            from multiproject.core.configuration import conf
+            from multiproject.core.configuration import Configuration
+            conf = Configuration.instance()
             conf.log.exception("Didn't find environment id for %s" % env_name)
 
     if row:

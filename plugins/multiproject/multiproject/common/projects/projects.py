@@ -12,7 +12,8 @@ from multiproject.common.projects.project import Project
 from multiproject.core.authentication import CQDEAuthenticationStore
 from multiproject.core.cache import ProjectCache
 from multiproject.core.categories import CQDECategoryStore
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.db import admin_query, admin_transaction, safe_string, safe_int, cursors, db_query
 from multiproject.core.multiproj_exceptions import ProjectValidationException
 from multiproject.core.permissions import get_permission_id, get_special_users

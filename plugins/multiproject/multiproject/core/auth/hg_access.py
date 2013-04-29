@@ -3,7 +3,8 @@ from mercurial.hgweb.hgweb_mod import perms
 from mercurial import wireproto
 
 from multiproject.core.auth.basic_access import BasicAccessControl
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 
 
 class MercurialAccessControl(BasicAccessControl):

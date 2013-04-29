@@ -5,7 +5,8 @@ from trac.web.chrome import Chrome
 from trac.util.text import obfuscate_email_address
 from genshi.builder import tag
 
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.users import get_userstore
 
 

@@ -1,7 +1,8 @@
 from trac.core import Component, implements
 from trac.web.api import IRequestFilter
 from trac.perm import IPermissionRequestor
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 
 
 class HomePermissionFilter(Component):

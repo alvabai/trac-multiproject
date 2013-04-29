@@ -39,7 +39,8 @@ from trac.perm import IPermissionStore, IPermissionRequestor, IPermissionPolicy,
 from trac.ticket import Ticket
 
 from multiproject.common.projects import Project
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.permissions import CQDEPermissionPolicy, CQDEPermissionStore
 from multiproject.common.environment import TracEnvironment
 

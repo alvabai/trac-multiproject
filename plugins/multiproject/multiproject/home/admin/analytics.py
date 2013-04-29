@@ -17,7 +17,8 @@ from trac.web.chrome import add_warning, add_script, add_stylesheet
 from trac.util.translation import _
 
 from multiproject.common.projects.archive import ProjectArchive
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.db import analytical_query, admin_query, cursors
 from multiproject.core.users import DATEFORMATS
 from multiproject.common.projects import Projects

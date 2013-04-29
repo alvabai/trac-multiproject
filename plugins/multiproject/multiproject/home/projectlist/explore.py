@@ -9,7 +9,8 @@ from trac.web.api import IRequestHandler
 from trac.web.chrome import add_stylesheet, add_script
 from trac.util.translation import _
 
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.watchlist import CQDEWatchlistStore
 from multiproject.core.categories import CQDECategoryStore
 from multiproject.core.db import admin_query, safe_int

@@ -6,7 +6,8 @@ from trac.core import Component, implements
 from trac.admin.api import IAdminPanelProvider
 
 from multiproject.common.projects import Projects
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 
 class FeaturedProjectsAdminPanel(Component):
     implements(IAdminPanelProvider)

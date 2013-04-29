@@ -2,7 +2,8 @@
 from trac.perm import PermissionSystem
 
 from multiproject.core.cache.memcached import memcached
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.cache.permission_cache import GroupPermissionCache
 from multiproject.core.multiproj_exceptions import SingletonExistsException
 from multiproject.core.db import admin_query, admin_transaction, safe_int, MySQLdb

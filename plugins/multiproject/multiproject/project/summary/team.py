@@ -8,7 +8,8 @@ from trac.core import Component, implements
 from trac.web.chrome import ITemplateProvider, tag, _, Chrome
 
 from multiproject.common.projects.projects import Project
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.permissions import CQDEUserGroupStore
 from multiproject.core.users import get_userstore
 

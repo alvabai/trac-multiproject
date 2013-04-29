@@ -17,9 +17,10 @@ import sys
 
 from trac.env import Environment
 
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
 from multiproject.home.watchlist.watchlist_notifier import WatchlistNotifier
 
+conf = Configuration.instance()
 
 def main(watchlist_type):
     """

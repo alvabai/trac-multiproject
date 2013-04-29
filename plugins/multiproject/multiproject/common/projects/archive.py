@@ -10,7 +10,8 @@ from multiproject.common.projects.commands import CreateTracDatabase
 from multiproject.common.projects.commands import ListUpProject
 from multiproject.common.projects.commands import SetPermissions
 from multiproject.core.db import admin_query, safe_string, safe_int
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.files.files_conf import FilesConfiguration
 from multiproject.core.permissions import CQDEUserGroupStore, get_special_users
 from multiproject.core.users import get_userstore

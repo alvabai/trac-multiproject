@@ -8,9 +8,10 @@ import time
 from trac.env import Environment
 from multiproject.common import Project
 
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
 from multiproject.common.notifications.email import EmailNotifier
 
+conf = Configuration.instance()
 
 def chunks(l, n):
     for i in xrange(0, len(l), n):

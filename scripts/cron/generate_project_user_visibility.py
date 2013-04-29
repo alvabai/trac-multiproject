@@ -45,13 +45,14 @@ import sys
 from time import time
 
 from multiproject.common.projects import Projects
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
 from multiproject.core.permissions import CQDEPermissionPolicy, get_permission_id
 from multiproject.core.db import admin_query, admin_transaction, safe_int
 from multiproject.core.users import get_userstore
 from multiproject.core.util.mockenv import MockEnvironment
 
 
+conf = Configuration.instance()
 class ProjectUserVisibilityGenerator():
     def __init__(self, verbose=False):
         """

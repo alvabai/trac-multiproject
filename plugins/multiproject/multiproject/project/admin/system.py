@@ -10,7 +10,8 @@ from multiproject.common.projects import Project
 from multiproject.common.projects import Projects
 from multiproject.common.projects.archive import ProjectArchive
 from multiproject.common.projects.listeners import IProjectChangeListener
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 
 
 class SystemAdminPanel(Component):

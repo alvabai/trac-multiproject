@@ -7,7 +7,8 @@ from trac.util.translation import _
 from genshi.builder import tag
 from genshi.filters.transform import Transformer
 
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 
 
 def use_home_url(name, event):

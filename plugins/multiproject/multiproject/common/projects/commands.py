@@ -20,7 +20,8 @@ from trac.util.datefmt import to_utimestamp, utc
 from multiproject.core.cache.project_cache import ProjectCache
 from multiproject.core.files.files_conf import FilesConfiguration, FilesDownloadConfig
 from multiproject.core.permissions import CQDEUserGroupStore
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.util import filesystem
 from multiproject.core.db import admin_transaction, admin_query, db_transaction, safe_string, safe_int
 

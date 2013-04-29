@@ -3,7 +3,8 @@ from trac.core import Component, implements
 from trac.admin.api import IAdminPanelProvider
 
 from multiproject.core.migration import MigrateMgr
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 
 # FIXME: This import is needed to notice all migrations (the module __init__
 # has specific code for it)...

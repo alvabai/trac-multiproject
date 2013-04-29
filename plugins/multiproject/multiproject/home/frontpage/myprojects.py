@@ -15,7 +15,8 @@ from multiproject.common.projects.projects import Projects
 from multiproject.core.permissions import CQDEPermissionPolicy
 from multiproject.core.watchlist import CQDEWatchlistStore
 from multiproject.home.watchlist.watchlist_events import WatchlistEvents
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.users import get_userstore
 from multiproject.core.util import to_web_time
 from multiproject.core.db import trac_db_query, safe_string

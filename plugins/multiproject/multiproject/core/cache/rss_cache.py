@@ -1,4 +1,5 @@
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 import base64
 
 

@@ -8,7 +8,8 @@ from trac.versioncontrol import RepositoryManager
 from tracrpc.api import IXMLRPCHandler
 
 from multiproject.common.projects import Project, Projects
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.categories import CQDECategoryStore
 from multiproject.core.multiproj_exceptions import ProjectValidationException
 from multiproject.core.users import get_userstore

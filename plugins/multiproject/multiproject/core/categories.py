@@ -1,5 +1,6 @@
 
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.db import admin_query, admin_transaction, safe_int, safe_string
 from multiproject.core.cache.category_cache import CategoryCache
 from trac.util.translation import _

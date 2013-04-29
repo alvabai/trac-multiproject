@@ -12,14 +12,14 @@ from multiproject.core.auth.auth import Authentication
 from multiproject.core.restful import send_json
 from multiproject.common.membership.api import MembershipApi
 from multiproject.common.projects import Project
-from multiproject.core.configuration import Configuration
 from multiproject.core.permissions import CQDEUserGroupStore, CQDEOrganizationStore, InvalidPermissionsState
 
 #
 from multiproject.common.projects import Projects
 from multiproject.common.projects.commands import MakeProjectPublic
 from multiproject.common.projects.listeners import IProjectChangeListener
-from multiproject.core.configuration import conf, DimensionOption
+from multiproject.core.configuration import Configuration
+from multiproject.core.configuration import DimensionOption
 from multiproject.core.users import get_userstore
 
 
@@ -93,7 +93,7 @@ class PermissionsAdminPanel(Component):
                 self._decline_membership(req, membership)
             elif 'makepublic' in req.args:
                 project_api = Projects()
-                if conf.allow_public_projects:
+                if self.conf.allow_public_projects:
                     self._make_public(req, project)
                     project_api.add_public_project_visibility(project.id)
                     # Reload page
@@ -146,7 +146,7 @@ class PermissionsAdminPanel(Component):
             'membership_requests': membership_requests,
             'invalid_state': invalid_state,
             'is_public': is_a_public,
-            'allow_public_projects': conf.allow_public_projects
+            'allow_public_projects': self.conf.allow_public_projects
         }
 
     def _perm_data(self, group_store, perm_sys):

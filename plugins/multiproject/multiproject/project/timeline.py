@@ -10,7 +10,8 @@ from trac.util.datefmt import to_timestamp, utc
 from trac.timeline import ITimelineEventProvider
 from trac.web.api import ITemplateStreamFilter
 from multiproject.common.projects import Project
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 
 
 timeline_db_version = 1

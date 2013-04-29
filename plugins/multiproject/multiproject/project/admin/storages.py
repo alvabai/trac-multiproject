@@ -6,7 +6,8 @@ from trac.web.chrome import ITemplateProvider
 from trac.admin.api import IAdminPanelProvider
 
 from multiproject.common.projects import Project
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 
 
 class StoragesAdminPanel(Component):

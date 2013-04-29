@@ -4,7 +4,8 @@ import datetime
 from trac.util import datefmt
 
 from multiproject.core.db import analytical_transaction
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.cache.timeline_cache import TimelineCache
 
 

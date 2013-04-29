@@ -10,7 +10,8 @@ from multiproject.common.projects import commands
 from multiproject.common.projects import HomeProject
 from multiproject.common.projects.project import ProjectSizeTemplate, ProjectNotifications
 from multiproject.common.notifications.email import EmailNotifier
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 
 
 class ProjectStorageUsageAdmin(Component):

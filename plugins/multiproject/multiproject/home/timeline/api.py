@@ -11,7 +11,8 @@ from trac.resource import Resource
 from trac.web.href import Href
 
 from multiproject.common.projects import Project
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.stubs.RequestStub import DummyReq
 from multiproject.core.db import admin_query, admin_transaction
 from multiproject.project.timeline import ProjectTimelineEvents

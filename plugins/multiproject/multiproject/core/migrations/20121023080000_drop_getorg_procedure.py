@@ -4,7 +4,8 @@ Removes get_organization_id procedure
 """
 from multiproject.core.db import admin_query
 from multiproject.core.migration import MigrateBase, MigrateMgr
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 
 
 class DropGetOrgProcedure(MigrateBase):

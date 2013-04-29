@@ -4,7 +4,8 @@ from trac.mimeview.api import Context
 from trac.env import open_environment
 from trac.resource import Resource
 
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.stubs.RequestStub import DummyReq
 from multiproject.core.permissions import CQDEPermissionPolicy
 from multiproject.project.timeline import ProjectTimelineEvents

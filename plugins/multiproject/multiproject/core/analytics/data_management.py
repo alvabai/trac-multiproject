@@ -1,5 +1,6 @@
 from multiproject.core.analytics.dimension import DateDimension
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.db import analytical_query, analytical_transaction
 
 

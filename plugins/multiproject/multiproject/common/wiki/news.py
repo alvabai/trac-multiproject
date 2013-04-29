@@ -2,7 +2,6 @@
 from multiproject.core import db
 from multiproject.core.configuration import Configuration
 
-
 class ProjectNews(object):
     """
     Class for handling data from a specific forum in discussion plugin. This is completely
@@ -16,9 +15,9 @@ class ProjectNews(object):
     """
 
     def __init__(self, env_name):
-        conf = Configuration.instance()
-        self.log = conf.log
-        self.news_forum_name = conf.news_forum_name
+        self.conf = Configuration.instance()
+        self.log = self.conf.log
+        self.news_forum_name = self.conf.news_forum_name
         self.env_name = db.safe_string(env_name)
 
     def get_project_news(self, limit=0, f_name=None):

@@ -7,7 +7,8 @@
   <xi:include href="prefs.html" />
   
 <?python
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 ?>
 
   <!-- ! Show preferences page to user for changing image -->

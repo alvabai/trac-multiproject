@@ -28,7 +28,8 @@ from trac.web.chrome import add_warning
 from trac.util import datefmt
 from trac.util.translation import _
 
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.db import admin_query, admin_transaction, safe_int
 from multiproject.core.util import filesystem
 from multiproject.core.util.filesystem import InvalidFilenameOrPath

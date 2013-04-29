@@ -17,9 +17,12 @@ from trac.admin.api import IAdminPanelProvider
 from multiproject.common.projects import Project
 from multiproject.common.projects import Projects
 from multiproject.core.permissions import CQDEUserGroupStore
-from multiproject.core.configuration import conf, DimensionOption
+from multiproject.core.configuration import DimensionOption
+from multiproject.core.configuration import Configuration
 from multiproject.core.users import get_userstore
 
+
+conf = Configuration.instance()
 
 class BasicsAdminPanelInterceptor(BasicsAdminPanel):
     """

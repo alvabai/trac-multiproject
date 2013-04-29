@@ -6,7 +6,8 @@
       xmlns:py="http://genshi.edgewall.org/"
       py:strip="True">
 <?python
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 ?>
     <xi:include href="pagination.html" />
 

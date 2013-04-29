@@ -10,7 +10,8 @@ from trac.core import TracError
 from trac.env import open_environment
 
 from multiproject.core.cache.project_cache import ProjectCache
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.db import admin_query, admin_transaction, safe_string, safe_int
 from multiproject.core.files.files_conf import FilesConfiguration
 from multiproject.core.users import User, get_userstore

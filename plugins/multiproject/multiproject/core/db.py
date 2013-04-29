@@ -569,7 +569,8 @@ def _single_db_result(cursor, query, params = None):
         else:
             cursor.execute(query)
     except:
-        from multiproject.core.configuration import conf
+        from multiproject.core.configuration import Configuration
+        conf = Configuration.instance()
         conf.log.exception("Query failed: %s" % query)
         raise
 
@@ -583,7 +584,8 @@ def _multi_db_result(cursor, query, params = None):
         else:
             cursor.execute(query)
     except:
-        from multiproject.core.configuration import conf
+        from multiproject.core.configuration import Configuration
+        conf = Configuration.instance()
         conf.log.exception("Query failed: %s" % query)
         raise
 
@@ -597,7 +599,8 @@ def _commit_change(cursor, query, params = None):
         else:
             cursor.execute(query)
     except:
-        from multiproject.core.configuration import conf
+        from multiproject.core.configuration import Configuration
+        conf = Configuration.instance()
         conf.log.exception("Query failed: %s" % query)
         raise
 
@@ -611,7 +614,8 @@ def _procedure_call(cursor, procedure, params = None):
         else:
             cursor.callproc(procedure)
     except:
-        from multiproject.core.configuration import conf
+        from multiproject.core.configuration import Configuration
+        conf = Configuration.instance()
         conf.log.exception("Procedure call failed: %s" % procedure)
         return False
 
@@ -625,7 +629,8 @@ def _result_procedure_call(cursor, procedure, params = None):
         else:
             cursor.callproc(procedure)
     except:
-        from multiproject.core.configuration import conf
+        from multiproject.core.configuration import Configuration
+        conf = Configuration.instance()
         conf.log.exception("Procedure call failed: %s" % procedure)
         raise
 

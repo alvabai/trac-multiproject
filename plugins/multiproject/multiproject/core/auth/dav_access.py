@@ -6,7 +6,8 @@ from trac.perm import PermissionCache, PermissionError
 
 from multiproject.core.auth.basic_access import BasicAccessControl
 from multiproject.core.files.api import MappedFileNode, normalized_base_url
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.common.projects import Project
 from multiproject.core.files.files_conf import FilesDownloadConfig, FilesConfiguration
 from multiproject.project.files.timeline import FilesEventNotifier

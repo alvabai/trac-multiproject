@@ -2,7 +2,8 @@
 """
 Migration sets VALID_TO to 2050 and inserts new context_dim
 """
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.db import analytical_query
 from multiproject.core.migration import MigrateBase, MigrateMgr
 

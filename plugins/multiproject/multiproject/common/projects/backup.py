@@ -16,7 +16,8 @@ from trac.util.datefmt import utc
 from trac.util.text import exception_to_unicode
 from trac.util.translation import _
 
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.db import admin_transaction, admin_query
 
 

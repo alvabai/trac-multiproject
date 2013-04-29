@@ -2,9 +2,10 @@ __author__ = 'alhannin'
 
 from multiproject.core.migration import MigrateBase, MigrateMgr
 from multiproject.core.db import db_query, admin_query
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
 import MySQLdb
 
+conf = Configuration.instance()
 
 class WikiStartTimeToUTimeStamp(MigrateBase):
     """

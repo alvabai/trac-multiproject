@@ -20,7 +20,8 @@ from trac.util.translation import _
 
 from multiproject.common.projects.backup import ProjectBackup
 from multiproject.common.projects import Project
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.users import get_userstore
 
 

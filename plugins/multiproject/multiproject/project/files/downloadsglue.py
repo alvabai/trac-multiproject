@@ -13,7 +13,8 @@ from trac.web import IRequestHandler
 from trac.web.chrome import add_warning
 from trac.wiki import IWikiSyntaxProvider, IWikiMacroProvider
 
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.util import filesystem
 from multiproject.core.users import get_userstore
 from multiproject.core.files.api import ProjectDownloadEntry, MappedFileNode, \

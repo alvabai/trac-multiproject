@@ -9,7 +9,8 @@ from genshi.input import HTML
 
 from multiproject.home.timeline.api import GlobalTimeline
 from multiproject.core.cache.timeline_cache import TimelineCache
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 
 import math
 

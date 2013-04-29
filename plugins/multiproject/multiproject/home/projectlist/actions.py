@@ -14,7 +14,8 @@ from trac.web.chrome import _
 from multiproject.core.users import User, get_userstore
 from multiproject.core.util import sanitize_html, safe_address
 from multiproject.core.util.request import get_context, get_user
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.multiproj_exceptions import ProjectValidationException
 from multiproject.core.watchlist import CQDEWatchlistStore
 from multiproject.common.projects import Project, Projects

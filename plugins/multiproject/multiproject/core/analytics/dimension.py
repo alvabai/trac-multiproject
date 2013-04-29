@@ -2,7 +2,8 @@
 import MySQLdb, datetime, urllib
 
 from multiproject.core.authentication import CQDEAuthenticationStore
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.db import analytical_query, analytical_transaction, admin_query, safe_string, safe_int
 from multiproject.core.users import get_userstore
 

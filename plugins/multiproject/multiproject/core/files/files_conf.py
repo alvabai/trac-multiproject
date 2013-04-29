@@ -7,7 +7,7 @@ from trac.core import TracError
 from trac.util import as_bool
 from trac.util.translation import _
 
-from multiproject.core.configuration import Configuration, conf
+from multiproject.core.configuration import Configuration
 from multiproject.core.db import admin_transaction, admin_query
 from multiproject.core.decorators import singleton
 from multiproject.core.files.api import normalized_base_url
@@ -16,6 +16,8 @@ from multiproject.core.util.filesystem import safe_path
 
 
 # TODO: Move FilesDownloadConfig into files/db.py, and others to files/conf.py
+
+conf = Configuration.instance()
 
 @singleton
 class FilesConfiguration(object):

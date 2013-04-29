@@ -51,7 +51,8 @@ from trac.util.translation import _
 from trac.util.html import plaintext
 
 from multiproject.common.projects import Project
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 
 
 class ArchiveSourceModule(Component):

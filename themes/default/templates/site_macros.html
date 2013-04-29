@@ -13,7 +13,8 @@ In addition, the file is also dependant to CQDE api because of the configuration
 
 <?python
 from genshi.core import escape
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.users import get_userstore
 
 if 'setup_late_scripts_and_stylesheets' in chrome:

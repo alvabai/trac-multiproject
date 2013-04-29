@@ -10,7 +10,8 @@ from trac.util.text import to_unicode
 from trac.util.translation import _
 from trac.config import Configuration
 
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 
 def is_component_enabled(self, cls):
     """Implemented to only allow activation of components that are not

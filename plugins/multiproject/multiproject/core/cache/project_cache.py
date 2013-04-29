@@ -1,7 +1,9 @@
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
 from multiproject.core.multiproj_exceptions import SingletonExistsException
 from memcache import Client
 import base64
+
+conf = Configuration.instance()
 
 class ProjectCache(object):
     """ Methods for caching all access control objects
@@ -29,7 +31,8 @@ class ProjectCache(object):
             return self.mc.get(key)
         except Client.MemcachedKeyError:
             # Invalid key, eg. with spaces - should not happen unless someone is manipulating requests
-            from multiproject.core.configuration import conf
+            from multiproject.core.configuration import Configuration
+            conf = Configuration.instance()
             conf.log.warning('ProjectCache.getProjectId invalid key "%s"' % env_name)
             return None
 
@@ -60,7 +63,8 @@ class ProjectCache(object):
             return self.mc.get(key)
         except Client.MemcachedKeyError:
             # Invalid key, eg. with spaces - should not happen unless someone is manipulating requests
-            from multiproject.core.configuration import conf
+            from multiproject.core.configuration import Configuration
+            conf = Configuration.instance()
             conf.log.warning('ProjectCache.getProjectId invalid key "%s"' % env_name)
             return None
 

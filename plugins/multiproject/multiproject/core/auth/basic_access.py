@@ -8,7 +8,8 @@ from multiproject.common.projects import HomeProject, Project
 from multiproject.core.cache.permission_cache import AuthenticationCache
 from multiproject.core.auth.auth import Authentication
 from multiproject.core.users import User, get_userstore
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.proto import ProtocolManager
 from multiproject.core.util import env_id
 

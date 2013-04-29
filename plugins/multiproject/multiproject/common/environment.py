@@ -8,7 +8,8 @@ import hashlib
 from trac.core import TracError
 
 from multiproject.core.db import admin_query
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 
 class TracEnvironment(object):
     """

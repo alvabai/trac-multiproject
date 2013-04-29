@@ -11,7 +11,8 @@ from trac.web.chrome import add_script, Markup, tag
 
 from multiproject.common.notifications.email import EmailNotifier
 from multiproject.core.authentication import CQDEAuthenticationStore
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.permissions import CQDEOrganizationStore
 from multiproject.core.auth.local_auth import LocalAuthentication
 from multiproject.core.users import User, get_userstore, DATEFORMATS

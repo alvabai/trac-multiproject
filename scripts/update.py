@@ -8,7 +8,10 @@ import logging
 import optparse
 
 from multiproject.core.migration import MigrateMgr
-from multiproject.core.configuration import conf, Configuration
+from multiproject.core.configuration import Configuration
+
+
+conf = Configuration.instance()
 
 
 def main():

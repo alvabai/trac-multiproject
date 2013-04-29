@@ -4,7 +4,8 @@ from trac.config import ListOption, Option
 from trac.core import Component, implements
 from trac.web import IRequestFilter
 
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 
 
 class ChromeHrefItemsReplacement(list):

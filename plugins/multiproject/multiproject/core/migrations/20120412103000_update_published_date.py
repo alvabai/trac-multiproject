@@ -9,7 +9,8 @@ After this migration, the projects.published field is NULL <=> the project is pu
 """
 from multiproject.core.db import admin_query, cursors
 from multiproject.core.migration import MigrateBase, MigrateMgr
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 
 class UserPermissionRename(MigrateBase):
 

@@ -5,7 +5,8 @@ import struct
 
 import MySQLdb
 
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.multiproj_exceptions import SingletonExistsException
 from multiproject.core.db import admin_query, admin_transaction
 from multiproject.core.users import get_userstore

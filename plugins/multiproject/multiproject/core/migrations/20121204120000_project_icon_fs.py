@@ -19,8 +19,10 @@ import Image
 
 from multiproject.core.db import admin_query, cursors, admin_transaction
 from multiproject.core.migration import MigrateBase, MigrateMgr
-from multiproject.core.configuration import DimensionOption, conf
+from multiproject.core.configuration import DimensionOption
+from multiproject.core.configuration import Configuration
 
+conf = Configuration.instance()
 
 class ProjectIcons2FS(MigrateBase):
     """

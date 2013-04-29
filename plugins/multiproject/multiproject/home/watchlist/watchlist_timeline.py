@@ -7,7 +7,8 @@ from trac.web import IRequestHandler
 from trac.web.chrome import ITemplateProvider
 
 from multiproject.common.projects import Project
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.users import get_userstore
 from multiproject.core.util import to_web_time
 from multiproject.core.watchlist import CQDEWatchlistStore

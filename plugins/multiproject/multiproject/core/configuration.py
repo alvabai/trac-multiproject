@@ -563,7 +563,7 @@ class Configuration(object):
         """
         Loads and returns the Trac environment from special home project
         """
-        return open_environment(env_path=os.path.join(conf.sys_projects_root, conf.sys_home_project_name), use_cache=True)
+        return open_environment(env_path=os.path.join(self.sys_projects_root, self.sys_home_project_name), use_cache=True)
 
 
     def refresh(self):
@@ -950,7 +950,7 @@ class Configuration(object):
            This will initialize new trac environment which is heavy operation to do
         """
         # TODO: whole method should be removed
-        env = open_environment(conf.getEnvironmentSysPath(env_name), use_cache=True)
+        env = open_environment(self.getEnvironmentSysPath(env_name), use_cache=True)
         return env.config.get('trac', 'repository_type')
 
     def getVersionControlName(self, vcs_type):
@@ -1012,4 +1012,3 @@ class Configuration(object):
         return False
 
 
-conf = Configuration.instance()

@@ -9,7 +9,8 @@ from trac.web.api import ITemplateStreamFilter, IRequestFilter
 from trac.web.chrome import add_warning, add_notice, _, add_stylesheet, add_script
 from genshi.filters.transform import Transformer
 
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.users import get_userstore
 from multiproject.core.auth.auth import Authentication
 from multiproject.core.ssh_keys import CQDESshKeyStore, SshKey

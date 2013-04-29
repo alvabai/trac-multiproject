@@ -18,7 +18,8 @@ try:
 except ImportError:
     from md5 import md5
 
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 from multiproject.core.util.ldaphelper import get_search_results
 from multiproject.core.cache.user_cache import UserCache
 from multiproject.core.cache.permission_cache import AuthenticationCache

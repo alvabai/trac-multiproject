@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from multiproject.core.auth.dav_access import DownloadsDAVAccessControl
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
+conf = Configuration.instance()
 try:
     # If this file is included via python console, the following import would cause problems
     from mod_python.apache import HTTP_UNAUTHORIZED, HTTP_FORBIDDEN, HTTP_BAD_REQUEST, OK
