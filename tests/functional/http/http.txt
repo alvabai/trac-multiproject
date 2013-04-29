@@ -44,6 +44,7 @@ Myget
   ${cookie_hdrs}=  Get Cookie Header  ${suite_cookies}
   Set Request Header  Cookie  ${cookie_hdrs}
   GET  ${url}
+  Log  ${url}
   Save cookies
 
 
