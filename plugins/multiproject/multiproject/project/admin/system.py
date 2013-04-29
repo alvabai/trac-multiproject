@@ -39,6 +39,8 @@ class SystemAdminPanel(Component):
         project = Project.get(self.env)
 
         if req.method == 'POST':
+            myprojects_url = conf.url_home_path + "/myprojects"
+            conf.log.exception("Redirect URL: %s" % myprojects_url)
             thisurl = Href(req.base_path)(req.path_info)
             context = Context.from_request(req)
 
@@ -69,7 +71,7 @@ class SystemAdminPanel(Component):
                         listener.project_deleted(project)
 
                     # NOTE: We no longer have project tables/session etc available
-                    req.redirect("../home/myprojects")
+                    req.redirect(myprojects_url)
 
                 else:
                     add_warning(req, 'Could not remove project "%s". Try again later' % project.project_name)

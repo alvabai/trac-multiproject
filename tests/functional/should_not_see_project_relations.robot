@@ -7,11 +7,11 @@ Test Setup  Go to Welcome Page
 Suite Teardown  Close Browser
 
 *** Variables ***
-${proj_name}  duplicate_project_cxm
 
 *** Test Cases ***
 
 Should not see project relations in Admin space
+    ${proj_name}  Get unique project name 
     Create new project    ${proj_name}
     Title should be  ${proj_name} – ${proj_name}
     Click link  Admin

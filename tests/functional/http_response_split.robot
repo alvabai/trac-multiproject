@@ -14,7 +14,8 @@ ${HTTP_SPLIT_URL}  ${proj_name}/x%0d%0aContent-Type:text/html%0d%0a%0d%0a%3Cimg%
 *** Test Cases ***
 Request with invalid characters should be denied
     [Documentation]  This tests a scenario of HTTP response splitting
-    [Setup]  Create new project  ${proj_name}
+    ${proj_name}  Get unique project name 
+    Create new project  ${proj_name}
     Log    ${SERVER}
     Go to  ${SERVER}/${HTTP_SPLIT_URL}
     Page should contain   403
