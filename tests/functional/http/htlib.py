@@ -89,11 +89,13 @@ def element_should_contain(html, elem, content):
     """Verify that the html given has an element containing given content."""
     from bs4 import BeautifulSoup
     soup = BeautifulSoup(html)
+    status = False
     for item in soup.findChildren(elem):
         if content in str(item):
-            return True
+            status = True
 
-    return False
+    if (status != True):
+        raise  ValueError("element %s does not contain value '%s'." % (elem, content))
 
 
 
