@@ -72,11 +72,8 @@ Create new project
   [Documentation]  Create a new project. Arguments: project name and type (svn,hg,git)
   [Arguments]  ${proj}  ${type}=svn
   Myget  /home/project
-  Log Response Headers
   Remove from dictionary  ${suite_cookies}  trac_session 
-  Mypost  /home/project/new  action=create&prj_long_name=${proj}&prj_short_name=${proj}&prj_description=Just_a_dummy_description&prj_is_public=on&scm_source=create&vcstype=${type}
-  Log Response Headers
-  Follow Response
+  Mypost  /home/project/create  action=create&prj_long_name=${proj}&prj_short_name=${proj}&prj_description=Just_a_dummy_description&prj_is_public=on&scm_source=create&vcstype=${type}
 
 
 Element Should contain

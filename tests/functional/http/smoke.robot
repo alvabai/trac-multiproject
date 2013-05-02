@@ -17,7 +17,6 @@ Go to home page
 Go to admin page
   Myget  /foo/admin
   ${body}=  Get Response Body
-  Show response body in browser
   Element Should contain  ${body}  title  Administration: Basics - foo
 
 Creating a project should work
@@ -26,7 +25,7 @@ Creating a project should work
   ${body}=  Get Response Body
   Show response body in browser
   Log Response Headers
-  htlib.Element Should contain  ${body}  title  ${project}
+  Element Should contain  ${body}  title  ${project}
 
 
 Changing project description should work
@@ -41,7 +40,6 @@ Changing project description should work
 Changing project visibility should work
   Myget  /foo/admin/general/permissions
   ${body}=  Get Response Body
-  Show response body in browser
   Element Should contain  ${body}  p  Project is currently: <strong>public</strong>
   Change project visibility  foo  private
   [Teardown]  Change project visibility  foo  public
