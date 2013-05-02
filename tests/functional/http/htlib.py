@@ -88,9 +88,12 @@ def parse_cookie(cookie, sub="session"):
 def element_should_contain(html, elem, content):
     """Verify that the html given has an element containing given content."""
     from bs4 import BeautifulSoup
+    import sys
     soup = BeautifulSoup(html)
     status = False
+    print ("*TRACE* going trough children of %s " % elem)
     for item in soup.findChildren(elem):
+        print ("*TRACE* found child: %s" % item )
         if content in str(item):
             status = True
 
