@@ -92,8 +92,8 @@ class BrowserModifyModule(Component):
 
         # username was taken from use because of problems resolving nokia account id
         co_commands = {}
-        co_commands['git'] = 'git clone %(scheme)s://%(domain)s/%(project)s/%(scm)s/%(repository_name)s'
-        co_commands['gitssh'] = 'git clone %(scheme)s://git@%(domain)s/%(project)s/%(scm)s/%(repository_name)s'
+        co_commands['git'] = 'git clone %(scheme)s://%(domain)s/%(project)s/git/%(repository_name)s'
+        co_commands['gitssh'] = 'git clone %(scheme)s://git@%(domain)s/%(project)s/git/%(repository_name)s'
         co_commands['svn'] = 'svn co %(scheme)s://%(domain)s/%(project)s/%(scm)s/%(repository_name)s'
         co_commands['hg'] = 'hg clone %(scheme)s://%(domain)s/%(project)s/%(scm)s/%(repository_name)s'
 
