@@ -17,7 +17,7 @@ Change project visibility
   Myget   /${project}/admin/general/permissions
   Mypost  /${project}/admin/general/permissions  make${visibility}=Make ${visibility}
   ${body}=  Get Response Body
-  htlib.Element Should contain  ${body}  elem="p"  Project is currently : <strong>${visibility}</strong>
+  Element Should contain  ${body}  p  Project is currently: <strong>${visibility}</strong>
 
 
 Setup and login
@@ -57,7 +57,9 @@ Mypost
   Set Request Body  __FORM_TOKEN=${form_token}&${form_values}
   POST  ${url}
   Save cookies
-  Follow Response
+  ${status}=  Get Response Status
+  Run Keyword If  '${status}' == '302 Found'  Follow Response
+  Run Keyword If  '${status}' == '303 See Other'  Follow Response
 
 
 Save cookies
@@ -65,5 +67,23 @@ Save cookies
   ${headers}=  Get Response Header  set-cookie
   ${cookies}=  Headers to Dict  ${headers}  key=trac
   Update Dictionary  ${suite_cookies}  ${cookies}
+
+Create new project
+  [Documentation]  Create a new project. Arguments: project name and type (svn,hg,git)
+  [Arguments]  ${proj}  ${type}=svn
+  Myget  /home/project
+  Log Response Headers
+  Remove from dictionary  ${suite_cookies}  trac_session 
+  Mypost  /home/project/new  action=create&prj_long_name=${proj}&prj_short_name=${proj}&prj_description=Just_a_dummy_description&prj_is_public=on&scm_source=create&vcstype=${type}
+  Log Response Headers
+  Follow Response
+
+
+Element Should contain
+  [Documentation]  Check that in the content, some of the given element's
+  ...              children contains the given string.
+  [Arguments]  ${body}  ${element}  ${content}
+  ${body}=  Convert To String  ${body})
+  htlib.Element Should contain  ${body}  ${element}  ${content}
 
 # vim: syntax=robot
