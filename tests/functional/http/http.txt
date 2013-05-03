@@ -20,18 +20,6 @@ Change project visibility
   ${body}=  Get Response Body
   Element Should contain  ${body}  p  Project is currently: <strong>${visibility}</strong>
 
-
-Setup and login
-  [Documentation]  Create a new project and set its name as a suite variable ${suite_project}.
-  ...              It can then be used trough the test suite. Create also a
-  ...              ${suite_cookies}-dictionary for cookies.
-  ${suite_cookies}=  Create Dictionary
-  Set Suite Variable  ${suite_cookies}
-  Login
-  ${suite_project}=  Get Unique Project Name
-  Create new project  ${suite_project}
-  Set Suite Variable  ${suite_project}
-
 Login
   [Documentation]  Send a HTTP GET request, sending and storing all the cookies.
   [Arguments]  ${login_url}=/  ${params}=${EMPTY}
@@ -41,6 +29,24 @@ Login
   Run Keyword If  '${status}' == '302 Found'  Follow Response
   Save cookies
   Mypost  /home/user  username=${VALID_USER}&password=${VALID_PASSWD}&login=Login&action=do_login
+
+
+Setup and login
+  [Documentation]  Create a suite-level variable ${suite_cookies},
+  ...              which is used to hold cookies during test suite.
+  ${suite_cookies}=  Create Dictionary
+  Set Suite Variable  ${suite_cookies}
+  Login
+
+
+Setup and create project
+  [Documentation]  Create a new project and save its name
+  ...              to a suite variable ${suite_project}.
+  Setup and login
+  ${suite_project}=  Get Unique Project Name
+  Create new project  ${suite_project}
+  Set Suite Variable  ${suite_project}
+
 
 Logout
   Myget  /home/user?action=logout

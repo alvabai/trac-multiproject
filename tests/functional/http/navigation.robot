@@ -9,6 +9,7 @@ Variables       urls.py
 *** Test Cases ***
 
 URLs should be valid
-  ${project}=  Set Variable  foo
+  ${project}=  Get unique project name
+  Create new project  ${project}
   :FOR  ${url}  IN  @{URLS}
   \  Run Keyword And Continue On Failure   Myget  /${project}/${url}
