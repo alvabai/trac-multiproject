@@ -78,6 +78,10 @@ class RepositoriesAdminPanel(Component):
         os.rename(path, path2)
 
     def add_repository(self, name, repo_type, req):
+        premade_repositories = self.get_repositories()
+        for repo in premade_repositories:
+            if name in repo[0]:
+                return add_warning(req, _("Repository name reserved"))
         if not self.validate_repository_name(name):
             return add_warning(req, _("Repository adding failed. Check name."))
         project = Project._get_project(env_name=self.env.project_identifier, use_cache=False)
