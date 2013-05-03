@@ -2,7 +2,7 @@
 Resource       ${ENVIRONMENT}.txt
 Resource       ../common_keywords.txt
 Resource       http.txt
-Suite Setup    Setup and login
+Suite Setup    Setup and login  # creates ${suite_project} and ${suite_cookies}
 Suite Teardown  Logout
 
 *** Variables ***
@@ -15,34 +15,33 @@ Go to home page
   Element Should contain  ${body}  title  multiproject - home
 
 Go to admin page
-  Myget  /foo/admin
+  Myget  /${suite_project}/admin
   ${body}=  Get Response Body
-  Element Should contain  ${body}  title  Administration: Basics - foo
+  Element Should contain  ${body}  title  Administration: Basics - ${suite_project}
 
 Creating a project should work
   ${project}=  Get unique project name
   Create new project  ${project}
   ${body}=  Get Response Body
-  Show response body in browser
-  Log Response Headers
   Element Should contain  ${body}  title  ${project}
 
 
 Changing project description should work
+  [Documentation]  Change description for ${suite_project}
   ${time}=  Get time
   ${new_desc}=  Set Variable  New description at ${time}
-  Change project description  foo  ${new_desc}
-  Myget  /foo
+  Change project description  ${suite_project}  ${new_desc}
+  Myget  /${suite_project}
   ${body}=  Get Response Body
   Element Should contain  ${body}  p  ${new_desc}
 
 
 Changing project visibility should work
-  Myget  /foo/admin/general/permissions
+  Myget  /${suite_project}/admin/general/permissions
   ${body}=  Get Response Body
   Element Should contain  ${body}  p  Project is currently: <strong>public</strong>
-  Change project visibility  foo  private
-  [Teardown]  Change project visibility  foo  public
+  Change project visibility  ${suite_project}  private
+  [Teardown]  Change project visibility  ${suite_project}  public
 
 *** Keywords ***
 
