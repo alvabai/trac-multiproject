@@ -2211,7 +2211,7 @@ div#fancy-bg-nw {
     overflow: hidden;
     padding: 5px;
     white-space: nowrap;
-    width: 580px;
+    min-width: 580px;
 }
 
 #repo_address_container .protocolselector {
