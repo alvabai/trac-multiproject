@@ -26,7 +26,8 @@ class BrowserModifyModule(Component):
         data_repositories = None
         conf.log.exception("Path length: %s" % len(req.path_info.split("/")))
         if len(req.path_info.split("/")) > 2:
-            repository_name = req.path_info.split("/")[-1]
+            #Get repository name from path_info
+            repository_name = req.path_info.split("/")[2]
         conf.log.exception("Repo name: %s" % repository_name)
         if template == 'browser.html':
             username = urllib.quote(req.authname)
