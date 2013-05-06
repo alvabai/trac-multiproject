@@ -87,6 +87,7 @@ class Projects(object):
         :arg project: :class:`Project` to be removed.
         """
         vcs_type = conf.getVersionControlType(project.env_name)
+        vcs_name = ""
 
         # Remove project from db
         cmd = commands.ListUpProject(project)
@@ -99,11 +100,11 @@ class Projects(object):
         cmd.undo()
 
         # Remove trac environment
-        cmd = commands.CreateTracEnvironment(project, {'vcs_type': vcs_type})
+        cmd = commands.CreateTracEnvironment(project, {'vcs_type': vcs_type, 'vcs_name': vcs_name})
         cmd.success = True
         cmd.undo()
 
-        cmd = commands.CreateTracVersionControl(project, {'vcs_type': vcs_type})
+        cmd = commands.CreateTracVersionControl(project, {'vcs_type': vcs_type, 'vcs_name': vcs_name})
         cmd.success = True
         cmd.undo()
 
