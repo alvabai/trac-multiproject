@@ -21,7 +21,7 @@ class BrowserModifyModule(Component):
         return handler
 
     def post_process_request(self, req, template, data, content_type):
-        add_script(req, 'multiproject/js/browser.js')
+        #add_script(req, 'multiproject/js/browser.js')
         repository_name = None
         data_repositories = None
         conf.log.exception("Path length: %s" % len(req.path_info.split("/")))

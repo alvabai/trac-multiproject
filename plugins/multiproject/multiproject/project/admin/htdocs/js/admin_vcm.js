@@ -16,6 +16,10 @@ $("#add_new_repository").live("submit", function(){
     return check;
 });
 
+$("#delete_repositories").live("submit", function(){
+    return confirm("Are you sure you want to delete?");
+});
+
 (function($, window, undefined) {
     var multiproject = window.multiproject;
     $(document).ready(function(){
