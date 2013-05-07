@@ -19,9 +19,9 @@ Go to admin page
   ${body}=  Get Response Body
   Element Should contain  ${body}  title  Administration: Basics - ${suite_project}
 
-Creating a project should work
+Creating a new project with svn repo should work
   ${project}=  Get unique project name
-  Create new project  ${project}
+  Create new project  ${project}  ${project}-svn-repo  svn
   ${body}=  Get Response Body
   Element Should contain  ${body}  title  ${project}
 

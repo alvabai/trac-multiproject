@@ -40,11 +40,13 @@ Setup and login
 
 
 Setup and create project
-  [Documentation]  Create a new project and save its name
+  [Documentation]  Create a new project with svn repo and if succeeded, save its name
   ...              to a suite variable ${suite_project}.
   Setup and login
   ${suite_project}=  Get Unique Project Name
-  Create new project  ${suite_project}
+  Create new project  ${suite_project}  ${suite_project}-svn  svn
+  ${body}=  Get Response Body
+  Element Should contain  ${body}  title  ${suite_project}
   Set Suite Variable  ${suite_project}
 
 
@@ -81,12 +83,13 @@ Save cookies
   ${cookies}=  Headers to Dict  ${headers}  key=trac
   Update Dictionary  ${suite_cookies}  ${cookies}
 
+
 Create new project
   [Documentation]  Create a new project. Arguments: project name and type (svn,hg,git)
-  [Arguments]  ${proj}  ${type}=svn
+  [Arguments]  ${proj}  ${reponame}  ${type}=svn
   Myget  /home/project
   Remove from dictionary  ${suite_cookies}  trac_session 
-  Mypost  /home/project/create  action=create&prj_long_name=${proj}&prj_short_name=${proj}&prj_description=Just_a_dummy_description&prj_is_public=on&scm_source=create&vcstype=${type}
+  Mypost  /home/project/create  action=create&prj_long_name=${proj}&prj_short_name=${proj}&prj_description=Just_a_dummy_description&prj_is_public=on&scm_source=create&vcstype=${type}&vcs_name=${reponame}
 
 
 Element Should contain

@@ -10,6 +10,6 @@ Variables       urls.py
 
 URLs should be valid
   ${project}=  Get unique project name
-  Create new project  ${project}
+  Create new project  ${project}  ${project}-git-repo  git
   :FOR  ${url}  IN  @{URLS}
   \  Run Keyword And Continue On Failure   Myget  /${project}/${url}
