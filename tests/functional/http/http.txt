@@ -97,6 +97,9 @@ Add a repository
   [Arguments]  ${proj}  ${repotype}  ${reponame}
   Myget  /${proj}/admin/general/vcm
   Mypost  /${proj}/admin/general/vcm  repo_name=${reponame}&repo_type=${repotype}
+  Myget  /${suite_project}/browser
+  ${body}=  Get Response Body
+  Element Should contain  ${body}  a  ${reponame}
 
 
 Element Should contain

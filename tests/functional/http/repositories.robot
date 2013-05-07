@@ -18,6 +18,11 @@ Repository manager should be accessible
 Adding new SVN repository should succeed
   [Documentation]  Test that we can add a svn repository.
   Add a repository  ${suite_project}  svn  my-svn-repository
-  Myget  /${suite_project}/browser
-  ${body}=  Get Response Body
-  Element Should contain  ${body}  a  my-svn-repository
+
+
+Adding new repositories should succeed
+  [Documentation]  Test that we can add new repositories.
+  [Template]  Add a repository
+  ${suite_project}  svn  my-svn-repository
+  ${suite_project}  git  my-git-repository
+  ${suite_project}  hg  my-hg-repository
