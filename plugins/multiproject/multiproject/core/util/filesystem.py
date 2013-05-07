@@ -48,7 +48,7 @@ def safe_path(*path_parts):
     """
     Joins the path elements similar to ``os.path.join`` but in more secure manner
 
-    Check the parameters for not containing '..' or '/'.
+    Check the parameters for not containing '../' or '/'.
     This is because os.path.join is used, which ignores previous parts if one part begins with '/'.
     If some args are empty, they are not used.
     Returns a string like '/', '/folder', '/folder/file.txt'
@@ -73,8 +73,8 @@ def safe_path(*path_parts):
         # Normalize path from multiple slashes
         path_part = os.path.normpath(path_part)
 
-        # No .. are allowed
-        if '..' in path_part:
+        # No ../ are allowed
+        if '../' in path_part:
             logging.warning('Invalid file path. Path arguments: {0}'.format(path_parts))
             raise TracError('Error in filename or path')
 
