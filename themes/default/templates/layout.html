@@ -10,7 +10,7 @@
 
   <py:match path="head" once="true"><head>
     <title py:with="title = list(select('title/text()'))">
-      <py:if test="title">${title} – </py:if>${project.name or 'Trac'}
+      <py:if test="title">${title} - </py:if>${project.name or 'Trac'}
     </title>
     <meta py:if="chrome.content_type == 'text/html'" http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta py:if="chrome.content_type == 'text/html'" http-equiv="X-UA-Compatible" content="IE=8" />

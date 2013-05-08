@@ -40,11 +40,13 @@ Setup and login
 
 
 Setup and create project
-  [Documentation]  Create a new project and save its name
+  [Documentation]  Create a new project with svn repo and if succeeded, save its name
   ...              to a suite variable ${suite_project}.
   Setup and login
   ${suite_project}=  Get Unique Project Name
-  Create new project  ${suite_project}
+  Create new project  ${suite_project}  ${suite_project}-svn  svn
+  ${body}=  Get Response Body
+  Element Should contain  ${body}  title  ${suite_project}
   Set Suite Variable  ${suite_project}
 
 
@@ -81,19 +83,49 @@ Save cookies
   ${cookies}=  Headers to Dict  ${headers}  key=trac
   Update Dictionary  ${suite_cookies}  ${cookies}
 
+
 Create new project
   [Documentation]  Create a new project. Arguments: project name and type (svn,hg,git)
-  [Arguments]  ${proj}  ${type}=svn
+  [Arguments]  ${proj}  ${reponame}  ${type}=svn
   Myget  /home/project
   Remove from dictionary  ${suite_cookies}  trac_session 
-  Mypost  /home/project/create  action=create&prj_long_name=${proj}&prj_short_name=${proj}&prj_description=Just_a_dummy_description&prj_is_public=on&scm_source=create&vcstype=${type}
+  Mypost  /home/project/create  action=create&prj_long_name=${proj}&prj_short_name=${proj}&prj_description=Just_a_dummy_description&prj_is_public=on&scm_source=create&vcstype=${type}&vcs_name=${reponame}
+
+
+Add a repository
+  [Documentation]  Add a new repository of given type to given project.
+  [Arguments]  ${proj}  ${repotype}  ${reponame}
+  Myget  /${proj}/admin/general/vcm
+  Mypost  /${proj}/admin/general/vcm  repo_name=${reponame}&repo_type=${repotype}
+  # verify that response contains new repository
+  ${body}=  Get Response Body
+  Element Should contain  ${body}  td  ${reponame}
+  # verify that response does not contain error message 
+  ${body}=  Convert To String  ${body}
+  Should not contain  ${body}  Repository name reserved
+  # verify that new repository is also seen on source tab
+  Myget  /${suite_project}/browser
+  ${body}=  Get Response Body
+  Element Should contain  ${body}  a  ${reponame}
+
+
+Delete repository
+  [Documentation]  Delete one repository from project. 
+  ...              Parameters: project name, repository type and name
+  [Arguments]  ${proj}  ${repotype}  ${reponame}
+  Mypost  /${proj}/admin/general/vcm  repos[]=${reponame}#${repotype}
+  ${body}=  Get Response Body
+  ${body}=  Convert To String  ${body}
+  Should not contain  ${body}  Repository name reserved
+
 
 
 Element Should contain
+  # This keyword is used to get rid of unicode conversion errors
   [Documentation]  Check that in the content, some of the given element's
   ...              children contains the given string.
   [Arguments]  ${body}  ${element}  ${content}
-  ${body}=  Convert To String  ${body})
+  ${body}=  Convert To String  ${body}
   htlib.Element Should contain  ${body}  ${element}  ${content}
 
 # vim: syntax=robot
