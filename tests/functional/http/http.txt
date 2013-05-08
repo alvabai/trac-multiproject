@@ -116,9 +116,12 @@ Delete repository
   Mypost  /${proj}/admin/general/vcm  repos[]=${reponame}#${repotype}
   ${body}=  Get Response Body
   ${body}=  Convert To String  ${body}
-  Should not contain  ${body}  Repository name reserved
+  Should not contain  ${body}  ${reponame}
 
-
+Add and delete a repository
+  [Arguments]  ${type}
+  Add a repository  ${suite_project}  ${type}   my2-${type}-repo
+  Delete repository  ${suite_project}  ${type}  my2-${type}-repo
 
 Element Should contain
   # This keyword is used to get rid of unicode conversion errors
