@@ -15,11 +15,6 @@ Repository manager should be accessible
   Element Should contain  ${body}  h2  Add new repository
 
 
-Adding new SVN repository should succeed
-  [Documentation]  Test that we can add a svn repository.
-  Add a repository  ${suite_project}  svn  my-svn-repository
-
-
 Adding new repositories should succeed
   [Documentation]  Test that we can add new repositories.
   [Template]  Add a repository

@@ -97,6 +97,13 @@ Add a repository
   [Arguments]  ${proj}  ${repotype}  ${reponame}
   Myget  /${proj}/admin/general/vcm
   Mypost  /${proj}/admin/general/vcm  repo_name=${reponame}&repo_type=${repotype}
+  # verify that response contains new repository
+  ${body}=  Get Response Body
+  Element Should contain  ${body}  td  ${reponame}
+  # verify that response does not contain error message 
+  ${body}=  Convert To String  ${body})
+  Should not contain  ${body}  Repository name reserved
+  # verify that new repository is also seen on source tab
   Myget  /${suite_project}/browser
   ${body}=  Get Response Body
   Element Should contain  ${body}  a  ${reponame}
