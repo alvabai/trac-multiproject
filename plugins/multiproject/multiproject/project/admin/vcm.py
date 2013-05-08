@@ -47,10 +47,10 @@ class RepositoriesAdminPanel(Component):
         raw_data = self.config.options('repositories')
         repos = []
         for option in raw_data:
-            if option[0].endswith('.type'):
+            if option[0].endswith('.dir'):
                 temp = []
-                temp.append(option[0].split('.')[0])
-                temp.append(option[1])
+                temp.append(option[1].split('/')[-1])
+                temp.append(option[1].split('/')[-2])
                 repos.append(temp)
         return repos
 
