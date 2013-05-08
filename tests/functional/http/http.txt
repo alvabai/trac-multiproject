@@ -101,7 +101,7 @@ Add a repository
   ${body}=  Get Response Body
   Element Should contain  ${body}  td  ${reponame}
   # verify that response does not contain error message 
-  ${body}=  Convert To String  ${body})
+  ${body}=  Convert To String  ${body}
   Should not contain  ${body}  Repository name reserved
   # verify that new repository is also seen on source tab
   Myget  /${suite_project}/browser
@@ -109,12 +109,23 @@ Add a repository
   Element Should contain  ${body}  a  ${reponame}
 
 
+Delete repository
+  [Documentation]  Delete one repository from project. 
+  ...              Parameters: project name, repository type and name
+  [Arguments]  ${proj}  ${repotype}  ${reponame}
+  Mypost  /${proj}/admin/general/vcm  repos[]=${reponame}#${repotype}
+  ${body}=  Get Response Body
+  ${body}=  Convert To String  ${body}
+  Should not contain  ${body}  Repository name reserved
+
+
+
 Element Should contain
   # This keyword is used to get rid of unicode conversion errors
   [Documentation]  Check that in the content, some of the given element's
   ...              children contains the given string.
   [Arguments]  ${body}  ${element}  ${content}
-  ${body}=  Convert To String  ${body})
+  ${body}=  Convert To String  ${body}
   htlib.Element Should contain  ${body}  ${element}  ${content}
 
 # vim: syntax=robot

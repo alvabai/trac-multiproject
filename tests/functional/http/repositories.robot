@@ -21,3 +21,8 @@ Adding new repositories should succeed
   ${suite_project}  svn  my-svn-repository
   ${suite_project}  git  my-git-repository
   ${suite_project}  hg  my-hg-repository
+
+Deleting repositories should succeed
+  Add a repository  ${suite_project}  svn  my-svn-repo
+  Delete repository  ${suite_project}  svn  my-svn-repo
+  Show response body in browser
