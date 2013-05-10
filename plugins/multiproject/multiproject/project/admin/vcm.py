@@ -80,7 +80,7 @@ class RepositoriesAdminPanel(Component):
     def add_repository(self, name, repo_type, req):
         premade_repositories = self.get_repositories()
         for repo in premade_repositories:
-            if name in repo[0]:
+            if name.lower() in repo[0].lower():
                 return add_warning(req, _("Repository name reserved"))
         if not self.validate_repository_name(name):
             return add_warning(req, _("Repository adding failed. Check name."))
