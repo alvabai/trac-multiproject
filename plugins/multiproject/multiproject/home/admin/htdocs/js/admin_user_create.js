@@ -44,10 +44,18 @@ $(document).ready(function(){
     // Bind events
     //username_check.click(check_username, 'username');
     username_check.live("click", function(evt){
-        check_value(evt, 'username', username, username_field);
+        if (username_field.val() == "") {
+            alert("username missing.");
+        }else{
+        check_value(evt, 'username', username, username_field);            
+        }
     });
     email_check.live("click", function(evt){
-        check_value(evt, 'email', email_element, email_field);
+        if (email_field.val() == "") {
+            alert("email missing.");
+        }else{
+            check_value(evt, 'email', email_element, email_field);
+        }
     });
     firstname_field.keyup(update_username);
     lastname_field.keyup(update_username);
