@@ -22,7 +22,17 @@ Adding new repositories should succeed
   ${suite_project}  git  my-git-repository
   ${suite_project}  hg  my-hg-repository
 
+
 Deleting repositories should succeed
-  Add a repository  ${suite_project}  svn  my-svn-repo
-  Delete repository  ${suite_project}  svn  my-svn-repo
-  Show response body in browser
+  [Documentation]  Add and delete a svn, git and hg repository.
+  [Template]  Add and delete a repository
+  svn
+  git
+  hg
+
+Project should be downloadable as a zip archive
+  Myget  /${suite_project}/admin/general/vcm
+  Fail
+
+Project should be downloadable as a gzip archive
+  Fail
