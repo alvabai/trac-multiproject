@@ -2192,3 +2192,43 @@ div#fancy-bg-nw {
   background-color: white;
   display: none;
 }
+
+
+/****************START BROWSE TAB SECTION *****************/
+
+#repo_address_container {
+    clear: both;
+}
+
+#repo_address_container .repoaddress {
+    background-color: white;
+    border: 1px solid #EBEBEB;
+    display: inline-block;
+    height: 13px;
+    margin-left: 10px;
+    margin-right: 1px;
+    margin-top: 0;
+    overflow: hidden;
+    padding: 5px;
+    white-space: nowrap;
+    min-width: 580px;
+}
+
+#repo_address_container .protocolselector {
+    padding-top: 6px;
+    border-left: 1px solid #CCCCCC;
+    float: left;
+}
+
+#repo_address_container .protocolselector span {
+    border-right: 1px solid #CCCCCC;
+    padding: 0 10px;
+    cursor: pointer;
+}
+
+#repoindex .url_changer {
+    float: left;
+}
+
+
+/****************END OF BROWSE TAB SECTION ****************/

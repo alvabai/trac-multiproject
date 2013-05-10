@@ -1,0 +1,9 @@
+*** Keywords ***
+
+Get unique project name
+  [Documentation]  Create a project name that is should not 
+  ...              conflict with previous ones.
+  [Arguments]      ${prefix}=proj_
+  ${time}=         Get time  epoch
+  ${name}=         Set variable  ${prefix}${time}
+  [Return]         ${name}

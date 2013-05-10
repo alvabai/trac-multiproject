@@ -90,7 +90,10 @@ class ArchiveSourceModule(Component):
             repo_type = rm.repository_type
 
             # Construct the export urls for each format and based on revision info
-            latest_rev = plaintext(str(req.args.get('rev', repo.get_youngest_rev())))
+            try:
+                latest_rev = plaintext(str(req.args.get('rev', repo.get_youngest_rev())))
+            except:
+                pass
 
             # Use Trac's internal implementation
             if repo_type == 'svn':

@@ -37,10 +37,6 @@ class MercurialAccessControl(BasicAccessControl):
         if self.cmd not in wireproto.commands.keys():
             return False
 
-        # Path must not continue after identifier
-        parts = self.req.uri.split('/')
-        if len(parts) > 3 and len(parts[3]) > 0:
-            return False
         return True
 
     def is_read(self):
