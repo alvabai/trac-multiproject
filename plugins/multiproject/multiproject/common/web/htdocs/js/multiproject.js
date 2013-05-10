@@ -358,37 +358,6 @@
         };
 
         /**
-         * Function for checking if the given username conflicts
-         * @param {String} username
-         * @param {function} callback
-         */
-        this.checkConflict = function(callback, db_field, input_field) {
-            var result = false;
-            var username = input_field.val();
-            var users = multiproject.api.Users();
-
-            // Make AJAX request to fetch users
-            users.queryUsers({query: username, fields: [db_field], limit:40, cb: function(data){
-                // Iterate all the results and check if there are users with same username
-                for(var entry in data) {
-                    if(db_field == 'username'){
-                        if (data[entry].username === username) {
-                            result = true;
-                            break;
-                        }
-                    }
-                    else {
-                        if (data[entry].email === username) {
-                            result = true;
-                            break;
-                        }   
-                    }
-                }
-                callback(result);
-            }});
-        };
-
-        /**
          * Replace unwanted characters
          * @param str
          * @return {String} safe string
@@ -703,29 +672,6 @@
             placeholder: placeholder,
             events: {
                 click: 'toggleProfileBox'
-                /*
-                mouseover: function(self, box, clicked) {
-                    self.openProfileBox(self, box, clicked);
-                    // Bind mouse out for box
-                    box.unbind('mouseout');
-                    box.bind('mouseout', function(event){
-                        // Close profilebox if event coming outside of the box
-                        var contains = $.contains(this, event.relatedTarget);
-                        if (contains === false || contains === 0) {
-                            self.closeProfileBox(self, box, clicked);
-                        }
-                    });
-                },
-                mouseout: function(self, box, clicked) {
-                    var epos = multiproject.getPosition(self.event);
-                    var boxpos = box.offset();
-
-                    // Fire event only if does not happen next to box
-                    if (Math.abs(boxpos.top - epos.top) >= (clicked.height() / 2)) {
-                        self.closeProfileBox(self, box, clicked);
-                    }
-                }
-                */
             },
             usercb: function(clicked){
                 // Callback for retrieving user id or name
