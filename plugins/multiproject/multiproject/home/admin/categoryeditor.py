@@ -58,16 +58,19 @@ class CategoryEditorAdminPanel(Component):
         context = req.args.get('context', '').strip()
         category = req.args.get('category', '').strip()
         parent = req.args.get('parent', '').strip()
-        license_url = reg.args.get('license_url', '').strip()
+        license_url = req.args.get('license_url', '').strip()
 
-        if license_url is not None:
-            category = category + "#" + license_url
-
+        self.log.exception("Category: %s, license_url: %s" % (category, license_url))
         if not context or not category:
             return
+        if license_url:
+            category = category + "#" + license_url
+
+        
         if parent == "NONE" or parent == '':
             parent = None
 
+        self.log.exception("Category: %s" % category)
         try:
             self.categorystore.add_category(category, category, context, parent)
             add_notice(req, _('Category %(what)s has been added.',
