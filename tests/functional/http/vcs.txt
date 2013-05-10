@@ -1,0 +1,13 @@
+*** Settings ***
+Library        Collections
+Library        HttpLibrary.HTTP
+Library        gitlib
+Resource       ../common_keywords.txt
+
+*** Keywords ***
+
+Clone a git repository
+  [Documentation]  Clone given repository
+  [Arguments]  ${protocol}=https  ${url}  ${dir}
+
+

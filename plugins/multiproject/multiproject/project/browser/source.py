@@ -10,6 +10,8 @@ from genshi.builder import tag
 from genshi import HTML
 from multiproject.core.users import get_userstore
 
+from tracext.git.git_fs import GitRepository
+
 
 class SourceViewContextNavFilter(Component):
     """
@@ -103,10 +105,8 @@ class SourceViewContextNavFilter(Component):
         return handler
 
     def post_process_request(self, req, template, data, content_type):
-
         # Ignores empty GIT repository error
-        if data is not None and 'display_rev' in data and \
-           self.env.config.get('trac', 'repository_type') == 'git':
+        if data is not None and 'display_rev' in data:
             def patch(func):
                 def wrap(*args, **kwargs):
                     try:
@@ -230,7 +230,7 @@ class SourceViewContextNavFilter(Component):
 
     def is_changeset_available(self, req, data):
         if data is None:
-            self.log.debug('is_changeset_available data is None')
+            self.log.exception('is_changeset_available data is None')
             return False
         rev = req.args.get('rev', '')
         if rev in ('', 'HEAD'):

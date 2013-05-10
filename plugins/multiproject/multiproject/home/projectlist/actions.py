@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys, math, re
 import os
+import commands
 from pkg_resources import resource_filename
 from datetime import datetime
 
@@ -91,6 +92,20 @@ class ProjectListModule(Component):
 
     # ITemplateProvider methods
 
+    def validate_repository_name(self, repository_name):
+        check = True
+        pattern = '^[a-zA-Z0-9-_]*$'
+        if repository_name is None:
+            check = False
+        elif len(repository_name) < 3:
+            check = False
+        elif not (re.match(pattern,repository_name)):
+            check = False
+        elif repository_name == "git" or repository_name == "hg" or repository_name == "svn":
+            check = False
+        print "repo name: %s" % repository_name
+        return check
+
     def get_templates_dirs(self):
         return [resource_filename(__name__, 'templates')]
 
@@ -112,6 +127,10 @@ class ProjectListModule(Component):
 
         # Read and transform some variables
         vcs_type = req.args.get('vcstype')
+        vcs_name = req.args.get('vcs_name')
+        if not self.validate_repository_name(vcs_name):
+            return self.create_failure(req, 'Check repository name.')
+
         parent_project = None
         if "_project_" in req.args:
             parent_project = Project.get(env_name=req.args.get('_project_'))
@@ -122,6 +141,8 @@ class ProjectListModule(Component):
         settings = {}
         if vcs_type:
             settings['vcs_type'] = vcs_type
+        if vcs_name:
+            settings['vcs_name'] = vcs_name
 
         identifier = req.args.get('prj_short_name')
         name = req.args.get('prj_long_name')
@@ -163,6 +184,24 @@ class ProjectListModule(Component):
         watch_store = CQDEWatchlistStore()
         watch_store.watch_project(author.id, project.id)
 
+        #Change project trac.ini to support multiple repositories
+        project_env_path = conf.getEnvironmentSysPath(project.env_name)
+        repo_env_path = conf.getEnvironmentVcsPath(project.env_name, vcs_type, vcs_name)
+        os.rename(project_env_path + '/conf/trac.ini', project_env_path + '/conf/trac.ini.bak')
+        oldfile = open(project_env_path + '/conf/trac.ini.bak', 'r')
+        newfile = open(project_env_path + '/conf/trac.ini', 'w')
+        lines = oldfile.readlines()
+        for line in lines:
+            newfile.write(line)
+            if line.startswith('database ='):
+                break
+        newfile.write('repository_dir =\nrepository_type = svn\n\n[repositories]\n')
+        newfile.write('%s.dir = %s\n' % (vcs_name, repo_env_path))
+        newfile.write('%s.type = %s\n' % (vcs_name, vcs_type))
+        newfile.close()
+        oldfile.close()
+        os.remove(project_env_path + '/conf/trac.ini.bak')
+
         # Notify listeners. The project object still exists, but database does not
         for listener in self.project_change_listeners:
             try:
@@ -175,6 +214,9 @@ class ProjectListModule(Component):
 
 
         return self.create_success(req, project)
+
+    def run_command(self, command):
+        return commands.getoutput(command)
 
     def _is_active_user(self, req):
         author = get_context(req)['author']

@@ -8,7 +8,7 @@ Command is an abstract base class used by all commands
 All heir of Command together forms a project creation process
 """
 
-import os, shutil
+import os, shutil, re
 from subprocess import Popen, PIPE
 from datetime import datetime
 from ConfigParser import ConfigParser
@@ -132,8 +132,12 @@ class CreateTracVersionControl(Command):
     """
     def __init__(self, project, settings):
         Command.__init__(self)
-        self.vcs_path = conf.getEnvironmentVcsPath(project.env_name)
         self.vcs_type = settings['vcs_type']
+        self.vcs_name = settings['vcs_name']
+        self.vcs_path = conf.getEnvironmentVcsPath(project.env_name, self.vcs_type, self.vcs_name)
+        self.env_name = project.env_name
+        self.hook_path = conf.getHooksDir()
+        self.conf_path = conf.getConfDir()
         self.name = "CreateTracVersionControl"
 
     def do(self):
@@ -203,12 +207,67 @@ class CreateTracVersionControl(Command):
 
         return True
 
+class CreateApacheConfig(Command):
+
+    def __init__(self, project):
+        Command.__init__(self)
+        self.env_name = project.env_name
+        self.conf_path = conf.getConfDir()
+        self.name = "CreateApacheConfig"
+
+    def do(self):
+        try:
+            template = open(self.conf_path + '/projects/TEMPLATE', 'r')
+            newfile = open(self.conf_path + '/projects/' + self.env_name + '.conf', 'w')
+            for line in template.readlines():
+                newfile.write(re.sub('\${project}', self.env_name, line))
+            template.close()
+            newfile.close()
+        except:
+            conf.log.exception('Writing apache project file failed.')
+            return False
+
+        return True
+
+    def undo(self):
+        try:
+            os.remove(self.conf_path + '/projects/' + self.env_name + '.conf')
+        except:
+            return False
+        return True
+
+class CreateMercurialConfig(Command):
+
+    def __init__(self, project):
+        Command.__init__(self)
+        self.env_name = project.env_name
+        self.vcs_root = conf.getVcsRoot()
+        self.name = "CreateMercurialConfig"
+
+    def do(self):
+        try:
+            newfile = open(self.vcs_root + '/' + self.env_name + '/hgweb.config', 'w')
+            newfile.write("[web]\nbaseurl = /\nstyle = gitweb\npush_ssl = false\nallow_push = *\nallow_archive = bz2 gz zip\n\n[paths]\n")
+            newfile.write("%s/hg = %s/%s/hg/*\n" % (self.env_name, self.vcs_root, self.env_name))
+            newfile.close()
+        except:
+            conf.log.exception('Writing mercurial project file failed.')
+            return False
+        return True
+
+    def undo(self):
+        try:
+            os.remove(self.vcs_root + '/' + self.env_name + '/hgweb.config')
+        except:
+            return False
+        return True
 
 class InitCommitHooks(Command):
     def __init__(self, project, settings):
         Command.__init__(self)
-        self.vcs_path = conf.getEnvironmentVcsPath(project.env_name)
         self.vcs_type = settings['vcs_type']
+        self.vcs_name = settings['vcs_name']
+        self.vcs_path = conf.getEnvironmentVcsPath(project.env_name, self.vcs_type, self.vcs_name)
         self.name = "InitCommitHooks"
         self.hooks = {'git': self._git_hook,
                       'hg': self._hg_hook,
@@ -288,12 +347,13 @@ class CreateTracEnvironment(Command):
     def __init__(self, project, settings):
         Command.__init__(self)
         self.vcs_type = settings['vcs_type']
+        self.vcs_name = settings['vcs_name']
         self.short_name = project.env_name
         self.long_name = project.project_name
         self.author = project.author
         self.env_path = conf.getEnvironmentSysPath(self.short_name)
         self.db_string = conf.getEnvironmentDbPath(self.short_name)
-        self.vcs_path = conf.getEnvironmentVcsPath(self.short_name)
+        self.vcs_path = conf.getEnvironmentVcsPath(self.short_name, self.vcs_type, self.vcs_name)
         self.args = "'" + self.long_name + "'" + " " + self.db_string
         self.args += " " + self.vcs_type + " " + self.vcs_path
         self.args += " --inherit=" + conf.global_conf_path
@@ -314,7 +374,6 @@ class CreateTracEnvironment(Command):
                 self.args)
             )
             return False
-
         self.success = True
         return True
 
@@ -325,6 +384,9 @@ class CreateTracEnvironment(Command):
             conf.log.exception('Failed to delete trac environment: {0}'.format(self.env_path))
             return False
         return True
+
+    
+
 
 
 class ConfigureTrac(Command):
@@ -818,6 +880,23 @@ class ConfigureFilesystemPermissions(Command):
         # Restoring previous permissions here probably isn't worth the effort.
         return True
 
+class FlagApacheForReload(Command):
+
+    def __init__(self, project):
+        Command.__init__(self)
+        self.sys_root = conf.getRoot()
+        self.name = "FlagApacheForReload"
+
+    def do(self):
+        # "Touch" file
+        try:
+            open(self.sys_root + '/apache_reload', 'w').close()
+        except:
+            return False
+        return True
+
+    def undo(self):
+        return True
 
 class ProjectsInfo(object):
 

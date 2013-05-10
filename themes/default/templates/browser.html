@@ -18,6 +18,74 @@
     <script type="text/javascript" src="/htdocs/theme/js/ZeroClipboard.js"></script>
     <link rel="stylesheet" href="${conf.theme_htdocs_location}/${conf.getThemePath()}css/browser.css" type="text/css" />
     <script type="text/javascript">
+      (function($, window, undefined) {
+        $(document).ready(function(){
+            window.change_repo_protocol = true;
+            var def_repo = null
+            var children = $("#hidden_repo_addresses").children();
+            def_repo = $(children[0]).children()[1];
+            if($(def_repo).text() == null){
+              def_repo = $(children[0]).children()[0];
+            }
+            var protocols = "";
+            $(def_repo).parent().children().slice(0, 2).each(function (ind){
+              var scheme = $(this).text().trim().split(" ")[2].split(":")[0];
+              protocols = protocols + "<span>"+scheme.toUpperCase()+"</span>";
+            });
+            $("#repo_address_container .protocolselector").html(protocols);
+            var repo_url = $(def_repo).text().trim();
+            $("#repo_address_container .repoaddress").text(repo_url);
+            $("h2.notop").text($(def_repo).parent().attr("id").split("repo_container_")[1]);
+
+            //Inject checkbox to next to repository arrow
+            var repo_name = $(def_repo).parent().attr("id").split("repo_container_")[1];
+            $("#repoindex tbody").children().each(function (ind){
+              var element_to_add = '<input type="checkbox" class="url_changer" />';
+              $(this).find("td.name").prepend(element_to_add);
+              
+              if($(this).find("td.name").find(".dir").text().trim() == repo_name){
+                $(this).find("td.name").find(":checkbox").attr("checked", true);
+              }
+            });
+
+        });
+        $(".url_changer").live("change", function(){
+          var repo_name = $(this).parent().parent().find(".name").find(".dir").text();
+          var repo_index = "#repo_container_"+repo_name;
+          var protocols = "";
+          $(repo_index).children().slice(0, 2).each(function (ind){
+              var scheme = $(this).text().trim().split(" ")[2].split(":")[0];
+              protocols = protocols + "<span>"+scheme.toUpperCase()+"</span>";
+            });
+            $("#repo_address_container .protocolselector").html(protocols);
+             var repo_child = $(repo_index).children()[1];
+             var repo_url = $(repo_child).text().trim();
+            $("#repo_address_container .repoaddress").text(repo_url);
+            $("h2.notop").text(repo_name);
+            var el_id = $(this).parent().parent().attr("id");
+            //Clear all previous values
+            $("#repoindex tbody").children().each(function (){
+              if($(this).attr("id") != el_id){
+                $(this).find(".name").find(":checkbox").attr("checked", false);
+              }
+            });
+        });
+
+        $("span").live("click", function(){
+          if($(this).parent().hasClass("protocolselector")){
+            var proto = $(this).text().trim().toLowerCase();
+            var repo_name = $("h2.notop").text().trim();
+            var repo_index = "#repo_container_"+repo_name;
+            $(repo_index).children().each(function (){
+              if($(this).text().trim().split(" ")[2].split(":")[0] == proto){
+                $("#repo_address_container .repoaddress").text($(this).text());
+                return;
+              }
+            });
+          }
+        });
+
+      })(jQuery, window);
       jQuery(document).ready(function($) {
         $(".trac-toggledeleted").show().click(function() {
                   $(this).siblings().find(".trac-deleted").toggle();
@@ -98,6 +166,23 @@
           <h2 class="notop" py:when="repo and repo.repositories">Default Repository</h2>
           <h2 class="notop" py:otherwise=""><xi:include href="path_links.html" /></h2>
         </py:choose>
+    </div>
+    <div id="master_repo_address"
+      py:if="repo and repo.repositories">
+      <div id="repo_address_container">
+        <div class="protocolselector"></div>
+        <div class="repoaddress"></div>
+      </div>
+      <div id="hidden_repo_addresses" style="display:none;">
+        <py:if test="data_repositories is not None">
+          <div py:for="type in data_repositories" 
+            id="repo_container_${type[0].split('/')[-1]}">
+            <div py:for="command in type">
+              ${command}
+            </div>
+          </div>
+        </py:if>
+      </div>
     </div>
     <div id="content" class="browser">
       <py:if test="dir or file">
