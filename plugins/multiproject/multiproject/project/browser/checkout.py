@@ -35,7 +35,9 @@ class BrowserModifyModule(Component):
             schemes = None
             if repository_name:
                 scm_type = repository_name + ".type"
+                scm_dir = repository_name + ".dir"
                 scm = self.env.config.get('repositories', scm_type)
+                repository_name = self.env.config.get('repositories', scm_dir).split("/")[-1]
                 schemes = self.protocols(project.id, scm)
             else:
                 scm = self.env.config.get('trac', 'repository_type')
