@@ -8,13 +8,16 @@ from trac.util.translation import _
 from trac.admin.api import IAdminPanelProvider
 from trac.web.api import Href, RequestDone
 from trac.web.chrome import add_warning, add_script, add_stylesheet, add_notice
-from multiproject.core.configuration import conf
+from multiproject.core.configuration import Configuration
 from multiproject.common.projects.commands import CreateTracVersionControl
 from multiproject.common.projects.project import Project
 
+
 class RepositoriesAdminPanel(Component):
     implements(IAdminPanelProvider)
-    homeurl = Href(conf.url_home_path)
+
+    def __init__(self):
+      self.conf = Configuration.instance()
 
     def get_admin_panels(self, req):
         if 'TRAC_ADMIN' in req.perm:
@@ -44,7 +47,7 @@ class RepositoriesAdminPanel(Component):
         return 'admin_vcm.html', data
 
     def get_repositories(self):
-        raw_data = self.config.options('repositories')
+        raw_data = self.env.config.options('repositories')
         repos = []
         for option in raw_data:
             if option[0].endswith('.dir'):
@@ -66,10 +69,10 @@ class RepositoriesAdminPanel(Component):
             self.delete_repo(to_delete[1], to_delete[0])
 
     def delete_repo(self, repo_type, name):
-        path = conf.getEnvironmentVcsPath(self.env.project_identifier, repo_type, name)
-        inifile = conf.getEnvironmentConfigPath(self.env.project_identifier)
-        conf.remove_item_from_section(inifile, 'repositories', name + '.dir')
-        conf.remove_item_from_section(inifile, 'repositories', name + '.type')
+        path = self.conf.getEnvironmentVcsPath(self.env.project_identifier, repo_type, name)
+        inifile = self.conf.getEnvironmentConfigPath(self.env.project_identifier)
+        self.conf.remove_item_from_section(inifile, 'repositories', name + '.dir')
+        self.conf.remove_item_from_section(inifile, 'repositories', name + '.type')
         path2 = path + '.deleted.0'
         i = 0
         while os.path.exists(path2):
@@ -88,7 +91,7 @@ class RepositoriesAdminPanel(Component):
         ctvc = CreateTracVersionControl(project, {'vcs_type':repo_type, 'vcs_name':name})
         ctvc.do()
         self.env.config.set('repositories', name + '.dir', 
-                            conf.getEnvironmentVcsPath(self.env.project_identifier, repo_type, name))
+                            self.conf.getEnvironmentVcsPath(self.env.project_identifier, repo_type, name))
         self.env.config.set('repositories', name + '.type', repo_type)
         self.env.config.save()
         add_notice(req, _('Added new repository %s to project' % name))
