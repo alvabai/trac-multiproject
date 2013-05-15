@@ -25,6 +25,12 @@
             href="${href.search('opensearch')}"
             title="${_('Search %(project)s', project=project.name)}"/>
     </py:if>
+    <py:for each="script in chrome.scripts">
+          <!-- ! Hack: we do not ignore jquery.js here, since some motherfucker didn't write any documentation for how to add simple jquery call-->
+          <py:if test="script.href.endswith('multiproject/js/jquery.js')">
+            <script type="${script.type}" src="${script.href}"></script>
+          </py:if>
+      </py:for>
     <!-- ! Sites should replace this with the main CSS and javascript includes -->
     <resources />
     <script py:if="chrome.script_data" type="text/javascript">
