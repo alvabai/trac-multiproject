@@ -2,7 +2,7 @@
 import os
 from urlparse import urlparse
 import sys
-from ConfigParser import ConfigParser, NoOptionError, NoSectionError
+from ConfigParser import ConfigParser, NoOptionError, NoSectionError, RawConfigParser
 
 from trac.config import ListOption, Option
 from trac.log import logger_factory
@@ -915,16 +915,22 @@ class Configuration(object):
         path += '@' + self.db_host + ":" + str(self.db_port) + '/' + env_name
         return path
 
-    def getEnvironmentVcsPath(self, env_name):
+    def getEnvironmentVcsPath(self, env_name, vcs_type, repo_name):
         """ Helper function for resolving environment svn path based on
             environment name
         """
-        return self.sys_vcs_root + '/' + env_name
+        return self.sys_vcs_root + '/' + env_name + '/' + vcs_type + '/' + repo_name
+
+    def getVcsRoot(self):
+        return self.sys_vcs_root
+
+    def getRoot(self):
+        return self.sys_root
 
     def makeEnvironmentDownloadsPath(self, env_name):
         """ Helper function for environment download path
         """
-        return self.sys_root + '/downloads/' + env_name + '/'
+        return self.sys_vcs_root + '/' + env_name
 
     def getEnvironmentDownloadsPath(self, env):
         """ Helper function for resolving environment download path
@@ -966,6 +972,14 @@ class Configuration(object):
             return 'Bazaar'
         else:
             return 'Unknown version control system'
+
+    def getHooksDir(self):
+        env = open_environment(conf.getEnvironmentSysPath('home'), use_cache=True)
+        return env.config.get('multiproject', 'version_control_hooks_dir')
+
+    def getConfDir(self):
+        env = open_environment(conf.getEnvironmentSysPath('home'), use_cache=True)
+        return env.config.get('multiproject', 'global_conf_path').rsplit('/', 1)[0]
 
     def cleanupProjectName(self, pname):
         return str(pname).strip('\n\r\a\b\t\v\f\e\"\'*')
@@ -1010,6 +1024,19 @@ class Configuration(object):
                     chrome['notices'].remove(notice)
                     return True
         return False
+
+    def remove_item_from_section(self, ini_file, section_name, key_value):
+        """
+          Removes option from *.ini file
+          :parameter ini_file, ini file where the removing should be done
+          :parameter section_name, section where the option wants to be removed
+          :parameter key_value, value which needs to be removed
+        """
+        confp = RawConfigParser()
+        confp.read(ini_file)
+        confp.remove_option(section_name, key_value)
+        with open(ini_file, 'w') as configfile:
+            confp.write(configfile)
 
 
 conf = Configuration.instance()

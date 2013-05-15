@@ -2205,6 +2205,19 @@ $(".create_project_form").live("submit", function(){
         check = false;
         alert("Project description must be 8 characters long");
     }
+    else if($("#vcs_name").val().length < 3){
+        check = false;
+        alert("Repository name must be 3 characters long.");
+    }
+    else if(!$('#vcs_name').val().match(/^[a-zA-Z0-9_-]*$/)){
+        check = false;
+        alert("Repository name contains special chars!"+
+        "Only alphanumerical, underscore and hyphen allowed.");
+    }
+    else if($('#vcs_name').val() == "git" || $('#vcs_name').val() == "hg" || $('#vcs_name').val() == "svn"){
+        check = false;
+        alert("Git, svn and hg are reserved values.");
+    }
     return check;
 });
 
@@ -2214,6 +2227,7 @@ $('#prj_long_name').live("keyup", function(){
     var prj_name = $(this).val();
     prj_name = $.trim(prj_name.toLowerCase().replace(new RegExp(" ", "g"), "_").replace(new RegExp("ä", "g"), "a").replace(new RegExp("å", "g"), "a").replace(new RegExp("ö", "g"), "o"));
     $('#prj_short_name').val(prj_name);
+    $('#vcs_name').val(prj_name);
 });
 
 $("#signOut").live("click", function(){
