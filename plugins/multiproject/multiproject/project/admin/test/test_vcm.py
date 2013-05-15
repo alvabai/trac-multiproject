@@ -44,8 +44,16 @@ class TestGetRepositories(unittest.TestCase):
         self.rap = RepositoriesAdminPanel(mgr)
 
     def test_return_type(self):
+        """get_repositories should return a list."""
         val = self.rap.get_repositories()
         self.assertTrue(list == type(val))
+
+    def test_get_repository_and_type(self):
+        """Getting repository and its type should work."""
+        self.rap.env.config.options = Mock()
+        self.rap.env.config.options.return_value = [["test.dir", "/var/foo/bar"]]
+        val = self.rap.get_repositories()
+        self.assertEqual(val, [["bar", "foo"]])
 
 
 if __name__ == "__main__":
