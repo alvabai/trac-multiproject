@@ -13,7 +13,7 @@ Suite Teardown  Close Browser
 Should not see project relations in Admin space
     ${proj_name}  Get unique project name 
     Create new project    ${proj_name}
-    Title should be  ${proj_name} – ${proj_name}
+    Title should be  ${proj_name} - ${proj_name}
     Click link  Admin
     Page should not contain   Project relations
 

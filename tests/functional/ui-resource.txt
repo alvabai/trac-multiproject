@@ -19,7 +19,7 @@ Logout
 Create new project  [Arguments]  ${projname}
     [Documentation]  Attempt to create a new project, without verification of the result.
     Click Link  Create new project >
-    Title should be  Create a New Project – home
+    Title should be  Create a New Project - home
     Input text  prj_long_name  ${projname}
     Input text  prj_description  This is a dummy test project
     Click button  id=submit_create_form

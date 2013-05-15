@@ -2,6 +2,7 @@
 Library        Collections
 Library        HttpLibrary.HTTP
 Library        htlib
+Resource       ../common_keywords.txt
 
 *** Keywords ***
 
@@ -17,13 +18,7 @@ Change project visibility
   Myget   /${project}/admin/general/permissions
   Mypost  /${project}/admin/general/permissions  make${visibility}=Make ${visibility}
   ${body}=  Get Response Body
-  htlib.Element Should contain  ${body}  elem="p"  Project is currently : <strong>${visibility}</strong>
-
-
-Setup and login
-  ${suite_cookies}=  Create Dictionary
-  Set Suite Variable  ${suite_cookies}
-  Login
+  Element Should contain  ${body}  p  Project is currently: <strong>${visibility}</strong>
 
 Login
   [Documentation]  Send a HTTP GET request, sending and storing all the cookies.
@@ -35,6 +30,26 @@ Login
   Save cookies
   Mypost  /home/user  username=${VALID_USER}&password=${VALID_PASSWD}&login=Login&action=do_login
 
+
+Setup and login
+  [Documentation]  Create a suite-level variable ${suite_cookies},
+  ...              which is used to hold cookies during test suite.
+  ${suite_cookies}=  Create Dictionary
+  Set Suite Variable  ${suite_cookies}
+  Login
+
+
+Setup and create project
+  [Documentation]  Create a new project with svn repo and if succeeded, save its name
+  ...              to a suite variable ${suite_project}.
+  Setup and login
+  ${suite_project}=  Get Unique Project Name
+  Create new project  ${suite_project}  ${suite_project}-svn  svn
+  ${body}=  Get Response Body
+  Element Should contain  ${body}  title  ${suite_project}
+  Set Suite Variable  ${suite_project}
+
+
 Logout
   Myget  /home/user?action=logout
 
@@ -44,6 +59,7 @@ Myget
   ${cookie_hdrs}=  Get Cookie Header  ${suite_cookies}
   Set Request Header  Cookie  ${cookie_hdrs}
   GET  ${url}
+  Log  ${url}
   Save cookies
 
 
@@ -56,7 +72,9 @@ Mypost
   Set Request Body  __FORM_TOKEN=${form_token}&${form_values}
   POST  ${url}
   Save cookies
-  Follow Response
+  ${status}=  Get Response Status
+  Run Keyword If  '${status}' == '302 Found'  Follow Response
+  Run Keyword If  '${status}' == '303 See Other'  Follow Response
 
 
 Save cookies
@@ -64,5 +82,53 @@ Save cookies
   ${headers}=  Get Response Header  set-cookie
   ${cookies}=  Headers to Dict  ${headers}  key=trac
   Update Dictionary  ${suite_cookies}  ${cookies}
+
+
+Create new project
+  [Documentation]  Create a new project. Arguments: project name and type (svn,hg,git)
+  [Arguments]  ${proj}  ${reponame}  ${type}=svn
+  Myget  /home/project
+  Remove from dictionary  ${suite_cookies}  trac_session 
+  Mypost  /home/project/create  action=create&prj_long_name=${proj}&prj_short_name=${proj}&prj_description=Just_a_dummy_description&prj_is_public=on&scm_source=create&vcstype=${type}&vcs_name=${reponame}
+
+
+Add a repository
+  [Documentation]  Add a new repository of given type to given project.
+  [Arguments]  ${proj}  ${repotype}  ${reponame}
+  Myget  /${proj}/admin/general/vcm
+  Mypost  /${proj}/admin/general/vcm  repo_name=${reponame}&repo_type=${repotype}
+  # verify that response contains new repository
+  ${body}=  Get Response Body
+  Element Should contain  ${body}  td  ${reponame}
+  # verify that response does not contain error message 
+  ${body}=  Convert To String  ${body}
+  Should not contain  ${body}  Repository name reserved
+  # verify that new repository is also seen on source tab
+  Myget  /${suite_project}/browser
+  ${body}=  Get Response Body
+  Element Should contain  ${body}  a  ${reponame}
+
+
+Delete repository
+  [Documentation]  Delete one repository from project. 
+  ...              Parameters: project name, repository type and name
+  [Arguments]  ${proj}  ${repotype}  ${reponame}
+  Mypost  /${proj}/admin/general/vcm  repos[]=${reponame}#${repotype}
+  ${body}=  Get Response Body
+  ${body}=  Convert To String  ${body}
+  Should not contain  ${body}  ${reponame}
+
+Add and delete a repository
+  [Arguments]  ${type}
+  Add a repository  ${suite_project}  ${type}   my2-${type}-repo
+  Delete repository  ${suite_project}  ${type}  my2-${type}-repo
+
+Element Should contain
+  # This keyword is used to get rid of unicode conversion errors
+  [Documentation]  Check that in the content, some of the given element's
+  ...              children contains the given string.
+  [Arguments]  ${body}  ${element}  ${content}
+  ${body}=  Convert To String  ${body}
+  htlib.Element Should contain  ${body}  ${element}  ${content}
 
 # vim: syntax=robot
