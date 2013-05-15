@@ -14,4 +14,4 @@ ${proj_name}  home
 Access to home project permission
     Element should contain  tag=title  home
     Click link  Admin panel
-    Title Should be  Administration: Edit categories – home
+    Title Should be  Administration: Edit categories - home

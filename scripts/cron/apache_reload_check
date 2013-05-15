@@ -1,0 +1,13 @@
+#!/bin/bash
+
+declare -i now
+declare -i last_touched
+TESTFILE="/var/www/trac/apache_reload"
+now=`date +%s`
+last_touched=`stat -t $TESTFILE | cut -d " " -f 13`
+
+if [ $((now - last_touched)) -lt 65 ] ; then
+	/etc/init.d/httpd graceful
+fi
+
+exit 0

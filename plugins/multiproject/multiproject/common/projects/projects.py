@@ -54,6 +54,8 @@ class Projects(object):
         else:
             commandlist.append(commands.CreateTracVersionControl(project, services))
 
+        commandlist.append(commands.CreateApacheConfig(project))
+        commandlist.append(commands.CreateMercurialConfig(project))
         commandlist.append(commands.InitCommitHooks(project, services))
         commandlist.append(commands.CreateTracEnvironment(project, services))
         commandlist.append(commands.ConfigureTrac(project, services))
@@ -70,6 +72,7 @@ class Projects(object):
         commandlist.append(commands.TruncateDefaultInformation(project))
         commandlist.append(commands.RefreshStatistics(project))
         commandlist.append(commands.ConfigureFilesystemPermissions(project))
+        commandlist.append(commands.FlagApacheForReload(project))
 
         # Run all commands, on failure roll all back
         for cmd in commandlist:
@@ -84,6 +87,7 @@ class Projects(object):
         :arg project: :class:`Project` to be removed.
         """
         vcs_type = conf.getVersionControlType(project.env_name)
+        vcs_name = ""
 
         # Remove project from db
         cmd = commands.ListUpProject(project)
@@ -96,11 +100,11 @@ class Projects(object):
         cmd.undo()
 
         # Remove trac environment
-        cmd = commands.CreateTracEnvironment(project, {'vcs_type': vcs_type})
+        cmd = commands.CreateTracEnvironment(project, {'vcs_type': vcs_type, 'vcs_name': vcs_name})
         cmd.success = True
         cmd.undo()
 
-        cmd = commands.CreateTracVersionControl(project, {'vcs_type': vcs_type})
+        cmd = commands.CreateTracVersionControl(project, {'vcs_type': vcs_type, 'vcs_name': vcs_name})
         cmd.success = True
         cmd.undo()
 

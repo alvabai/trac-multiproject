@@ -96,7 +96,6 @@ class ProjectTimelineEvents(Component):
         return events[:count] if events else []
 
     def get_timeline_events(self, req, time_in_days, time_in_minutes):
-        conf.log.exception("Timeline.py - get timeline events")
         events = []
         available_filters = []
 

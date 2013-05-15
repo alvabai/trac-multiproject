@@ -1,6 +1,7 @@
 *** Settings ***
 Resource  ui-resource.txt
 Resource  common_vars.txt
+Resource  common_keywords.txt
 Resource  login.txt
 
 
