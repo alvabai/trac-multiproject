@@ -17,7 +17,8 @@ Logout
     Click Link  id=signOut
 
 Create new project  [Arguments]  ${projname}
-    [Documentation]  Attempt to create a new project, without verification of the result.
+    [Documentation]  Attempt to create a new project, without verification of the result. 
+    ...              Success is not checked, so that this kw can be used for failing case too.
     Click Link  Create new project >
     Title should be  Create a New Project - home
     Input text  prj_long_name  ${projname}
