@@ -3,9 +3,9 @@
 ${PROTOCOL}      https
 ${BROWSER}       firefox
 ${LOGIN_PAGE}     ${SERVER}/home/user
-${LOGIN_TITLE}   Welcome – home
+${LOGIN_TITLE}   Welcome - home
 ${WELCOME_PAGE}   ${SERVER}/home
-${WELCOME_TITLE}  multiproject – home
+${WELCOME_TITLE}  multiproject - home
 ${VALID_USER}    tracadmin
 ${VALID_PASSWD}  tracadmin
 
