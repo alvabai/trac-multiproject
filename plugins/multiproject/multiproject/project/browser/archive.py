@@ -63,7 +63,7 @@ class ArchiveSourceModule(Component):
 
     # Class variables
     browser_regx = re.compile('^(\/browser)\/?$')
-    archive_regx = re.compile('^(\/export)\/archive?$')
+    archive_regx = re.compile('^(\/export)\/archive\/((?:[a-z][a-z0-9_]*))?$')
     formats = {
         'zip':{'ext':'zip', 'mime':'application/zip', 'desc':'Zip archive'},
         'tgz':{'ext':'tgz', 'mime':'application/x-gzip', 'desc':'Gzip archive'},
@@ -131,9 +131,11 @@ class ArchiveSourceModule(Component):
         """
         req.perm.require('BROWSER_VIEW')
         req.perm.require('FILE_VIEW')
-
+        self.env.log("Archive req.path: %s" % req.path_info)
+        return
         # Get default repository and its type
         rm = RepositoryManager(self.env)
+
         repo = rm.get_repository('')
         repo_type = rm.repository_type
         svn_path = 'trunk'

@@ -8,6 +8,8 @@ from trac.web.chrome import add_script
 from multiproject.common.projects import Project
 from multiproject.core.configuration import conf
 from multiproject.core.proto import ProtocolManager
+from trac.versioncontrol.api import RepositoryManager
+from trac.util.html import plaintext
 
 
 class BrowserModifyModule(Component):
@@ -24,11 +26,10 @@ class BrowserModifyModule(Component):
         #add_script(req, 'multiproject/js/browser.js')
         repository_name = None
         data_repositories = None
-        conf.log.exception("Path length: %s" % len(req.path_info.split("/")))
+        latest_revisions = []
         if len(req.path_info.split("/")) > 2:
             #Get repository name from path_info
             repository_name = req.path_info.split("/")[2]
-        conf.log.exception("Repo name: %s" % repository_name)
         if template == 'browser.html':
             username = urllib.quote(req.authname)
             project = Project.get(self.env)
@@ -39,6 +40,17 @@ class BrowserModifyModule(Component):
                 scm = self.env.config.get('repositories', scm_type)
                 repository_name = self.env.config.get('repositories', scm_dir).split("/")[-1]
                 schemes = self.protocols(project.id, scm)
+                rm = RepositoryManager(self.env)
+                list_repos = rm.get_real_repositories()
+                for r in list_repos:
+                    if r.get_base().split("/")[-1] == repository_name:
+                        l_rev = r.get_youngest_rev()
+                        if l_rev:
+                            export_url = 'export/archive/'+repository_name+"?rev="+l_rev+"&format=zip"
+                            latest_revisions.append(export_url)
+                            conf.log.exception("Latest rev[]: %s" % latest_revisions)
+                        #conf.log.exception("Latest rev %s" % r.get_youngest_rev())
+
             else:
                 scm = self.env.config.get('trac', 'repository_type')
                 schemes = self.protocols(project.id, scm)
@@ -64,6 +76,7 @@ class BrowserModifyModule(Component):
             data['name'] = names[scm]
             data['type'] = scm
             data['data_repositories'] = data_repositories
+            data['export_urls'] = latest_revisions
 
             co_commands = {}
             for scheme in schemes:
