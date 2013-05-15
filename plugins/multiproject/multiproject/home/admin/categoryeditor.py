@@ -58,13 +58,14 @@ class CategoryEditorAdminPanel(Component):
         context = req.args.get('context', '').strip()
         category = req.args.get('category', '').strip()
         parent = req.args.get('parent', '').strip()
-        license_url = reg.args.get('license_url', '').strip()
-
-        if license_url is not None:
-            category = category + "#" + license_url
+        license_url = req.args.get('license_url', '').strip()
 
         if not context or not category:
             return
+        if license_url:
+            category = category + "#" + license_url
+
+        
         if parent == "NONE" or parent == '':
             parent = None
 
