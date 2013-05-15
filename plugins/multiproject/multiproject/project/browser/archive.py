@@ -131,13 +131,22 @@ class ArchiveSourceModule(Component):
         """
         req.perm.require('BROWSER_VIEW')
         req.perm.require('FILE_VIEW')
-        self.env.log("Archive req.path: %s" % req.path_info)
-        return
+        repository_name = req.path_info.split("/")[-1]
         # Get default repository and its type
         rm = RepositoryManager(self.env)
-
-        repo = rm.get_repository('')
-        repo_type = rm.repository_type
+        list_repos = rm.get_real_repositories()
+        self.env.log.exception("Repos: %s" % list_repos)
+        repo = None
+        repo_type = None
+        for r in list_repos:
+            self.env.log.exception("In for")
+            if r.get_base().split("/")[-1].lower() == repository_name:
+                self.env.log.exception("If true")
+                repo = r
+                self.env.log.exception("Base %s" % repo.get_base())
+                return
+        repo_type = repo.get_base().split(":")[0]
+        self.env.log.exception("Base %s" % repo_type)
         svn_path = 'trunk'
         format = plaintext(req.args.get('format', 'zip'))
 

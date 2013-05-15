@@ -46,10 +46,8 @@ class BrowserModifyModule(Component):
                     if r.get_base().split("/")[-1] == repository_name:
                         l_rev = r.get_youngest_rev()
                         if l_rev:
-                            export_url = 'export/archive/'+repository_name+"?rev="+l_rev+"&format=zip"
+                            export_url = '../export/archive/'+repository_name+"?rev="+l_rev+"&format=zip"
                             latest_revisions.append(export_url)
-                            conf.log.exception("Latest rev[]: %s" % latest_revisions)
-                        #conf.log.exception("Latest rev %s" % r.get_youngest_rev())
 
             else:
                 scm = self.env.config.get('trac', 'repository_type')
