@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation   Common variables and keywords
-Library         Selenium2Library  0  implicit_wait=5    # Set explicit wait to 0 and implicit wait to 2 sec
+Library         Selenium2Library  0  implicit_wait=10    # Set explicit wait to 0 and implicit wait to 10 sec
 
 
 *** Keywords ***
@@ -17,7 +17,8 @@ Logout
     Click Link  id=signOut
 
 Create new project  [Arguments]  ${projname}
-    [Documentation]  Attempt to create a new project, without verification of the result.
+    [Documentation]  Attempt to create a new project, without verification of the result. 
+    ...              Success is not checked, so that this kw can be used for failing case too.
     Click Link  Create new project >
     Title should be  Create a New Project - home
     Input text  prj_long_name  ${projname}
