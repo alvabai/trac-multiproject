@@ -86,6 +86,7 @@ class UserRestAPI(Component):
         """
         Path for listing users starting with "foo": ``/<projectid>/api/user/list?q=foo``
         Path for listing only local users: ``/<projectid>/api/user/list?q=foo&auth=localdb``
+        Path for validating username or email before local user create: ``/<projectid>/api/validate/user?q=mail|q=username``
         """
         return req.path_info.startswith('/userautocomplete') or req.path_info.startswith('/api/user')
 
@@ -93,11 +94,31 @@ class UserRestAPI(Component):
         """
         Handles the incoming requests
         """
+
+        if req.path_info.startswith('/api/username_or_email_exists'):
+           return self._user_name_or_mail_exists(req)
+
         # Show single user
         if req.path_info.endswith('/api/user'):
             return self._show_user(req)
 
         return self._list_users(req)
+
+    def _user_name_or_mail_exists(self, req):
+        """
+           Returns JSON representation for requested username or mail
+        """
+
+        query = req.args.get('q', '')[:100]
+
+        if not query:
+            self.log.exception("query string not given. %s" % query)
+            return req.send('', status=404)
+
+        userstore = get_userstore()
+        recordExists = userstore.userNameOrMailExists(query)
+        
+        return send_json(req, recordExists)
 
     def _show_user(self, req):
         """

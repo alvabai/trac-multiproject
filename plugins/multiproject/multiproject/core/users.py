@@ -225,6 +225,11 @@ class UserStore(object):
         """
         pass
 
+    def userNameOrMailExists(self, username=None, mail=None):
+        """ Check that user email exists on store
+        """
+        pass
+
     def is_local(self, user):
         """
         Check if given user is local or not
@@ -719,6 +724,29 @@ class MySqlUserStore(UserStore):
             return self._compare_password(user, password)
         else:
             return True
+
+    def userNameOrMailExists(self, query):
+        """ Check that username or email exists in persistence
+        """
+        if query:
+            q = """ SELECT username, mail FROM user WHERE username = %s or mail = %s """
+        else:
+            return "username and email not given."
+        
+        with admin_query() as cursor:
+            try:
+                cursor.execute(q, (query, query))
+                row = cursor.fetchone()
+                if not row:
+                  return False
+            except Exception as e:
+               conf.log.exception("username or email exists query failed with %s" % e)
+               pass
+            finally:
+               cursor.close()
+
+        return True
+
 
     def is_local(self, user):
         """

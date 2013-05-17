@@ -6,5 +6,4 @@ This chapter gives an insight some of the main features and components in MultiP
 .. toctree::
    :maxdepth: 2
 
-   messages
    notifications
