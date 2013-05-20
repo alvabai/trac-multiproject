@@ -13,6 +13,11 @@ Git clone
   gitlib.Git clone   ${url}  ${dir}
   Directory should not be empty  ${dir}
   [Teardown]  Remove directory  recursive=True  ${dir}
-  
 
+Git add
+  [Arguments]  ${file}  ${local_repo}
+  Directory should exist  ${local_repo}
+  ${prev}=  cd  ${local_repo}
+  gitlib.Git add  ${file}
+  cd  ${prev}
 
