@@ -17,6 +17,19 @@ def git_push(url, repo):
     val = git("push")
     return val
 
+def git_commit():
+    val = git("commit")
+    return val
+
+def git_add():
+    val = git("add")
+    return val
+
+def cd(dir):
+    """Cd to dir and return previous one."""
+    current = os.getcwd()
+    os.chdir(dir)
+    return current
 
 if __name__ == "__main__":
     print "not impelmented"
