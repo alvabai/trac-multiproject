@@ -372,7 +372,7 @@ ${comment}</textarea>
                                   <py:for each="user in [user.strip(',') for user in value.split()]">
                                     <li class="user">
                                       <input type="button" class="remove_user_btn" value="&ndash;"/>
-                                      <div class="username">${format_author(user)}</div>
+                                      <div class="username">${user}</div>
                                     </li>
                                   </py:for>
                                 </py:if>

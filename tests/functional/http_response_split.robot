@@ -16,6 +16,8 @@ Request with invalid characters should be denied
     [Documentation]  This tests a scenario of HTTP response splitting
     ${proj_name}  Get unique project name 
     Create new project  ${proj_name}
+    Page should not contain   ${failed_to_create}
+    Title should be  ${proj_name} - ${proj_name}
     Log    ${SERVER}
     Go to  ${SERVER}/${HTTP_SPLIT_URL}
     Page should contain   403

@@ -72,7 +72,6 @@ except ImportError:
 from multiproject.core.restful import json_encoder, send_json
 from multiproject.core.users import User, get_userstore
 from multiproject.common.projects.listeners import IProjectChangeListener
-from multiproject.common.messages.api import IMessageListener, IMessageGroupListener, Message
 from multiproject.common.projects import Project
 from multiproject.common.web.resource import IJSONDataPublisherInterface
 
@@ -250,70 +249,12 @@ class ChangeNotifier(Component):
     Sends push notifications from the listened changes using Juggernaut service
     """
     implements(
-        IMessageListener,
-        IMessageGroupListener,
         ITemplateProvider,
         IRequestFilter,
         IProjectChangeListener,
         ITicketChangeListener,
         INavigationContributor
     )
-
-    # IMessageListener methods
-
-    def message_created(self, message):
-        initiator = message.sender.username
-
-        for recipient_id in message.recipients:
-            self.notify_user(
-                {'type': 'message', 'id': message.id, 'action': 'create', 'initiator': initiator},
-                recipient_id,
-                store=recipient_id != message.sender.id
-            )
-
-    def message_flagged(self, message, user, flag):
-        """
-        Message was flagged
-        """
-        # Reset the notification flag if the message is hidden
-        if flag == Message.FLAG_DELETED:
-            ns = self.env[NotificationSystem]
-            ns.reset_notification(ns.generate_channel_name(user_id=user.id), {'type': 'message', 'id': message.id})
-
-    def message_deleted(self, message):
-        """
-        Message was removed from the database
-        """
-        # Reset all notifications related to the ticket
-
-        # NOTE: Unfortunately we need to iterate all users and check
-        ns = self.env[NotificationSystem]
-        ns.reset_notifications(chname=None, keys=['message-%d' % message.id])
-
-    # IMessageGroupListener methods
-    def group_created(self, group):
-        pass
-
-    def group_changed(self, group, old_values):
-        initiator = ''
-        initiator_id = 0
-        creator = group.creator
-
-        if creator:
-            initiator = creator.username
-            initiator_id = creator.id
-
-        # Form union from the sets
-        all_recipients = set(old_values.get('recipients', [])) | set(group.recipients)
-
-        # Notify both old and new group recipients
-        # Old users won't get any messages but they can handle the notifications otherwise
-        for recipient_id in all_recipients:
-            self.notify_user(
-                {'type': 'messagegroup', 'id': group.id, 'action': 'change', 'initiator': initiator},
-                recipient_id,
-                store = recipient_id != initiator_id
-            )
 
     # ITemplateProvider methods
 

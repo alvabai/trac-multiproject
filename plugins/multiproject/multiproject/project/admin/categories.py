@@ -139,8 +139,13 @@ class CategorizationAdminPanel(Component):
         req.perm.require('TRAC_ADMIN')
         if req.method != 'POST':
             raise TracError('POST request required')
-        category_name = req.args.get('category_name', '').strip()
-        category_name = category_name + "#" + req.args.get('license_url').strip()
+
+        category_name = req.args.get('category_name', '')
+        l_url = req.args.get('license_url')
+        if category_name and l_url:
+            category_name = category_name.strip()
+            l_url = l_url.strip()
+            category_name = category_name + "#" + l_url
 
         cat = self.categ.get_category_by_name(category_name)
         if not cat:

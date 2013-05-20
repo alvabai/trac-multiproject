@@ -243,6 +243,8 @@ ul#tabbedNavigation {
   margin: 0 10px 0 0;
 }
 
+
+
 #tabbedNavigation a {
   color: #323232;
   display: block;
@@ -272,6 +274,60 @@ ul#tabbedNavigation {
 #tabbedNavigation li.selected a:hover {
   text-decoration: none
 }
+
+
+/*************EXPLORE TABBEDNAVIGATION ******************/
+
+ul#tabbedNavigationExplore {
+  list-style-type: none;
+  list-style-image: none;
+  margin: 0 0 30px 0;
+  width: auto;
+  font-family: Tahoma, Geneva, sans-serif;
+  height: 26px;
+  font-size: 13px;
+  line-height: 26px;
+  float: left;
+}
+
+#tabbedNavigationExplore li {
+  float: left;
+  margin: 0 10px 0 0;
+}
+
+
+
+#tabbedNavigationExplore a {
+  color: #323232;
+  display: block;
+  float: left;
+  font-size: 13px;
+  height: 25px;
+  line-height: 27px;
+  text-decoration: none;
+  padding-left: 10px;
+  padding-right: 30px;
+  padding-bottom: 1 px;
+}
+
+#tabbedNavigationExplore li a:hover {
+  color: #0066cb
+}
+
+#tabbedNavigationExplore li.selected {
+  color: #FFF;
+  background: transparent url(/htdocs/theme/images/buttons.png) center top no-repeat;
+}
+
+#tabbedNavigationExplore li.selected a {
+  color: #FFF
+}
+
+#tabbedNavigationExplore li.selected a:hover {
+  text-decoration: none
+}
+
+/**************END OF EXPLORE TABBEDNAVIGATION **************/
 
 #stepNavigation {
   border-collapse: collapse;
@@ -1370,7 +1426,6 @@ img.signpost-icon {
   color: #FFF;
 }
 
-<<<<<<< HEAD
 ul#tabbedNavigation {
     list-style-type: none;
     list-style-image: none;
@@ -1379,11 +1434,11 @@ ul#tabbedNavigation {
     height:26px;
     font-size:13px;
     line-height:26px;
-    float: left;
-=======
+ }
+
 .signpost-banner-link a:hover {
   color: #FFF
->>>>>>> 7e373ff4582e36a211041f1a8df34188033d0dff
+
 }
 
 .border-green {
