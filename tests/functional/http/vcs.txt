@@ -2,13 +2,17 @@
 Library        Collections
 Library        HttpLibrary.HTTP
 Library        gitlib
+Library        Operating System
 Resource       ../common_keywords.txt
 
 *** Keywords ***
 
-Clone a git repository
+Git clone
   [Documentation]  Clone given repository
-  [Arguments]  ${protocol}  ${url}  ${dir}
-  Git clone   ${url}  ${dir}
+  [Arguments]  ${url}  ${dir}
+  gitlib.Git clone   ${url}  ${dir}
+  Directory should not be empty  ${dir}
+  [Teardown]  Remove directory  recursive=True  ${dir}
+  
 
 
