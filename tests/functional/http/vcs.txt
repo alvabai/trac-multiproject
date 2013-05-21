@@ -1,23 +1,34 @@
 *** Settings ***
 Library        Collections
 Library        HttpLibrary.HTTP
-Library        gitlib
+Library        vcslib
 Library        Operating System
 Resource       ../common_keywords.txt
+
+*** Variables ***
+TMP_DIR       /tmp/
 
 *** Keywords ***
 
 Git clone
   [Documentation]  Clone given repository
-  [Arguments]  ${url}  ${dir}
-  gitlib.Git clone   ${url}  ${dir}
-  Directory should not be empty  ${dir}
-  [Teardown]  Remove directory  recursive=True  ${dir}
+  [Arguments]  ${repo}  ${dir}
+  vcslib.Git clone   ${repo}  ${dir}
+  Directory should exist  ${dir}
+  [Teardown]  Remove directory  ${dir}  recursive=True
+
 
 Git add
   [Arguments]  ${file}  ${local_repo}
   Directory should exist  ${local_repo}
   ${prev}=  cd  ${local_repo}
-  gitlib.Git add  ${file}
+  vcslib.Git add  ${file}
   cd  ${prev}
 
+List repository files
+  ${files}=  vcslib.Git ls files
+  [Return]  ${files}
+
+Cd to temp dir
+  ${prev}=  cd  ${TMP_DIR}
+  return ${prev}

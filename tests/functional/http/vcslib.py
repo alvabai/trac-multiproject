@@ -7,8 +7,8 @@
 from sh import git
 import os
 
-def git_clone(url, repo):
-    val = git("clone", url, repo)
+def git_clone(remote, local):
+    val = git("clone", remote, local)
     return val
 
 def git_push(url, repo):
@@ -30,6 +30,11 @@ def cd(dir):
     current = os.getcwd()
     os.chdir(dir)
     return current
+
+def git_ls_files():
+    """List repository files in current dir.""" 
+    val = git("ls-files")
+    return val
 
 if __name__ == "__main__":
     print "not impelmented"
