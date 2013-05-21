@@ -9,6 +9,7 @@ GITOSIS_REPO_PATH="$trac_root/gitosis/gitosis-clone"
 GIT="/usr/bin/git"
 GITOSIS_USER="git"
 LOGFILE="$sys_logs_path/gitosis.log"
+ADMIN_KEY="$trac_root/gitosis/gitosis-clone/keydir/$key_name"
 
 if [[ "$USER" != "$GITOSIS_USER" ]] ; then
 	echo "ERROR: This script must be run as user $GITOSIS_USER" >&2
@@ -37,6 +38,7 @@ done
 
 # Delete old keys.
 touch keydir
+touch $ADMIN_KEY
 find keydir -cmin +4 -exec $GIT rm {} \;
 
 # If there are any changes, commit them & push
