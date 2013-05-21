@@ -8,7 +8,6 @@ import wiki
 import analytics
 import admin
 import pagination
-import messages
 import notifications
 import featured
 from staticfiles import GlobalStaticRequestFiles

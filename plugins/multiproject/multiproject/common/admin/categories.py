@@ -51,7 +51,7 @@ class CategoriesJSONRequestHandler(Component):
         # Construct response in JSON list format
         data = ''
         try:
-            data = json.dumps([category.name.encode("utf-8") for category in categories])
+            data = json.dumps([category.name.encode("utf-8").split("#")[0] for category in categories])
         except Exception, e:
             self.log.exception('Returning JSON from categories failed')
 

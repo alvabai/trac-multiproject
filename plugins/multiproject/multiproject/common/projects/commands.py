@@ -160,7 +160,15 @@ class CreateTracVersionControl(Command):
 
         # GIT repository
         elif self.vcs_type == 'git':
-            if self._run(('git', '--bare', '--git-dir', self.vcs_path, 'init', '--shared=true')):
+            if os.path.isfile("/project/scripts/cpgit.sh"):
+                if self._run(('/project/scripts/cpgit.sh', self.vcs_path)):
+                    self._run(('git', '--git-dir', self.vcs_path, 'update-server-info'))
+                    # Add denyCurrentBranch & denyDeleteCurrent to default config
+                    f = open(self.vcs_path + '/config', 'a')
+                    f.write('\tdenyCurrentBranch = ignore\n\tdenyDeleteCurrent = ignore\n')
+                    f.close()
+                    self.success = True
+            elif self._run(('git', '--bare', '--git-dir', self.vcs_path, 'init', '--shared=true')):
                 self._run(('git', '--git-dir', self.vcs_path, 'update-server-info'))
                 # Add denyCurrentBranch & denyDeleteCurrent to default config
                 f = open(self.vcs_path + '/config', 'a')

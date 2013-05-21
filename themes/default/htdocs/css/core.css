@@ -189,7 +189,7 @@ label.question {
 
 .create_form_float fieldset input[type="text"], 
 .create_form_float fieldset textarea {
-  width: 400px
+  width: 300px
 }
 
 .resource-box a.more {

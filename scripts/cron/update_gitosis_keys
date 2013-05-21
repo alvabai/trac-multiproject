@@ -2,13 +2,13 @@
 
 set -e
 
-DB_SERVER="localhost"
-DB_USER="tracuser"
-DB_PASSWORD="password"
-GITOSIS_REPO_PATH="/var/www/trac/gitosis/gitosis-clone"
+DB_SERVER="$db_host"
+DB_USER="$db_user"
+DB_PASSWORD="$db_password"
+GITOSIS_REPO_PATH="$trac_root/gitosis/gitosis-clone"
 GIT="/usr/bin/git"
 GITOSIS_USER="git"
-LOGFILE="/var/www/trac/gitosis/scripts/log/gitosis.log"
+LOGFILE="$sys_logs_path/gitosis.log"
 
 if [[ "$USER" != "$GITOSIS_USER" ]] ; then
 	echo "ERROR: This script must be run as user $GITOSIS_USER" >&2

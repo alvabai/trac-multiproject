@@ -14,7 +14,7 @@ Suite Teardown  Close Browser
 Change public project to private
     ${proj_name}  Get unique project name 
     Create new project    ${proj_name}
-    Title should be  ${proj_name} – ${proj_name}
+    Title should be  ${proj_name} - ${proj_name}
     Click link  Admin
     Click link  Permissions
     Click element  name=makeprivate
@@ -29,9 +29,9 @@ Change public project to private
 Removing project should succeed
     ${projname}  Get unique project name 
     Create new project  ${projname}
-    Title should be  ${projname} – ${projname}
+    Title should be  ${projname} - ${projname}
     Remove project  ${projname}
-    Title should be  My projects – home
+    Title should be  My projects - home
     Page should not contain  ${projname}
 
 

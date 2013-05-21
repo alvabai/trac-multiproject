@@ -15,8 +15,8 @@ from multiproject.project.files.timeline import FilesEventNotifier
 class DAVAccessControl(BasicAccessControl):
     # Constants
     # For more details See. http://www.webdav.org/specs/rfc4918.html
-    DAV_READ_METHODS = set(['HEAD', 'GET', 'OPTIONS', 'PROPFIND', 'REPORT'])
-    # The following are not listed: 'LOCK', 'UNLOCK', 'PROPPATCH', 'POST'
+    DAV_READ_METHODS = set(['HEAD', 'GET', 'OPTIONS', 'PROPFIND', 'REPORT', 'LOCK', 'UNLOCK'])
+    # The following are not listed: 'PROPPATCH', 'POST'
     DAV_FILE_METHODS = set(['PUT', 'DELETE', 'MOVE', 'MKCOL', 'COPY'])
     DAV_DESTINATION_METHODS = set(['MOVE', 'COPY'])
 
@@ -25,6 +25,9 @@ class DAVAccessControl(BasicAccessControl):
         self.req = req
         self.method = req.method
         self._identifier = None
+
+    def parse_identifier_from_uri(self):
+        return self.req.uri.split('/')[2]
 
     def environment_identifier(self):
         # PythonOption project projectname

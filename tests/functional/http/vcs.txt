@@ -8,6 +8,7 @@ Resource       ../common_keywords.txt
 
 Clone a git repository
   [Documentation]  Clone given repository
-  [Arguments]  ${protocol}=https  ${url}  ${dir}
+  [Arguments]  ${protocol}  ${url}  ${dir}
+  Git clone   ${url}  ${dir}
 
 
