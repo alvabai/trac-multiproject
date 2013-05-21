@@ -135,21 +135,16 @@ class ArchiveSourceModule(Component):
         # Get default repository and its type
         rm = RepositoryManager(self.env)
         list_repos = rm.get_real_repositories()
-        self.env.log.exception("Repos: %s" % list_repos)
         repo = None
         repo_type = None
         for r in list_repos:
-            self.env.log.exception("In for")
             if r.get_base().split("/")[-1].lower() == repository_name:
-                self.env.log.exception("If true")
                 repo = r
-                self.env.log.exception("Base %s" % repo.get_base())
-                return
+                break
         repo_type = repo.get_base().split(":")[0]
-        self.env.log.exception("Base %s" % repo_type)
         svn_path = 'trunk'
         format = plaintext(req.args.get('format', 'zip'))
-
+        conf.log.exception("Repotype at beginning: %s" % repo_type)
         # Get revision info. For svn it's in format: <revnum>/<path>
         revision = plaintext(str(req.args.get('rev', repo.get_youngest_rev())))
         if repo_type == 'svn':
@@ -168,8 +163,8 @@ class ArchiveSourceModule(Component):
 
         # Load project object based on current environment
         env_name = conf.resolveProjectName(self.env)
-        repo_type = self.env.config.get('trac', 'repository_type')
-        repo_dir = conf.getEnvironmentVcsPath(env_name)
+        #repo_type = self.env.config.get('trac', 'repository_type')
+        repo_dir = conf.getEnvironmentVcsPath(env_name, repo_type, repository_name)
         project = Project.get(env_name=env_name)
 
         if repo_type not in conf.supported_scm_systems:
@@ -179,6 +174,7 @@ class ArchiveSourceModule(Component):
         tempfd = tempfile.NamedTemporaryFile(delete=False)
 
         # Dump the repository per type, into defined location
+        conf.log.exception("Repotype: %s, repo_dir: %s" % (repo_type, repo_dir))
         try:
             if repo_type == 'git':
                 # Use short revision format

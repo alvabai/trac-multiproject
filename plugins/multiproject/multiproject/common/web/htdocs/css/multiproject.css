@@ -726,3 +726,12 @@ ul.word_box_list li.first {
 
 /*** general boxed word list END ***/
 
+#download_btn {
+    margin-bottom: 5px;
+}
+
+#download_btn a {
+    color: #fff;
+    display: block;
+    text-decoration: none;
+}
