@@ -186,7 +186,7 @@
     </div>
     <div id="content" class="browser">
       <py:if test="dir or file">
-
+      <div id="protocol_download_container">
       <div id="protocol_selection">
       <py:choose>
         <!-- When only one protocol show this area differently -->
@@ -227,7 +227,19 @@
         <input class="flippedButton secondaryButton" type="submit" id="copybutton" value="Copy to clipboard"/>
       </span>
 	</div>
-
+  <py:choose>
+      <py:when test="len(export_urls) > 0">
+        <div id="download_btn" class="enabled_btn primaryButton">
+          <a href="${export_urls[0]}">Download as zip</a>
+        </div>
+      </py:when>
+      <py:otherwise>
+        <div id="download_btn" class="disabled_btn primaryButton" title="Repository is empty">
+          Download as zip
+        </div>
+      </py:otherwise>
+    </py:choose>
+    </div>
          <div class="headeritems">
             <div id="jumprev" py:if="'up' not in chrome.links and not file">
               <form action="" method="get">
