@@ -6,13 +6,13 @@ Library        Operating System
 Resource       ../common_keywords.txt
 
 *** Variables ***
-TMP_DIR       /tmp/
 
 *** Keywords ***
 
 Git clone
-  [Documentation]  Clone given repository
+  [Documentation]  Clone given repository. Target has the same name than original.
   [Arguments]  ${repo}  ${dir}
+  Directory should not exist  ${dir}
   vcslib.Git clone   ${repo}  ${dir}
   Directory should exist  ${dir}
   [Teardown]  Remove directory  ${dir}  recursive=True
@@ -30,5 +30,5 @@ List repository files
   [Return]  ${files}
 
 Cd to temp dir
-  ${prev}=  cd  ${TMP_DIR}
-  return ${prev}
+  [Arguments]  ${dir}=/tmp/
+  cd  ${dir}
