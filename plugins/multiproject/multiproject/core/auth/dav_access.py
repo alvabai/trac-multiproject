@@ -26,9 +26,6 @@ class DAVAccessControl(BasicAccessControl):
         self.method = req.method
         self._identifier = None
 
-    def parse_identifier_from_uri(self):
-        return self.req.uri.split('/')[2]
-
     def environment_identifier(self):
         # PythonOption project projectname
         # Parametrization for special cases
@@ -58,6 +55,9 @@ class DownloadsDAVAccessControl(DAVAccessControl):
         self._req_data = None
         self._download_config = None
         self._env = None
+
+    def parse_identifier_from_uri(self):
+        return self.req.uri.split('/')[2]
 
     def environment_identifier(self):
         # PythonOption project projectname
