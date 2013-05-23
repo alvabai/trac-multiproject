@@ -1,0 +1,5 @@
+*** Variables ***
+${PROTOCOL}      https
+${SERVER}        127.0.0.1
+${VALID_USER}    tracadmin
+${VALID_PASSWD}  tracadmin
