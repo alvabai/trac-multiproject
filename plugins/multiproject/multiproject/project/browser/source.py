@@ -119,6 +119,9 @@ class SourceViewContextNavFilter(Component):
                 return wrap
             data['display_rev'] = patch(data['display_rev'])
 
+        # Check if data contains export url for zip and gzip downloads. If not, set it as empty.
+        data.setdefault('export_urls', "")
+
         # Process matching requests based on request path
         if self.is_browser(req, data):
             self.modify_path_links(req, data)
