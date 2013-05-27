@@ -4,3 +4,5 @@ ${PORT}      4433
 ${SERVER}    localhost:${PORT}
 ${VALID_USER}    tracadmin
 ${VALID_PASSWD}  tracadmin
+${git_https}  https://127.0.0.1:4433
+${git_ssh}    ssh://git@127.0.0.1:2222

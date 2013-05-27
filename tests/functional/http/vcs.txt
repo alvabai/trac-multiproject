@@ -15,15 +15,21 @@ Git clone
   Directory should not exist  ${dir}
   vcslib.Git clone   ${repo}  ${dir}
   Directory should exist  ${dir}
-  [Teardown]  Remove directory  ${dir}  recursive=True
 
 
 Git add
-  [Arguments]  ${file}  ${local_repo}
-  Directory should exist  ${local_repo}
-  ${prev}=  cd  ${local_repo}
+  [Arguments]  ${file}
   vcslib.Git add  ${file}
-  cd  ${prev}
+
+Git commit
+  [Arguments]  ${file}  ${msg}
+  ${data}=  vcslib.Git commit  ${file}  ${msg}
+  Log  ${data}
+
+Git push
+  [Documentation]  Execute Git push in local directory
+  vcslib.Git push
+
 
 List repository files
   ${files}=  vcslib.Git ls files

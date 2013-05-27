@@ -1,15 +1,23 @@
 *** Settings ***
 Resource  vcs.txt
+Resource      ${ENVIRONMENT}.txt
+Library   Operating System
+Suite Setup   Cd to temp dir
+Test Timeout  10 s
 
 *** Variables ***
-${repo1}   /Users/martti/Documents/tmp/multip  
-${repo2}  /tmp/test_repo
+${tmp_dir}     /tmp/
+${local}       /tmp/gitrepo
+${file}        TEST.TXT
 
 
 *** Test Cases ***
 
-Cloning a local git repository should succeed
-  Git clone  /Users/martti/Documents/tmp/multip  /tmp/multip-clone
+Git clone over https should succeed
+  Set environment variable  GIT_SSL_NO_VERIFY  true
+  Git clone  ${git_https}/ci_test_project/git/git-repo  git-repo
+  [Teardown]  Remove directory  git-repo  recursive=True
 
-Cloning a git repository from projects should succeed
-  Git clone   https://projects.qa.developer.nokia.com/foobar/git/gitrepo  /tmp/gitrepo
+Git clone over ssh should succeed
+  Git clone  ${git_ssh}/ci_test_project/git/git-repo  git-repo
+  [Teardown]  Remove directory  git-repo  recursive=True

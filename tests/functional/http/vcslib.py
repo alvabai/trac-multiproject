@@ -8,21 +8,29 @@ from sh import git
 import os
 
 def git_clone(remote, local):
+    # setting environment variable GIT_SSL_NO_VERIFY=true is needed to enable
+    # cloning from unverified repository.
     val = git("clone", remote, local)
-    return val
+    if val.exit_code != 0:
+        raise ValueError ("Commit failed with status ", val)
+    else:
+        return val
 
-def git_push(url, repo):
+def git_push():
     """Push commits to repository, provided that we are already in the repo.
     """
     val = git("push")
     return val
 
-def git_commit():
-    val = git("commit")
-    return val
+def git_commit(filename="", msg=""):
+    val = git.commit("-m", msg, filename)
+    if val.exit_code != 0:
+        raise ValueError ("Commit failed with status ", val)
+    else:
+        return val
 
-def git_add():
-    val = git("add")
+def git_add(fname):
+    val = git("add", fname)
     return val
 
 def cd(dir):
