@@ -21,3 +21,12 @@ Git clone over https should succeed
 Git clone over ssh should succeed
   Git clone  ${git_ssh}/ci_test_project/git/git-repo  git-repo
   [Teardown]  Remove directory  git-repo  recursive=True
+
+
+Svn checkout over https should succeed
+  svn checkout  https://127.0.0.1:4433/ci_test_project/svn/svn-repo  svn-repo
+  [Teardown]  Remove directory  svn-repo  recursive=True
+
+Hg clone over https should succeed
+  hg clone  https://127.0.0.1:4433/ci_test_project/hg/hg-repo  hg-repo
+  [Teardown]  Remove directory  hg-repo  recursive=True

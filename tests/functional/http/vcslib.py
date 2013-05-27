@@ -5,6 +5,9 @@
 """
 
 from sh import git
+from sh import svn
+from sh import hg
+
 import os
 
 def git_clone(remote, local):
@@ -43,6 +46,20 @@ def git_ls_files():
     """List repository files in current dir.""" 
     val = git("ls-files")
     return val
+
+def svn_checkout(remote, local):
+    # Note that for Mac, this requires a more modern version of svn to be
+    # installed than comes with Mac os 10.8. At least SVN 1.7.9 with Openssl
+    # 1.0.1e works.
+    val = svn("co", "--trust-server-cert", "--non-interactive", remote, local)
+    return val
+
+def hg_clone(remote, local):
+    val = hg("clone", "--insecure", remote, local)
+    if val.exit_code != 0:
+        raise ValueError ("Commit failed with status ", val)
+    else:
+        return val
 
 if __name__ == "__main__":
     print "not impelmented"
