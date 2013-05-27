@@ -119,6 +119,8 @@ class SourceViewContextNavFilter(Component):
                 return wrap
             data['display_rev'] = patch(data['display_rev'])
 
+        # set data to dict if it is None
+        data = data or dict()
         # Check if data contains export url for zip and gzip downloads. If not, set it as empty.
         data.setdefault('export_urls', "")
 
