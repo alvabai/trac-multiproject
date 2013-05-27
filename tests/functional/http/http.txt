@@ -23,7 +23,7 @@ Change project visibility
 Login
   [Documentation]  Send a HTTP GET request, sending and storing all the cookies.
   [Arguments]  ${login_url}=/  ${params}=${EMPTY}
-  Create HTTP Context  ${SERVER}  https
+  Create HTTP Context  ${SERVER}:${HTTPS_PORT}  https
   GET  ${login_url}
   ${status}=  Get Response Status
   Run Keyword If  '${status}' == '302 Found'  Follow Response

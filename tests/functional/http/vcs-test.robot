@@ -15,7 +15,7 @@ ${file}        TEST.TXT
 
 Git clone over https should succeed
   Set environment variable  GIT_SSL_NO_VERIFY  true
-  Git clone  ${git_https}/ci_test_project/git/git-repo  git-repo
+  Git clone  ${https_proto}/ci_test_project/git/git-repo  git-repo
   [Teardown]  Remove directory  git-repo  recursive=True
 
 Git clone over ssh should succeed
@@ -24,9 +24,9 @@ Git clone over ssh should succeed
 
 
 Svn checkout over https should succeed
-  svn checkout  https://127.0.0.1:4433/ci_test_project/svn/svn-repo  svn-repo
+  svn checkout  ${https_proto}/ci_test_project/svn/svn-repo  svn-repo
   [Teardown]  Remove directory  svn-repo  recursive=True
 
 Hg clone over https should succeed
-  hg clone  https://127.0.0.1:4433/ci_test_project/hg/hg-repo  hg-repo
+  hg clone  ${https_proto}/ci_test_project/hg/hg-repo  hg-repo
   [Teardown]  Remove directory  hg-repo  recursive=True

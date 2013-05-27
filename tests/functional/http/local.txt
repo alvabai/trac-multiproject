@@ -1,8 +1,9 @@
 *** Variables ***
-${PROTOCOL}  https
-${PORT}      4433
-${SERVER}    localhost:${PORT}
-${VALID_USER}    tracadmin
-${VALID_PASSWD}  tracadmin
-${git_https}  https://127.0.0.1:4433
-${git_ssh}    ssh://git@127.0.0.1:2222
+${PROTOCOL}       https
+${HTTPS_PORT}     4433
+${SSH_PORT}       2222
+${SERVER}         127.0.0.1
+${VALID_USER}     tracadmin
+${VALID_PASSWD}   tracadmin
+${https_proto}    https://${SERVER}:${HTTPS_PORT}
+${git_ssh}        ssh://git@${SERVER}:${SSH_PORT}

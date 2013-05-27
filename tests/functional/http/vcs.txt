@@ -40,7 +40,7 @@ Cd to temp dir
   cd  ${dir}
 
 Svn checkout
-  [Arguments]  ${repo}  ${
+  [Arguments]  ${repo}  ${dir}
   Directory should not exist  ${dir}
   vcslib.svn checkout   ${repo}  ${dir}
   Directory should exist  ${dir}
