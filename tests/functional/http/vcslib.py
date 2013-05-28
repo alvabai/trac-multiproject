@@ -22,8 +22,11 @@ def git_clone(remote, local):
 def git_push():
     """Push commits to repository, provided that we are already in the repo.
     """
-    val = git("push")
-    return val
+    val = git("push", "-v")
+    if val.exit_code != 0:
+        raise ValueError ("Commit failed with status ", val)
+    else:
+        return val
 
 def git_commit(filename="", msg=""):
     val = git.commit("-m", msg, filename)
