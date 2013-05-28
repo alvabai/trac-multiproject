@@ -8,7 +8,7 @@ from sh import git
 import os
 
 def git_clone(url, repo):
-    val = git("clone", "url", "repo")
+    val = git("clone", url, repo)
     return val
 
 def git_push(url, repo):
@@ -16,6 +16,11 @@ def git_push(url, repo):
     """
     val = git("push")
     return val
+
+
+if __name__ == "__main__":
+    print "not impelmented"
+    pass
 
 
 

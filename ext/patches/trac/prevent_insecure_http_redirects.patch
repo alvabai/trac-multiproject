@@ -1,0 +1,13 @@
+--- trac/web/api.py	2012-09-07 23:52:14.000000000 +0300
++++ trac/web/api.py	2013-05-23 11:30:35.445371339 +0300
+@@ -374,6 +374,10 @@
+             scheme, host = urlparse.urlparse(self.base_url)[:2]
+             url = urlparse.urlunparse((scheme, host, url, None, None, None))
+ 
++        # Death to insecure http connections!
++        if url.startswith('http://'):
++            url = url.replace('http://', 'https://', 1)
++
+         # Workaround #10382, IE6+ bug when post and redirect with hash
+         if status == 303 and '#' in url and \
+                 ' MSIE ' in self.environ.get('HTTP_USER_AGENT', ''):
