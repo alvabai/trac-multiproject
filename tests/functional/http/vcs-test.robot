@@ -1,7 +1,8 @@
 *** Settings ***
-Resource  vcs.txt
+Resource      vcs.txt
 Resource      ${ENVIRONMENT}.txt
-Library   Operating System
+Resource      http.txt
+Library       Operating System
 Suite Setup   Cd to temp dir
 Test Timeout  10 s
 
@@ -34,24 +35,27 @@ Hg clone over https should succeed
 
 Git commit over https should succeed
   Set environment variable  GIT_SSL_NO_VERIFY  true
-  Git clone and push  ${https_proto}/ci_test_project/git/git-repo  git-repo
+  ${time}=    Get Time
+  Git clone and push  ${https_proto}/ci_test_project/git/git-repo  git-repo  ${time}
+  Setup and login
+  Myget  https://localhost:4433/ci_test_project/browser/git-repo/TEST.TXT
+  Show response body in browser
+  ${body}=  Get response body
+  Should contain  ${body}  ${time}
   [Teardown]  Remove directory  git-repo  recursive=True
 
 
 *** Keywords ***
 
 Git clone and push
-  [Arguments]  ${remote}  ${local}
+  [Arguments]  ${remote}  ${local}  ${content}
   Set environment variable  GIT_SSL_NO_VERIFY  true
   Git clone  ${remote}  ${local}
   ${prev}=  cd  ${local}
-  ${time}=    Get Time
-  Create file  ${file}  ${time}
+  Create file  ${file}  ${content}
   Git add  ${file}
   Git commit  ${file}  new commit
   Git push
   cd   ${prev}
   @{files}=  List Directory  ${local}
   Log Many  @{files}
-
-
