@@ -36,12 +36,8 @@ Hg clone over https should succeed
 Git commit over https should succeed
   Set environment variable  GIT_SSL_NO_VERIFY  true
   ${time}=    Get Time
-  Git clone and push  ${https_proto}/ci_test_project/git/git-repo  git-repo  ${time}
-  Setup and login
-  Myget  https://localhost:4433/ci_test_project/browser/git-repo/TEST.TXT
-  Show response body in browser
-  ${body}=  Get response body
-  Should contain  ${body}  ${time}
+  Git clone and push  ${https_with_cred}/ci_test_project/git/git-repo  git-repo  ${time}
+  Verify file from ui  ${PROTOCOL}://${SERVER}:${HTTPS_PORT}/ci_test_project/browser/git-repo/${file}  ${time}
   [Teardown]  Remove directory  git-repo  recursive=True
 
 
@@ -59,3 +55,10 @@ Git clone and push
   cd   ${prev}
   @{files}=  List Directory  ${local}
   Log Many  @{files}
+
+Verify file from ui
+  [Arguments]  ${url}  ${content}
+  Setup and login
+  Myget  ${url}
+  ${body}=  Get response body
+  Should contain  ${body}  ${content}

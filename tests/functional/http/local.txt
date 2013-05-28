@@ -5,5 +5,6 @@ ${SSH_PORT}       2222
 ${SERVER}         127.0.0.1
 ${VALID_USER}     tracadmin
 ${VALID_PASSWD}   tracadmin
-${https_proto}    https://${VALID_USER}:${VALID_PASSWD}@${SERVER}:${HTTPS_PORT}
+${https_with_cred}    https://${VALID_USER}:${VALID_PASSWD}@${SERVER}:${HTTPS_PORT}
+${https_proto}    ${PROTOCOL}://${SERVER}:${HTTPS_PORT}
 ${git_ssh}        ssh://git@${SERVER}:${SSH_PORT}
