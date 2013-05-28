@@ -64,6 +64,23 @@ def hg_clone(remote, local):
     else:
         return val
 
+def hg_commit(filename="", msg=""):
+    val = hg.commit("-A", "-m", msg, filename)
+    if val.exit_code != 0:
+        raise ValueError ("Commit failed with status ", val)
+    else:
+        return val
+
+def hg_push(url):
+    """Push commits to repository, provided that we are already in the repo.
+    """
+    val = hg("push", "--insecure", url)
+    if val.exit_code != 0:
+        raise ValueError ("Commit failed with status ", val)
+    else:
+        return val
+
+
 if __name__ == "__main__":
     print "not impelmented"
     pass

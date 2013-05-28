@@ -53,3 +53,14 @@ Hg clone
   Directory should exist  ${dir}
 
 
+Hg commit
+  [Arguments]  ${file}  ${msg}
+  ${data}=  vcslib.hg commit  ${file}  ${msg}
+  Log  ${data}
+
+hg push
+  [Documentation]  Execute hg push in local directory
+  [Arguments]  ${url}
+  vcslib.hg push  ${url}
+
+
