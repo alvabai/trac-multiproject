@@ -91,7 +91,7 @@ class CreateLocalUserAdminPanel(Component):
 
                 # Try to send email notification also
                 try:
-                    self._send_notification(user)
+                    self._send_notification(user, req.server_name)
                 except TracError:
                     # Notification sending failed
                     self.log.exception("Notification sending failed")
@@ -156,7 +156,7 @@ class CreateLocalUserAdminPanel(Component):
         password = u''.join([choice(string.hexdigits) for i in range(10)])
         return password
 
-    def _send_notification(self, user):
+    def _send_notification(self, user, server_name):
         """
         Send account information to new user
 
@@ -165,7 +165,7 @@ class CreateLocalUserAdminPanel(Component):
         """      
 
         data = {
-            'system':conf.domain_name,
+            'system':server_name,
             'username':user.username,
             'password':user.password,
             'expires':user.expires
