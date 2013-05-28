@@ -27,6 +27,7 @@ Change public project to private
     [Teardown]     Remove project  ${proj_name}
 
 Removing project should succeed
+    [Tags]      unstable
     ${projname}  Get unique project name 
     Create new project  ${projname}
     Title should be  ${projname} - ${projname}

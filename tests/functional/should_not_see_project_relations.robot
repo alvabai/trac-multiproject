@@ -11,6 +11,7 @@ Suite Teardown  Close Browser
 *** Test Cases ***
 
 Should not see project relations in Admin space
+    [Tags]      unstable
     ${proj_name}  Get unique project name 
     Create new project    ${proj_name}
     Page should not contain   ${failed_to_create}
