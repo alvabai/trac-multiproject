@@ -3,5 +3,5 @@
 PROJECT_DIR="/var/www/trac/projects"
 project=`echo $1 | sed 's@/svn/.*@@;s@.*/@@'`
 repo=`echo $1 | sed 's@.*/@@'`
-trac-admin $PROJECT_DIR/$project repository resync "$repo"
+trac-admin $PROJECT_DIR/$project changeset added "$repo" "$2"
 exit 0
