@@ -429,6 +429,20 @@ input[type="submit"].remove_permission {
   border: 0;
 }
 
+
+.disabledButton {
+  background: url(/htdocs/theme/images/buttons.png) no-repeat 0 -52px transparent;
+  display: inline-block;
+  font-size: 12px;
+  color: #fff;
+  height: 22px;
+  padding: 2px 6px;
+  text-decoration: none;
+  line-height: 20px;
+  cursor: pointer;
+  border: 0;
+}
+
 .primaryButton:hover,
 .secondaryButton:hover,
 .zeroclipboard-is-hover {
