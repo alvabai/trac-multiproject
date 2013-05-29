@@ -4,7 +4,7 @@ Resource      ${ENVIRONMENT}.txt
 Resource      http.txt
 Library       Operating System
 Suite Setup   Cd to temp dir
-Test Timeout  10 s
+Test Timeout  20 s
 
 *** Variables ***
 ${tmp_dir}     /tmp/
@@ -37,11 +37,13 @@ Hg clone over https should succeed
 
 Hg commit should succeed
   hg clone  ${https_proto}/ci_test_project/hg/hg-repo  hg-repo
-  cd  hg-repo
+  ${prev}=  cd  hg-repo
   ${time}=  Get time
   Create file  ${file}  ${time}
-  hg commit  ${file}  new commit at ${time}
-  hg push  ${https_with_cred}/ci_test_project/hg/hg-repo
+  Hg commit  ${file}  new commit at ${time}
+  Hg push  ${https_with_cred}/ci_test_project/hg/hg-repo
+  Verify file from ui  ${https_proto}/ci_test_project/browser/hg-repo/${file}  ${time}
+  [Teardown]  Remove directory  ${prev}/hg-repo  recursive=True
 
 
 SVN checkout over https should succeed
