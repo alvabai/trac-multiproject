@@ -1,8 +1,8 @@
 *** Variables ***
 
 ${PROTOCOL}       https
-${HTTPS_PORT}     4433
-${SSH_PORT}       2222
+${HTTPS_PORT}     443
+${SSH_PORT}       22
 ${SERVER}         127.0.0.1
 ${VALID_USER}     tracadmin
 ${VALID_PASSWD}   tracadmin
