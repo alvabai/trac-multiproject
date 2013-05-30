@@ -46,6 +46,12 @@ Svn checkout
   vcslib.svn checkout   ${repo}  ${dir}
   Directory should exist  ${dir}
 
+Svn commit
+  [Arguments]  ${msg}
+  [Documentation]  If this fails, make sure you have accepted the cert.
+  vcslib.svn commit  ${msg}
+
+
 Hg clone
   [Documentation]  Clone given repository. Target has the same name than original.
   [Arguments]  ${repo}  ${dir}

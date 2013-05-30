@@ -61,10 +61,17 @@ def svn_checkout(remote, local):
     val = svn("co", "--trust-server-cert", "--non-interactive", remote, local)
     return val
 
+def svn_commit(msg):
+    val = svn("commit", "-m", msg)
+    if val.exit_code != 0:
+        raise ValueError ("Commit failed with status ", val)
+    else:
+        return val
+
 def hg_clone(remote, local):
     val = hg("clone", "--insecure", remote, local)
     if val.exit_code != 0:
-        raise ValueError ("Commit failed with status ", val)
+        raise ValueError ("Clone failed with status ", val)
     else:
         return val
 

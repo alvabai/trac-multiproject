@@ -51,9 +51,20 @@ Hg commit should succeed
   [Teardown]  Remove directory  ${prev}/hg-repo  recursive=True
 
 
-SVN checkout over https should succeed
+SVN checkout should succeed
   svn checkout  ${https_proto}/ci_test_project/svn/svn-repo  svn-repo
   [Teardown]  Remove directory  svn-repo  recursive=True
+
+SVN commit should succeed
+  [Documentation]  Commit file, provided that certificate is accepted and saved earlier.
+  svn checkout  ${https_proto}/ci_test_project/svn/svn-repo  svn-repo
+  ${prev}=  cd  svn-repo
+  ${time}=  Get time
+  Create file  ${file}  ${time}
+  svn commit  new commit at ${time}
+  [Teardown]  Remove directory  svn-repo  recursive=True
+
+
 
 *** Keywords ***
 
