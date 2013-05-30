@@ -30,6 +30,11 @@ Git commit over https should succeed
   Verify file from ui  ${PROTOCOL}://${SERVER}:${HTTPS_PORT}/ci_test_project/browser/git-repo/${file}  ${time}
   [Teardown]  Remove directory  git-repo  recursive=True
 
+Git commit over ssh should succeed
+  ${time}=    Get Time
+  Git clone and push  ${git_ssh}/ci_test_project/git/git-repo  git-repo  ${time}
+  Verify file from ui  ${PROTOCOL}://${SERVER}:${HTTPS_PORT}/ci_test_project/browser/git-repo/${file}  ${time}
+  [Teardown]  Remove directory  git-repo  recursive=True
 
 Hg clone over https should succeed
   hg clone  ${https_proto}/ci_test_project/hg/hg-repo  hg-repo
