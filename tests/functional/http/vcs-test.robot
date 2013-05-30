@@ -4,7 +4,7 @@ Resource      ${ENVIRONMENT}.txt
 Resource      http.txt
 Library       Operating System
 Suite Setup   Cd to temp dir
-Test Timeout  20 s
+Test Timeout  40 s
 
 *** Variables ***
 ${tmp_dir}     /tmp/
