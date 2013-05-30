@@ -62,6 +62,7 @@ SVN commit should succeed
   ${time}=  Get time
   Create file  ${file}  ${time}
   svn commit  new commit at ${time}
+  Verify file from ui  ${https_proto}/ci_test_project/browser/svn-repo/${file}  ${time}
   [Teardown]  Remove directory  svn-repo  recursive=True
 
 
