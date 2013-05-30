@@ -3,7 +3,7 @@ Resource      vcs.txt
 Resource      ${ENVIRONMENT}.txt
 Resource      http.txt
 Library       Operating System
-Suite Setup   Cd to temp dir
+Test Setup   Cd to temp dir
 Test Timeout  40 s
 
 *** Variables ***

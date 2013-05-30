@@ -37,7 +37,8 @@ List repository files
 
 Cd to temp dir
   [Arguments]  ${dir}=/tmp/
-  cd  ${dir}
+  ${prev}=  cd  ${dir}
+  [Return]  ${prev}
 
 Svn checkout
   [Arguments]  ${repo}  ${dir}

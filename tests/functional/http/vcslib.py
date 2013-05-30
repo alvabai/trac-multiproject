@@ -42,7 +42,10 @@ def git_add(fname):
 
 def cd(dir):
     """Cd to dir and return previous one."""
-    current = os.getcwd()
+    try:
+        current = os.getcwd()
+    except OSError:
+        current = None
     os.chdir(dir)
     return current
 
