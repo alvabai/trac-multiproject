@@ -147,9 +147,6 @@ class ArchiveSourceModule(Component):
         conf.log.exception("Repotype at beginning: %s" % repo_type)
         # Get revision info. For svn it's in format: <revnum>/<path>
         revision = plaintext(str(req.args.get('rev', repo.get_youngest_rev())))
-        if repo_type == 'svn':
-            revision = repo.get_youngest_rev()
-            svn_path = req.args.get('rev', svn_path)
 
         # Validate if given revision really exists
         try:
@@ -195,7 +192,7 @@ class ArchiveSourceModule(Component):
                 # Redirect to Trac's internal changeset functionality
                 # Example: https://localhost/svnproject/changeset/4/trunk?old_path=%2F&format=zip
                 changeset_href = Href('/%s/changeset' % env_name)
-                return req.redirect(changeset_href(revision, svn_path, old_path='/', format='zip'))
+                return req.redirect(changeset_href(revision, repository_name+"/", format='zip'))
 
         # Redirect raises RequestDone: re-raise it
         except RequestDone:
