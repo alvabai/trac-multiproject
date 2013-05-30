@@ -65,7 +65,7 @@ def hg_clone(remote, local):
     else:
         return val
 
-def hg_commit(filename="", msg=""):
+def hg_commit(username, filename="", msg=""):
     val = hg.commit("-A", "-m", msg, filename)
     if val.exit_code != 0:
         raise ValueError ("Commit failed with status ", val)

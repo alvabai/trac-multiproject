@@ -54,8 +54,9 @@ Hg clone
 
 
 Hg commit
-  [Arguments]  ${file}  ${msg}
-  ${data}=  vcslib.hg commit  ${file}  ${msg}
+  [Arguments]  ${username}  ${file}  ${msg}
+  Log Many  ${file}  ${msg}
+  ${data}=  vcslib.hg commit  ${username}  ${file}  ${msg}
   Log  ${data}
 
 hg push

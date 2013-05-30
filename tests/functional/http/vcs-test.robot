@@ -45,7 +45,7 @@ Hg commit should succeed
   ${prev}=  cd  hg-repo
   ${time}=  Get time
   Create file  ${file}  ${time}
-  Hg commit  ${file}  new commit at ${time}
+  Hg commit  ${VALID_USER}  ${file}  new commit at ${time}
   Hg push  ${https_with_cred}/ci_test_project/hg/hg-repo
   Verify file from ui  ${https_proto}/ci_test_project/browser/hg-repo/${file}  ${time}
   [Teardown]  Remove directory  ${prev}/hg-repo  recursive=True
