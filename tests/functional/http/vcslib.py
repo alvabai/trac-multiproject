@@ -61,8 +61,8 @@ def svn_checkout(remote, local):
     val = svn("co", "--trust-server-cert", "--non-interactive", remote, local)
     return val
 
-def svn_commit(msg):
-    val = svn("commit", "-m", msg)
+def svn_commit(user, pwd, msg):
+    val = svn("commit", "--username", user, "--password", pwd, "--no-auth-cache", "-m", msg)
     if val.exit_code != 0:
         raise ValueError ("Commit failed with status ", val)
     else:

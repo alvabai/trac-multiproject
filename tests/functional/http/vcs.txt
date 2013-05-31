@@ -47,9 +47,9 @@ Svn checkout
   Directory should exist  ${dir}
 
 Svn commit
-  [Arguments]  ${msg}
+  [Arguments]  ${msg}  ${user}  ${pass}
   [Documentation]  If this fails, make sure you have accepted the cert.
-  vcslib.svn commit  ${msg}
+  vcslib.svn commit  ${msg}  ${user}  ${pass}
 
 
 Hg clone
