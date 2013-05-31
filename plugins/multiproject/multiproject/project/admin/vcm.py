@@ -9,7 +9,7 @@ from trac.admin.api import IAdminPanelProvider
 from trac.web.api import Href, RequestDone
 from trac.web.chrome import add_warning, add_script, add_stylesheet, add_notice
 from multiproject.core.configuration import conf
-from multiproject.common.projects.commands import CreateTracVersionControl
+from multiproject.common.projects.commands import CreateTracVersionControl, InitCommitHooks
 from multiproject.common.projects.project import Project
 
 class RepositoriesAdminPanel(Component):
@@ -87,6 +87,8 @@ class RepositoriesAdminPanel(Component):
         project = Project._get_project(env_name=self.env.project_identifier, use_cache=False)
         ctvc = CreateTracVersionControl(project, {'vcs_type':repo_type, 'vcs_name':name})
         ctvc.do()
+        add_hook = InitCommitHooks(project, {'vcs_type':repo_type, 'vcs_name':name})
+        add_hook.do()
         self.env.config.set('repositories', name + '.dir', 
                             conf.getEnvironmentVcsPath(self.env.project_identifier, repo_type, name))
         self.env.config.set('repositories', name + '.type', repo_type)
