@@ -1,6 +1,11 @@
 *** Variables ***
 
-${PROTOCOL}      https
-${SERVER}        127.0.0.1
-${VALID_USER}    tracadmin
-${VALID_PASSWD}  tracadmin
+${PROTOCOL}       https
+${HTTPS_PORT}     443
+${SSH_PORT}       22
+${SERVER}         127.0.0.1
+${VALID_USER}     tracadmin
+${VALID_PASSWD}   tracadmin
+${https_with_cred}    https://${VALID_USER}:${VALID_PASSWD}@${SERVER}:${HTTPS_PORT}
+${https_proto}    ${PROTOCOL}://${SERVER}:${HTTPS_PORT}
+${git_ssh}        ssh://git@${SERVER}:${SSH_PORT}

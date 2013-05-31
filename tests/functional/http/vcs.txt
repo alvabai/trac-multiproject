@@ -1,14 +1,74 @@
 *** Settings ***
 Library        Collections
 Library        HttpLibrary.HTTP
-Library        gitlib
+Library        vcslib
+Library        Operating System
 Resource       ../common_keywords.txt
+
+*** Variables ***
 
 *** Keywords ***
 
-Clone a git repository
-  [Documentation]  Clone given repository
-  [Arguments]  ${protocol}  ${url}  ${dir}
-  Git clone   ${url}  ${dir}
+Git clone
+  [Documentation]  Clone given repository. Target has the same name than original.
+  [Arguments]  ${repo}  ${dir}
+  Directory should not exist  ${dir}
+  vcslib.Git clone   ${repo}  ${dir}
+  Directory should exist  ${dir}
+
+
+Git add
+  [Arguments]  ${file}
+  vcslib.Git add  ${file}
+
+Git commit
+  [Arguments]  ${file}  ${msg}
+  ${data}=  vcslib.Git commit  ${file}  ${msg}
+  Log  ${data}
+
+Git push
+  [Documentation]  Execute Git push in local directory
+  vcslib.Git push
+
+
+List repository files
+  ${files}=  vcslib.Git ls files
+  [Return]  ${files}
+
+Cd to temp dir
+  [Arguments]  ${dir}=/tmp/
+  ${prev}=  cd  ${dir}
+  [Return]  ${prev}
+
+Svn checkout
+  [Arguments]  ${repo}  ${dir}
+  Directory should not exist  ${dir}
+  vcslib.svn checkout   ${repo}  ${dir}
+  Directory should exist  ${dir}
+
+Svn commit
+  [Arguments]  ${msg}  ${user}  ${pass}
+  [Documentation]  If this fails, make sure you have accepted the cert.
+  vcslib.svn commit  ${msg}  ${user}  ${pass}
+
+
+Hg clone
+  [Documentation]  Clone given repository. Target has the same name than original.
+  [Arguments]  ${repo}  ${dir}
+  Directory should not exist  ${dir}
+  vcslib.hg clone   ${repo}  ${dir}
+  Directory should exist  ${dir}
+
+
+Hg commit
+  [Arguments]  ${username}  ${file}  ${msg}
+  Log Many  ${file}  ${msg}
+  ${data}=  vcslib.hg commit  ${username}  ${file}  ${msg}
+  Log  ${data}
+
+hg push
+  [Documentation]  Execute hg push in local directory
+  [Arguments]  ${url}
+  vcslib.hg push  ${url}
 
 
