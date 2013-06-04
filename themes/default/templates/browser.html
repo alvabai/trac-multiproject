@@ -65,7 +65,7 @@
               protocols = protocols + "<span>"+scheme.toUpperCase()+"</span>";
             });
             $("#repo_address_container .protocolselector").html(protocols);
-             var repo_child = $(repo_index).children()[1];
+             var repo_child = $(repo_index).children()[0];
              var repo_url = $(repo_child).text().trim();
             $("#repo_address_container .repoaddress").text(repo_url);
             $("h2.notop").text(repo_name);
