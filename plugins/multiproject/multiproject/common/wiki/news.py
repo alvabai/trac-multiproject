@@ -111,7 +111,6 @@ class ProjectNews(object):
         else:
             query = "SELECT name FROM `%s`.forum ORDER BY id ASC LIMIT 1" % self.env_name   
 
-        self.log.exception("SQL query failed: %s" % query)
         with db.admin_query() as cursor:
             try:
                 cursor.execute(query)
