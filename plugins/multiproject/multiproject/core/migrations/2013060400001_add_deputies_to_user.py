@@ -3,7 +3,7 @@
 Add new column to user for deputies
 """
 from multiproject.core.configuration import conf
-from multiproject.core.db import analytical_query
+from multiproject.core.db import admin_query
 from multiproject.core.migration import MigrateBase, MigrateMgr
 
 class AddDeputiesForUsers(MigrateBase):

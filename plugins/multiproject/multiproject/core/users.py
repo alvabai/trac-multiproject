@@ -921,6 +921,59 @@ class MySqlUserStore(UserStore):
 
         return mails
 
+    def get_deputies(self, user_id):
+        """
+            Get user deputies which have same power as authors
+        """
+        deputies = []
+        deputies_id = None
+        query = "SELECT deputies FROM user WHERE user_id = '%s'" % user_id
+        with admin_query() as cursor:
+            try:
+                cursor.execute(query)
+                row = cursor.fetchone()
+                deputies_id = row[0];
+            except:
+                conf.log.exception("Exception. Query failed when getting deputies '''%s'''" % query)
+                raise
+        if deputies_id:
+            deputies_id_list = deputies_id.split(",")
+            for deputy_id in deputies_id_list:
+                deputies.append(self.getUserWhereId(deputy_id))
+        return deputies
+
+    def add_deputy(self, user_id, deputy_name):
+        """
+            Add deputy for user
+            Returns Boolean value
+        """
+        deputy = self.getUser(deputy_name)
+        deputies_id = None
+        query = "SELECT deputies FROM user WHERE user_id = '%s'" % user_id
+        with admin_query() as cursor:
+            try:
+                cursor.execute(query)
+                row = cursor.fetchone()
+                deputies_id = row[0];
+            except:
+                conf.log.exception("Exception. Query failed when getting deputies '''%s'''" % query)
+                return False
+        if not deputies_id:
+            deputies_id = deputy.id
+        else:
+            deputies_id = deputies_id+","+str(deputy.id)
+        query = "UPDATE user SET deputies = '%s' WHERE user_id = '%s' " % (deputies_id, user_id)
+        conf.log.exception("UPDATE query: %s" % query)
+        with admin_transaction() as cursor:
+            try:
+                cursor.execute(query)
+                return True
+            except:
+                conf.log.exception("Exception. Query failed when getting deputies '''%s'''" % query)
+                return False
+
+
+
 
 class LdapUserStore(UserStore):
     """

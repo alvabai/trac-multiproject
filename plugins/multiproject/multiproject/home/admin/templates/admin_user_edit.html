@@ -13,7 +13,7 @@
   <body>
      <h2>Manage User: ${user.username} <span py:if="user.username == req.authname">(this is your account)</span></h2>
      <div id="content">
-        <form action="" enctype="multipart/form-data" method="post">
+        <form action="" enctype="multipart/form-data" method="post" id="manage_user">
             <fieldset>
                 <input type="hidden" name="local" value="on" />
                 <input type="hidden" name="username" value="${user.username}" />
@@ -84,6 +84,29 @@
                             <input type="text" id="author" size="60" name="author_text" value="${author}" placeholder="None" py:if="author" />
                             <input type="text" id="author" size="60" name="author_text" value="" placeholder="None" py:if="not author" />
                             <p class="desc">User who is in charge to extend the account expiration date</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label">Deputies</td>
+                        <td>
+                            <ul py:if="len(deputies) > 0">
+                                <li py:for="deputy in deputies">
+                                    <span class="deputy_username">
+                                        ${deputy.username}
+                                    </span>
+                                    <input type="button" class="remove_deputy" value="-" />
+                                </li>
+                            </ul>
+                            <p py:if="len(deputies) == 0" class="no-deputies">No deputies added</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label">Add deputy</td>
+                        <td>
+                            <input type="text" name="deputy_name" id="add_deputy" />
+                            <input type="submit" id="add_deputy_button" value="+" />
+                            <p class="desc">User who has same privilidges as author
+                            </p>
                         </td>
                     </tr>
                     <tr>

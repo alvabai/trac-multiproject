@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
-
+from urllib import urlencode
 from trac.admin.api import IAdminPanelProvider
 from trac.core import Component, implements, TracError
 from trac.perm import PermissionError, PermissionCache
@@ -96,6 +96,7 @@ class UsersAdminPanel(Component):
         data = req.args
         data['user'] = user
         data['author'] = userstore.getUserWhereId(user.author_id) if user.author_id else None
+        data['deputies'] = userstore.get_deputies(user.id)
         data['base_path'] = req.base_path
         data['dateformats'] = DATEFORMATS
         data['is_local'] = userstore.is_local(user)
@@ -117,6 +118,14 @@ class UsersAdminPanel(Component):
         # Close pressed: get back to user listing
         if req.args.get('close'):
             return req.redirect(req.href('admin/users/manage'))
+
+        if req.args.get('deputy_name'):
+            if(userstore.add_deputy(user.id, req.args.get('deputy_name'))):
+                add_notice(req, _("Deputy "+req.args.get('deputy_name')+" added."))
+                return_url = 'home/admin/users/manage?username='+user.username
+                return req.redirect(return_url)
+            else:
+                add_warning(req, _("Could not add deputy. Please try again later"))
 
         # Handle save
         if 'limitexceeded' in req.args:
