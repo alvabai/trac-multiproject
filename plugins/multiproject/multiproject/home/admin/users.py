@@ -68,6 +68,17 @@ class UsersAdminPanel(Component):
 
         return 'admin_user_list.html', data
 
+    def check_author_and_deputies(self, changer_id, author_id, deputies){
+        edit_perm = False
+        if author_id != changer_id:
+            for deputy in deputies:
+                if deputy.id == changer_id:
+                    edit_perm = True
+                    break
+        else:
+            edit_perm = True
+    }
+
     def edit_user(self, req):
         """
         Handle user edit: view & save
@@ -92,15 +103,8 @@ class UsersAdminPanel(Component):
 
         # Check permissions and redirect to user listing (handy after editing the user)
         #req.perm.require('USER_AUTHOR', Resource('user', id=user.id))
-        edit_perm = False
-        if user.author_id != changed_by.id:
-            for deputy in userstore.get_deputies(user.id):
-                if deputy.id == changed_by.id:
-                    edit_perm = True
-                    break
-        else:
-            edit_perm = True
-        if edit_perm == False:
+        if self.check_author_and_deputies(changed_by.id,
+            user.author_id, userstore.get_deputies(user.id)) == False:
             add_warning(req, _("No don't have enough privilidges"))
             req.redirect(req.href("admin"))
 
@@ -269,11 +273,13 @@ class UsersAdminPanel(Component):
 
         # Check if user has still (after modification) permission to modify user
         # NOTE: req.perm cannot be used here because it is not updated yet
-        resource = Resource('user', id=user.id)
-        perm = PermissionCache(self.env, username=req.authname)
-        if perm.has_permission('USER_AUTHOR', resource):
+        #resource = Resource('user', id=user.id)
+        #perm = PermissionCache(self.env, username=req.authname)
+        #if perm.has_permission('USER_AUTHOR', resource):
+        #    return self.back(req)
+        if self.check_author_and_deputies(changed_by.id,
+            user.author_id, userstore.get_deputies(user.id)) == False:
             return self.back(req)
-
         add_notice(req, _('You have no longer permission to modify the account: %s' % user.username))
         return req.redirect(req.href('admin/users/manage'))
 
