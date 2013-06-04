@@ -91,7 +91,18 @@ class UsersAdminPanel(Component):
         papi = Projects()
 
         # Check permissions and redirect to user listing (handy after editing the user)
-        req.perm.require('USER_AUTHOR', Resource('user', id=user.id))
+        #req.perm.require('USER_AUTHOR', Resource('user', id=user.id))
+        edit_perm = False
+        if user.author_id != changed_by.id:
+            for deputy in userstore.get_deputies(user.id):
+                if deputy.id == changed_by.id:
+                    edit_perm = True
+                    break
+        else:
+            edit_perm = True
+        if edit_perm == False:
+            add_warning(req, _("No don't have enough privilidges"))
+            req.redirect(req.href("admin"))
 
         data = req.args
         data['user'] = user
