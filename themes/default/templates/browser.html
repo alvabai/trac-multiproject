@@ -182,7 +182,7 @@
       <div id="hidden_repo_addresses" style="display:none;">
         <py:if test="data_repositories is not None">
           <div py:for="type in data_repositories" 
-            id="repo_container_${type[0].split('/')[-1]}">
+            id="repo_container_${type[0].split('/')[-1].lower()}">
             <div py:for="command in type">
               ${command}
             </div>
