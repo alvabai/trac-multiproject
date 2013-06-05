@@ -85,7 +85,8 @@ Save cookies
 
 
 Create new project
-  [Documentation]  Create a new project. Arguments: project name and type (svn,hg,git)
+  [Documentation]  Create a new project. Arguments: project name, 
+  ...              repository name and type (svn,hg,git)
   [Arguments]  ${proj}  ${reponame}  ${type}=svn
   Myget  /home/project
   Remove from dictionary  ${suite_cookies}  trac_session 
