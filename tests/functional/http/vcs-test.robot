@@ -5,7 +5,7 @@ Resource      http.txt
 Library       Operating System
 Suite Setup   Create project with default repositories  # creates project ${suite_project}
 Test Setup    Cd to temp dir
-#Test Timeout  40 s
+Test Timeout  2 minutes
 
 *** Variables ***
 ${tmp_dir}     /tmp/
@@ -17,8 +17,7 @@ ${file}        TEST.TXT
 
 Git clone over https should succeed
   Set environment variable  GIT_SSL_NO_VERIFY  true
-  Sleep  65
-  Git clone  ${https_proto}/${suite_project}/git/git-repo  git-repo
+  Run until succeeds   Git clone  ${https_proto}/${suite_project}/git/git-repo  git-repo
   [Teardown]  Remove directory  git-repo  recursive=True
 
 Git clone over ssh should succeed
@@ -97,3 +96,16 @@ Create project with default repositories
   Add a repository  ${suite_project}  svn  svn-repo
   Add a repository  ${suite_project}  hg  hg-repo
   Add a repository  ${suite_project}  git  git-repo
+
+
+Run until succeeds
+  [Arguments]  ${kw}  @{args}
+  [Timeout]  65s
+  :FOR  ${i}  IN RANGE  22
+  \     ${status}=  Run keyword and return status  ${kw}  @{args}
+  \     Log  ${status}
+  \     Run keyword if   ${status}   Exit for loop
+  \     Sleep  3
+  Should Be True  ${status}
+
+
