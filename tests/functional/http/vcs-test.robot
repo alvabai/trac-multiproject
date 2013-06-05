@@ -3,8 +3,9 @@ Resource      vcs.txt
 Resource      ${ENVIRONMENT}.txt
 Resource      http.txt
 Library       Operating System
-Test Setup   Cd to temp dir
-Test Timeout  40 s
+Suite Setup   Create project with default repositories  # creates project ${suite_project}
+Test Setup    Cd to temp dir
+#Test Timeout  40 s
 
 *** Variables ***
 ${tmp_dir}     /tmp/
@@ -16,7 +17,8 @@ ${file}        TEST.TXT
 
 Git clone over https should succeed
   Set environment variable  GIT_SSL_NO_VERIFY  true
-  Git clone  ${https_proto}/ci_test_project/git/git-repo  git-repo
+  Sleep  65
+  Git clone  ${https_proto}/${suite_project}/git/git-repo  git-repo
   [Teardown]  Remove directory  git-repo  recursive=True
 
 Git clone over ssh should succeed
@@ -26,7 +28,7 @@ Git clone over ssh should succeed
 Git commit over https should succeed
   Set environment variable  GIT_SSL_NO_VERIFY  true
   ${time}=    Get Time
-  Git clone and push  ${https_with_cred}/ci_test_project/git/git-repo  git-repo  ${time}
+  Git clone and push  ${https_with_cred}/${suite_project}/git/git-repo  git-repo  ${time}
   Verify file from ui  ${PROTOCOL}://${SERVER}:${HTTPS_PORT}/ci_test_project/browser/git-repo/${file}  ${time}
   [Teardown]  Remove directory  git-repo  recursive=True
 
@@ -84,7 +86,14 @@ Git clone and push
 
 Verify file from ui
   [Arguments]  ${url}  ${content}
-  Setup and login
   Myget  ${url}
   ${body}=  Get response body
   Should contain  ${body}  ${content}
+
+Create project with default repositories
+  [Documentation]  Login and create a project having repositories named
+  ...              svn-repo, hg-repo and git-repo, with the obvious types.
+  Setup and create project  # creates project ${suite_project}
+  Add a repository  ${suite_project}  svn  svn-repo
+  Add a repository  ${suite_project}  hg  hg-repo
+  Add a repository  ${suite_project}  git  git-repo
