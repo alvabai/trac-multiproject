@@ -230,7 +230,7 @@ class SourceViewContextNavFilter(Component):
 
     def is_changeset_available(self, req, data):
         if data is None:
-            self.log.exception('is_changeset_available data is None')
+            self.log.info('is_changeset_available data is None')
             return False
         rev = req.args.get('rev', '')
         if rev in ('', 'HEAD'):

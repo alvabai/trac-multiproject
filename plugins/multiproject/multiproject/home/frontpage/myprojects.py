@@ -227,6 +227,9 @@ class MyProjectsModule(Component):
         """
         posts = []
         query = None
+        
+        if self.env.project_identifier == "home":
+            return posts
 
         with trac_db_query(self.env) as cursor:
             for prj in projects:
