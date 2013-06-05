@@ -104,7 +104,7 @@ Add a repository
   ${body}=  Convert To String  ${body}
   Should not contain  ${body}  Repository name reserved
   # verify that new repository is also seen on source tab
-  Myget  /${suite_project}/browser
+  Myget  /${proj}/browser
   ${body}=  Get Response Body
   Element Should contain  ${body}  a  ${reponame}
 
