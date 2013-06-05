@@ -50,6 +50,35 @@ $(document).ready(function(){
         }
     });
 
+    $(".remove_deputy").on("click", function(){
+        var self = $(this).parent();
+        var load_element = "Removing ..."+
+        "<img src='/htdocs/theme/images/loading.gif' alt='Loading' style='margin: 0 auto; display: inline-block;' />";
+        var send_url = window.location.href + "&remove_deputy="+$(this).prev().text().trim();
+        if(confirm("Do you want to remove deputy?")){
+            $(this).parent().addClass("ajax_load");
+            $(this).parent().html(load_element);
+            $.ajax({
+                url: send_url,
+                context: self,
+                type: 'GET',
+                dataType: 'text',
+                success: function(response){
+                    if(response == "success"){
+                        $(this).remove();
+                    }
+                    else {
+                        $(this).removeClass("ajax_load").addClass("ajax_load_failed").html("Removing failed, please try again later");
+                    }
+                },
+                error: function(response) {
+                    $(this).removeClass("ajax_load");
+                    $(this).addClass("ajax_load_failed").html("Removing failed, please try again later");
+                }
+            });
+        }
+    });
+
     userfield.render();
     deputyfield.render();
 });

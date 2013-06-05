@@ -963,14 +963,36 @@ class MySqlUserStore(UserStore):
         else:
             deputies_id = deputies_id+","+str(deputy.id)
         query = "UPDATE user SET deputies = '%s' WHERE user_id = '%s' " % (deputies_id, user_id)
-        conf.log.exception("UPDATE query: %s" % query)
         with admin_transaction() as cursor:
             try:
                 cursor.execute(query)
                 return True
             except:
-                conf.log.exception("Exception. Query failed when getting deputies '''%s'''" % query)
+                conf.log.exception("Exception. Query failed when updating deputies '''%s'''" % query)
                 return False
+
+    def remove_deputy(self, user_id, deputy_id):
+        deputies_id = None
+        query = "SELECT deputies FROM user WHERE user_id = '%s'" % user_id
+        with admin_query() as cursor:
+            try:
+                cursor.execute(query)
+                row = cursor.fetchone()
+                deputies_id = row[0];
+            except:
+                conf.log.exception("Exception. Query failed when getting deputies '''%s'''" % query)
+                return "failed"
+        deputy_id_list = deputies_id.split(",")
+        deputy_id_list.remove(str(deputy_id))
+        new_deputy_ids = ",".join(deputy_id_list)
+        query = "UPDATE user SET deputies = '%s' WHERE user_id = '%s' " % (new_deputy_ids, user_id)
+        with admin_transaction() as cursor:
+            try:
+                cursor.execute(query)
+                return "success"
+            except:
+                conf.log.exception("Exception. Query failed when updating deputies '''%s'''" % query)
+                return "failed"
 
 
 
