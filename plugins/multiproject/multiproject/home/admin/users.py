@@ -128,7 +128,7 @@ class UsersAdminPanel(Component):
 
         # If get request show edit
         if req.method.upper() == 'GET' and req.args.get('remove_deputy'):
-            deputy = userstore.getUser(req.args.get('remove_deputy'))
+            deputy = userstore.getUser(req.args.get('remove_deputy').strip())
             remove_res = userstore.remove_deputy(user.id, deputy.id)
             return req.send(remove_res, content_type='text/plain', status=200)
         elif req.method.upper() == 'GET':
@@ -139,7 +139,7 @@ class UsersAdminPanel(Component):
             return req.redirect(req.href('admin/users/manage'))
 
         if req.args.get('deputy_name'):
-            deputy = userstore.getUser(req.args.get('deputy_name'))
+            deputy = userstore.getUser(req.args.get('deputy_name').strip())
             resource = Resource('user', id=deputy.id)
             perm = PermissionCache(self.env, username=deputy.username)
             if perm.has_permission('USER_AUTHOR', resource):
