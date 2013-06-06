@@ -20,9 +20,9 @@ class AddDeputiesForUsers(MigrateBase):
 
         queries = []
         query = """
-                ALTER trac_admin.user ALTER TABLE user ADD deputies TEXT;
+                ALTER %s.user ALTER TABLE user ADD deputies TEXT;
                 """
-        queries.append(query % (conf.db_analytical_schema_name))
+        queries.append(query % (conf.db_admin_schema_name))
 
 
         return self.manager.db_upgrade(queries)
