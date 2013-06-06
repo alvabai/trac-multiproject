@@ -48,6 +48,11 @@ Svn checkout
   Directory should exist  ${dir}
   [Return]  ${val}
 
+Svn add
+  [Arguments]  ${filename}
+  ${val}=  vcslib.svn add  ${filename}
+  [Return]  ${val}
+
 Svn commit
   [Arguments]  ${user}  ${pass}  ${msg}
   [Documentation]  If this fails, make sure you have accepted the cert.

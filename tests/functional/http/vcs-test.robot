@@ -53,7 +53,7 @@ Hg commit should succeed
 
 
 SVN checkout should succeed
-  svn checkout  ${https_proto}/${suite_project}/svn/svn-repo  svn-repo
+  Run until succeeds  svn checkout  ${https_proto}/${suite_project}/svn/svn-repo  svn-repo
   [Teardown]  Remove directory  /tmp/svn-repo  recursive=True
 
 SVN commit should succeed
@@ -62,8 +62,10 @@ SVN commit should succeed
   ${prev}=  cd  svn-repo
   ${time}=  Get time
   Create file  ${file}  ${time}
+  svn add   ${file}
   svn commit  ${VALID_USER}  ${VALID_PASSWD}  new commit at ${time}
   Verify file from ui  ${https_proto}/${suite_project}/browser/svn-repo/${file}  ${time}
+  cd  ${prev}
   [Teardown]  Remove directory  svn-repo  recursive=True
 
 
