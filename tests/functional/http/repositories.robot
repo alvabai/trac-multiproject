@@ -29,7 +29,3 @@ Deleting repositories should succeed
   svn
   git
   hg
-
-Project should be downloadable as a zip archive
-  Myget  /${suite_project}/admin/general/vcm
-  Fail

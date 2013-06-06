@@ -13,8 +13,9 @@ Git clone
   [Documentation]  Clone given repository. Target has the same name than original.
   [Arguments]  ${repo}  ${dir}
   Directory should not exist  ${dir}
-  vcslib.Git clone   ${repo}  ${dir}
+  ${val}=  vcslib.Git clone   ${repo}  ${dir}
   Directory should exist  ${dir}
+  [Return]  ${val}
 
 
 Git add
