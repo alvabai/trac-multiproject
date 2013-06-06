@@ -44,13 +44,15 @@ Cd to temp dir
 Svn checkout
   [Arguments]  ${repo}  ${dir}
   Directory should not exist  ${dir}
-  vcslib.svn checkout   ${repo}  ${dir}
+  ${val}=  vcslib.svn checkout   ${repo}  ${dir}
   Directory should exist  ${dir}
+  [Return]  ${val}
 
 Svn commit
-  [Arguments]  ${msg}  ${user}  ${pass}
+  [Arguments]  ${user}  ${pass}  ${msg}
   [Documentation]  If this fails, make sure you have accepted the cert.
-  vcslib.svn commit  ${msg}  ${user}  ${pass}
+  ${val}=  vcslib.svn commit  ${user}  ${pass}  ${msg}
+  [Return]  ${val}
 
 
 Hg clone

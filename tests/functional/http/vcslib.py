@@ -59,7 +59,10 @@ def svn_checkout(remote, local):
     # installed than comes with Mac os 10.8. At least SVN 1.7.9 with Openssl
     # 1.0.1e works.
     val = svn("co", "--trust-server-cert", "--non-interactive", remote, local)
-    return val
+    if val.exit_code != 0:
+        raise ValueError ("Checkout failed with status ", val)
+    else:
+        return val
 
 def svn_commit(user, pwd, msg):
     val = svn("commit", "--username", user, "--password", pwd, "--no-auth-cache", "-m", msg)
