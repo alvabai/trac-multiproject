@@ -20,7 +20,7 @@ class AddDeputiesForUsers(MigrateBase):
 
         queries = []
         query = """
-                ALTER %s.user ALTER TABLE user ADD deputies TEXT;
+                ALTER TABLE %s.user ADD deputies TEXT
                 """
         queries.append(query % (conf.db_admin_schema_name))
 
@@ -45,7 +45,7 @@ class AddDeputiesForUsers(MigrateBase):
                 SELECT COLUMN_NAME FROM information_schema.COLUMNS 
                     WHERE TABLE_SCHEMA = 'trac_admin' 
                     AND TABLE_NAME = 'user' 
-                    AND COLUMN_NAME = 'deputies';
+                    AND COLUMN_NAME = 'deputies'
             ''')
             row_num = int(cursor.rowcount)
             if row_num == 1:
