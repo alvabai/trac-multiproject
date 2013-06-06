@@ -230,7 +230,7 @@ class UserRestAPI(Component):
             if 'USER_ADMIN' not in home_perm:
                 userstore = get_userstore()
                 user = userstore.getUser(req.authname)
-                where.append('(u.author_id = {0} OR u.user_id = {0})'.format(safe_int(user.id)))
+                where.append('(u.author_id = {0} OR u.user_id = {0} OR FIND_IN_SET({0}, u.deputies) > 0)'.format(safe_int(user.id)))
 
 
         # Check if user is not home admin and remove private fields from query

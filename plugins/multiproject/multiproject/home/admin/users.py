@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
-
+from urllib import urlencode
 from trac.admin.api import IAdminPanelProvider
 from trac.core import Component, implements, TracError
 from trac.perm import PermissionError, PermissionCache
@@ -68,6 +68,17 @@ class UsersAdminPanel(Component):
 
         return 'admin_user_list.html', data
 
+    def check_author_and_deputies(self, changer_id, author_id, deputies):
+        edit_perm = False
+        if author_id != changer_id:
+            for deputy in deputies:
+                if deputy.id == changer_id:
+                    edit_perm = True
+                    break
+        else:
+            edit_perm = True
+        return edit_perm
+
     def edit_user(self, req):
         """
         Handle user edit: view & save
@@ -91,11 +102,16 @@ class UsersAdminPanel(Component):
         papi = Projects()
 
         # Check permissions and redirect to user listing (handy after editing the user)
-        req.perm.require('USER_AUTHOR', Resource('user', id=user.id))
+        #req.perm.require('USER_AUTHOR', Resource('user', id=user.id))
+        if self.check_author_and_deputies(changed_by.id,
+            user.author_id, userstore.get_deputies(user.id)) == False:
+            add_warning(req, _("You don't have rights to edit user"))
+            req.redirect(req.href("admin"))
 
         data = req.args
         data['user'] = user
         data['author'] = userstore.getUserWhereId(user.author_id) if user.author_id else None
+        data['deputies'] = userstore.get_deputies(user.id)
         data['base_path'] = req.base_path
         data['dateformats'] = DATEFORMATS
         data['is_local'] = userstore.is_local(user)
@@ -111,12 +127,34 @@ class UsersAdminPanel(Component):
         add_script(req, 'multiproject/js/admin_user_edit.js')
 
         # If get request show edit
-        if req.method.upper() == 'GET':
+        if req.method.upper() == 'GET' and req.args.get('remove_deputy'):
+            deputy = userstore.getUser(req.args.get('remove_deputy').strip())
+            remove_res = userstore.remove_deputy(user.id, deputy.id)
+            return req.send(remove_res, content_type='text/plain', status=200)
+        elif req.method.upper() == 'GET':
             return 'admin_user_edit.html', data
 
         # Close pressed: get back to user listing
         if req.args.get('close'):
             return req.redirect(req.href('admin/users/manage'))
+
+        if req.args.get('deputy_name'):
+            deputy = userstore.getUser(req.args.get('deputy_name').strip())
+            resource = Resource('user', id=deputy.id)
+            perm = PermissionCache(self.env, username=deputy.username)
+            if perm.has_permission('USER_AUTHOR', resource):
+                if(userstore.add_deputy(user.id, deputy.username)):
+                    add_notice(req, _("Deputy "+deputy.username+" added."))
+                    return_url = 'home/admin/users/manage?username='+user.username
+                    return req.redirect(return_url)
+                else:
+                    add_warning(req, _("Could not add deputy. Please try again later"))
+                    return_url = 'home/admin/users/manage?username='+user.username
+                    return req.redirect(return_url)
+            else:
+                add_warning(req, _("Deputy "+deputy.username+" didn't have enough rights"))
+                return_url = 'home/admin/users/manage?username='+user.username
+                return req.redirect(return_url)
 
         # Handle save
         if 'limitexceeded' in req.args:
@@ -249,13 +287,17 @@ class UsersAdminPanel(Component):
 
         # Check if user has still (after modification) permission to modify user
         # NOTE: req.perm cannot be used here because it is not updated yet
-        resource = Resource('user', id=user.id)
-        perm = PermissionCache(self.env, username=req.authname)
-        if perm.has_permission('USER_AUTHOR', resource):
-            return self.back(req)
-
-        add_notice(req, _('You have no longer permission to modify the account: %s' % user.username))
-        return req.redirect(req.href('admin/users/manage'))
+        #resource = Resource('user', id=user.id)
+        #perm = PermissionCache(self.env, username=req.authname)
+        #if perm.has_permission('USER_AUTHOR', resource):
+        #    return self.back(req)
+        if self.check_author_and_deputies(changed_by.id,
+            user.author_id, userstore.get_deputies(user.id)) == True:
+            return_url = 'home/admin/users/manage?username='+user.username
+            return req.redirect(return_url)
+        else:
+            add_notice(req, _('You have no longer permission to modify the account: %s' % user.username))
+            return req.redirect(req.href('admin/users/manage'))
 
     def remove_user(self, req):
         """
