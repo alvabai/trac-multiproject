@@ -22,7 +22,9 @@ class TermsModule(Component):
         """ Render welcome page
         """
         
-        data = {}
+        data = {
+            'domain': req.server_name
+        }
         
         return "terms.html", data, None
     
