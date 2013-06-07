@@ -76,6 +76,13 @@ Mypost
   Run Keyword If  '${status}' == '302 Found'  Follow Response
   Run Keyword If  '${status}' == '303 See Other'  Follow Response
 
+Get unique boundary
+  [Documentation]  Create unique boundary for multipart/form-data posts
+  [Arguments]
+  ${prefix}=  Set variable  -----------------------------MP
+  ${time}=  Get time  epoch
+  ${boundary}=  Set variable  ${prefix}${time}
+  [Return]  ${boundary}
 
 Save cookies
   [Documentation]  Save current cookies. Note that path information is not considered, so cookies with same name but different path-attributes override each other.
