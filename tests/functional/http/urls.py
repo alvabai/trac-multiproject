@@ -13,7 +13,6 @@ LIST__URLS = [
 "admin/general/categorization",
 "admin/general/permissions",
 "admin/general/protocol",
-"admin/general/storages",
 "admin/general/system",
 "admin/ticket/components",
 "admin/ticket/customfields",

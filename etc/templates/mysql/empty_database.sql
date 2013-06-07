@@ -3478,7 +3478,6 @@ INSERT INTO `context_dim` VALUES (55,'Admin','project','/admin','2011-01-27 09:0
 INSERT INTO `context_dim` VALUES (56,'Admin Basic settings','project','/admin/general/basics','2011-01-27 09:08:05',NULL);
 INSERT INTO `context_dim` VALUES (57,'Admin Categorization','project','/admin/general/categorization','2011-01-27 09:08:05',NULL);
 INSERT INTO `context_dim` VALUES (58,'Admin Project Icon','project','/admin/general/projecticon','2011-01-27 09:08:05',NULL);
-INSERT INTO `context_dim` VALUES (60,'Admin Storages','project','/admin/general/storages','2011-01-27 09:08:05',NULL);
 INSERT INTO `context_dim` VALUES (61,'Admin System','project','/admin/general/system','2011-01-27 09:08:05',NULL);
 INSERT INTO `context_dim` VALUES (62,'Admin Forums','project','/admin/discussion/forum.*','2011-01-27 09:08:05',NULL);
 INSERT INTO `context_dim` VALUES (63,'Admin Forum groups','project','/admin/discussion/group.*','2011-01-27 09:08:05',NULL);
