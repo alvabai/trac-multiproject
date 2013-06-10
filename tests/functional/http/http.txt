@@ -23,7 +23,7 @@ Change project visibility
 Login
   [Documentation]  Send a HTTP GET request, sending and storing all the cookies.
   [Arguments]  ${login_url}=/  ${params}=${EMPTY}
-  Create HTTP Context  ${SERVER}  https
+  Create HTTP Context  ${SERVER}:${HTTPS_PORT}  https
   GET  ${login_url}
   ${status}=  Get Response Status
   Run Keyword If  '${status}' == '302 Found'  Follow Response
@@ -76,6 +76,13 @@ Mypost
   Run Keyword If  '${status}' == '302 Found'  Follow Response
   Run Keyword If  '${status}' == '303 See Other'  Follow Response
 
+Get unique boundary
+  [Documentation]  Create unique boundary for multipart/form-data posts
+  [Arguments]
+  ${prefix}=  Set variable  -----------------------------MP
+  ${time}=  Get time  epoch
+  ${boundary}=  Set variable  ${prefix}${time}
+  [Return]  ${boundary}
 
 Save cookies
   [Documentation]  Save current cookies. Note that path information is not considered, so cookies with same name but different path-attributes override each other.
@@ -85,7 +92,8 @@ Save cookies
 
 
 Create new project
-  [Documentation]  Create a new project. Arguments: project name and type (svn,hg,git)
+  [Documentation]  Create a new project. Arguments: project name, 
+  ...              repository name and type (svn,hg,git)
   [Arguments]  ${proj}  ${reponame}  ${type}=svn
   Myget  /home/project
   Remove from dictionary  ${suite_cookies}  trac_session 
@@ -104,7 +112,7 @@ Add a repository
   ${body}=  Convert To String  ${body}
   Should not contain  ${body}  Repository name reserved
   # verify that new repository is also seen on source tab
-  Myget  /${suite_project}/browser
+  Myget  /${proj}/browser
   ${body}=  Get Response Body
   Element Should contain  ${body}  a  ${reponame}
 

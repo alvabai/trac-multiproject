@@ -120,7 +120,7 @@ class SourceViewContextNavFilter(Component):
             data['display_rev'] = patch(data['display_rev'])
 
         # Process matching requests based on request path
-        if self.is_browser(req, data):
+        if self.is_browser(req, data) and self._is_in_repository(req.path_info):
             self.modify_path_links(req, data)
             if self.is_changeset_available(req, data):
                 self.modify_browser(req, data)
@@ -214,6 +214,17 @@ class SourceViewContextNavFilter(Component):
     def is_browser(self, req, data):
         return req.path_info.startswith('/browser')
 
+    def _is_in_repository(self, path):
+        if path.startswith('/browser'):
+            if len(path.split("/")) > 2:
+                return True
+            else:
+                return False
+        else:
+            return False
+
+
+
     def is_prepare_diff(self, req, data):
         return req.path_info.startswith('/diff')
 
@@ -230,7 +241,7 @@ class SourceViewContextNavFilter(Component):
 
     def is_changeset_available(self, req, data):
         if data is None:
-            self.log.exception('is_changeset_available data is None')
+            self.log.info('is_changeset_available data is None')
             return False
         rev = req.args.get('rev', '')
         if rev in ('', 'HEAD'):

@@ -16,14 +16,14 @@
     <meta py:if="dir" name="ROBOTS" content="NOINDEX" />
     <script type="text/javascript" src="${chrome.htdocs_location}js/folding.js"></script>
     <script type="text/javascript" src="/htdocs/theme/js/ZeroClipboard.js"></script>
-    <link rel="stylesheet" href="${conf.theme_htdocs_location}/${conf.getThemePath()}css/browser.css" type="text/css" />
+    <link rel="stylesheet" href="${conf.theme_htdocs_location}/css/browser.css" type="text/css" />
     <script type="text/javascript">
       (function($, window, undefined) {
         $(document).ready(function(){
             window.change_repo_protocol = true;
             var def_repo = null
             var children = $("#hidden_repo_addresses").children();
-            def_repo = $(children[0]).children()[1];
+            def_repo = $(children[0]).children()[0];
             if($(def_repo).text() == null){
               def_repo = $(children[0]).children()[0];
             }
@@ -35,18 +35,25 @@
             $("#repo_address_container .protocolselector").html(protocols);
             var repo_url = $(def_repo).text().trim();
             $("#repo_address_container .repoaddress").text(repo_url);
-            $("h2.notop").text($(def_repo).parent().attr("id").split("repo_container_")[1]);
+            try{
+              $("h2.notop").text($(def_repo).parent().attr("id").split("repo_container_")[1]);
+            }
+            catch(err) {}
+            
 
             //Inject checkbox to next to repository arrow
-            var repo_name = $(def_repo).parent().attr("id").split("repo_container_")[1];
-            $("#repoindex tbody").children().each(function (ind){
-              var element_to_add = '<input type="checkbox" class="url_changer" />';
-              $(this).find("td.name").prepend(element_to_add);
-              
-              if($(this).find("td.name").find(".dir").text().trim() == repo_name){
-                $(this).find("td.name").find(":checkbox").attr("checked", true);
-              }
-            });
+            try {
+              var repo_name = $(def_repo).parent().attr("id").split("repo_container_")[1];
+              $("#repoindex tbody").children().each(function (ind){
+                var element_to_add = '<input type="checkbox" class="url_changer" />';
+                $(this).find("td.name").prepend(element_to_add);
+                
+                if($(this).find("td.name").find(".dir").text().trim() == repo_name){
+                  $(this).find("td.name").find(":checkbox").attr("checked", true);
+                }
+              });
+            }
+            catch(err){}
 
         });
         $(".url_changer").live("change", function(){
@@ -58,7 +65,7 @@
               protocols = protocols + "<span>"+scheme.toUpperCase()+"</span>";
             });
             $("#repo_address_container .protocolselector").html(protocols);
-             var repo_child = $(repo_index).children()[1];
+             var repo_child = $(repo_index).children()[0];
              var repo_url = $(repo_child).text().trim();
             $("#repo_address_container .repoaddress").text(repo_url);
             $("h2.notop").text(repo_name);
@@ -117,6 +124,7 @@
           if($('#clipbutton').length == 0) {
               return;
           }
+          
           var clip = new ZeroClipboard($("#clipbutton"), {
               moviePath: "/htdocs/theme/flash/ZeroClipboard.swf"
             });
@@ -142,15 +150,13 @@
             clip.on('complete', function (client, args) {
               //console.log("Copied text to clipboard: " + args.text );
             });
-
-          $('.proto_btn').click(function () {
-            var id = $(this).attr('id');
-            var co = $('#'+id+' .co').text();
-            $('#repoaddress').text(co);
-
-            $('.proto_btn').removeClass('selected');
-            $(this).addClass('selected');
-          });
+            $('.proto_btn').click(function () {
+              var id = $(this).attr('id');
+              var co = $('#'+id+' .co').text();
+              $('#repoaddress').text(co);
+              $('.proto_btn').removeClass('selected');
+              $(this).addClass('selected');
+            });
       });
 
       function applydiff()
@@ -165,7 +171,7 @@
          <py:choose>
           <h2 class="notop" py:when="repo and repo.repositories">Default Repository</h2>
           <h2 class="notop" py:otherwise=""><xi:include href="path_links.html" /></h2>
-        </py:choose>
+        </py:choose>    
     </div>
     <div id="master_repo_address"
       py:if="repo and repo.repositories">
@@ -176,7 +182,7 @@
       <div id="hidden_repo_addresses" style="display:none;">
         <py:if test="data_repositories is not None">
           <div py:for="type in data_repositories" 
-            id="repo_container_${type[0].split('/')[-1]}">
+            id="repo_container_${type[0].split('/')[-1].lower()}">
             <div py:for="command in type">
               ${command}
             </div>
@@ -185,6 +191,7 @@
       </div>
     </div>
     <div id="content" class="browser">
+
       <py:if test="dir or file">
       <div id="protocol_download_container">
       <div id="protocol_selection">
@@ -192,10 +199,13 @@
         <!-- When only one protocol show this area differently -->
         <py:when test="len(schemes) == 1 or not conf.use_protocol_check">
           <!-- Buttons for selecting protocol -->
-
+          
           <span id="protoselector" class="protocolSelectButtons clickable">
-          	<span>GIT clone</span>
-		   </span>
+            <span>${type.upper()}
+              <py:if test="type == 'svn'">CHECKOUT</py:if>
+              <py:if test="type != 'svn'">CLONE</py:if>
+            </span>
+          </span>
         </py:when>
         <py:otherwise>
           <!-- Buttons for selecting protocol -->
@@ -203,8 +213,8 @@
             <span class="proto_btn selected" id="proto1">
               <!-- ! <div class="greyleft"></div> -->
               <a class="" href="#">
-				<span>${schemes[0].upper()}</span>
-			  </a>
+        <span>${schemes[0].upper()}</span>
+        </a>
               <!-- ! <div class="greybutton">${schemes[0].upper()}</div> -->
               <div class="co" style="display:none;">${co_commands[schemes[0]]}</div>
             </span>
@@ -213,39 +223,38 @@
               <!-- !<div class="greybutton"></div>
               <div class="greyright"></div> -->
               <a class="" href="#">
-				<span>${schemes[1].upper()}</span>
-			  </a>
-              <div class="co" style="display:none;">${co_commands[schemes[1]]}</div>
+        <span>${schemes[1].upper()}</span>
+        </a>
+              <div class="co" style="display:none;">${co_commands[schemes[-1]]}</div>
             </span>
           </span>
         </py:otherwise>
       </py:choose>
       <!-- Url to show -->
       <span class="urlToClipboard">
+        <span class="secondaryButton flippedButton" id="clipbutton">Copy to clipboard</span>
         <!--! Always at first show first protocol -->
         <span class="ltgreyfield blueitalic" id="repoaddress">${co_commands[schemes[-1]]}</span>
-        <input class="flippedButton secondaryButton" type="submit" id="copybutton" value="Copy to clipboard"/>
       </span>
-	</div>
-  <py:choose>
+  </div>
+    <py:choose>
       <py:when test="len(export_urls) > 0">
         <div id="download_btn" class="enabled_btn primaryButton">
           <a href="${export_urls[0]}">Download as zip</a>
         </div>
       </py:when>
       <py:otherwise>
-        <div id="download_btn" class="disabled_btn primaryButton" title="Repository is empty">
+        <div id="download_btn" class="disabledButton" title="Repository is empty">
           Download as zip
         </div>
       </py:otherwise>
     </py:choose>
     </div>
+        
          <div class="headeritems">
             <div id="jumprev" py:if="'up' not in chrome.links and not file">
               <form action="" method="get">
-                <div class="buttons">
-                  <input type="submit" value="${_('Go')}" id="go" class="primaryButton" />
-                </div>
+                <input type="submit" value="${_('Go')}" id="go" />
                 <span>
                   <label for="rev" title="${stickyrev and _('Hint: clear the field to view latest revision') or None}">View revision:</label>
                   <input type="text" id="rev" name="rev" value="$stickyrev" size="6" />
@@ -269,10 +278,10 @@
             </div>
 
           </div>
-
+        
         <h2 class="headercaption">All sources</h2>
-
-
+        
+       
 
       </py:if>
 
@@ -289,7 +298,7 @@
             </py:if>
             <xi:include href="dir_entries.html" />
             <py:match path="//td[@class='age']">
-            	<td class="age"> ${select('*|text()|comment()')}</td>
+              <td class="age"> ${select('*|text()|comment()')}</td>
             </py:match>
             <tr py:if="'up' not in chrome.links and not dir.entries" class="even">
               <td class="name" colspan="6">
@@ -345,7 +354,7 @@
       <div py:if="dir and path == '/'" class="description">
         ${wiki_to_html(context('source', '/', parent=repos.resource), repoinfo.description)}
       </div>
-
+      
       <py:if test="repo and repo.repositories">
         <hr py:if="dir"/>
         <h1>Repository Index</h1>

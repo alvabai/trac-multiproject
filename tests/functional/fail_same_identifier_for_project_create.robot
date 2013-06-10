@@ -9,6 +9,7 @@ Suite Teardown  Close Browser
 *** Test Cases ***
 
 Creating a project with same environment name as an existing one should fail incl archived projects
+    [Tags]      unstable
     ${archived_proj_name}  Get unique project name 
     Create new project    ${archived_proj_name}
     Title should be  ${archived_proj_name} - ${archived_proj_name}

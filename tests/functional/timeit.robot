@@ -12,6 +12,7 @@ ${login_times}  5
 *** Test Cases ***
 
 Logging in should be quick
+    [Tags]      unstable
     ${start}=  Get time  epoch
     Log in ${login_times} times
     ${end}=  Get time  epoch
