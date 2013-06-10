@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
-import admin, categorization, frontpage, projectlist, projects, users, storages
+import admin, categorization, frontpage, projectlist, projects, users
 import basicsadminpanel
 import permissions
 import xmlrpc
@@ -12,7 +12,6 @@ def suite():
     suite.addTest(frontpage.suite())
     suite.addTest(projectlist.suite())
     suite.addTest(projects.suite())
-    suite.addTest(storages.suite())
     suite.addTest(users.suite())
     suite.addTest(unittest.makeSuite(basicsadminpanel.BasicsAdminPanelInterceptorTestCase))
     suite.addTest(unittest.makeSuite(permissions.GlobalPermissionPolicyTestCase))
