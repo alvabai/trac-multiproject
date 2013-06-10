@@ -45,8 +45,8 @@ Hg commit should succeed
   Run until succeeds   hg clone  ${https_proto}/${suite_project}/hg/hg-repo  hg-repo
   ${prev}=  cd  hg-repo
   ${time}=  Get time
-  Run until succeeds   Create file  ${file}  ${time}
-  Hg commit  ${VALID_USER}  ${file}  new commit at ${time}
+  Create file  ${file}  ${time}
+  Run until succeeds   Hg commit  ${VALID_USER}  ${file}  new commit at ${time}
   Hg push  ${https_with_cred}/${suite_project}/hg/hg-repo
   Verify file from ui  ${https_proto}/${suite_project}/browser/hg-repo/${file}  ${time}
   [Teardown]  Remove directory  ${prev}/hg-repo  recursive=True
