@@ -64,6 +64,13 @@ def svn_checkout(remote, local):
     else:
         return val
 
+def svn_add(fname):
+    val = svn("add", fname)
+    if val.exit_code != 0:
+        raise ValueError("svn add failed with status ", val)
+    else:
+        return val
+
 def svn_commit(user, pwd, msg):
     val = svn("commit", "--username", user, "--password", pwd, "--no-auth-cache", "-m", msg)
     if val.exit_code != 0:
