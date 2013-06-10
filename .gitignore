@@ -34,3 +34,4 @@ tests/functional/data.csv
 output.xml
 report.html
 log.html
+tests/functional/http/qa.txt
