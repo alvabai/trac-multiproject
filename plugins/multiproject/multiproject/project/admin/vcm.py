@@ -66,10 +66,10 @@ class RepositoriesAdminPanel(Component):
             self.delete_repo(to_delete[1], to_delete[0])
 
     def delete_repo(self, repo_type, name):
-        path = self.conf.getEnvironmentVcsPath(self.env.project_identifier, repo_type, name)
-        inifile = self.conf.getEnvironmentConfigPath(self.env.project_identifier)
-        self.conf.remove_item_from_section(inifile, 'repositories', name + '.dir')
-        self.conf.remove_item_from_section(inifile, 'repositories', name + '.type')
+        path = conf.getEnvironmentVcsPath(self.env.project_identifier, repo_type, name)
+        inifile = conf.getEnvironmentConfigPath(self.env.project_identifier)
+        conf.remove_item_from_section(inifile, 'repositories', name + '.dir')
+        conf.remove_item_from_section(inifile, 'repositories', name + '.type')
         path2 = path + '.deleted.0'
         i = 0
         while os.path.exists(path2):
@@ -90,7 +90,7 @@ class RepositoriesAdminPanel(Component):
         add_hook = InitCommitHooks(project, {'vcs_type':repo_type, 'vcs_name':name})
         add_hook.do()
         self.env.config.set('repositories', name + '.dir', 
-                            self.conf.getEnvironmentVcsPath(self.env.project_identifier, repo_type, name))
+                            conf.getEnvironmentVcsPath(self.env.project_identifier, repo_type, name))
         self.env.config.set('repositories', name + '.type', repo_type)
         self.env.config.save()
         add_notice(req, _('Added new repository %s to project' % name))
