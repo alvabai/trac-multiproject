@@ -1,0 +1,14 @@
+--- trac/web/api.py	2012-09-07 23:52:14.000000000 +0300
++++ trac/web/api.py	2013-06-07 10:58:26.300202385 +0300
+@@ -450,8 +450,9 @@
+                                              data.get('type'),
+                                              data.get('message'))
+         except: # failed to render
+-            data = get_last_traceback()
+-            content_type = 'text/plain'
++            data = "<strong> Page not Found. </strong>"
++            data + "<p> Sorry but the page you are looking for can not be found. </p>"
++            content_type = 'text/html'
+ 
+         if isinstance(data, unicode):
+             data = data.encode('utf-8')
