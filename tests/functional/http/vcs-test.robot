@@ -21,50 +21,52 @@ Git clone over https should succeed
   [Teardown]  Remove directory  git-repo  recursive=True
 
 Git clone over ssh should succeed
-  Git clone  ${git_ssh}/ci_test_project/git/git-repo  git-repo
+  Git clone  ${git_ssh}/${suite_project}/git/git-repo  git-repo
   [Teardown]  Remove directory  git-repo  recursive=True
 
 Git commit over https should succeed
   Set environment variable  GIT_SSL_NO_VERIFY  true
   ${time}=    Get Time
   Git clone and push  ${https_with_cred}/${suite_project}/git/git-repo  git-repo  ${time}
-  Verify file from ui  ${PROTOCOL}://${SERVER}:${HTTPS_PORT}/ci_test_project/browser/git-repo/${file}  ${time}
+  Verify file from ui  ${PROTOCOL}://${SERVER}:${HTTPS_PORT}/${suite_project}/browser/git-repo/${file}  ${time}
   [Teardown]  Remove directory  git-repo  recursive=True
 
 Git commit over ssh should succeed
   ${time}=    Get Time
-  Git clone and push  ${git_ssh}/ci_test_project/git/git-repo  git-repo  ${time}
-  Verify file from ui  ${PROTOCOL}://${SERVER}:${HTTPS_PORT}/ci_test_project/browser/git-repo/${file}  ${time}
+  Git clone and push  ${git_ssh}/${suite_project}/git/git-repo  git-repo  ${time}
+  Verify file from ui  ${PROTOCOL}://${SERVER}:${HTTPS_PORT}/${suite_project}/browser/git-repo/${file}  ${time}
   [Teardown]  Remove directory  git-repo  recursive=True
 
 Hg clone over https should succeed
-  hg clone  ${https_proto}/ci_test_project/hg/hg-repo  hg-repo
+  Run until succeeds   hg clone  ${https_proto}/${suite_project}/hg/hg-repo  hg-repo
   [Teardown]  Remove directory  hg-repo  recursive=True
 
 Hg commit should succeed
-  hg clone  ${https_proto}/ci_test_project/hg/hg-repo  hg-repo
+  Run until succeeds   hg clone  ${https_proto}/${suite_project}/hg/hg-repo  hg-repo
   ${prev}=  cd  hg-repo
   ${time}=  Get time
   Create file  ${file}  ${time}
-  Hg commit  ${VALID_USER}  ${file}  new commit at ${time}
-  Hg push  ${https_with_cred}/ci_test_project/hg/hg-repo
-  Verify file from ui  ${https_proto}/ci_test_project/browser/hg-repo/${file}  ${time}
+  Run until succeeds   Hg commit  ${VALID_USER}  ${file}  new commit at ${time}
+  Hg push  ${https_with_cred}/${suite_project}/hg/hg-repo
+  Verify file from ui  ${https_proto}/${suite_project}/browser/hg-repo/${file}  ${time}
   [Teardown]  Remove directory  ${prev}/hg-repo  recursive=True
 
 
 SVN checkout should succeed
-  svn checkout  ${https_proto}/ci_test_project/svn/svn-repo  svn-repo
+  Run until succeeds  svn checkout  ${https_proto}/${suite_project}/svn/svn-repo  svn-repo
   [Teardown]  Remove directory  /tmp/svn-repo  recursive=True
 
 SVN commit should succeed
   [Documentation]  Commit file, provided that certificate is accepted and saved earlier.
-  svn checkout  ${https_proto}/ci_test_project/svn/svn-repo  svn-repo
+  Run until succeeds  svn checkout  ${https_proto}/${suite_project}/svn/svn-repo  svn-repo
   ${prev}=  cd  svn-repo
   ${time}=  Get time
   Create file  ${file}  ${time}
+  svn add   ${file}
   svn commit  ${VALID_USER}  ${VALID_PASSWD}  new commit at ${time}
-  Verify file from ui  ${https_proto}/ci_test_project/browser/svn-repo/${file}  ${time}
-  [Teardown]  Remove directory  ${prev}/svn-repo  recursive=True
+  Verify file from ui  ${https_proto}/${suite_project}/browser/svn-repo/${file}  ${time}
+  cd  ${prev}
+  [Teardown]  Remove directory  svn-repo  recursive=True
 
 
 
@@ -73,7 +75,7 @@ SVN commit should succeed
 Git clone and push
   [Arguments]  ${remote}  ${local}  ${content}
   Set environment variable  GIT_SSL_NO_VERIFY  true
-  Git clone  ${remote}  ${local}
+  Run until succeeds   Git clone  ${remote}  ${local}
   ${prev}=  cd  ${local}
   Create file  ${file}  ${content}
   Git add  ${file}

@@ -172,3 +172,56 @@ div.admin div.default.avatar {
   width: 78px;
   height: 78px;
 }
+
+#add_deputy_button {
+    background-color: #335293;
+    border-top-right-radius: 8px;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: bold;
+    height: 22px;
+    padding: 0;
+    width: 22px;
+}
+
+.remove_deputy {
+    background-color: #335293;
+    border-top-right-radius: 8px;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: bold;
+    height: 22px;
+    padding: 0;
+    width: 22px;
+    color: #fff;
+    line-height: 22px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.ajax_load {
+    background-image: linear-gradient(bottom, rgb(8,153,0) 3%, rgb(94,255,0) 50%);
+    background-image: -o-linear-gradient(bottom, rgb(8,153,0) 3%, rgb(94,255,0) 50%);
+    background-image: -moz-linear-gradient(bottom, rgb(8,153,0) 3%, rgb(94,255,0) 50%);
+    background-image: -webkit-linear-gradient(bottom, rgb(8,153,0) 3%, rgb(94,255,0) 50%);
+    background-image: -ms-linear-gradient(bottom, rgb(8,153,0) 3%, rgb(94,255,0) 50%);
+    color: #000;
+    width: 110px;
+    height: 20px;
+    line-height: 20px;
+    padding: 4px;
+}
+
+
+.ajax_load_failed {
+    background-image: linear-gradient(bottom, rgb(153,0,0) 3%, rgb(255,0,0) 50%);
+    background-image: -o-linear-gradient(bottom, rgb(153,0,0) 3%, rgb(255,0,0) 50%);
+    background-image: -moz-linear-gradient(bottom, rgb(153,0,0) 3%, rgb(255,0,0) 50%);
+    background-image: -webkit-linear-gradient(bottom, rgb(153,0,0) 3%, rgb(255,0,0) 50%);
+    background-image: -ms-linear-gradient(bottom, rgb(153,0,0) 3%, rgb(255,0,0) 50%);
+    color: #000;
+    min-width: 110px;
+    height: 20px;
+    line-height: 20px;
+    padding: 4px;
+}

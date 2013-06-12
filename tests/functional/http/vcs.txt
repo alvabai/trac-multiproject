@@ -12,7 +12,7 @@ Resource       ../common_keywords.txt
 Git clone
   [Documentation]  Clone given repository. Target has the same name than original.
   [Arguments]  ${repo}  ${dir}
-  Directory should not exist  ${dir}
+  Remove directory  ${dir}  recursive=True
   ${val}=  vcslib.Git clone   ${repo}  ${dir}
   Directory should exist  ${dir}
   [Return]  ${val}
@@ -43,20 +43,27 @@ Cd to temp dir
 
 Svn checkout
   [Arguments]  ${repo}  ${dir}
-  Directory should not exist  ${dir}
-  vcslib.svn checkout   ${repo}  ${dir}
+  Remove directory  ${dir}  recursive=True
+  ${val}=  vcslib.svn checkout   ${repo}  ${dir}
   Directory should exist  ${dir}
+  [Return]  ${val}
+
+Svn add
+  [Arguments]  ${filename}
+  ${val}=  vcslib.svn add  ${filename}
+  [Return]  ${val}
 
 Svn commit
-  [Arguments]  ${msg}  ${user}  ${pass}
+  [Arguments]  ${user}  ${pass}  ${msg}
   [Documentation]  If this fails, make sure you have accepted the cert.
-  vcslib.svn commit  ${msg}  ${user}  ${pass}
+  ${val}=  vcslib.svn commit  ${user}  ${pass}  ${msg}
+  [Return]  ${val}
 
 
 Hg clone
   [Documentation]  Clone given repository. Target has the same name than original.
   [Arguments]  ${repo}  ${dir}
-  Directory should not exist  ${dir}
+  Remove directory  ${dir}  recursive=True
   vcslib.hg clone   ${repo}  ${dir}
   Directory should exist  ${dir}
 

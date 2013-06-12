@@ -156,7 +156,6 @@ class AdminNavigation(PageObject):
         self.backup = Link(browser, partial_text="Backup")
         self.category = Link(browser, partial_text="Categorization")
         self.icon = Link(browser, partial_text="Project Icon")
-        self.storage = Link(browser, partial_text="Storages")
         self.system = Link(browser, partial_text="System")
         self.forum = Link(browser, partial_text="Forums")
         self.forum_group = Link(browser, partial_text="Forum Groups")

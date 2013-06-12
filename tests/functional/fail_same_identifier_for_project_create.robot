@@ -20,6 +20,7 @@ Creating a project with same environment name as an existing one should fail inc
     Page should contain   ${failed_to_create}
 
 Creating a project with same environment name as an existing one should fail
+    [Tags]      unstable
     ${proj_name}  Get unique project name 
     Create new project    ${proj_name}
     Title should be  ${proj_name} - ${proj_name}

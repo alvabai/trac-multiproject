@@ -1,0 +1,63 @@
+*** Settings ***
+Library        Collections
+Library        HttpLibrary.HTTP
+Resource       http.txt
+Resource       ../common_keywords.txt
+
+*** Variables ***
+
+*** Keywords ***
+
+Create user and activate
+  [Documentation]  Create local user to home project
+  [Arguments]  ${username}  ${email}  ${password}  ${created}  ${author_id}  ${author_username}
+  Myget   /home/admin/users/create_local
+  Mypost  /home/admin/users/create_local  first=${username}&last=${username}&username=${username}&email=${email}&create=Create account
+  Myget   /home/admin/users/manage?username=${username}
+  Mypost  /home/admin/users/manage?username=${username}  local=on&username=${username}&first=${username}&last=${username}&email=${email}&status=2&created=${created}&author_id=${author_id}&author_text=${author_username}&password=${password}&confirmpw=${password}&save=Save changes
+
+Create group
+  [Documentation]  Create group to a certain project with one argument
+  [Arguments]  ${env_name}  ${group_name} ${permission}
+  Myget /${env_name}/admin/general/permissions
+  Mypost /${env_name}/admin/general/permissions  action=create_group&create_button=Create&group_name=${group_name}&group_perms=${permission}
+
+Add local user to group
+  [Documentation]  Add local user to certain group in certain project
+  [Arguments]  ${env_name}  ${group_name}  ${username}
+  Myget /${env_name}/admin/general/permissions
+  Mypost  /${env_name}/admin/general/permissions  action=add_member&add=Add&add_type=user&group=${group_name}&login_status=anonymous&member=${username}&organization=Local users
+
+Add permission to group
+  [Documentation]  Add certain permission to certain group in certain project
+  [Arguments]  ${env_name}  ${group_name}  ${permission}
+  Myget /${env_name}/admin/general/permissions
+  Mypost  /${env_name}/admin/general/permissions  action=add_permission&add=Add&group=${group_name}&permission=${permission}
+
+Add login status to group
+  [Documentation]  Add login status to certain group in certain project
+  [Arguments]  ${env_name}  ${group_name}  ${login_status}
+  Myget /${env_name}/admin/general/permissions
+  Mypost  /${env_name}/admin/general/permissions  action=add_member&add=Add&add_type=login_status&group=${group_name}&login_status=${login_status}&organization=Local users
+
+Get unique username
+  [Documentation]  Create a username that should not conflict with others
+  [Arguments]  ${prefix}=user
+  ${time}  Get time  epoch
+  ${name}  Set variable  ${prefix}${time}
+  [Return]  ${name}
+
+Get unique groupname
+  [Documentation]  Create a groupname that should not conflict with others
+  [Arguments]  ${prefix}=group
+  ${time}  Get time  epoch
+  ${name}  Set variable  ${prefix}${time}
+  [Return]  ${name}
+
+Get createad date
+  [Documentation]  Get today in US format
+  ${mont}=  Get time  month  NOW
+  ${day}=  Get time  day  NOW
+  ${year}=  Get time  year NOW
+  ${us_day}  Set variable ${month}/${day}/${year}
+  [Return]  ${us_day}

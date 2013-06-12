@@ -8,3 +8,4 @@ ${VALID_PASSWD}   tracadmin
 ${https_with_cred}    https://${VALID_USER}:${VALID_PASSWD}@${SERVER}:${HTTPS_PORT}
 ${https_proto}    ${PROTOCOL}://${SERVER}:${HTTPS_PORT}
 ${git_ssh}        ssh://git@${SERVER}:${SSH_PORT}
+${author_id}      4
