@@ -7,3 +7,25 @@ Get unique project name
   ${time}=         Get time  epoch
   ${name}=         Set variable  ${prefix}${time}
   [Return]         ${name}
+
+Get unique username
+  [Documentation]  Create a username that should not conflict with others
+  [Arguments]  ${prefix}=user
+  ${time}  Get time  epoch
+  ${name}  Set variable  ${prefix}${time}
+  [Return]  ${name}
+
+Get unique groupname
+  [Documentation]  Create a groupname that should not conflict with others
+  [Arguments]  ${prefix}=group
+  ${time}  Get time  epoch
+  ${name}  Set variable  ${prefix}${time}
+  [Return]  ${name}
+
+Get createad date
+  [Documentation]  Get today in US format
+  ${mont}=  Get time  month  NOW
+  ${day}=  Get time  day  NOW
+  ${year}=  Get time  year NOW
+  ${us_day}  Set variable ${month}/${day}/${year}
+  [Return]  ${us_day}

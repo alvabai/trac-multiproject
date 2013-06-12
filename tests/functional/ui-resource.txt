@@ -31,6 +31,23 @@ Remove project
     Click element   name=remove
     Click button   Confirm
 
+Create user
+    [Documentation]  Attempts to create local user
+    [Arguments]  ${username}  ${email}
+    Input text  first  ${username}
+    Input text  last  ${username}
+    Input text  email  ${email}
+    Click element  name=create
+
+Create group
+    [Documentation]  Attempts to create group to permissions with certain permission
+    [Arguments]  ${group_name}  ${permission}
+    Click element  id=new_group_button
+    Input text  group_name  ${group_name}
+    Click element  id=${permission}
+    Click element  name=create_button
+
+
 
 
 # vim:sw=4:ts=4
