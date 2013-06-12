@@ -47,6 +47,23 @@ Create group
     Click element  id=${permission}
     Click element  name=create_button
 
+Add user to group
+    [Documentation]  Attempts to add user to group
+    [Arguments]  ${group_name}  ${username}
+    Input text  id=${group_name}_member  ${username}.${username}
+    Click element  id=${group_name}_submit_btn
+
+Activate local user
+    [Documentation]  Attempts to activate local user and set password
+    [Arguments]  ${username}  ${password}
+    Select From List  id=states  2
+    Input Text  id=expires  ""
+    Input Password  name=password  ${password}
+    Input Password  name=confirmpw  ${password}
+    Click element  id=notify
+    Checkbox Should Not Be Selected  id=notify
+    Click element  name=save
+
 
 
 
