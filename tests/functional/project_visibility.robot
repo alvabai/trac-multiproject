@@ -12,6 +12,8 @@ Suite Teardown  Close Browser
 *** Test Cases ***
 
 Change public project to private
+    [Tags]      unstable
+    [Timeout]      3 minutes
     ${proj_name}  Get unique project name 
     Create new project    ${proj_name}
     Title should be  ${proj_name} - ${proj_name}
