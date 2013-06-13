@@ -31,6 +31,40 @@ Remove project
     Click element   name=remove
     Click button   Confirm
 
+Create user
+    [Documentation]  Attempts to create local user
+    [Arguments]  ${username}  ${email}
+    Input text  first  ${username}
+    Input text  last  ${username}
+    Input text  email  ${email}
+    Click element  name=create
+
+Create group
+    [Documentation]  Attempts to create group to permissions with certain permission
+    [Arguments]  ${group_name}  ${permission}
+    Click element  id=new_group_button
+    Input text  group_name  ${group_name}
+    Click element  id=${permission}
+    Click element  name=create_button
+
+Add user to group
+    [Documentation]  Attempts to add user to group
+    [Arguments]  ${group_name}  ${username}
+    Input text  id=${group_name}_member  ${username}.${username}
+    Click element  id=${group_name}_submit_btn
+
+Activate local user
+    [Documentation]  Attempts to activate local user and set password
+    [Arguments]  ${username}  ${password}
+    Select From List  id=states  2
+    Input Text  id=expires  ""
+    Input Password  name=password  ${password}
+    Input Password  name=confirmpw  ${password}
+    Click element  id=notify
+    Checkbox Should Not Be Selected  id=notify
+    Click element  name=save
+
+
 
 
 # vim:sw=4:ts=4
