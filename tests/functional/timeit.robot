@@ -2,6 +2,7 @@
 Documentation  Tests related for changing project visibility. 
 ...            Run with pybot --variable ENVIRONMENT:<server_resource> <testfile>
 Resource       ${ENVIRONMENT}.txt
+Resource       ../common_keywords.txt
 Library        OperatingSystem
 Test Timeout  2 minutes
 
@@ -14,7 +15,7 @@ ${login_times}  5
 Logging in should be quick
     [Tags]      unstable
     ${start}=  Get time  epoch
-    Log in ${login_times} times
+    Log in ${login_times} times with browser
     ${end}=  Get time  epoch
     Log  ${end}
     ${diff}=  Evaluate  (${end}-${start})/${login_times}
@@ -23,19 +24,12 @@ Logging in should be quick
 
 *** Keywords ***
 
-Log in and out
+Log in and out with browser
     Login
     Logout
     [TearDown]  Close Browser
 
-Log in ${arg} times
-    Repeat keyword  ${arg} times  Log in and out
-
-Save time info
-    [Documentation]  Save timing data to a csv file
-    [Arguments]  ${time}
-    Create file  data.csv  Time to log in\n
-    Append to file  data.csv   ${time}\n
-
+Log in ${arg} times with browser
+    Repeat keyword  ${arg} times  Log in and out with browser
 
 # vim:sw=4:ts=4

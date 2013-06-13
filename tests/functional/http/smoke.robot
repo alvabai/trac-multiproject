@@ -6,6 +6,8 @@ Suite Setup    Setup and create project  # creates ${suite_project} and ${suite_
 Suite Teardown  Logout
 
 *** Variables ***
+${proj_name}  test_project6
+${login_times}  5
 
 *** Test Cases ***
 
@@ -43,5 +45,15 @@ Changing project visibility should work
   Change project visibility  ${suite_project}  private
   [Teardown]  Change project visibility  ${suite_project}  public
 
-*** Keywords ***
 
+Backend respond to logging in should be quick
+    [Tags]      unstable
+    ${start}=  Get time  epoch
+    Log in ${login_times} times
+    ${end}=  Get time  epoch
+    Log  ${end}
+    ${diff}=  Evaluate  (${end}-${start})/${login_times}
+    Save time info  ${diff}
+
+
+*** Keywords ***
