@@ -12,6 +12,7 @@ ${proj_name}  home
 *** Test Cases ***
 
 Access to home project permission
+    [Tags]  Unstable
     Element should contain  tag=title  home
     Click link  Admin panel
     Title Should be  Administration: Edit categories - home

@@ -157,7 +157,7 @@
                     </select>
                 </div>
                 <div class="add_type_user">
-                    <input type="text" name="member" placeholder="Add user" />
+                    <input type="text" name="member" id="${group}_member" placeholder="Add user" />
                 </div>
                 <div class="add_type_organization">
                     <select name="organization" class="organization">
@@ -176,7 +176,7 @@
                 <div class="buttons">
                     <input type="hidden" name="action" value="add_member" />
                     <input type="hidden" name="group" value="${group}" />
-                    <input type="submit" value="Add" name="add" class="primaryButton"/>
+                    <input type="submit" id="${group}_submit_btn" value="Add" name="add" class="primaryButton"/>
                 </div>
             </form>
         </div>

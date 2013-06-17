@@ -10,4 +10,13 @@ Login
     Click Button  Login
     Location Should Be  ${WELCOME_PAGE}
 
+Login within testcase
+    [Documentation]  Login when login page is not already opened
+    [Arguments]   ${username}=${VALID_USER}  ${password}=${VALID_PASSWD}
+    Go to  ${SERVER}/home/user
+    Title Should be  ${LOGIN_TITLE}
+    Input Text  name=username  ${username} 
+    Input Password  name=password  ${password} 
+    Click Button  Login
+    Location Should Be  ${WELCOME_PAGE}
 # vim:sw=4:ts=4

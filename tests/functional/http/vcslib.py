@@ -23,7 +23,7 @@ def git_push():
     """Push commits to repository, provided that we are already in the repo.
     """
     # Git 1.7 requires that with the first push remote and branch are specified.
-    val = git("push", "-v")
+    val = git("push", "-v", "origin", "master")
     if val.exit_code != 0:
         raise ValueError ("Commit failed with status ", val)
     else:
