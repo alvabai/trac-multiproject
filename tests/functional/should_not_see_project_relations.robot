@@ -1,7 +1,7 @@
 *** Settings ***
 Documentation  Should not see project relations in Admin space
 Resource       ${ENVIRONMENT}.txt
-Test Timeout  1 minute
+Test Timeout  3 minutes
 Suite setup  Login
 Test Setup  Go to Welcome Page
 Suite Teardown  Close Browser
