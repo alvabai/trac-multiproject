@@ -15,7 +15,7 @@ Should not see project relations in Admin space
     ${proj_name}  Get unique project name 
     Create new project    ${proj_name}
     Page should not contain   ${failed_to_create}
-    Title should be  ${proj_name} - ${proj_name}
+    Check that title contains  ${proj_name} - ${proj_name}
     Click link  Admin
     Page should not contain   Project relations
 

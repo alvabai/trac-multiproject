@@ -11,7 +11,7 @@ Open Browser to Login Page
 
 Go to Welcome Page
     Go to  ${WELCOME_PAGE}
-    Element should contain  tag=title  home
+    Title should be  multiproject - home
 
 Logout
     Click Link  id=signOut
@@ -20,7 +20,7 @@ Create new project  [Arguments]  ${projname}
     [Documentation]  Attempt to create a new project, without verification of the result. 
     ...              Success is not checked, so that this kw can be used for failing case too.
     Click Link  Create new project >
-    Title should be  Create a New Project - home
+    Check that title contains  Create a New Project - home
     Input text  prj_long_name  ${projname}
     Input text  prj_description  This is a dummy test project
     Click button  id=submit_create_form
@@ -64,7 +64,17 @@ Activate local user
     Checkbox Should Not Be Selected  id=notify
     Click element  name=save
 
+Check that title contains
+    [Documentation]  Check thath title contains wanted string.
+    [Arguments]  ${content}
+    ${real_title}=  Get title
+    Should contain  ${real_title}  ${content}
 
 
+Check that element contains
+    [Documentation]  Wrapper around "Selenium2Library.Element should contain"
+    ...   keyword, adding retries.
+    [Arguments]  ${locator}  ${content}
+    Wait Until Keyword Succeeds  1 min  5 sec  Element should contain  ${locator}  ${content}
 
 # vim:sw=4:ts=4
