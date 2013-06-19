@@ -44,7 +44,7 @@ Hg clone over https should succeed
 
 Hg commit should succeed
   [Timeout]  5 min
-  Run until succeeds   hg clone  ${https_proto}/${suite_project}/hg/hg-repo  hg-repo
+  hg clone  ${https_proto}/${suite_project}/hg/hg-repo  hg-repo
   ${prev}=  cd  hg-repo
   ${time}=  Get time
   Create file  ${file}  ${time}
