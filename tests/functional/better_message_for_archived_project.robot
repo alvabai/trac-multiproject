@@ -16,6 +16,7 @@ ${not_found_message}  Environment not found
 *** Test Cases ***
 
 better warn message for archived project
+    [Tags]  unstable
     ${projname}  Get unique project name  test_archived_project
     Create new project  ${projname}
     Check that title contains  ${projname} - ${projname}
