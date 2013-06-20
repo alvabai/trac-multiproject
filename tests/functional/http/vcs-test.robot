@@ -39,7 +39,7 @@ Git commit over ssh should succeed
 
 Hg clone over https should succeed
   [Timeout]  4 min
-  Run until succeeds   hg clone  ${https_proto}/${suite_project}/hg/hg-repo  hg-repo
+  Hg clone  ${https_proto}/${suite_project}/hg/hg-repo  hg-repo
   [Teardown]  Remove directory  hg-repo  recursive=True
 
 Hg commit should succeed
