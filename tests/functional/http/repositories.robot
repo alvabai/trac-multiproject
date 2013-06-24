@@ -2,7 +2,7 @@
 Resource       ${ENVIRONMENT}.txt
 Resource       http.txt
 Suite Setup    Setup and create project  # creates project ${suite_project}
-Suite Teardown  Logout
+Suite Teardown  Cleanup and exit
 
 *** Variables ***
 
