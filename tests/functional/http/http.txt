@@ -64,8 +64,8 @@ Myget
   ${cookie_hdrs}=  Get Cookie Header  ${suite_cookies}
   Set Request Header  Cookie  ${cookie_hdrs}
   GET  ${url}
-  Log  ${url}
-  Save cookies
+  ${status}=  Get response status
+  Run Keyword If  '200' in '${status}'  Save cookies
 
 
 Mypost
@@ -148,5 +148,8 @@ Element Should contain
 Remove project
   [Arguments]  ${proj}
   Mypost  /${proj}/admin/general/system  action=remove&goto=/home&project=${proj}&remove=Remove project
+  Next Request May Not Succeed
+  Myget  /${proj}
+  Response body should contain  This project has been archived.
 
 # vim: syntax=robot
