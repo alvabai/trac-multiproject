@@ -53,6 +53,11 @@ Setup and create project
 Logout
   Myget  /home/user?action=logout
 
+Cleanup and exit
+  [Documentation]  Remove project and log out.
+  Remove project  ${suite_project}
+  Logout
+
 Myget
   [Documentation]  Make a GET request to the given url.
   [Arguments]  ${url}=/home
@@ -138,5 +143,10 @@ Element Should contain
   [Arguments]  ${body}  ${element}  ${content}
   ${body}=  Convert To String  ${body}
   htlib.Element Should contain  ${body}  ${element}  ${content}
+
+
+Remove project
+  [Arguments]  ${proj}
+  Mypost  /${proj}/admin/general/system  action=remove&goto=/home&project=${proj}&remove=Remove project
 
 # vim: syntax=robot

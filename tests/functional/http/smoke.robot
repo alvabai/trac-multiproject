@@ -3,7 +3,7 @@ Resource       ${ENVIRONMENT}.txt
 Resource       ../common_keywords.txt
 Resource       http.txt
 Suite Setup    Setup and create project  # creates ${suite_project} and ${suite_cookies}
-Suite Teardown  Logout
+Suite Teardown  Cleanup and exit
 
 *** Variables ***
 ${proj_name}  test_project6
