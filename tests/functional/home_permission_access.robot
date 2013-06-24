@@ -13,6 +13,6 @@ ${proj_name}  home
 
 Access to home project permission
     [Tags]  Unstable
-    Element should contain  tag=title  home
+    Check that title contains  home
     Click link  Admin panel
     Title Should be  Administration: Edit categories - home

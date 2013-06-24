@@ -63,7 +63,8 @@ class ArchiveSourceModule(Component):
 
     # Class variables
     browser_regx = re.compile('^(\/browser)\/?$')
-    archive_regx = re.compile('^(\/export)\/archive\/((?:[a-z][a-z0-9_]*))?$')
+    #/export/archive/repo_name
+    archive_regx = re.compile('^\/export\/archive\/[a-z][a-z0-9_-]{2,}$')
     formats = {
         'zip':{'ext':'zip', 'mime':'application/zip', 'desc':'Zip archive'},
         'tgz':{'ext':'tgz', 'mime':'application/x-gzip', 'desc':'Gzip archive'},

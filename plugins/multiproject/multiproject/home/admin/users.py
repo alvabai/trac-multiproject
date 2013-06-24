@@ -68,7 +68,7 @@ class UsersAdminPanel(Component):
 
         return 'admin_user_list.html', data
 
-    def check_author_and_deputies(self, changer_id, author_id, deputies):
+    def check_author_and_deputies(self, changer_id, author_id, deputies, req, uid):
         edit_perm = False
         if author_id != changer_id:
             for deputy in deputies:
@@ -77,6 +77,9 @@ class UsersAdminPanel(Component):
                     break
         else:
             edit_perm = True
+        if not edit_perm:
+            edit_perm = True
+            req.perm.require('USER_AUTHOR', Resource('user', id=uid))
         return edit_perm
 
     def edit_user(self, req):
@@ -104,7 +107,7 @@ class UsersAdminPanel(Component):
         # Check permissions and redirect to user listing (handy after editing the user)
         #req.perm.require('USER_AUTHOR', Resource('user', id=user.id))
         if self.check_author_and_deputies(changed_by.id,
-            user.author_id, userstore.get_deputies(user.id)) == False:
+            user.author_id, userstore.get_deputies(user.id), req, user.id) == False:
             add_warning(req, _("You don't have rights to edit user"))
             req.redirect(req.href("admin"))
 
@@ -292,7 +295,7 @@ class UsersAdminPanel(Component):
         #if perm.has_permission('USER_AUTHOR', resource):
         #    return self.back(req)
         if self.check_author_and_deputies(changed_by.id,
-            user.author_id, userstore.get_deputies(user.id)) == True:
+            user.author_id, userstore.get_deputies(user.id), req, user.id) == True:
             return_url = 'home/admin/users/manage?username='+user.username
             return req.redirect(return_url)
         else:

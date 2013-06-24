@@ -205,7 +205,8 @@ class GlobalLoginModule(Component):
         req.redirect(self.env.project_url)
 
     def _request_legal_approval(self, req, remote_user):
-        data = {'username': remote_user}
+        data = {'username': remote_user,
+                'domain': req.server_name}
         return "multiproject_legal.html", data, None
 
     def _do_approve(self, req):

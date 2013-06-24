@@ -16,7 +16,7 @@ Change public project to private
     [Timeout]      3 minutes
     ${proj_name}  Get unique project name 
     Create new project    ${proj_name}
-    Title should be  ${proj_name} - ${proj_name}
+    Check that title contains  ${proj_name} - ${proj_name}
     Click link  Admin
     Click link  Permissions
     Click element  name=makeprivate
@@ -32,9 +32,9 @@ Removing project should succeed
     [Tags]      unstable
     ${projname}  Get unique project name 
     Create new project  ${projname}
-    Title should be  ${projname} - ${projname}
+    Check that title contains  ${projname} - ${projname}
     Remove project  ${projname}
-    Title should be  My projects - home
+    Check that title contains  My projects - home
     Page should not contain  ${projname}
 
 

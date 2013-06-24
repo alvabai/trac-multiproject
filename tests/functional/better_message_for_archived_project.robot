@@ -16,11 +16,12 @@ ${not_found_message}  Environment not found
 *** Test Cases ***
 
 better warn message for archived project
+    [Tags]  unstable
     ${projname}  Get unique project name  test_archived_project
     Create new project  ${projname}
-    Title should be  ${projname} - ${projname}
+    Check that title contains  ${projname} - ${projname}
     Remove project  ${projname}
-    Title should be  My projects - home
+    Check that title contains  My projects - home
     Page should not contain  ${projname}
     Go to        ${SERVER}/${proj_name}
     Page should contain  ${archived_message}
