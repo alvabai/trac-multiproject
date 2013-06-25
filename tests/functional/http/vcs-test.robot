@@ -105,7 +105,6 @@ Create project with default repositories
 
 Run until succeeds
   [Arguments]  ${kw}  @{args}
-  [Timeout]  65s
   :FOR  ${i}  IN RANGE  22
   \     ${status}=  Run keyword and return status  ${kw}  @{args}
   \     Log  ${status}
