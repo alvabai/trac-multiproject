@@ -3,7 +3,7 @@ Resource       ${ENVIRONMENT}.txt
 Resource       ../common_keywords.txt
 Resource       http.txt
 Suite Setup    Setup and create project  # creates ${suite_project} and ${suite_cookies}
-Suite Teardown  Logout
+Suite Teardown  Cleanup and exit
 
 *** Variables ***
 ${proj_name}  test_project6
@@ -53,7 +53,7 @@ Backend respond to logging in should be quick
     ${end}=  Get time  epoch
     Log  ${end}
     ${diff}=  Evaluate  (${end}-${start})/${login_times}
-    Save time info  ${diff}
+    [Teardown]  Login
 
 
 *** Keywords ***

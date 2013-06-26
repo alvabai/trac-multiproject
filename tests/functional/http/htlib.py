@@ -100,6 +100,20 @@ def element_should_contain(html, elem, content):
     if (status != True):
         raise  ValueError("element '%s' does not contain value '%s'." % (elem, content))
 
+def element_should_not_contain(html, elem, content):
+    from bs4 import BeautifulSoup
+    import sys
+    soup = BeautifulSoup(html)
+    status = False
+    print ("*TRACE* going trough children of '%s' " % elem)
+    for item in soup.find_all(elem):
+        print ("*TRACE* found child: %s\n" % item ) 
+        if content not in str(item):
+            status = True
+
+    if (status != True):
+        raise  ValueError("element '%s' does contain value '%s'." % (elem, content))
+
 
 
 if __name__ == "__main__":

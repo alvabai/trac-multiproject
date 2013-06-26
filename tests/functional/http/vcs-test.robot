@@ -4,6 +4,7 @@ Resource      ${ENVIRONMENT}.txt
 Resource      http.txt
 Library       Operating System
 Suite Setup   Create project with default repositories  # creates project ${suite_project}
+Suite Teardown  Cleanup and exit
 Test Setup    Cd to temp dir
 Test Timeout  2 minutes
 
@@ -104,7 +105,6 @@ Create project with default repositories
 
 Run until succeeds
   [Arguments]  ${kw}  @{args}
-  [Timeout]  65s
   :FOR  ${i}  IN RANGE  22
   \     ${status}=  Run keyword and return status  ${kw}  @{args}
   \     Log  ${status}
