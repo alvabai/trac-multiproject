@@ -4,6 +4,7 @@ Resource      ${ENVIRONMENT}.txt
 Resource      http.txt
 Library       Operating System
 Suite Setup   Create project with default repositories  # creates project ${suite_project}
+Suite Teardown  Cleanup and exit
 Test Setup    Cd to temp dir
 Test Timeout  2 minutes
 
@@ -38,16 +39,18 @@ Git commit over ssh should succeed
   [Teardown]  Remove directory  git-repo  recursive=True
 
 Hg clone over https should succeed
-  Run until succeeds   hg clone  ${https_proto}/${suite_project}/hg/hg-repo  hg-repo
+  [Timeout]  4 min
+  Hg clone  ${https_proto}/${suite_project}/hg/hg-repo  hg-repo
   [Teardown]  Remove directory  hg-repo  recursive=True
 
 Hg commit should succeed
-  Run until succeeds   hg clone  ${https_proto}/${suite_project}/hg/hg-repo  hg-repo
+  [Timeout]  5 min
+  hg clone  ${https_proto}/${suite_project}/hg/hg-repo  hg-repo
   ${prev}=  cd  hg-repo
   ${time}=  Get time
   Create file  ${file}  ${time}
-  Run until succeeds   Hg commit  ${VALID_USER}  ${file}  new commit at ${time}
-  Run until succeeds   Hg push  ${https_with_cred}/${suite_project}/hg/hg-repo
+  Hg commit  ${VALID_USER}  ${file}  new commit at ${time}
+  Hg push  ${https_with_cred}/${suite_project}/hg/hg-repo
   Verify file from ui  ${https_proto}/${suite_project}/browser/hg-repo/${file}  ${time}
   [Teardown]  Remove directory  ${prev}/hg-repo  recursive=True
 

@@ -35,9 +35,9 @@ Create local users to system should be success
     ${suite_user3}=  Get unique username  user3
     Set Suite Variable  ${suite_user3}
     Click link  Admin panel
-    Title should be  Administration: Edit categories - home
+    Check that title contains  Administration: Edit categories - home
     Click link  Create user
-    Title should be  Administration: Create User - home
+    Check that title contains  Administration: Create User - home
     Create user  ${suite_user}  ${suite_email}
     Page should contain  Created new local user: ${suite_user}
     Create user  ${suite_user2}  ${suite_email}
@@ -60,7 +60,7 @@ Create group to system should be success
     ${suite_group}=  Get unique groupname
     Set Suite Variable  ${suite_group}
     Go to  ${SERVER}/home/admin/general/permissions
-    Title should be  Administration: Permissions - home
+    Check that title contains  Administration: Permissions - home
     Create group  ${suite_group}  ${USER_AUTHOR}
     Page should contain  ${suite_group}
 

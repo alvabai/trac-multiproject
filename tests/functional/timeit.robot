@@ -2,7 +2,7 @@
 Documentation  Tests related for changing project visibility. 
 ...            Run with pybot --variable ENVIRONMENT:<server_resource> <testfile>
 Resource       ${ENVIRONMENT}.txt
-Resource       ../common_keywords.txt
+Resource       common_keywords.txt
 Library        OperatingSystem
 Test Timeout  2 minutes
 
