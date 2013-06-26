@@ -84,7 +84,7 @@ Deputies should work as defined
     Go to  ${SERVER}/home/admin/users/manage
     Page Should Not Contain  ${suite_user}.${suite_user}
     Go to  ${SERVER}/home/admin/users/manage?username=${suite_user}.${suite_user}
-    Location Should Be  ${SERVER}/home/admin
+    Page should contain  USER_AUTHOR privileges are required to perform this operation on user:
     Logout
     Login within testcase  ${VALID_USER}  ${VALID_PASSWD}
     Go to  ${SERVER}/home/admin/users/manage?username=${suite_user3}.${suite_user3}
