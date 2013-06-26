@@ -22,7 +22,6 @@ ctxtnavitems should not be shown if only 1 ticket
   ${body}=  Get Response Body
   Element Should contain  ${body}  h1  Create New Ticket
   Create ticket  /${proj_name}/newticket  ticket1  testing ticket
-  Show Response Body in Browser
   ${body}=  Get Response Body
   Element Should contain  ${body}  a  Ticket #1
   Element Should Not contain  ${body}  li  ← Previous Ticket
@@ -33,7 +32,6 @@ ctxtnavitems should be shown if there is more than 1 ticket
   Element Should contain  ${body}  h1  Create New Ticket
   Create ticket  /${proj_name}/newticket  ticket2  testing ticket
   Myget  /${proj_name}/ticket/2
-  Show Response Body in Browser
   ${body}=  Get Response Body
   Element Should contain  ${body}  a  Ticket #2
   Element Should contain  ${body}  a  Previous Ticket
