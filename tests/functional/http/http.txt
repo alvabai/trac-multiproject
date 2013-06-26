@@ -55,6 +55,7 @@ Logout
 
 Cleanup and exit
   [Documentation]  Remove project and log out.
+  Login
   Remove project  ${suite_project}
   Logout
 
