@@ -1032,20 +1032,7 @@ class MappedFileNode(FileSystemNode):
             add_warning(req, _("The file you tried to download is not a file."))
             raise InvalidOperationError("File is not file")
         elif self.is_download():
-            not_existing_download = True
-            if not self.download().is_available():
-                add_warning(req, _("Cannot show file: "
-                    "The file does not have any download information available. "))
-            elif not self.download().is_same_file(self):
-                add_warning(req, _("Cannot show file: "
-                    "The file does not have correct download information available."))
-                self.download().delete()
-            else:
-                not_existing_download = False
-            if not_existing_download:
-                conf.log.error("Error with download entry when showing MappedFileNode: %s"%self)
-                # This should not happen, since the files should always have download information.
-                raise InvalidOperationError("The operation was invalid")
+            pass
 
         fd = open(self._abs_path_encoded, "rb")
         success = False
