@@ -77,4 +77,12 @@ Check that element contains
     [Arguments]  ${locator}  ${content}
     Wait Until Keyword Succeeds  1 min  5 sec  Element should contain  ${locator}  ${content}
 
+Create ticket
+    [Documentation]  Creates ticket for a project
+    [Arguments]  ${summary}  ${description}
+    Input text  id=field-summary  ${summary}
+    Input text  id=field-description  ${description}
+    Click element  name=submit
+
+
 # vim:sw=4:ts=4
