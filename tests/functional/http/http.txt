@@ -144,6 +144,14 @@ Element Should contain
   ${body}=  Convert To String  ${body}
   htlib.Element Should contain  ${body}  ${element}  ${content}
 
+Element Should Not contain
+  # This keyword is used to get rid of unicode conversion errors
+  [Documentation]  Check that not in the content, some of the given element's
+  ...              children contains the given string.
+  [Arguments]  ${body}  ${element}  ${content}
+  ${body}=  Convert To String  ${body}
+  htlib.Element Should Not contain  ${body}  ${element}  ${content}
+
 
 Remove project
   [Arguments]  ${proj}
@@ -151,5 +159,10 @@ Remove project
   Next Request May Not Succeed
   Myget  /${proj}
   Response body should contain  This project has been archived.
+
+Create ticket
+  [Documentation]  Creates a ticket to a project
+  [Arguments]  ${url}  ${field_summary}  ${field_description}  ${field_type}=defect  ${field_priority}=major  ${reporter}=${VALID_USER}
+  Mypost  ${url}  field_summary=${field_summary}&field_reporter=${reporter}&__EDITOR__1=textarea&field_description=${field_description}&field_type=${field_type}&field_priority=${field_priority}&field_keywords=&add_cc_list_member=&field_cc=&field_blockedby=&field_blocking=&field_parent=&field_owner=&submit=Create+ticket
 
 # vim: syntax=robot
