@@ -2,6 +2,12 @@
 # Script for logging svn commit to analytics
 source /etc/trac/env.sh
 
+# Sync svn repo
+PROJECT_DIR="/project/trac/projects"
+project=`echo $1 | sed 's@/svn/.*@@;s@.*/@@'`
+repo=`echo $1 | sed 's@.*/@@'`
+trac-admin $PROJECT_DIR/$project changeset added "$repo" "$2"
+
 REPOS="$1"
 REV="$2"
 AUTHOR=$(svnlook author ${REPOS} --revision ${REV})
