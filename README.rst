@@ -11,6 +11,7 @@ page: https://github.com/nokia-developer/trac-multiproject
 Complete documentation can be found from ``docs/`` folder.
 
 See also the related subprojects:
+
 * BatchModify
 * ChildTickets
 * Discussion 
